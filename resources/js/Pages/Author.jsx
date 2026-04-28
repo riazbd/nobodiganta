@@ -44,7 +44,7 @@ export default function Author({ author, articles }) {
 
   return (
     <>
-      <Head title={`${name} | ${lang === 'bn' ? 'প্রথম প্রভাতী' : 'Prothom Provati'}`} />
+      <Head title={`${name} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
 
       <div>
         {/* Author profile header */}

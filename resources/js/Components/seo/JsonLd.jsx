@@ -9,7 +9,7 @@ function usePublisher() {
   const settings = props.settings || {};
   const siteUrl = window.location.origin;
   const logoUrl = settings.site_logo || `${siteUrl}/icons/icon-192.png`;
-  const siteName = settings.site_name || 'প্রথম প্রভাতী';
+  const siteName = settings.site_name || 'নব দিগন্ত';
   const fbUrl = settings.facebook_url;
   const twUrl = settings.twitter_url;
   const ytUrl = settings.youtube_url;
@@ -140,7 +140,7 @@ export function WebSiteJsonLd() {
   const { props } = usePage();
   const settings = props.settings || {};
   const siteUrl = window.location.origin;
-  const siteName = settings.site_name || 'প্রথম প্রভাতী';
+  const siteName = settings.site_name || 'নব দিগন্ত';
 
   const schema = {
     '@context': 'https://schema.org',

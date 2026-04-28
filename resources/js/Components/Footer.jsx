@@ -9,7 +9,7 @@ export default function Footer() {
 
   const nav = (page, sub) => () => onNavigate(page, sub);
 
-  const siteName = settings.site_name || (lang === 'bn' ? 'প্রথম প্রভাতী' : 'Prothom Provati');
+  const siteName = settings.site_name || (lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto');
   const facebookUrl = settings.facebook_url || 'https://facebook.com';
   const twitterUrl = settings.twitter_url || 'https://twitter.com';
   const youtubeUrl = settings.youtube_url || 'https://youtube.com';

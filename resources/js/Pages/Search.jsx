@@ -36,7 +36,7 @@ export default function Search({ query: initialQuery, articles }) {
 
   return (
     <>
-      <Head title={`${lang === 'bn' ? 'অনুসন্ধান' : 'Search'}: ${initialQuery} | ${lang === 'bn' ? 'প্রথম প্রভাতী' : 'Prothom Provati'}`} />
+      <Head title={`${lang === 'bn' ? 'অনুসন্ধান' : 'Search'}: ${initialQuery} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
       <div className="article-layout">
         <div>
           <div className="srch-bar">

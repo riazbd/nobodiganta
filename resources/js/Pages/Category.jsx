@@ -74,7 +74,7 @@ export default function Category({ category, articles }) {
 
   return (
     <>
-      <Head title={`${catName} | ${lang === 'bn' ? 'প্রথম প্রভাতী' : 'Prothom Provati'}`} />
+      <Head title={`${catName} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
 
       <div>
         {/* Category banner */}

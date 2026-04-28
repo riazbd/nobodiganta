@@ -15,7 +15,7 @@ export default function Tag({ tag, articles }) {
 
   return (
     <>
-      <Head title={`#${tagName} | ${lang === 'bn' ? 'প্রথম প্রভাতী' : 'Prothom Provati'}`} />
+      <Head title={`#${tagName} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
       <div className="article-layout">
         <div className="article-main">
           <div className="sec-hdr" style={{ marginBottom: 20 }}>

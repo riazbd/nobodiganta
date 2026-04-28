@@ -16,7 +16,7 @@ class SettingSeeder extends Seeder
             // General
             [
                 'key' => 'site_name',
-                'value' => 'প্রথম প্রভাতী',
+                'value' => 'নব দিগন্ত',
                 'group' => 'general',
                 'type' => 'text',
                 'label_bn' => 'সাইটের নাম',
@@ -85,7 +85,7 @@ class SettingSeeder extends Seeder
             // SEO
             [
                 'key' => 'meta_title',
-                'value' => 'প্রথম প্রভাতী - নির্ভরযোগ্য সংবাদ মাধ্যম',
+                'value' => 'নব দিগন্ত - নির্ভরযোগ্য সংবাদ মাধ্যম',
                 'group' => 'seo',
                 'type' => 'text',
                 'label_bn' => 'মেটা টাইটেল',
@@ -94,7 +94,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'meta_description',
-                'value' => 'প্রথম প্রভাতী বাংলাদেশের অন্যতম শীর্ষস্থানীয় অনলাইন সংবাদ মাধ্যম।',
+                'value' => 'নব দিগন্ত বাংলাদেশের অন্যতম শীর্ষস্থানীয় অনলাইন সংবাদ মাধ্যম।',
                 'group' => 'seo',
                 'type' => 'textarea',
                 'label_bn' => 'মেটা বর্ণনা',

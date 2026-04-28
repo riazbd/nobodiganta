@@ -18,7 +18,7 @@ export default function Header() {
   const { onNavigate }     = useNavigation();
   const { searchQuery, setSearchQuery, onSearch } = useSearch();
 
-  const siteName = settings.site_name    || (lang === 'bn' ? 'প্রথম প্রভাতী'       : 'Prothom Provati');
+  const siteName = settings.site_name    || (lang === 'bn' ? 'নব দিগন্ত'       : 'Nobo Digonto');
   const tagline  = settings.site_tagline || (lang === 'bn' ? 'সঠিক সংবাদ সবার আগে' : 'Trusted News First');
   const logoUrl  = settings.site_logo    || null;
 

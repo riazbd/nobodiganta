@@ -5,10 +5,10 @@ import { useApp } from '../contexts/AppContext';
 
 export default function About() {
   const { lang, settings } = useApp();
-  const siteName = settings.site_name || (lang === 'bn' ? 'প্রথম প্রভাতী' : 'Prothom Provati');
+  const siteName = settings.site_name || (lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto');
   
   const milestones = lang === 'bn' ? [
-    ['২০১০', `${siteName}র যাত্রা শুরু ১ জানুয়ারি। শহীদুল ইসলামের সম্পাদনায় প্রথম সংখ্যা প্রকাশিত হয়।`],
+    ['২০১০', `${siteName}র যাত্রা শুরু ১ জানুয়ারি। শহীদুল ইসলামের সম্পদনায় প্রথম সংখ্যা প্রকাশিত হয়।`],
     ['২০১৩', 'অনলাইন সংস্করণ চালু। ডিজিটাল সাংবাদিকতায় নতুন যুগের সূচনা।'],
     ['২০১৬', 'মোবাইল অ্যাপ লঞ্চ। স্মার্টফোনে সংবাদ পাঠের নতুন যুগ।'],
     ['২০১৯', 'দশ বছর পূর্তি। প্রচার সংখ্যা পাঁচ লাখ ছাড়িয়ে যায়।'],

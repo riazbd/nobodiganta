@@ -41,7 +41,7 @@ export default function Liveblog({ article, initialUpdates = [] }) {
   
   return (
     <>
-      <Head title={`${displayTitle || (lang === 'bn' ? 'লাইভ আপডেট' : 'Live Updates')} | ${lang === 'bn' ? 'প্রথম প্রভাতী' : 'Prothom Provati'}`} />
+      <Head title={`${displayTitle || (lang === 'bn' ? 'লাইভ আপডেট' : 'Live Updates')} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
       <div className="article-layout">
         <div className="article-main">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>

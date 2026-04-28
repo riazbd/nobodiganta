@@ -29,7 +29,7 @@ export default function Regional({ division: activeDivision = 'dhaka', articles 
 
   return (
     <>
-      <Head title={`${lang === 'bn' ? 'সারাদেশ' : 'Regional News'} | ${lang === 'bn' ? 'প্রথম প্রভাতী' : 'Prothom Provati'}`} />
+      <Head title={`${lang === 'bn' ? 'সারাদেশ' : 'Regional News'} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
       <div className="article-layout">
         <div className="article-main">
           <div className="sec-hdr" style={{ marginBottom: 16 }}>

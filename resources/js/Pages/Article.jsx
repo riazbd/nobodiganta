@@ -98,7 +98,7 @@ export default function Article({
 
   return (
     <>
-      <Head title={`${article.title} | ${lang === 'bn' ? 'প্রথম প্রভাতী' : 'Prothom Provati'}`} />
+      <Head title={`${article.title} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
 
       {/* Reading progress bar */}
       <div

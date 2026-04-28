@@ -42,7 +42,7 @@ export default function Archive({ year: initialYear, month: initialMonth, day: i
 
   return (
     <>
-      <Head title={`${t('archive.title', lang)} | ${lang === 'bn' ? 'প্রথম প্রভাতী' : 'Prothom Provati'}`} />
+      <Head title={`${t('archive.title', lang)} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
       <div className="g-side" style={{ marginBottom: 18 }}>
         <div className="sec">
           <div className="sec-hdr"><div className="sec-ttl">{t('archive.title', lang)}</div></div>

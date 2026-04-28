@@ -496,7 +496,7 @@ export default function Home({
 
   return (
     <div>
-      <Head title={lang === 'bn' ? 'প্রথম প্রভাতী | বিশ্বস্ত সংবাদের উৎস' : 'Prothom Provati | Trusted News'} />
+      <Head title={lang === 'bn' ? 'নব দিগন্ত | বিশ্বস্ত সংবাদের উৎস' : 'Nobo Digonto | Trusted News'} />
 
       {/* ── Top leaderboard ── */}
       <div className="hp-ad-top"><AdSlot size="leaderboard" position="home_top" /></div>

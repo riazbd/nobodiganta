@@ -31,8 +31,8 @@ class CommentSeeder extends Seeder
                 'en' => 'I do not agree with this opinion. The matter needs to be looked into more deeply.',
             ],
             [
-                'bn' => 'তথ্যবহুল সংবাদ। ধন্যবাদ প্রথম প্রভাতী।',
-                'en' => 'Informative news. Thank you, Prothom Provati.',
+                'bn' => 'তথ্যবহুল সংবাদ। ধন্যবাদ নব দিগন্ত।',
+                'en' => 'Informative news. Thank you, Nobo Digonto.',
             ],
             [
                 'bn' => 'এই ঘটনার সুষ্ঠু তদন্ত দাবি করছি।',
