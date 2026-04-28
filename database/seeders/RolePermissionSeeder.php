@@ -251,7 +251,7 @@ class RolePermissionSeeder extends Seeder
         $superAdminRole = Role::where('name', 'super_admin')->first();
 
         $user = User::updateOrCreate(
-            ['email' => 'admin@provati.com'],
+            ['email' => 'admin@nobodigonto.com'],
             [
                 'name' => 'Super Admin',
                 'password' => Hash::make('password'),

@@ -85,7 +85,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'webpush' => [
-        'vapid_subject' => env('WEBPACK_VAPID_SUBJECT', 'mailto:admin@provati.com'),
+        'vapid_subject' => env('WEBPACK_VAPID_SUBJECT', 'mailto:admin@nobodigonto.com'),
         'vapid_public_key' => env('WEBPACK_VAPID_PUBLIC_KEY'),
         'vapid_private_key' => env('WEBPACK_VAPID_PRIVATE_KEY'),
     ],

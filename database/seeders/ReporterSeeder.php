@@ -22,7 +22,7 @@ class ReporterSeeder extends Seeder
                 'designation_en' => 'Special Correspondent',
                 'bio_bn' => 'আনিসুল হক একজন প্রখ্যাত বাংলাদেশী লেখক, নাট্যকার ও সাংবাদিক।',
                 'bio_en' => 'Anisul Hoque is a renowned Bangladeshi author, playwright, and journalist.',
-                'email' => 'anisul.hoque@provati.com',
+                'email' => 'anisul.hoque@nobodigonto.com',
             ],
             [
                 'name_bn' => 'মতিউর রহমান',
@@ -31,7 +31,7 @@ class ReporterSeeder extends Seeder
                 'designation_en' => 'Editor',
                 'bio_bn' => 'মতিউর রহমান একজন অভিজ্ঞ সাংবাদিক এবং সংবাদপত্রের সম্পাদক।',
                 'bio_en' => 'Matiur Rahman is an experienced journalist and newspaper editor.',
-                'email' => 'matiur.rahman@provati.com',
+                'email' => 'matiur.rahman@nobodigonto.com',
             ],
             [
                 'name_bn' => 'তসলিমা নাসরিন',
@@ -40,7 +40,7 @@ class ReporterSeeder extends Seeder
                 'designation_en' => 'Columnist',
                 'bio_bn' => 'তসলিমা নাসরিন একজন প্রখ্যাত কলামিস্ট এবং নারীবাদী লেখিকা।',
                 'bio_en' => 'Taslima Nasrin is a prominent columnist and feminist writer.',
-                'email' => 'taslima.nasrin@provati.com',
+                'email' => 'taslima.nasrin@nobodigonto.com',
             ],
             [
                 'name_bn' => 'জাহিদ হাসান',
@@ -49,7 +49,7 @@ class ReporterSeeder extends Seeder
                 'designation_en' => 'Sports Journalist',
                 'bio_bn' => 'জাহিদ হাসান ১০ বছরেরও বেশি সময় ধরে ক্রীড়া সাংবাদিকতায় নিয়োজিত।',
                 'bio_en' => 'Zahid Hasan has been involved in sports journalism for over 10 years.',
-                'email' => 'zahid.hasan@provati.com',
+                'email' => 'zahid.hasan@nobodigonto.com',
             ],
             [
                 'name_bn' => 'ফারজানা রুপা',
@@ -58,7 +58,7 @@ class ReporterSeeder extends Seeder
                 'designation_en' => 'Senior Reporter',
                 'bio_bn' => 'ফারজানা রুপা রাজনৈতিক ও সামাজিক ইস্যুতে অনুসন্ধানী প্রতিবেদন করে থাকেন।',
                 'bio_en' => 'Farzana Rupa specializes in investigative reports on political and social issues.',
-                'email' => 'farzana.rupa@provati.com',
+                'email' => 'farzana.rupa@nobodigonto.com',
             ],
         ];
 

@@ -262,8 +262,8 @@ class Article extends Model
         if (!$this->author) {
             return [
                 'id' => 0,
-                'name' => 'Provati Desk',
-                'slug' => 'provati-desk',
+                'name' => 'Nobo Digonto Desk',
+                'slug' => 'nobodigonto-desk',
             ];
         }
 

@@ -13,7 +13,7 @@ class MoreArticlesSeeder extends Seeder
 {
     public function run(): void
     {
-        $author = User::where('email', 'editor@provati.com')->first()
+        $author = User::where('email', 'editor@nobodigonto.com')->first()
             ?? User::where('role', 'editor_in_chief')->first()
             ?? User::first();
 

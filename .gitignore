@@ -1,24 +1,60 @@
-*.log
-.DS_Store
-.env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
+# Dependencies
 /node_modules
+/vendor
+
+# Laravel build / cache
 /public/build
 /public/hot
-/public/storage
+/bootstrap/cache/*.php
+
+# Storage (keep directory structure via .gitkeep)
 /storage/*.key
 /storage/pail
-/vendor
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/app/public/*
+!storage/**/.gitkeep
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Symlinked public storage
+/public/storage
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+/.idea
+/.vscode
+/.nova
+/.zed
+/.fleet
+*.swp
+*.swo
+
+# PHP
+*.log
+.phpunit.result.cache
+/.phpunit.cache
+/auth.json
+.phpactor.json
+
+# Vagrant / Homestead
 Homestead.json
 Homestead.yaml
-Thumbs.db
+
+# AI tool settings (local only)
+.claude/
+.qwen/
+
+# Temporary / debug scripts
+fix_*.cjs
+fix_*.js
+test_*.php
+test_*.js

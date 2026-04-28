@@ -16,9 +16,9 @@ class TestDataSeeder extends Seeder
 {
     public function run(): void
     {
-        $author = User::where('email', 'editor@provati.com')->first() ?: User::create([
+        $author = User::where('email', 'editor@nobodigonto.com')->first() ?: User::create([
             'name'     => 'Rahim Ahmed',
-            'email'    => 'editor@provati.com',
+            'email'    => 'editor@nobodigonto.com',
             'password' => Hash::make('password123'),
             'role'     => 'editor_in_chief',
         ]);

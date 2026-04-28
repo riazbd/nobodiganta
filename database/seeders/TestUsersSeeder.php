@@ -27,7 +27,7 @@ class TestUsersSeeder extends Seeder
             
             User::create([
                 'name' => 'Staff Member ' . $i,
-                'email' => 'staff' . $i . '@provati.com',
+                'email' => 'staff' . $i . '@nobodigonto.com',
                 'password' => Hash::make('password'),
                 'role' => $roleName,
                 'role_id' => $role?->id,

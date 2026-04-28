@@ -56,7 +56,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'contact_email',
-                'value' => 'info@provati.com',
+                'value' => 'info@nobodigonto.com',
                 'group' => 'general',
                 'type' => 'text',
                 'label_bn' => 'যোগাযোগ ইমেইল',
@@ -105,7 +105,7 @@ class SettingSeeder extends Seeder
             // Social
             [
                 'key' => 'facebook_url',
-                'value' => 'https://facebook.com/prothomprovati',
+                'value' => 'https://facebook.com/nobodigonto',
                 'group' => 'social',
                 'type' => 'text',
                 'label_bn' => 'ফেসবুক লিঙ্ক',
@@ -114,7 +114,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'twitter_url',
-                'value' => 'https://twitter.com/prothomprovati',
+                'value' => 'https://twitter.com/nobodigonto',
                 'group' => 'social',
                 'type' => 'text',
                 'label_bn' => 'টুইটার লিঙ্ক',
@@ -123,7 +123,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'youtube_url',
-                'value' => 'https://youtube.com/prothomprovati',
+                'value' => 'https://youtube.com/nobodigonto',
                 'group' => 'social',
                 'type' => 'text',
                 'label_bn' => 'ইউটিউব লিঙ্ক',
@@ -190,7 +190,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'publisher_name_en',
-                'value' => 'Provati Media Ltd.',
+                'value' => 'nobodigonto Media Ltd.',
                 'group' => 'legal',
                 'type' => 'text',
                 'label_bn' => 'প্রকাশকের নাম (ইংরেজি)',
