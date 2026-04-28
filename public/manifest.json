@@ -1,0 +1,129 @@
+{
+  "name": "নবদিগন্ত - বাংলাদেশের শীর্ষ দ্বিভাষিক নিউজ পোর্টাল",
+  "short_name": "নবদিগন্ত",
+  "description": "Bangladesh's leading bilingual news portal - Bangla & English editions",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#e8001e",
+  "background_color": "#ffffff",
+  "lang": "bn",
+  "dir": "ltr",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "ব্রেকিং নিউজ",
+      "short_name": "Breaking",
+      "description": "Latest breaking news",
+      "url": "/category/breaking",
+      "icons": [
+        {
+          "src": "/icons/shortcut-breaking.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "ক্রিকেট",
+      "short_name": "Cricket",
+      "description": "Cricket news and updates",
+      "url": "/cricket",
+      "icons": [
+        {
+          "src": "/icons/shortcut-cricket.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "ইংরেজি সংস্করণ",
+      "short_name": "English",
+      "description": "English edition",
+      "url": "/en",
+      "icons": [
+        {
+          "src": "/icons/shortcut-english.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "NoboDiganta Homepage - Desktop"
+    },
+    {
+      "src": "/screenshots/home-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "NoboDiganta Homepage - Mobile"
+    },
+    {
+      "src": "/screenshots/article-page.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Article Page"
+    }
+  ],
+  "categories": ["news", "magazine", "politics", "sports", "entertainment"],
+  "prefer_related_applications": false
+}

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /api/admin/
+
+Sitemap: https://nobodiganta.com/sitemap.xml
+Sitemap: https://nobodiganta.com/sitemap-news.xml
