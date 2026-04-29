@@ -71,10 +71,17 @@ export default function MediaLibrary({ onSelect = null }) {
         onSuccess: () => {
           showToast(lang === 'bn' ? 'নির্বাচিত মিডিয়া মুছে ফেলা হয়েছে' : 'Selected media deleted');
           setSelectedItems([]);
-          router.reload({ only: ['media'] });
         },
         onError: () => showToast(lang === 'bn' ? 'মুছতে সমস্যা হয়েছে' : 'Failed to delete', 'error'),
       });
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItems.length === media.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(media.map(item => item.id));
     }
   };
 
@@ -82,27 +89,15 @@ export default function MediaLibrary({ onSelect = null }) {
     setSelectedItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
-  const handleUpdate = async (e) => {
+  const handleUpdate = (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch(route('admin.media.update', { media: selectedMedia.id }), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(editData),
-      });
-      const data = await response.json();
-      if (data.success) {
+    router.put(route('admin.media.update', { media: selectedMedia.id }), editData, {
+      onSuccess: () => {
         showToast(lang === 'bn' ? 'মিডিয়া তথ্য আপডেট করা হয়েছে' : 'Media updated successfully');
         setIsEditing(false);
-        router.reload({ only: ['media'] });
-      }
-    } catch (err) {
-      showToast(lang === 'bn' ? 'আপডেট ব্যর্থ হয়েছে' : 'Update failed', 'error');
-    }
+      },
+      onError: () => showToast(lang === 'bn' ? 'আপডেট ব্যর্থ হয়েছে' : 'Update failed', 'error'),
+    });
   };
 
   const startEditing = (item) => {
@@ -121,35 +116,27 @@ export default function MediaLibrary({ onSelect = null }) {
     setIsEditing(true);
   };
 
-  const handleUpload = async (e) => {
+  const handleUpload = (e) => {
     e.preventDefault();
     const file = e.target.file.files[0];
     if (!file) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('edition', uploadData.edition);
-    if (uploadData.alt_text_bn) formData.append('alt_text_bn', uploadData.alt_text_bn);
-    if (uploadData.alt_text_en) formData.append('alt_text_en', uploadData.alt_text_en);
-    if (uploadData.caption_bn) formData.append('caption_bn', uploadData.caption_bn);
-    if (uploadData.caption_en) formData.append('caption_en', uploadData.caption_en);
-    if (uploadData.credit_bn) formData.append('credit_bn', uploadData.credit_bn);
-    if (uploadData.credit_en) formData.append('credit_en', uploadData.credit_en);
-    if (uploadData.source_link) formData.append('source_link', uploadData.source_link);
-    formData.append('license_type', uploadData.license_type);
+    const data = {
+      file,
+      edition: uploadData.edition,
+      alt_text_bn: uploadData.alt_text_bn,
+      alt_text_en: uploadData.alt_text_en,
+      caption_bn: uploadData.caption_bn,
+      caption_en: uploadData.caption_en,
+      credit_bn: uploadData.credit_bn,
+      credit_en: uploadData.credit_en,
+      source_link: uploadData.source_link,
+      license_type: uploadData.license_type,
+    };
 
-    try {
-      const response = await fetch(route('admin.media.store'), {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-          'Accept': 'application/json',
-        },
-      });
-      const data = await response.json();
-      if (data.success) {
+    router.post(route('admin.media.store'), data, {
+      onSuccess: () => {
         showToast(lang === 'bn' ? 'মিডিয়া আপলোড সফল হয়েছে' : 'Media uploaded successfully');
         setShowUploadModal(false);
         setUploadData({
@@ -157,18 +144,13 @@ export default function MediaLibrary({ onSelect = null }) {
           caption_bn: '', caption_en: '', credit_bn: '',
           credit_en: '', source_link: '', license_type: 'internal'
         });
-        router.reload({ only: ['media'] });
-      } else {
-        const errMsg = data.errors
-          ? Object.values(data.errors).flat().join(' ')
-          : (data.message || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed'));
+      },
+      onError: (errors) => {
+        const errMsg = Object.values(errors).flat().join(' ') || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed');
         showToast(errMsg, 'error');
-      }
-    } catch (err) {
-      showToast(lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed', 'error');
-    } finally {
-      setUploading(false);
-    }
+      },
+      onFinish: () => setUploading(false),
+    });
   };
 
   const copyUrl = (url) => {
@@ -191,6 +173,12 @@ export default function MediaLibrary({ onSelect = null }) {
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{pagination.total || 0} {lang === 'bn' ? 'টি মিডিয়া' : 'media items'}</p>
         </div>
         <div className="flex items-center gap-2.5">
+          <button 
+            onClick={toggleSelectAll} 
+            className={`px-3 py-2 text-[12px] font-medium border rounded-lg transition-colors ${selectedItems.length === media.length && media.length > 0 ? 'bg-[#e8001e] text-white border-[#e8001e]' : 'bg-white text-gray-600 border-[var(--card-border,#e8ebf4)] hover:bg-gray-50'}`}
+          >
+            {selectedItems.length === media.length && media.length > 0 ? (lang === 'bn' ? 'সব দেশিলেক্ট করুন' : 'Deselect All') : (lang === 'bn' ? 'সব সিলেক্ট করুন' : 'Select All')}
+          </button>
           {selectedItems.length > 0 && (
             <button onClick={handleBulkDelete} className="bg-red-50 text-[#e8001e] border border-red-100 rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-red-100 transition-colors">
               <Trash2 className="w-4 h-4" /> {lang === 'bn' ? 'মুছে ফেলুন' : 'Delete'} ({selectedItems.length})

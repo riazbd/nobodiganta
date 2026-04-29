@@ -67,48 +67,29 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
     }
   }, [isOpen, fetchMedia]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
     if (confirm(lang === 'bn' ? 'এই মিডিয়া মুছে ফেলতে চান?' : 'Delete this media?')) {
-      try {
-        const response = await fetch(`/admin/media/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-            'Accept': 'application/json',
-          },
-        });
-        if (response.ok) {
+      router.delete(route('admin.media.destroy', { media: id }), {
+        onSuccess: () => {
           showToast(lang === 'bn' ? 'মিডিয়া মুছে ফেলা হয়েছে' : 'Media deleted');
           setSelectedItem(null);
           fetchMedia(pagination.current_page);
-        }
-      } catch (err) {
-        showToast(lang === 'bn' ? 'মুছতে সমস্যা হয়েছে' : 'Failed to delete', 'error');
-      }
+        },
+        onError: () => showToast(lang === 'bn' ? 'মুছতে সমস্যা হয়েছে' : 'Failed to delete', 'error'),
+      });
     }
   };
 
-  const handleUpdate = async (e) => {
+  const handleUpdate = (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch(`/admin/media/${selectedItem.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(editData),
-      });
-      const data = await response.json();
-      if (data.success) {
+    router.put(route('admin.media.update', { media: selectedItem.id }), editData, {
+      onSuccess: () => {
         showToast(lang === 'bn' ? 'মিডিয়া তথ্য আপডেট করা হয়েছে' : 'Media updated successfully');
         setIsEditing(false);
         fetchMedia(pagination.current_page);
-      }
-    } catch (err) {
-      showToast(lang === 'bn' ? 'আপডেট ব্যর্থ হয়েছে' : 'Update failed', 'error');
-    }
+      },
+      onError: () => showToast(lang === 'bn' ? 'আপডেট ব্যর্থ হয়েছে' : 'Update failed', 'error'),
+    });
   };
 
   const startEditing = (item) => {
@@ -127,35 +108,17 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
     setIsEditing(true);
   };
 
-  const handleUpload = async (e) => {
+  const handleUpload = (e) => {
     e.preventDefault();
     const file = e.target.file.files[0];
     if (!file) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('edition', uploadData.edition);
-    if (uploadData.alt_text_bn) formData.append('alt_text_bn', uploadData.alt_text_bn);
-    if (uploadData.alt_text_en) formData.append('alt_text_en', uploadData.alt_text_en);
-    if (uploadData.caption_bn) formData.append('caption_bn', uploadData.caption_bn);
-    if (uploadData.caption_en) formData.append('caption_en', uploadData.caption_en);
-    if (uploadData.credit_bn) formData.append('credit_bn', uploadData.credit_bn);
-    if (uploadData.credit_en) formData.append('credit_en', uploadData.credit_en);
-    if (uploadData.source_link) formData.append('source_link', uploadData.source_link);
-    formData.append('license_type', uploadData.license_type);
-
-    try {
-      const response = await fetch('/admin/media', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-          'Accept': 'application/json',
-        },
-      });
-      const data = await response.json();
-      if (data.success) {
+    router.post(route('admin.media.store'), {
+      ...uploadData,
+      file: file
+    }, {
+      onSuccess: () => {
         showToast(lang === 'bn' ? 'মিডিয়া আপলোড সফল হয়েছে' : 'Media uploaded successfully');
         setShowUploadModal(false);
         setUploadData({
@@ -164,17 +127,13 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
           credit_en: '', source_link: '', license_type: 'internal'
         });
         fetchMedia(1);
-      } else {
-        const errMsg = data.errors
-          ? Object.values(data.errors).flat().join(' ')
-          : (data.message || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed'));
+      },
+      onError: (errors) => {
+        const errMsg = Object.values(errors).flat().join(' ') || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed');
         showToast(errMsg, 'error');
-      }
-    } catch (err) {
-      showToast(lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed', 'error');
-    } finally {
-      setUploading(false);
-    }
+      },
+      onFinish: () => setUploading(false),
+    });
   };
 
   const getEditionBadge = (edition) => {

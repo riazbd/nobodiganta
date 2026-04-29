@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Media;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -177,11 +178,22 @@ class MediaController extends Controller
             'edition' => $request->input('edition', 'both'),
         ]);
 
-        return response()->json([
-            'success' => true,
-            'media' => $media,
-            'url' => $media->url,
-        ], 201);
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'media.uploaded',
+            'description' => "Uploaded media: {$originalName}",
+            'properties' => ['media_id' => $media->id],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return $request->wantsJson() 
+            ? response()->json([
+                'success' => true,
+                'media' => $media,
+                'url' => $media->url,
+            ], 201)
+            : back()->with('success', 'Media uploaded successfully');
     }
 
     /**
@@ -190,7 +202,9 @@ class MediaController extends Controller
     public function update(Request $request, Media $media)
     {
         if (!$request->user()->hasPermission('media.edit')) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return $request->wantsJson() 
+                ? response()->json(['error' => 'Unauthorized'], 403)
+                : abort(403);
         }
 
         $validated = $request->validate([
@@ -207,10 +221,21 @@ class MediaController extends Controller
 
         $media->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'media' => $media,
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'media.updated',
+            'description' => "Updated media metadata: {$media->original_name}",
+            'properties' => ['media_id' => $media->id],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
+
+        return $request->wantsJson()
+            ? response()->json([
+                'success' => true,
+                'media' => $media,
+            ])
+            : back()->with('success', 'Media updated successfully');
     }
 
     /**
@@ -219,8 +244,12 @@ class MediaController extends Controller
     public function destroy(Request $request, Media $media)
     {
         if (!$request->user()->hasPermission('media.delete')) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Unauthorized'], 403)
+                : abort(403);
         }
+
+        $mediaName = $media->original_name;
 
         // Delete file from storage
         Storage::disk('public')->delete($media->file_path);
@@ -234,7 +263,17 @@ class MediaController extends Controller
 
         $media->delete();
 
-        return response()->json(['success' => true]);
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'media.deleted',
+            'description' => "Deleted media: {$mediaName}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return $request->wantsJson()
+            ? response()->json(['success' => true])
+            : back()->with('success', 'Media deleted successfully');
     }
 
     /**
@@ -280,7 +319,9 @@ class MediaController extends Controller
     public function bulkDestroy(Request $request)
     {
         if (!$request->user()->hasPermission('media.delete')) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Unauthorized'], 403)
+                : abort(403);
         }
 
         $validated = $request->validate([
@@ -288,9 +329,10 @@ class MediaController extends Controller
             'media_ids.*' => 'exists:media,id',
         ]);
 
-        $media = Media::whereIn('id', $validated['media_ids'])->get();
+        $mediaItems = Media::whereIn('id', $validated['media_ids'])->get();
+        $count = $mediaItems->count();
 
-        foreach ($media as $item) {
+        foreach ($mediaItems as $item) {
             Storage::disk('public')->delete($item->file_path);
             if ($item->thumbnails) {
                 foreach ($item->thumbnails as $thumbnailPath) {
@@ -300,9 +342,20 @@ class MediaController extends Controller
             $item->delete();
         }
 
-        return response()->json([
-            'success' => true,
-            'deleted' => count($validated['media_ids']),
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'media.bulk_deleted',
+            'description' => "Deleted {$count} media items",
+            'properties' => ['count' => $count],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
+
+        return $request->wantsJson()
+            ? response()->json([
+                'success' => true,
+                'deleted' => count($validated['media_ids']),
+            ])
+            : back()->with('success', count($validated['media_ids']) . ' items deleted');
     }
 }

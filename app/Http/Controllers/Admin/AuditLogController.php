@@ -61,7 +61,13 @@ class AuditLogController extends Controller
             abort(403);
         }
 
-        $days = $request->input('days', 30);
+        $days = (int) $request->input('days', 30);
+        
+        if ($days === 0) {
+            AuditLog::truncate();
+            return back()->with('success', "All audit logs cleared.");
+        }
+
         AuditLog::where('created_at', '<', now()->subDays($days))->delete();
 
         return back()->with('success', "Logs older than {$days} days cleared.");

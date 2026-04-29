@@ -53,10 +53,14 @@ export default function AuditLog({ logs = {}, filters = {}, users = [], events =
     }, { preserveState: true });
   };
 
-  const handleClearLogs = () => {
-    if (confirm(lang === 'bn' ? 'আপনি কি নিশ্চিত যে আপনি ৩০ দিনের বেশি পুরনো লগ মুছে ফেলতে চান?' : 'Are you sure you want to clear logs older than 30 days?')) {
-      router.post(route('admin.audit-log.clear'), { days: 30 }, {
-        onSuccess: () => showToast(lang === 'bn' ? 'পুরানো লগ মুছে ফেলা হয়েছে' : 'Old logs cleared')
+  const handleClearLogs = (days = 30) => {
+    const message = days === 0 
+      ? (lang === 'bn' ? 'আপনি কি নিশ্চিত যে আপনি সব লগ মুছে ফেলতে চান?' : 'Are you sure you want to clear ALL logs?')
+      : (lang === 'bn' ? `আপনি কি নিশ্চিত যে আপনি ${days} দিনের বেশি পুরনো লগ মুছে ফেলতে চান?` : `Are you sure you want to clear logs older than ${days} days?`);
+
+    if (confirm(message)) {
+      router.post(route('admin.audit-log.clear'), { days }, {
+        onSuccess: () => showToast(lang === 'bn' ? 'লগ মুছে ফেলা হয়েছে' : 'Logs cleared successfully')
       });
     }
   };
@@ -76,12 +80,20 @@ export default function AuditLog({ logs = {}, filters = {}, users = [], events =
             {logs.total || 0} {lang === 'bn' ? 'টি অ্যাক্টিভিটি রেকর্ড করা হয়েছে' : 'activity records in database'}
           </p>
         </div>
-        <button
-          onClick={handleClearLogs}
-          className="bg-white border border-gray-200 text-gray-600 rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all shadow-sm active:scale-95"
-        >
-          <Trash2 className="w-4.5 h-4.5" /> {lang === 'bn' ? 'পুরানো লগ মুছুন' : 'Clear Old Logs'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleClearLogs(30)}
+            className="bg-white border border-gray-200 text-gray-600 rounded-xl px-4 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm active:scale-95"
+          >
+            <Clock className="w-4 h-4" /> {lang === 'bn' ? '৩০ দিনের পুরনো মুছুন' : 'Clear > 30 Days'}
+          </button>
+          <button
+            onClick={() => handleClearLogs(0)}
+            className="bg-white border border-gray-200 text-red-600 rounded-xl px-4 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-red-50 hover:border-red-100 transition-all shadow-sm active:scale-95"
+          >
+            <Trash2 className="w-4 h-4" /> {lang === 'bn' ? 'সব মুছুন' : 'Clear All'}
+          </button>
+        </div>
       </div>
 
       {/* Filters Bar */}
