@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage, router } from '@inertiajs/react';
 import {
   Save, Send, Eye, Image as ImageIcon, X, Plus, Type, Tag, FileText,
   Settings, ChevronRight, ChevronLeft, Newspaper, Globe, Clock, CheckCircle,
@@ -344,13 +344,15 @@ export default function WriteNews() {
   const handleFeaturedFileSelected = async (files) => {
     if (!files?.length) return;
     const file = files[0];
-    
+    const edition = form.data.edition || 'both';
+
     setUploadingFeatured(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('edition', form.data.edition || 'both');
+      formData.append('edition', edition);
       formData.append('license_type', 'internal');
+
       const res = await fetch('/admin/media', {
         method: 'POST',
         body: formData,
@@ -359,21 +361,25 @@ export default function WriteNews() {
           'Accept': 'application/json',
         },
       });
+
+      if (!res.ok && res.status !== 422) {
+        throw new Error(`Server error: ${res.status}`);
+      }
+
       const data = await res.json();
+
       if (data.success && data.url) {
-        form.setData({
-          ...form.data,
-          featuredImage: data.url,
-          featuredImageAltBn: data.media?.alt_text_bn || '',
-          featuredImageAltEn: data.media?.alt_text_en || '',
-        });
+        form.setData('featuredImage', data.url);
+        if (data.media?.alt_text_bn) form.setData('featuredImageAltBn', data.media.alt_text_bn);
+        if (data.media?.alt_text_en) form.setData('featuredImageAltEn', data.media.alt_text_en);
       } else {
         const errMsg = data.errors
           ? Object.values(data.errors).flat().join(' ')
-          : (data.message || (lang === 'bn' ? 'ছবি আপলোড ব্যর্থ হয়েছে' : 'Image upload failed'));
+          : (data.message || data.error || (lang === 'bn' ? 'ছবি আপলোড ব্যর্থ হয়েছে' : 'Image upload failed'));
         showToast(errMsg, 'error');
       }
-    } catch {
+    } catch (err) {
+      console.error('Featured image upload failed:', err);
       showToast(lang === 'bn' ? 'ছবি আপলোড ব্যর্থ হয়েছে' : 'Image upload failed', 'error');
     } finally {
       setUploadingFeatured(false);
