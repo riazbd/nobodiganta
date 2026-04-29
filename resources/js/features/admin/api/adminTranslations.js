@@ -92,7 +92,7 @@ export const adminTranslations = {
 
     // Dashboard page
     adminDashboard: 'অ্যাডমিন ড্যাশবোর্ড',
-    welcomeMessage: 'স্বাগতম, রাফি আহমেদ! আপনার পোর্টালের সার্বিক পরিস্থিতি দেখুন।',
+    welcomeMessage: 'আপনার পোর্টালের সার্বিক পরিস্থিতি দেখুন।',
     reportersWriters: 'সাংবাদিক / লেখক',
     newThisMonth: '▲ ৩ নতুন এ মাসে',
     urgentItems: '▲ ৮টি জরুরি',
@@ -544,7 +544,7 @@ export const adminTranslations = {
 
     // Dashboard page
     adminDashboard: 'Admin Dashboard',
-    welcomeMessage: 'Welcome, Rafi Ahmed! See your portal\'s overall status.',
+    welcomeMessage: 'See your portal\'s overall status.',
     reportersWriters: 'Reporters / Writers',
     newThisMonth: '▲ 3 new this month',
     urgentItems: '▲ 8 urgent',

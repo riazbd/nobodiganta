@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import { Newspaper, Users, MessageSquare, CreditCard, PenLine, Upload, TrendingUp, Flame, BarChart3, Globe, Zap, Clock, Activity } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
@@ -30,6 +31,8 @@ export default function Dashboard({
   const { lang, t } = useLanguage();
   const { showToast } = useToast();
   const { onNavigate } = useAdminNavigation();
+  const { auth } = usePage().props;
+  const userName = auth?.user?.name || '';
 
   // Standardizing keys from controller
   const s = stats || {};
@@ -43,7 +46,7 @@ export default function Dashboard({
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">🗞️ {t('adminDashboard')}</h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">
-            {t('welcomeMessage')}
+            {lang === 'bn' ? `স্বাগতম, ${userName}!` : `Welcome, ${userName}!`} {t('welcomeMessage')}
           </p>
         </div>
         <div className="flex items-center gap-2.5">
