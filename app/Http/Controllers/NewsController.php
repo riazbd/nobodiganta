@@ -174,16 +174,17 @@ class NewsController extends Controller
             ->map(fn($a) => $a->toAPIArray($edition))
             ->values();
 
-        // 6. Popular tags
-        $popularTags = Tag::orderByDesc('article_count')
-            ->where('article_count', '>', 0)
+        // 6. Popular tags — live count of published articles only
+        $popularTags = Tag::withCount(['articles' => fn($q) => $q->where('status', 'published')])
+            ->having('articles_count', '>', 0)
+            ->orderByDesc('articles_count')
             ->limit(24)
             ->get()
             ->map(fn($t) => [
                 'id'    => $t->id,
                 'name'  => $t->getName($edition),
                 'slug'  => $t->slug,
-                'count' => $t->article_count,
+                'count' => $t->articles_count,
             ])
             ->values();
 

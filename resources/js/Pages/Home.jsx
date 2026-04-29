@@ -573,7 +573,6 @@ export default function Home({
         {/* SIDEBAR */}
         <div className="hp-body-side">
           <div className="sidebar">
-            <div style={{ marginTop: 14 }}><AdSlot size="mrec" position="sidebar_home" /></div>
           </div>
         </div>
       </div>

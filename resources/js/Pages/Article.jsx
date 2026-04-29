@@ -5,7 +5,6 @@ import Icon from '../Components/Icon';
 import PageSidebar from '../Components/PageSidebar';
 import AdSlot from '../Components/ui/AdSlot';
 import ArticleShare from '../Components/article/ArticleShare';
-import ArticleControls from '../Components/article/ArticleControls';
 import ArticleComments from '../Components/article/ArticleComments';
 import AuthorBio from '../Components/article/AuthorBio';
 import PaywallOverlay from '../Components/ui/PaywallOverlay';
@@ -138,9 +137,6 @@ export default function Article({
             <span className="time"><Icon name="eye" size={12} /> {article.views || 0} {t('article.readers', lang)}</span>
             <span style={{ fontSize: 12, color: '#888' }}>📖 {readingTimeLabel}</span>
           </div>
-
-          {/* Article controls: font size, dark mode, bookmark, print */}
-          <ArticleControls articleId={article.id} articleTitle={article.title} />
 
           {/* Share buttons */}
           <ArticleShare url={articleUrl} title={article.title} />
