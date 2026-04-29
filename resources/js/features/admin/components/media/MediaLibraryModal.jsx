@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { router } from '@inertiajs/react';
 import { Upload, Image as ImageIcon, Trash2, Grid, List, Search, X, Plus, Copy, ExternalLink, Loader2, FileText, CheckCircle } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -108,17 +109,30 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
     setIsEditing(true);
   };
 
-  const handleUpload = (e) => {
+  const handleUpload = async (e) => {
     e.preventDefault();
     const file = e.target.file.files[0];
     if (!file) return;
 
     setUploading(true);
-    router.post(route('admin.media.store'), {
-      ...uploadData,
-      file: file
-    }, {
-      onSuccess: () => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      Object.entries(uploadData).forEach(([key, val]) => {
+        if (val !== '') formData.append(key, val);
+      });
+
+      const res = await fetch('/admin/media', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+          'Accept': 'application/json',
+        },
+      });
+      const data = await res.json();
+
+      if (data.success) {
         showToast(lang === 'bn' ? 'মিডিয়া আপলোড সফল হয়েছে' : 'Media uploaded successfully');
         setShowUploadModal(false);
         setUploadData({
@@ -127,13 +141,17 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
           credit_en: '', source_link: '', license_type: 'internal'
         });
         fetchMedia(1);
-      },
-      onError: (errors) => {
-        const errMsg = Object.values(errors).flat().join(' ') || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed');
+      } else {
+        const errMsg = data.errors
+          ? Object.values(data.errors).flat().join(' ')
+          : (data.message || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed'));
         showToast(errMsg, 'error');
-      },
-      onFinish: () => setUploading(false),
-    });
+      }
+    } catch {
+      showToast(lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed', 'error');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const getEditionBadge = (edition) => {
