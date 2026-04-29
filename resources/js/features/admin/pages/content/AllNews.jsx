@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Search, Filter, Plus, Eye, Edit3, Trash2, Send, ChevronDown, X, Loader2, AlertTriangle, Globe, Clock, CheckCircle } from 'lucide-react';
+import { Search, Filter, Plus, Eye, Edit3, Trash2, Send, ChevronDown, X, Loader2, AlertTriangle, Globe, Clock, CheckCircle, User } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { Pagination } from '../../components/data/Pagination';
 import { useLanguage } from '../../hooks/useLanguage';

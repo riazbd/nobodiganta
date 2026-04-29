@@ -46,7 +46,7 @@ class MediaController extends Controller
 
         $media = $query->paginate(24);
 
-        if ($request->wantsJson() || $request->ajax() || $request->header('Accept') === 'application/json') {
+        if (!$request->header('X-Inertia') && $request->wantsJson()) {
             $media->getCollection()->transform(function ($item) {
                 $item->url = asset('storage/' . $item->file_path);
                 return $item;
