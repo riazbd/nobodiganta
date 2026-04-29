@@ -110,6 +110,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/news/{article}', [ArticleController::class, 'destroy'])->name('news.destroy')->whereNumber('article');
         Route::get('/news/{article}', [ArticleController::class, 'show'])->name('news.show')->whereNumber('article');
         Route::post('/news/bulk-status', [ArticleController::class, 'bulkUpdateStatus'])->name('news.bulk-status');
+        Route::post('/news/bulk-delete', [ArticleController::class, 'bulkDestroy'])->name('news.bulk-delete');
         Route::patch('/news/{article}/status', [ArticleController::class, 'transitionStatus'])->name('news.transition-status')->whereNumber('article');
         Route::get('/news/{article}/allowed-transitions', [ArticleController::class, 'getAllowedTransitions'])->name('news.allowed-transitions')->whereNumber('article');
 

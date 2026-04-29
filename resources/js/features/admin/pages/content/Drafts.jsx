@@ -1,210 +1,179 @@
-import { useState, useEffect } from 'react';
-import { router } from '@inertiajs/react';
-import { Search, Edit3, Trash2, Eye, Send, Loader2, AlertTriangle, X } from 'lucide-react';
+import { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Search, Edit3, Trash2, Eye, Send, Loader2, AlertTriangle, X, CheckCircle, Clock, Archive } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
-import { Pagination } from '../../components/data/Pagination';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
-import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
 
-function NewsTable({ filterStatus }) {
+function NewsTable({ articles, filters, title, label }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
-  const { onNavigate } = useAdminNavigation();
-  
-  const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  
-  const itemsPerPage = 10;
+  const [searchQuery, setSearchQuery] = useState(filters?.search || '');
 
-  useEffect(() => {
-    fetchData();
-  }, [filterStatus]);
+  const handleStatusChange = (id, newStatus) => {
+    router.patch(route('admin.news.transition-status', { article: id }), { status: newStatus }, {
+      onSuccess: () => showToast(lang === 'bn' ? 'সংবাদের অবস্থা আপডেট করা হয়েছে' : 'Article status updated'),
+      preserveScroll: true
+    });
+  };
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch(`/admin/news?format=json&status=${filterStatus}`);
-      if (!res.ok) throw new Error('Failed to fetch data');
-      const data = await res.json();
-      setArticles(data.articles || []);
-    } catch (err) {
-      console.error('Error fetching articles:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
+  const handleDelete = (id) => {
+    if (!confirm(lang === 'bn' ? 'আপনি কি নিশ্চিত যে সংবাদটি মুছে ফেলতে চান?' : 'Are you sure you want to delete this?')) return;
+    router.delete(route('admin.news.destroy', { article: id }), {
+      onSuccess: () => showToast(lang === 'bn' ? 'সংবাদ মুছে ফেলা হয়েছে' : 'Article deleted'),
+      preserveScroll: true
+    });
+  };
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter') {
+       router.get(window.location.pathname, { ...filters, search: searchQuery }, { preserveState: true });
     }
   };
 
-  const handleApprove = async (id) => {
-    setSubmitting(true);
-    try {
-      const res = await fetch(`/admin/news/${id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ status: 'published' }),
-      });
-      if (!res.ok) throw new Error('Approval failed');
-      showToast(lang === 'bn' ? 'সংবাদ অনুমোদিত হয়েছে!' : 'Article approved!');
-      await fetchData();
-    } catch (err) {
-      showToast(lang === 'bn' ? 'অনুমোদন করতে ব্যর্থ' : 'Failed to approve');
-    } finally {
-      setSubmitting(false);
-    }
+  const statusMap = {
+    published: { color: 'green', bn: 'প্রকাশিত', en: 'Published' },
+    draft: { color: 'gray', bn: 'খসড়া', en: 'Draft' },
+    pending: { color: 'orange', bn: 'অপেক্ষমাণ', en: 'Pending' },
+    scheduled: { color: 'purple', bn: 'নির্ধারিত', en: 'Scheduled' },
   };
-
-  const handleDelete = async (id) => {
-    if (!confirm(lang === 'bn' ? 'আপনি কি নিশ্চিত?' : 'Are you sure?')) return;
-    setSubmitting(true);
-    try {
-      const res = await fetch(`/admin/news/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-          'Accept': 'application/json',
-        },
-      });
-      if (!res.ok) throw new Error('Delete failed');
-      showToast(lang === 'bn' ? 'সংবাদ মুছে ফেলা হয়েছে' : 'Article deleted');
-      await fetchData();
-    } catch (err) {
-      showToast(lang === 'bn' ? 'মুছে ফেলতে ব্যর্থ' : 'Failed to delete');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const filtered = articles.filter(a => {
-    const title = (a.title || '').toLowerCase();
-    const titleEn = (a.title_en || '').toLowerCase();
-    const q = searchQuery.toLowerCase();
-    return !searchQuery || title.includes(q) || titleEn.includes(q);
-  });
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const statusLabels = {
-    draft: { bn: 'ড্রাফট', en: 'Drafts' },
-    pending: { bn: 'মুলতুবি অনুমোদন', en: 'Pending Approval' },
-    published: { bn: 'প্রকাশিত', en: 'Published' },
-    scheduled: { bn: 'নির্ধারিত', en: 'Scheduled' },
-  };
-
-  const label = statusLabels[filterStatus] || { bn: filterStatus, en: filterStatus };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[300px]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#e8001e]" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 p-6 rounded-xl text-center">
-        <AlertTriangle className="w-10 h-10 text-red-500 mx-auto mb-2" />
-        <p className="text-red-700 text-sm font-semibold">{error}</p>
-        <button onClick={fetchData} className="mt-4 text-xs font-bold text-red-600 underline">Try Again</button>
-      </div>
-    );
-  }
 
   return (
-    <div>
-      <div className="flex items-start justify-between mb-5.5">
+    <div className="p-6">
+      <Head title={title} />
+      
+      <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">
-            📰 {lang === 'bn' ? label.bn : label.en}
-          </h1>
-          <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">
-            {filtered.length} {lang === 'bn' ? 'টি সংবাদ পাওয়া গেছে' : 'articles found'}
-          </p>
+          <h1 className="text-2xl font-bold text-[#1a1d2e] font-['Noto_Sans_Bengali']">{label}</h1>
+          <p className="text-sm text-gray-500 mt-1">{articles.total || 0} {lang === 'bn' ? 'টি সংবাদ পাওয়া গেছে' : 'articles found'}</p>
         </div>
+        <Link href={route('admin.news.write')} className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#c00] transition-all shadow-md">
+           <Send className="w-4 h-4" /> {lang === 'bn' ? 'নতুন সংবাদ' : 'New Article'}
+        </Link>
       </div>
 
-      <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
-        <div className="px-5 py-3 border-b border-[var(--card-border,#e8ebf4)]">
-          <div className="flex items-center bg-[var(--body-bg,#f0f2f8)] border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.75 gap-2 max-w-sm">
-            <Search className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)]" />
-            <input
-              type="text"
-              placeholder={lang === 'bn' ? 'খুঁজুন...' : 'Search...'}
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className="border-none bg-transparent outline-none text-[12.5px] text-[var(--text-primary,#1a1d2e)] w-full placeholder:text-[var(--text-muted,#9ca3af)]"
-            />
-            {searchQuery && <button onClick={() => setSearchQuery('')}><X className="w-3.5 h-3.5" /></button>}
-          </div>
+      <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between">
+           <div className="flex items-center bg-white border border-gray-200 rounded-xl px-3 py-2 gap-2 w-full max-w-xs focus-within:border-[#e8001e]/30 transition-all">
+              <Search className="w-4 h-4 text-gray-400" />
+              <input 
+                type="text" 
+                placeholder={lang === 'bn' ? 'খুঁজুন...' : 'Search...'} 
+                className="border-none bg-transparent outline-none text-sm w-full"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
+              />
+           </div>
         </div>
 
-        {paginated.length === 0 ? (
-          <div className="text-center py-12 text-[var(--text-muted,#9ca3af)]">
-            {lang === 'bn' ? 'কোনো সংবাদ পাওয়া যায়নি' : 'No articles found'}
-          </div>
-        ) : (
-          <>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'শিরোনাম' : 'Title'}</th>
-                  <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'লেখক' : 'Author'}</th>
-                  <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'পাঠক' : 'Views'}</th>
-                  <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'তারিখ' : 'Date'}</th>
-                  <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'কাজ' : 'Actions'}</th>
+        <table className="w-full">
+          <thead>
+            <tr className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50">
+              <th className="px-6 py-4 text-left">{lang === 'bn' ? 'শিরোনাম' : 'Title'}</th>
+              <th className="px-4 py-4 text-left">{lang === 'bn' ? 'বিভাগ' : 'Category'}</th>
+              <th className="px-4 py-4 text-left">{lang === 'bn' ? 'লেখক' : 'Author'}</th>
+              <th className="px-4 py-4 text-left">{lang === 'bn' ? 'অবস্থা' : 'Status'}</th>
+              <th className="px-6 py-4 text-right">{lang === 'bn' ? 'অ্যাকশন' : 'Actions'}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {articles.data.map(article => {
+              const st = statusMap[article.status] || statusMap.draft;
+              return (
+                <tr key={article.id} className="hover:bg-gray-50/50 transition-colors group">
+                  <td className="px-6 py-4">
+                    <div className="font-bold text-gray-800 text-sm line-clamp-1 group-hover:text-[#e8001e] transition-colors">
+                      {lang === 'bn' ? article.title : (article.title_en || article.title)}
+                    </div>
+                    <div className="text-[10px] text-gray-400 mt-1">{new Date(article.created_at).toLocaleDateString()}</div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <Badge variant="gray" className="text-[10px] px-2 py-0.5">{lang === 'bn' ? article.category?.name : article.category?.name_en}</Badge>
+                  </td>
+                  <td className="px-4 py-4 text-xs font-semibold text-gray-500">{article.author}</td>
+                  <td className="px-4 py-4">
+                    <Badge variant={st.color} className="text-[9px] uppercase font-bold px-2 py-0.5">{lang === 'bn' ? st.bn : st.en}</Badge>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Link href={route('admin.news.show', { article: article.id })} className="p-2 hover:bg-blue-50 text-gray-400 hover:text-blue-500 rounded-lg transition-all" title="View"><Eye className="w-4 h-4" /></Link>
+                      <Link href={route('admin.news.edit', { article: article.id })} className="p-2 hover:bg-green-50 text-gray-400 hover:text-green-500 rounded-lg transition-all" title="Edit"><Edit3 className="w-4 h-4" /></Link>
+                      
+                      {article.status === 'pending' && (
+                        <button onClick={() => handleStatusChange(article.id, 'published')} className="p-2 hover:bg-green-50 text-green-400 hover:text-green-600 rounded-lg transition-all" title="Approve"><CheckCircle className="w-4 h-4" /></button>
+                      )}
+                      
+                      {article.status === 'draft' && (
+                        <button onClick={() => handleStatusChange(article.id, 'pending')} className="p-2 hover:bg-orange-50 text-orange-400 hover:text-orange-600 rounded-lg transition-all" title="Submit"><Send className="w-4 h-4" /></button>
+                      )}
+
+                      {article.status === 'published' && (
+                        <button onClick={() => handleStatusChange(article.id, 'draft')} className="p-2 hover:bg-gray-100 text-gray-400 hover:text-gray-600 rounded-lg transition-all" title="Unpublish"><Archive className="w-4 h-4" /></button>
+                      )}
+
+                      <button onClick={() => handleDelete(article.id)} className="p-2 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-lg transition-all" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {paginated.map(article => (
-                  <tr key={article.id} className="hover:bg-[#fafbff] transition-colors">
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                      <div className="font-semibold text-[var(--text-primary,#1a1d2e)] text-[13px]">{lang === 'bn' ? article.title : article.title_en || article.title}</div>
-                    </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6] text-[12.5px] text-[var(--text-secondary,#6b7280)]">
-                      {typeof article.author === 'object' ? article.author?.name : (article.author || '—')}
-                    </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6] text-[12.5px] font-semibold font-['Inter']">{article.views > 0 ? article.views.toLocaleString('en-IN') : '—'}</td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6] text-[12.5px] text-[var(--text-secondary,#6b7280)]">{new Date(article.published_at || article.created_at).toLocaleDateString()}</td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                      <div className="flex items-center gap-1.5">
-                        <button onClick={() => window.open(`/admin/news/${article.id}`, '_blank')} className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"><Eye className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)]" /></button>
-                        <button onClick={() => router.visit(`/admin/news/${article.id}/edit`)} className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"><Edit3 className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)]" /></button>
-                        {filterStatus === 'pending' && (
-                          <button onClick={() => handleApprove(article.id)} disabled={submitting} className="p-1.5 rounded-md hover:bg-[#ecfdf5] transition-colors"><Send className="w-3.5 h-3.5 text-[#10b981]" /></button>
-                        )}
-                        <button onClick={() => handleDelete(article.id)} disabled={submitting} className="p-1.5 rounded-md hover:bg-[#fff0f2] transition-colors"><Trash2 className="w-3.5 h-3.5 text-[#e8001e]" /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {totalPages > 1 && (
-              <div className="px-5 py-3">
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={(p) => setCurrentPage(p)} />
-              </div>
+              );
+            })}
+            {articles.data.length === 0 && (
+              <tr><td colSpan="5" className="py-20 text-center text-gray-400 font-medium">{lang === 'bn' ? 'কোনো সংবাদ পাওয়া যায়নি' : 'No articles found'}</td></tr>
             )}
-          </>
+          </tbody>
+        </table>
+
+        {articles.links && articles.links.length > 3 && (
+           <div className="px-6 py-4 border-t border-gray-50 flex items-center justify-center">
+              <div className="flex gap-1">
+                 {articles.links.map((link, i) => (
+                    <Link
+                       key={i}
+                       href={link.url || '#'}
+                       dangerouslySetInnerHTML={{ __html: link.label }}
+                       className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          link.active 
+                             ? 'bg-[#e8001e] text-white' 
+                             : link.url ? 'bg-gray-50 text-gray-600 hover:bg-gray-100' : 'text-gray-300 cursor-not-allowed'
+                       }`}
+                    />
+                 ))}
+              </div>
+           </div>
         )}
       </div>
     </div>
   );
 }
 
-export default function Drafts() {
-  return <NewsTable filterStatus="draft" />;
+export default function Drafts({ articles, filters }) {
+  const { lang } = useLanguage();
+  return <NewsTable 
+    articles={articles} 
+    filters={filters} 
+    title={lang === 'bn' ? 'খসড়া সংবাদ' : 'Draft Articles'} 
+    label={lang === 'bn' ? 'খসড়া সংবাদ' : 'Drafts'}
+  />;
 }
 
-export function PendingApproval() { return <NewsTable filterStatus="pending" />; }
-export function Published() { return <NewsTable filterStatus="published" />; }
+export function PendingApproval({ articles, filters }) {
+  const { lang } = useLanguage();
+  return <NewsTable 
+    articles={articles} 
+    filters={filters} 
+    title={lang === 'bn' ? 'অনুমোদন অপেক্ষায়' : 'Pending Approval'} 
+    label={lang === 'bn' ? 'অনুমোদন অপেক্ষায়' : 'Pending Approval'}
+  />;
+}
+
+export function Published({ articles, filters }) {
+  const { lang } = useLanguage();
+  return <NewsTable 
+    articles={articles} 
+    filters={filters} 
+    title={lang === 'bn' ? 'প্রকাশিত সংবাদ' : 'Published Articles'} 
+    label={lang === 'bn' ? 'প্রকাশিত সংবাদ' : 'Published'}
+  />;
+}

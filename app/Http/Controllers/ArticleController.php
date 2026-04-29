@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Category;
 use App\Models\Tag;
 use App\Models\User;
+use App\Models\AuditLog;
 use App\Services\ArticleStatusWorkflow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,11 +30,11 @@ class ArticleController extends Controller
         $search = $request->input('search');
         $articleType = $request->input('article_type');
 
-        $query = Article::with(['category', 'author', 'tags'])
+        $query = Article::with(['category', 'author'])
             ->latest();
 
         // Filter by status
-        if ($status) {
+        if ($status && $status !== 'all') {
             $query->where('status', $status);
         }
 
@@ -43,7 +44,7 @@ class ArticleController extends Controller
         }
 
         // Filter by edition
-        if ($edition !== 'both') {
+        if ($edition !== 'both' && $edition !== 'all') {
             $query->where(function ($q) use ($edition) {
                 $q->where('edition', 'both')
                   ->orWhere('edition', $edition);
@@ -51,21 +52,24 @@ class ArticleController extends Controller
         }
 
         // Filter by category
-        if ($category) {
-            $query->where('category_id', $category);
+        if ($category && $category !== 'all') {
+            $query->whereHas('category', function($q) use ($category) {
+                $q->where('slug', $category)->orWhere('id', $category);
+            });
         }
 
         // Search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('title_bn', 'like', "%{$search}%")
-                  ->orWhere('title_en', 'like', "%{$search}%")
-                  ->orWhere('slug_bn', 'like', "%{$search}%")
-                  ->orWhere('slug_en', 'like', "%{$search}%");
+                  ->orWhere('title_en', 'like', "%{$search}%");
             });
         }
 
-        $articles = $query->limit(500)->get()->map(function ($article) {
+        $articles = $query->paginate(20)->withQueryString();
+
+        // Transform for Inertia/API
+        $articles->getCollection()->transform(function ($article) {
             return [
                 'id' => $article->id,
                 'title' => $article->title_bn,
@@ -83,6 +87,7 @@ class ArticleController extends Controller
                     'name' => $article->category->name_bn,
                     'name_en' => $article->category->name_en,
                     'slug' => $article->category->slug,
+                    'color_code' => $article->category->color_code,
                 ] : null,
                 'author' => $article->author?->name,
                 'views' => $article->views,
@@ -91,27 +96,16 @@ class ArticleController extends Controller
             ];
         });
 
-        // If JSON format requested, return JSON response
-        if ($request->get('format') === 'json' || $request->expectsJson()) {
-            $categories = Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug'])
-                ->map(fn($c) => [
-                    'id' => $c->id,
-                    'name_bn' => $c->name_bn,
-                    'name_en' => $c->name_en,
-                    'slug' => $c->slug,
-                ]);
-
+        if ($request->wantsJson()) {
             return response()->json([
                 'articles' => $articles,
-                'categories' => $categories,
+                'categories' => Category::active()->get(['id', 'name_bn', 'slug']),
             ]);
         }
 
-        $categories = Category::active()->ordered()->get(['id', 'name_bn', 'slug']);
-
         return Inertia::render('features/admin/pages/content/AllNews', [
             'articles' => $articles,
-            'categories' => $categories,
+            'categories' => Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
             'filters' => $request->only(['status', 'edition', 'category', 'search']),
         ]);
     }
@@ -125,7 +119,7 @@ class ArticleController extends Controller
             abort(403);
         }
 
-        $categories = Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']);
+        $categories = Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug', 'parent_id']);
         $authors = User::whereIn('role', ['admin', 'editor', 'reporter'])
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -147,70 +141,46 @@ class ArticleController extends Controller
         }
 
         $validated = $request->validate([
-            // Content
             'titleBn' => 'nullable|required_if:edition,both,bn|string|max:255',
             'titleEn' => 'nullable|required_if:edition,both,en|string|max:255',
             'subtitleBn' => 'nullable|string',
             'subtitleEn' => 'nullable|string',
             'bodyBn' => 'nullable|required_if:edition,both,bn|string',
             'bodyEn' => 'nullable|required_if:edition,both,en|string',
-
-            // Slugs
             'slugBn' => 'nullable|string|max:255',
             'slugEn' => 'nullable|string|max:255',
-
-            // Excerpts
             'excerptBn' => 'nullable|string',
             'excerptEn' => 'nullable|string',
-
-            // Edition & Type
             'edition' => 'required|in:both,bn,en',
             'articleType' => 'required|in:news,feature,opinion,interview,explainer,video,photo,liveblog,sponsored',
             'status' => 'required|in:draft,pending,scheduled,published,archived',
-
-            // Flags
             'isBreaking' => 'boolean',
             'isFeatured' => 'boolean',
             'isPremium' => 'boolean',
             'isExclusive' => 'boolean',
-
-            // Category (can be ID or slug)
             'category' => 'required',
             'subcategory' => 'nullable',
             'authorId' => 'nullable|exists:users,id',
             'secondaryAuthorId' => 'nullable|exists:users,id',
-
-            // Media
             'featuredImage' => 'nullable|string',
             'featuredImageAltBn' => 'nullable|string|max:255',
             'featuredImageAltEn' => 'nullable|string|max:255',
-
-            // Guest Author
             'isGuestAuthor' => 'boolean',
             'guestAuthorNameBn' => 'nullable|string|max:255',
             'guestAuthorNameEn' => 'nullable|string|max:255',
             'guestAuthorBioBn' => 'nullable|string',
             'guestAuthorBioEn' => 'nullable|string',
             'guestAuthorImage' => 'nullable|string',
-
-            // SEO
             'metaTitleBn' => 'nullable|string|max:255',
             'metaTitleEn' => 'nullable|string|max:255',
             'metaDescBn' => 'nullable|string|max:500',
             'metaDescEn' => 'nullable|string|max:500',
-
-            // Publishing
-            'scheduledAt' => 'nullable|date|after:now',
-
-            // Tags
+            'scheduledAt' => 'nullable|date',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:100',
-
-            // Notifications
             'sendPushNotification' => 'boolean',
         ]);
 
-        // Resolve category from slug or ID
         $category = Category::where('slug', $validated['category'])
             ->orWhere('id', $validated['category'])
             ->first();
@@ -219,7 +189,6 @@ class ArticleController extends Controller
             return back()->withErrors(['category' => 'Invalid category'])->withInput();
         }
 
-        // Resolve subcategory
         $subcategoryId = null;
         if (!empty($validated['subcategory'])) {
             $sub = Category::where('parent_id', $category->id)
@@ -230,22 +199,12 @@ class ArticleController extends Controller
             $subcategoryId = $sub?->id;
         }
 
-        // Auto-generate slugs if not provided
-        $slugBn = $validated['slugBn'] ?? $this->generateSlug($validated['titleBn'], 'slug_bn');
+        $slugBn = $validated['slugBn'] ?? $this->generateSlug($validated['titleBn'] ?? '', 'slug_bn');
         $slugEn = $validated['slugEn'] ?? ($validated['titleEn'] ? $this->generateSlug($validated['titleEn'], 'slug_en') : null);
 
-        // Determine published_at and scheduled_at
-        $publishedAt = null;
-        $scheduledAt = null;
+        $publishedAt = ($validated['status'] === 'published') ? now() : null;
+        $scheduledAt = ($validated['status'] === 'scheduled') ? $validated['scheduledAt'] : null;
 
-        if ($validated['status'] === 'published') {
-            $publishedAt = now();
-        } elseif ($validated['status'] === 'scheduled' && !empty($validated['scheduledAt'])) {
-            $scheduledAt = $validated['scheduledAt'];
-            $validated['status'] = 'scheduled';
-        }
-
-        // Create article
         $article = Article::create([
             'title_bn' => $validated['titleBn'],
             'title_en' => $validated['titleEn'] ?? null,
@@ -285,36 +244,33 @@ class ArticleController extends Controller
             'scheduled_at' => $scheduledAt,
         ]);
 
-        // Sync tags
         if (!empty($validated['tags'])) {
             $tagIds = [];
             foreach ($validated['tags'] as $tagName) {
-                $tag = \App\Models\Tag::firstOrCreate(
-                    ['slug' => \Illuminate\Support\Str::slug($tagName)],
+                if (empty($tagName)) continue;
+                $tag = Tag::firstOrCreate(
+                    ['slug' => Str::slug($tagName)],
                     ['name_bn' => $tagName, 'name_en' => $tagName]
                 );
                 $tagIds[] = $tag->id;
             }
             $article->tags()->sync($tagIds);
-        } else {
-            $article->tags()->sync([]);
         }
 
-        // Handle push notification for breaking news
-        if ($article->is_breaking && ($validated['sendPushNotification'] ?? false)) {
-            // TODO: Dispatch push notification job
-            // BreakingNewsNotification::dispatch($article);
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'article.created',
+            'description' => "Created article: {$article->title_bn}",
+            'properties' => ['article_id' => $article->id],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'article' => $article], 201);
         }
 
-        if ($request->expectsJson() || $request->header('Accept') === 'application/json') {
-            return response()->json([
-                'success' => true,
-                'article' => $article->load(['category', 'author', 'tags']),
-            ], 201);
-        }
-
-        return redirect()->route('admin.news')
-            ->with('success', 'Article created successfully');
+        return redirect()->route('admin.news')->with('success', 'Article created successfully');
     }
 
     /**
@@ -333,13 +289,12 @@ class ArticleController extends Controller
     public function edit(Article $article)
     {
         if (!auth()->user()->hasPermission('news.edit')) {
-            // Check if it's their own article and they have edit.own
             if (!($article->author_id === auth()->id() && auth()->user()->hasPermission('news.edit.own'))) {
                 abort(403);
             }
         }
 
-        $categories = Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']);
+        $categories = Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug', 'parent_id']);
         $authors = User::whereIn('role', ['admin', 'editor', 'reporter'])
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -384,6 +339,7 @@ class ArticleController extends Controller
                 'metaDescBn' => $article->meta_description_bn,
                 'metaDescEn' => $article->meta_description_en,
                 'scheduledAt' => $article->scheduled_at?->format('Y-m-d\TH:i'),
+                'tags' => $article->tags->pluck('name_bn')->toArray(),
             ],
         ]);
     }
@@ -400,94 +356,60 @@ class ArticleController extends Controller
         }
 
         $validated = $request->validate([
-            // Content
             'titleBn' => 'nullable|required_if:edition,both,bn|string|max:255',
             'titleEn' => 'nullable|required_if:edition,both,en|string|max:255',
             'subtitleBn' => 'nullable|string',
             'subtitleEn' => 'nullable|string',
             'bodyBn' => 'nullable|required_if:edition,both,bn|string',
             'bodyEn' => 'nullable|required_if:edition,both,en|string',
-            
-            // Slugs
             'slugBn' => 'nullable|string|max:255',
             'slugEn' => 'nullable|string|max:255',
-            
-            // Excerpts
             'excerptBn' => 'nullable|string',
             'excerptEn' => 'nullable|string',
-            
-            // Edition & Type
             'edition' => 'required|in:both,bn,en',
             'articleType' => 'required|in:news,feature,opinion,interview,explainer,video,photo,liveblog,sponsored',
             'status' => 'required|in:draft,pending,scheduled,published,archived',
-            
-            // Flags
             'isBreaking' => 'boolean',
             'isFeatured' => 'boolean',
             'isPremium' => 'boolean',
             'isExclusive' => 'boolean',
-            
-            // Category (can be ID or slug)
             'category' => 'required',
             'subcategory' => 'nullable',
             'authorId' => 'nullable|exists:users,id',
             'secondaryAuthorId' => 'nullable|exists:users,id',
-            
-            // Media
             'featuredImage' => 'nullable|string',
             'featuredImageAltBn' => 'nullable|string|max:255',
             'featuredImageAltEn' => 'nullable|string|max:255',
-
-            // Guest Author
             'isGuestAuthor' => 'boolean',
             'guestAuthorNameBn' => 'nullable|string|max:255',
             'guestAuthorNameEn' => 'nullable|string|max:255',
             'guestAuthorBioBn' => 'nullable|string',
             'guestAuthorBioEn' => 'nullable|string',
             'guestAuthorImage' => 'nullable|string',
-
-            // SEO
             'metaTitleBn' => 'nullable|string|max:255',
             'metaTitleEn' => 'nullable|string|max:255',
             'metaDescBn' => 'nullable|string|max:500',
             'metaDescEn' => 'nullable|string|max:500',
-            
-            // Publishing
             'scheduledAt' => 'nullable|date',
-
-            // Tags
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:100',
-
-            // Notifications
             'sendPushNotification' => 'boolean',
         ]);
 
-        // Resolve category from slug or ID
-        $category = Category::where('slug', $validated['category'])
-            ->orWhere('id', $validated['category'])
-            ->first();
+        $category = Category::where('slug', $validated['category'])->orWhere('id', $validated['category'])->first();
+        if (!$category) return back()->withErrors(['category' => 'Invalid category']);
 
-        if (!$category) {
-            return back()->withErrors(['category' => 'Invalid category'])->withInput();
-        }
-
-        // Resolve subcategory
         $subcategoryId = null;
         if (!empty($validated['subcategory'])) {
-            $sub = Category::where('parent_id', $category->id)
-                ->where(function($q) use ($validated) {
-                    $q->where('slug', $validated['subcategory'])
-                      ->orWhere('id', $validated['subcategory']);
-                })->first();
+            $sub = Category::where('parent_id', $category->id)->where(function($q) use ($validated) {
+                $q->where('slug', $validated['subcategory'])->orWhere('id', $validated['subcategory']);
+            })->first();
             $subcategoryId = $sub?->id;
         }
 
-        // Auto-generate slugs if not provided or changed
-        $slugBn = $validated['slugBn'] ?? $this->generateSlug($validated['titleBn'], 'slug_bn', $article->id);
+        $slugBn = $validated['slugBn'] ?? $this->generateSlug($validated['titleBn'] ?? '', 'slug_bn', $article->id);
         $slugEn = $validated['slugEn'] ?? ($validated['titleEn'] ? $this->generateSlug($validated['titleEn'], 'slug_en', $article->id) : $article->slug_en);
 
-        // Update published_at when status changes to published
         $publishedAt = $article->published_at;
         $scheduledAt = $article->scheduled_at;
 
@@ -495,10 +417,9 @@ class ArticleController extends Controller
             $publishedAt = now();
         } elseif ($validated['status'] === 'scheduled' && !empty($validated['scheduledAt'])) {
             $scheduledAt = $validated['scheduledAt'];
-            $publishedAt = null; // Unpublish if rescheduling
+            $publishedAt = null;
         }
 
-        // Update article
         $article->update([
             'title_bn' => $validated['titleBn'],
             'title_en' => $validated['titleEn'] ?? null,
@@ -538,36 +459,30 @@ class ArticleController extends Controller
             'scheduled_at' => $scheduledAt,
         ]);
 
-        // Sync tags
-        if (!empty($validated['tags'])) {
+        if (isset($validated['tags'])) {
             $tagIds = [];
             foreach ($validated['tags'] as $tagName) {
-                $tag = \App\Models\Tag::firstOrCreate(
-                    ['slug' => \Illuminate\Support\Str::slug($tagName)],
-                    ['name_bn' => $tagName, 'name_en' => $tagName]
-                );
+                if (empty($tagName)) continue;
+                $tag = Tag::firstOrCreate(['slug' => Str::slug($tagName)], ['name_bn' => $tagName, 'name_en' => $tagName]);
                 $tagIds[] = $tag->id;
             }
             $article->tags()->sync($tagIds);
-        } else {
-            $article->tags()->sync([]);
         }
 
-        // Handle push notification for breaking news
-        if ($article->is_breaking && ($validated['sendPushNotification'] ?? false) && $article->wasChanged('status')) {
-            // TODO: Dispatch push notification job
-            // BreakingNewsNotification::dispatch($article);
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'article.updated',
+            'description' => "Updated article: {$article->title_bn}",
+            'properties' => ['article_id' => $article->id],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'article' => $article->fresh()->load(['category', 'author', 'tags'])]);
         }
 
-        if ($request->expectsJson() || $request->header('Accept') === 'application/json') {
-            return response()->json([
-                'success' => true,
-                'article' => $article->fresh()->load(['category', 'author', 'tags']),
-            ]);
-        }
-
-        return redirect()->route('admin.news')
-            ->with('success', 'Article updated successfully');
+        return redirect()->route('admin.news')->with('success', 'Article updated successfully');
     }
 
     /**
@@ -581,17 +496,51 @@ class ArticleController extends Controller
             }
         }
 
+        $title = $article->title_bn;
         $article->delete();
 
-        if ($request->expectsJson() || $request->header('Accept') === 'application/json') {
-            return response()->json([
-                'success' => true,
-                'message' => 'Article deleted successfully',
-            ]);
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'article.deleted',
+            'description' => "Deleted article: {$title}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Article deleted successfully']);
         }
 
-        return redirect()->route('admin.news')
-            ->with('success', 'Article deleted successfully');
+        return back()->with('success', 'Article deleted successfully');
+    }
+
+    /**
+     * Remove multiple articles
+     */
+    public function bulkDestroy(Request $request)
+    {
+        if (!$request->user()->hasPermission('news.delete')) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'article_ids' => 'required|array',
+            'article_ids.*' => 'exists:articles,id',
+        ]);
+
+        $count = Article::whereIn('id', $validated['article_ids'])->count();
+        Article::whereIn('id', $validated['article_ids'])->delete();
+
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'article.bulk_deleted',
+            'description' => "Bulk deleted {$count} articles",
+            'properties' => ['count' => $count],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return back()->with('success', "{$count} articles deleted successfully");
     }
 
     /**
@@ -599,32 +548,24 @@ class ArticleController extends Controller
      */
     protected function generateSlug(string $title, string $column, ?int $excludeId = null): string
     {
-        // Unicode-friendly slugify: keep letters, numbers, spaces and dashes
         $slug = mb_strtolower($title, 'UTF-8');
         $slug = preg_replace('/[^\p{L}\p{N}\s-]+/u', '', $slug);
         $slug = preg_replace('/\s+/u', '-', $slug);
         $slug = preg_replace('/-+/u', '-', $slug);
         $slug = trim($slug, '-');
 
-        // Fallback for empty slug
-        if (empty($slug)) {
-            $slug = Str::random(8);
-        }
+        if (empty($slug)) $slug = Str::random(8);
 
         $originalSlug = $slug;
         $counter = 1;
 
         $query = Article::where($column, $slug);
-        if ($excludeId) {
-            $query->where('id', '!=', $excludeId);
-        }
+        if ($excludeId) $query->where('id', '!=', $excludeId);
 
         while ($query->exists()) {
             $slug = $originalSlug . '-' . $counter;
             $query = Article::where($column, $slug);
-            if ($excludeId) {
-                $query->where('id', '!=', $excludeId);
-            }
+            if ($excludeId) $query->where('id', '!=', $excludeId);
             $counter++;
         }
 
@@ -646,30 +587,22 @@ class ArticleController extends Controller
             'status' => 'required|in:draft,pending,published,archived',
         ]);
 
-        $updateData = [];
+        $updateData = ['status' => $validated['status']];
         if ($validated['status'] === 'published') {
             $updateData['published_at'] = now();
         }
 
-        Article::whereIn('id', $validated['article_ids'])
-            ->update(array_merge($updateData, ['status' => $validated['status']]));
+        Article::whereIn('id', $validated['article_ids'])->update($updateData);
+
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'article.bulk_status',
+            'description' => "Bulk updated status to {$validated['status']} for " . count($validated['article_ids']) . " articles",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         return back()->with('success', count($validated['article_ids']) . ' articles updated');
-    }
-
-    /**
-     * Publish scheduled articles (called by scheduler)
-     */
-    public function publishScheduled()
-    {
-        $count = Article::where('status', 'scheduled')
-            ->where('scheduled_at', '<=', now())
-            ->update([
-                'status' => 'published',
-                'published_at' => now(),
-            ]);
-
-        return response()->json(['published' => $count]);
     }
 
     /**
@@ -683,11 +616,13 @@ class ArticleController extends Controller
 
         $result = ArticleStatusWorkflow::transition($article, $validated['status']);
 
-        if ($result['success']) {
-            return response()->json($result);
+        if ($request->wantsJson()) {
+            return response()->json($result, $result['success'] ? 200 : 403);
         }
 
-        return response()->json($result, 403);
+        return $result['success'] 
+            ? back()->with('success', 'Status updated')
+            : back()->withErrors(['status' => $result['message']]);
     }
 
     /**

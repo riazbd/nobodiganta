@@ -46,6 +46,17 @@ class MediaController extends Controller
 
         $media = $query->paginate(24);
 
+        if ($request->wantsJson() || $request->ajax() || $request->header('Accept') === 'application/json') {
+            $media->getCollection()->transform(function ($item) {
+                $item->url = asset('storage/' . $item->file_path);
+                return $item;
+            });
+            
+            return response()->json([
+                'media' => $media,
+            ]);
+        }
+
         return Inertia::render('features/admin/pages/media/MediaLibrary', [
             'media' => $media,
             'filters' => $request->only(['edition', 'type', 'search']),
@@ -187,11 +198,11 @@ class MediaController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
-        return $request->wantsJson() 
+        return $request->wantsJson() || $request->ajax()
             ? response()->json([
                 'success' => true,
                 'media' => $media,
-                'url' => $media->url,
+                'url' => asset('storage/' . $media->file_path),
             ], 201)
             : back()->with('success', 'Media uploaded successfully');
     }

@@ -284,73 +284,67 @@ export default function WriteNews() {
     form.setData('tags', form.data.tags.filter((t) => t !== tagToRemove));
   };
 
-  const handlePublish = () => {
+  const getSubmitUrl = () => {
+    return article ? route('admin.news.update', { article: article.id }) : route('admin.news.store');
+  };
+
+  const submitForm = (status, successMessage) => {
     // Validate required fields based on edition
     const needsBn = form.data.edition === 'bn' || form.data.edition === 'both';
     const needsEn = form.data.edition === 'en' || form.data.edition === 'both';
 
-    if (needsBn && !form.data.titleBn.trim()) {
-      showToast(lang === 'bn' ? 'বাংলা শিরোনাম প্রয়োজন!' : 'Bengali title is required!');
+    if (needsBn && !form.data.titleBn?.trim()) {
+      showToast(lang === 'bn' ? 'বাংলা শিরোনাম প্রয়োজন!' : 'Bengali title is required!', 'error');
+      setCurrentStep(1); // Go to content step
       return;
     }
-    if (needsEn && !form.data.titleEn.trim()) {
-      showToast(lang === 'bn' ? 'ইংরেজি শিরোনাম প্রয়োজন!' : 'English title is required!');
+    if (needsEn && !form.data.titleEn?.trim()) {
+      showToast(lang === 'bn' ? 'ইংরেজি শিরোনাম প্রয়োজন!' : 'English title is required!', 'error');
+      setCurrentStep(1);
       return;
     }
-    if (needsBn && !form.data.bodyBn.trim()) {
-      showToast(lang === 'bn' ? 'বাংলা বিষয়বস্তু প্রয়োজন!' : 'Bengali content is required!');
+    if (needsBn && !form.data.bodyBn?.trim()) {
+      showToast(lang === 'bn' ? 'বাংলা বিষয়বস্তু প্রয়োজন!' : 'Bengali content is required!', 'error');
+      setCurrentStep(1);
       return;
     }
-    if (needsEn && !form.data.bodyEn.trim()) {
-      showToast(lang === 'bn' ? 'ইংরেজি বিষয়বস্তু প্রয়োজন!' : 'English content is required!');
+    if (needsEn && !form.data.bodyEn?.trim()) {
+      showToast(lang === 'bn' ? 'ইংরেজি বিষয়বস্তু প্রয়োজন!' : 'English content is required!', 'error');
+      setCurrentStep(1);
       return;
     }
 
-    // Validate category-edition match
-    if (form.data.category) {
-      const selectedCategory = categories.find((c) => c.slug === form.data.category);
-      if (selectedCategory && selectedCategory.edition !== 'both' && selectedCategory.edition !== form.data.edition) {
-        showToast(
-          lang === 'bn'
-            ? `বিভাগ "${selectedCategory.nameBn}" শুধুমাত্র ${selectedCategory.edition === 'bn' ? 'বাংলা' : 'ইংরেজি'} এডিশনের জন্য!`
-            : `Category "${selectedCategory.nameEn || selectedCategory.nameBn}" is for ${selectedCategory.edition === 'bn' ? 'Bangla' : 'English'} edition only!`
-        );
-        return;
+    if (!form.data.category) {
+      showToast(lang === 'bn' ? 'একটি বিভাগ নির্বাচন করুন!' : 'Category is required!', 'error');
+      setCurrentStep(0);
+      return;
+    }
+
+    const payload = { ...form.data, status };
+    if (article) {
+       payload._method = 'put';
+    }
+
+    router.post(getSubmitUrl(), payload, {
+      preserveScroll: true,
+      onSuccess: () => showToast(successMessage),
+      onError: (errors) => {
+        const errMsg = Object.values(errors).flat()[0] || (lang === 'bn' ? 'সংরক্ষণ করতে ব্যর্থ' : 'Failed to save');
+        showToast(errMsg, 'error');
       }
-    }
-
-    form.transform((data) => ({ ...data, status: 'published' }));
-    const url = article ? route('admin.news.update', { article: article.id }) : route('admin.news.store');
-    const method = article ? 'put' : 'post';
-    form[method](url, {
-      onSuccess: () => showToast(lang === 'bn' ? 'সংবাদ প্রকাশিত হয়েছে!' : 'Article published!'),
     });
   };
 
-  const handleDraft = () => {
-    form.transform((data) => ({ ...data, status: 'draft' }));
-    const url = article ? route('admin.news.update', { article: article.id }) : route('admin.news.store');
-    const method = article ? 'put' : 'post';
-    form[method](url, {
-      onSuccess: () => showToast(lang === 'bn' ? 'ড্রাফট সংরক্ষিত হয়েছে' : 'Draft saved'),
-    });
-  };
-
-  const handleSubmitForReview = () => {
-    form.transform((data) => ({ ...data, status: 'pending' }));
-    const url = article ? route('admin.news.update', { article: article.id }) : route('admin.news.store');
-    const method = article ? 'put' : 'post';
-    form[method](url, {
-      onSuccess: () => showToast(lang === 'bn' ? 'অনুমোদনের জন্য পাঠানো হয়েছে' : 'Sent for approval'),
-    });
-  };
+  const handlePublish = () => submitForm('published', lang === 'bn' ? 'সংবাদ প্রকাশিত হয়েছে!' : 'Article published!');
+  const handleDraft = () => submitForm('draft', lang === 'bn' ? 'ড্রাফট সংরক্ষিত হয়েছে' : 'Draft saved');
+  const handleSubmitForReview = () => submitForm('pending', lang === 'bn' ? 'অনুমোদনের জন্য পাঠানো হয়েছে' : 'Sent for approval');
 
   const [activeMediaTarget, setActiveMediaTarget] = useState('featured'); // 'featured' or 'guest'
 
   const handleFeaturedFileSelected = async (files) => {
     if (!files?.length) return;
     const file = files[0];
-    setMediaFiles([file]);
+    
     setUploadingFeatured(true);
     try {
       const formData = new FormData();
@@ -373,7 +367,6 @@ export default function WriteNews() {
           featuredImageAltBn: data.media?.alt_text_bn || '',
           featuredImageAltEn: data.media?.alt_text_en || '',
         });
-        setMediaFiles([]);
       } else {
         const errMsg = data.errors
           ? Object.values(data.errors).flat().join(' ')

@@ -1,105 +1,53 @@
-import { useState, useEffect, useCallback } from 'react';
-import { router } from '@inertiajs/react';
-import { Search, Filter, Plus, Eye, Edit3, Trash2, Send, ChevronDown, X, Loader2, AlertTriangle } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Search, Filter, Plus, Eye, Edit3, Trash2, Send, ChevronDown, X, Loader2, AlertTriangle, Globe, Clock, CheckCircle } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { Pagination } from '../../components/data/Pagination';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { usePermission } from '../../hooks/usePermission';
-import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
 import { PERMISSIONS } from '../../api/permissions';
 
-export default function AllNews() {
+export default function AllNews({ articles, categories, filters }) {
   const { lang, t } = useLanguage();
   const { showToast } = useToast();
   const { hasPermission } = usePermission();
-  const { onNavigate } = useAdminNavigation();
 
-  // State
-  const [articles, setArticles] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
+  // Filters from URL/Props
+  const [searchQuery, setSearchQuery] = useState(filters.search || '');
+  const [statusFilter, setStatusFilter] = useState(filters.status || 'all');
+  const [categoryFilter, setCategoryFilter] = useState(filters.category || 'all');
+  
   const [selectedArticles, setSelectedArticles] = useState([]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
 
-  const itemsPerPage = 15;
+  // Debounced search / filter update
+  const applyFilters = useCallback((newFilters) => {
+    router.get(route('admin.news'), {
+      ...filters,
+      ...newFilters,
+      page: 1, // Reset to first page on filter change
+    }, { preserveState: true, preserveScroll: true });
+  }, [filters]);
 
-  // Fetch data from API
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Fetch articles
-      const articlesRes = await fetch('/admin/news?format=json');
-      if (articlesRes.ok) {
-        const articlesData = await articlesRes.json();
-        setArticles(articlesData.articles || []);
-      }
-
-      // Fetch categories
-      const catRes = await fetch('/api/admin/categories');
-      if (catRes.ok) {
-        const catData = await catRes.json();
-        const transformed = catData.map(c => ({
-          id: c.id,
-          nameBn: c.name_bn || '',
-          nameEn: c.name_en || '',
-          slug: c.slug || '',
-        }));
-        setCategories(transformed);
-      }
-    } catch (err) {
-      console.error('Error fetching data:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  const handleSearch = (e) => {
+    const val = e.target.value;
+    setSearchQuery(val);
+    // Real-time search with Inertia might be slow, but for now it's okay for 20 items per page
+    // For better UX, we could use a debounce here.
   };
 
-  // Filter articles
-  const filtered = articles.filter(a => {
-    const title = (a.title || '').toLowerCase();
-    const titleEn = (a.title_en || '').toLowerCase();
-    const author = (a.author || '').toLowerCase();
-    const q = searchQuery.toLowerCase();
-
-    const matchesSearch = !searchQuery || title.includes(q) || titleEn.includes(q) || author.includes(q);
-    const matchesStatus = statusFilter === 'all' || a.status === statusFilter;
-    const matchesCategory = categoryFilter === 'all' || a.category?.slug === categoryFilter;
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const handleSearchSubmit = (e) => {
+     if (e.key === 'Enter') applyFilters({ search: searchQuery });
+  };
 
   const statusMap = {
     published: { textBn: 'প্রকাশিত', textEn: 'Published', variant: 'green' },
     draft: { textBn: 'ড্রাফট', textEn: 'Draft', variant: 'gray' },
     pending: { textBn: 'অনুমোদন অপেক্ষায়', textEn: 'Pending', variant: 'orange' },
-    in_review: { textBn: 'পর্যালোচনাধীন', textEn: 'In Review', variant: 'blue' },
     scheduled: { textBn: 'নির্ধারিত', textEn: 'Scheduled', variant: 'purple' },
     archived: { textBn: 'আর্কাইভড', textEn: 'Archived', variant: 'blue' },
-  };
-
-  const getCategoryColor = (slug) => {
-    const colors = {
-      bangladesh: 'red', international: 'blue', politics: 'purple', economy: 'green',
-      sports: 'red', entertainment: 'purple', opinion: 'orange', technology: 'cyan',
-      lifestyle: 'pink', education: 'purple', health: 'green', environment: 'green',
-      probash: 'orange', business: 'cyan', 'islamic-life': 'green', horoscope: 'purple',
-    };
-    return colors[slug] || 'blue';
   };
 
   const formatDate = (dateStr) => {
@@ -109,105 +57,47 @@ export default function AllNews() {
   };
 
   // Actions
-  const handleDelete = async (article) => {
+  const handleDelete = (articleId) => {
     setSubmitting(true);
-    try {
-      const res = await fetch(`/admin/news/${article.id}`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-          'Accept': 'application/json',
-        },
-      });
-      if (!res.ok) throw new Error('Delete failed');
-      setDeleteConfirm(null);
-      showToast(lang === 'bn' ? 'সংবাদ মুছে ফেলা হয়েছে' : 'Article deleted');
-      await fetchData();
-    } catch (err) {
-      console.error('Error deleting:', err);
-      showToast(lang === 'bn' ? 'মুছে ফেলতে ব্যর্থ' : 'Failed to delete');
-    } finally {
-      setSubmitting(false);
-    }
+    router.delete(route('admin.news.destroy', { article: articleId }), {
+      onSuccess: () => {
+        showToast(lang === 'bn' ? 'সংবাদ মুছে ফেলা হয়েছে' : 'Article deleted');
+        setDeleteConfirm(null);
+      },
+      onFinish: () => setSubmitting(false),
+    });
   };
 
-  const handleEdit = (articleId) => {
-    router.visit(`/admin/news/${articleId}/edit`);
+  const handleApprove = (articleId) => {
+    router.patch(route('admin.news.transition-status', { article: articleId }), { status: 'published' }, {
+      onSuccess: () => showToast(lang === 'bn' ? 'সংবাদ প্রকাশিত হয়েছে' : 'Article published'),
+    });
   };
 
-  const handleView = (articleId) => {
-    // Navigate to the article preview page
-    const article = articles.find(a => a.id === articleId);
-    if (article) {
-      const slug = article.slug || '';
-      const catSlug = article.category?.slug || '';
-      window.open(`/${catSlug}/${slug}`, '_blank');
-    }
-  };
-
-  const handleApprove = async (articleId) => {
-    setSubmitting(true);
-    try {
-      const res = await fetch(`/admin/news/${articleId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ status: 'published' }),
-      });
-      if (!res.ok) throw new Error('Approval failed');
-      showToast(lang === 'bn' ? 'সংবাদ অনুমোদিত হয়েছে!' : 'Article approved!');
-      await fetchData();
-    } catch (err) {
-      console.error('Error approving:', err);
-      showToast(lang === 'bn' ? 'অনুমোদন করতে ব্যর্থ' : 'Failed to approve');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleBulkAction = async (action) => {
+  const handleBulkAction = (status) => {
     if (selectedArticles.length === 0) return;
-    setSubmitting(true);
-    try {
-      let status;
-      if (action === 'approve') status = 'published';
-      else if (action === 'archive') status = 'archived';
-      else if (action === 'draft') status = 'draft';
-
-      if (status) {
-        const res = await fetch('/admin/news/bulk-status', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify({ article_ids: selectedArticles, status }),
-        });
-        if (!res.ok) throw new Error('Bulk action failed');
-      } else if (action === 'delete') {
-        for (const id of selectedArticles) {
-          await fetch(`/admin/news/${id}`, {
-            method: 'DELETE',
-            headers: {
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-              'Accept': 'application/json',
-            },
+    
+    if (status === 'delete') {
+       if (confirm(lang === 'bn' ? 'নির্বাচিত সংবাদগুলো মুছে ফেলতে চান?' : 'Delete selected articles?')) {
+          router.post(route('admin.news.bulk-delete'), { article_ids: selectedArticles }, {
+            onSuccess: () => {
+               showToast(lang === 'bn' ? 'নির্বাচিত সংবাদ মুছে ফেলা হয়েছে' : 'Selected articles deleted');
+               setSelectedArticles([]);
+            }
           });
-        }
-      }
-      showToast(`${selectedArticles.length} ${lang === 'bn' ? 'টি সংবাদ আপডেট হয়েছে' : 'articles updated'}`);
-      setSelectedArticles([]);
-      await fetchData();
-    } catch (err) {
-      console.error('Error bulk action:', err);
-      showToast(lang === 'bn' ? 'বাল্ক অ্যাকশন ব্যর্থ' : 'Bulk action failed');
-    } finally {
-      setSubmitting(false);
+       }
+       return;
     }
+
+    router.post(route('admin.news.bulk-status'), { 
+      article_ids: selectedArticles, 
+      status: status 
+    }, {
+      onSuccess: () => {
+        showToast(lang === 'bn' ? 'নির্বাচিত সংবাদ আপডেট করা হয়েছে' : 'Selected articles updated');
+        setSelectedArticles([]);
+      }
+    });
   };
 
   const toggleSelect = (id) => {
@@ -215,203 +105,215 @@ export default function AllNews() {
   };
 
   const toggleAll = () => {
-    if (selectedArticles.length === paginated.length) {
+    if (selectedArticles.length === articles.data.length) {
       setSelectedArticles([]);
     } else {
-      setSelectedArticles(paginated.map(a => a.id));
+      setSelectedArticles(articles.data.map(a => a.id));
     }
   };
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#e8001e] mx-auto mb-3" />
-          <p className="text-sm text-[var(--text-muted,#9ca3af)]">
-            {lang === 'bn' ? 'সংবাদ লোড হচ্ছে...' : 'Loading articles...'}
+  return (
+    <div className="p-6">
+      <Head title={lang === 'bn' ? 'সব সংবাদ' : 'All News'} />
+
+      {/* Page Header */}
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-[#1a1d2e] font-['Noto_Sans_Bengali'] flex items-center gap-3">
+            <Globe className="w-7 h-7 text-[#e8001e]" /> 
+            {lang === 'bn' ? 'সংবাদ ব্যবস্থাপনা' : 'News Management'}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1.5">
+            {lang === 'bn' ? 'পোর্টালের সকল সংবাদ এখান থেকে পরিচালনা করুন' : 'Manage all portal news articles from here'}
           </p>
         </div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-        <AlertTriangle className="w-10 h-10 text-red-500 mx-auto mb-3" />
-        <h3 className="text-sm font-semibold text-red-700 mb-1">
-          {lang === 'bn' ? 'ত্রুটি হয়েছে' : 'Error loading articles'}
-        </h3>
-        <p className="text-xs text-red-600 mb-4">{error}</p>
-        <button onClick={fetchData} className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700">
-          {lang === 'bn' ? 'আবার চেষ্টা করুন' : 'Try Again'}
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      {/* Page Header */}
-      <div className="flex items-start justify-between mb-5.5">
-        <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">📰 {lang === 'bn' ? 'সব সংবাদ' : 'All News'}</h1>
-          <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'সকল সংবাদ পরিচালনা করুন' : 'Manage all articles'}</p>
-        </div>
-        <div className="flex items-center gap-2.5">
-          {hasPermission(PERMISSIONS.NEWS_CREATE) && (
-            <button onClick={() => onNavigate?.('news-write')} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
-              <Plus className="w-4 h-4" /> {lang === 'bn' ? 'নতুন সংবাদ' : 'New Article'}
-            </button>
-          )}
-        </div>
+        <Link 
+          href={route('admin.news.write')} 
+          className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#c00] transition-all shadow-md active:scale-95"
+        >
+          <Plus className="w-5 h-5" /> {lang === 'bn' ? 'নতুন সংবাদ' : 'New Article'}
+        </Link>
       </div>
 
-      {/* Filters */}
-      <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-4 mb-4.5">
-        <div className="flex flex-wrap gap-3 items-center">
-          <div className="flex items-center bg-[var(--body-bg,#f0f2f8)] border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.75 gap-2 flex-1 min-w-[200px]">
-            <Search className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)]" />
+      {/* Filters Bar */}
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4 mb-6">
+        <div className="flex flex-wrap gap-4 items-center">
+          {/* Search */}
+          <div className="flex items-center bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 gap-3 flex-1 min-w-[280px] focus-within:border-[#e8001e]/30 focus-within:bg-white transition-all">
+            <Search className="w-4.5 h-4.5 text-gray-400" />
             <input
               type="text"
-              placeholder={lang === 'bn' ? 'সংবাদ খুঁজুন...' : 'Search articles...'}
+              placeholder={lang === 'bn' ? 'শিরোনাম বা লেখক দিয়ে খুঁজুন...' : 'Search by title or author...'}
               value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className="border-none bg-transparent outline-none text-[12.5px] text-[var(--text-primary,#1a1d2e)] w-full placeholder:text-[var(--text-muted,#9ca3af)]"
+              onChange={handleSearch}
+              onKeyDown={handleSearchSubmit}
+              className="border-none bg-transparent outline-none text-sm text-gray-700 w-full placeholder:text-gray-400"
             />
-            {searchQuery && <button onClick={() => setSearchQuery('')}><X className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)]" /></button>}
+            {searchQuery && <button onClick={() => { setSearchQuery(''); applyFilters({ search: '' }); }}><X className="w-4 h-4 text-gray-400 hover:text-gray-600" /></button>}
           </div>
-          <div className="relative">
+
+          {/* Status Filter */}
+          <div className="relative min-w-[160px]">
             <select
               value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-              className="appearance-none border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.75 pr-8 text-xs outline-none bg-[var(--body-bg,#f0f2f8)] cursor-pointer"
+              onChange={(e) => { setStatusFilter(e.target.value); applyFilters({ status: e.target.value }); }}
+              className="w-full appearance-none border border-gray-100 rounded-xl px-4 py-2.5 text-sm outline-none bg-gray-50 cursor-pointer focus:bg-white transition-all font-medium"
             >
-              <option value="all">{lang === 'bn' ? 'সব অবস্থা' : 'All Status'}</option>
+              <option value="all">{lang === 'bn' ? 'সব অবস্থা (Status)' : 'All Status'}</option>
               <option value="published">{lang === 'bn' ? 'প্রকাশিত' : 'Published'}</option>
               <option value="draft">{lang === 'bn' ? 'ড্রাফট' : 'Draft'}</option>
               <option value="pending">{lang === 'bn' ? 'অনুমোদন অপেক্ষায়' : 'Pending'}</option>
-              <option value="in_review">{lang === 'bn' ? 'পর্যালোচনাধীন' : 'In Review'}</option>
               <option value="scheduled">{lang === 'bn' ? 'নির্ধারিত' : 'Scheduled'}</option>
               <option value="archived">{lang === 'bn' ? 'আর্কাইভড' : 'Archived'}</option>
             </select>
-            <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-muted,#9ca3af)] pointer-events-none" />
+            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
-          <div className="relative">
+
+          {/* Category Filter */}
+          <div className="relative min-w-[180px]">
             <select
               value={categoryFilter}
-              onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
-              className="appearance-none border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.75 pr-8 text-xs outline-none bg-[var(--body-bg,#f0f2f8)] cursor-pointer"
+              onChange={(e) => { setCategoryFilter(e.target.value); applyFilters({ category: e.target.value }); }}
+              className="w-full appearance-none border border-gray-100 rounded-xl px-4 py-2.5 text-sm outline-none bg-gray-50 cursor-pointer focus:bg-white transition-all font-medium"
             >
               <option value="all">{lang === 'bn' ? 'সব বিভাগ' : 'All Categories'}</option>
               {categories.map(c => (
-                <option key={c.id} value={c.slug}>{lang === 'bn' ? c.nameBn : c.nameEn}</option>
+                <option key={c.id} value={c.slug}>{lang === 'bn' ? c.name_bn : (c.name_en || c.name_bn)}</option>
               ))}
             </select>
-            <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-muted,#9ca3af)] pointer-events-none" />
-          </div>
-          <div className="text-xs text-[var(--text-muted,#9ca3af)] ml-auto">
-            {filtered.length} {lang === 'bn' ? 'টি সংবাদ পাওয়া গেছে' : 'articles found'}
+            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
         </div>
 
-        {/* Bulk Actions */}
+        {/* Bulk Actions UI */}
         {selectedArticles.length > 0 && (
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[var(--card-border,#e8ebf4)]">
-            <span className="text-xs text-[var(--text-muted,#9ca3af)]">{selectedArticles.length} {lang === 'bn' ? 'টি নির্বাচিত' : 'selected'}</span>
-            <button onClick={() => handleBulkAction('approve')} disabled={submitting} className="bg-[#10b981] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md hover:bg-[#059669] transition-colors disabled:opacity-50">
-              {lang === 'bn' ? 'অনুমোদন' : 'Approve'}
-            </button>
-            <button onClick={() => handleBulkAction('archive')} disabled={submitting} className="bg-white text-[var(--text-secondary,#6b7280)] border border-[var(--card-border,#e8ebf4)] text-[11px] font-semibold px-2.5 py-1 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50">
-              {lang === 'bn' ? 'আর্কাইভ' : 'Archive'}
-            </button>
-            <button onClick={() => handleBulkAction('draft')} disabled={submitting} className="bg-white text-[var(--text-secondary,#6b7280)] border border-[var(--card-border,#e8ebf4)] text-[11px] font-semibold px-2.5 py-1 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50">
-              {lang === 'bn' ? 'ড্রাফট' : 'Draft'}
-            </button>
-            <button onClick={() => handleBulkAction('delete')} disabled={submitting} className="bg-white text-[#e8001e] border border-[#e8001e] text-[11px] font-semibold px-2.5 py-1 rounded-md hover:bg-[#fff0f2] transition-colors disabled:opacity-50">
-              {lang === 'bn' ? 'মুছুন' : 'Delete'}
-            </button>
-            <button onClick={() => setSelectedArticles([])} disabled={submitting} className="text-[11px] text-[var(--text-muted,#9ca3af)] hover:text-[var(--text-primary,#1a1d2e)] transition-colors ml-2 disabled:opacity-50">
-              {lang === 'bn' ? 'বাতিল' : 'Clear'}
-            </button>
+          <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-50 animate-in slide-in-from-top-2 duration-300">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{selectedArticles.length} {lang === 'bn' ? 'টি নির্বাচিত' : 'Selected'}:</span>
+            <div className="flex gap-2">
+               <button onClick={() => handleBulkAction('published')} className="bg-green-50 text-green-600 border border-green-100 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-green-100 transition-colors">
+                 {lang === 'bn' ? 'প্রকাশ করুন' : 'Publish'}
+               </button>
+               <button onClick={() => handleBulkAction('draft')} className="bg-gray-50 text-gray-600 border border-gray-100 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-gray-100 transition-colors">
+                 {lang === 'bn' ? 'ড্রাফট করুন' : 'Move to Draft'}
+               </button>
+               <button onClick={() => handleBulkAction('archived')} className="bg-blue-50 text-blue-600 border border-blue-100 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-blue-100 transition-colors">
+                 {lang === 'bn' ? 'আর্কাইভ করুন' : 'Archive'}
+               </button>
+               <button onClick={() => setSelectedArticles([])} className="text-xs font-bold text-gray-400 hover:text-gray-600 px-2">
+                 {lang === 'bn' ? 'বাতিল' : 'Cancel'}
+               </button>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Table */}
-      <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
+      {/* Articles Table */}
+      <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden mb-6">
         <table className="w-full border-collapse">
           <thead>
-            <tr>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left w-10">
-                <input type="checkbox" checked={selectedArticles.length === paginated.length && paginated.length > 0} onChange={toggleAll} className="rounded" />
+            <tr className="bg-gray-50/50 text-gray-400 text-[10px] font-bold uppercase tracking-widest border-b border-gray-100">
+              <th className="px-6 py-4 text-left w-10">
+                <input 
+                  type="checkbox" 
+                  checked={selectedArticles.length === articles.data.length && articles.data.length > 0} 
+                  onChange={toggleAll} 
+                  className="rounded border-gray-300 text-[#e8001e] focus:ring-[#e8001e]" 
+                />
               </th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'শিরোনাম' : 'Title'}</th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'বিভাগ' : 'Category'}</th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'লেখক' : 'Author'}</th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'পাঠক' : 'Views'}</th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'অবস্থা' : 'Status'}</th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'তারিখ' : 'Date'}</th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'কাজ' : 'Actions'}</th>
+              <th className="px-4 py-4 text-left">{lang === 'bn' ? 'সংবাদ ও তথ্য' : 'Article & Info'}</th>
+              <th className="px-4 py-4 text-left">{lang === 'bn' ? 'বিভাগ' : 'Category'}</th>
+              <th className="px-4 py-4 text-left">{lang === 'bn' ? 'অবস্থা' : 'Status'}</th>
+              <th className="px-4 py-4 text-left">{lang === 'bn' ? 'পাঠক ও সময়' : 'Stats & Time'}</th>
+              <th className="px-6 py-4 text-right">{lang === 'bn' ? 'অ্যাকশন' : 'Actions'}</th>
             </tr>
           </thead>
-          <tbody>
-            {paginated.length === 0 ? (
-              <tr><td colSpan="8" className="text-center py-12 text-[var(--text-muted,#9ca3af)]">{lang === 'bn' ? 'কোনো সংবাদ পাওয়া যায়নি' : 'No articles found'}</td></tr>
+          <tbody className="divide-y divide-gray-50">
+            {articles.data.length === 0 ? (
+              <tr><td colSpan="6" className="text-center py-20 text-gray-400 font-medium">{lang === 'bn' ? 'কোনো সংবাদ পাওয়া যায়নি' : 'No articles found in this view'}</td></tr>
             ) : (
-              paginated.map(article => {
+              articles.data.map(article => {
                 const status = statusMap[article.status] || statusMap.draft;
                 return (
-                  <tr key={article.id} className="hover:bg-[#fafbff] transition-colors">
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                      <input type="checkbox" checked={selectedArticles.includes(article.id)} onChange={() => toggleSelect(article.id)} className="rounded" />
+                  <tr key={article.id} className="hover:bg-[#fafbff] transition-colors group">
+                    <td className="px-6 py-4">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedArticles.includes(article.id)} 
+                        onChange={() => toggleSelect(article.id)} 
+                        className="rounded border-gray-300 text-[#e8001e] focus:ring-[#e8001e]" 
+                      />
                     </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                      <div className="font-semibold text-[var(--text-primary,#1a1d2e)] text-[13px] truncate max-w-xs">
-                        {lang === 'bn' ? (article.title || article.title_bn) : (article.title_en || article.title)}
-                      </div>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {article.edition && <span className="text-[9px] px-1 py-0.5 rounded bg-gray-100 text-gray-500 font-bold uppercase">{article.edition}</span>}
-                        {article.is_breaking && <Badge variant="red" className="text-[9px]">🔴 {lang === 'bn' ? 'ব্রেকিং' : 'Breaking'}</Badge>}
-                        {article.is_exclusive && <Badge variant="orange" className="text-[9px]">🔥 {lang === 'bn' ? 'এক্সক্লুসিভ' : 'Exclusive'}</Badge>}
-                        {article.is_featured && <Badge variant="blue" className="text-[9px]">⭐ {lang === 'bn' ? 'ফিচার্ড' : 'Featured'}</Badge>}
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col gap-1 max-w-md">
+                        <div className="font-bold text-[#1a1d2e] text-sm group-hover:text-[#e8001e] transition-colors line-clamp-1">
+                          {lang === 'bn' ? article.title : (article.title_en || article.title)}
+                        </div>
+                        <div className="flex items-center gap-3 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                           <span className="flex items-center gap-1"><User className="w-3 h-3" /> {article.author}</span>
+                           {article.edition && <span className="bg-gray-100 px-1.5 py-0.5 rounded text-[9px]">{article.edition}</span>}
+                        </div>
+                        <div className="flex gap-1.5 mt-1">
+                           {article.is_breaking && <Badge variant="red" className="text-[8px] py-0 px-1.5">BREAKING</Badge>}
+                           {article.is_featured && <Badge variant="blue" className="text-[8px] py-0 px-1.5">FEATURED</Badge>}
+                        </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
+                    <td className="px-4 py-4">
                       {article.category && (
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: article.category.color_code || article.category.color || '#e8001e' }} />
-                          <span className="text-xs font-medium">
-                            {lang === 'bn' ? article.category.name : article.category.name_en || article.category.name}
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full shadow-sm" style={{ backgroundColor: article.category.color_code || '#e8001e' }} />
+                          <span className="text-xs font-bold text-gray-600">
+                            {lang === 'bn' ? article.category.name : article.category.name_en}
                           </span>
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6] text-[12.5px] text-[var(--text-secondary,#6b7280)]">
-                      {typeof article.author === 'object' ? article.author?.name : (article.author || '—')}
+                    <td className="px-4 py-4">
+                      <Badge variant={status.variant} className="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5">
+                        {lang === 'bn' ? status.textBn : status.textEn}
+                      </Badge>
                     </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6] text-[12.5px] font-semibold font-['Inter']">{article.views > 0 ? article.views.toLocaleString('en-IN') : '—'}</td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                      <Badge variant={status.variant}>{lang === 'bn' ? status.textBn : status.textEn}</Badge>
+                    <td className="px-4 py-4">
+                       <div className="flex flex-col">
+                          <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                             <Eye className="w-3 h-3 text-blue-500" /> {article.views?.toLocaleString() || 0}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-medium mt-0.5">
+                             {formatDate(article.published_at || article.created_at)}
+                          </span>
+                       </div>
                     </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6] text-[12.5px] text-[var(--text-secondary,#6b7280)]">{formatDate(article.published_at || article.created_at)}</td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                      <div className="flex items-center gap-1.5">
-                        <button onClick={() => handleView(article.id)} className="p-1.5 rounded-md hover:bg-gray-100 transition-colors" title={lang === 'bn' ? 'দেখুন' : 'View'}>
-                          <Eye className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)]" />
-                        </button>
-                        <button onClick={() => handleEdit(article.id)} className="p-1.5 rounded-md hover:bg-gray-100 transition-colors" title={lang === 'bn' ? 'সম্পাদনা' : 'Edit'}>
-                          <Edit3 className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)]" />
-                        </button>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Link 
+                          href={route('admin.news.show', { article: article.id })}
+                          className="p-2 rounded-xl hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-all"
+                          title="View"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                        <Link 
+                          href={route('admin.news.edit', { article: article.id })}
+                          className="p-2 rounded-xl hover:bg-green-50 text-gray-400 hover:text-green-600 transition-all"
+                          title="Edit"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </Link>
                         {article.status === 'pending' && (
-                          <button onClick={() => handleApprove(article.id)} disabled={submitting} className="p-1.5 rounded-md hover:bg-[#ecfdf5] transition-colors disabled:opacity-50" title={lang === 'bn' ? 'অনুমোদন' : 'Approve'}>
-                            <Send className="w-3.5 h-3.5 text-[#10b981]" />
+                          <button 
+                            onClick={() => handleApprove(article.id)}
+                            className="p-2 rounded-xl hover:bg-orange-50 text-gray-400 hover:text-orange-600 transition-all"
+                            title="Approve & Publish"
+                          >
+                            <CheckCircle className="w-4 h-4" />
                           </button>
                         )}
-                        <button onClick={() => setDeleteConfirm(article)} className="p-1.5 rounded-md hover:bg-[#fff0f2] transition-colors" title={lang === 'bn' ? 'মুছুন' : 'Delete'}>
-                          <Trash2 className="w-3.5 h-3.5 text-[#e8001e]" />
+                        <button 
+                          onClick={() => setDeleteConfirm(article)}
+                          className="p-2 rounded-xl hover:bg-red-50 text-gray-400 hover:text-red-600 transition-all"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -421,48 +323,64 @@ export default function AllNews() {
             )}
           </tbody>
         </table>
-        {totalPages > 1 && (
-          <div className="px-5 py-3">
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={(p) => setCurrentPage(p)} />
+        
+        {/* Pagination Integration */}
+        {articles.links && articles.links.length > 3 && (
+          <div className="px-6 py-4 border-t border-gray-50 flex items-center justify-between">
+             <div className="text-xs text-gray-400 font-medium">
+                Showing {articles.from} to {articles.to} of {articles.total} results
+             </div>
+             <div className="flex gap-1">
+                {articles.links.map((link, i) => (
+                   <Link
+                      key={i}
+                      href={link.url || '#'}
+                      dangerouslySetInnerHTML={{ __html: link.label }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                         link.active 
+                            ? 'bg-[#e8001e] text-white' 
+                            : link.url ? 'bg-gray-50 text-gray-600 hover:bg-gray-100' : 'text-gray-300 cursor-not-allowed'
+                      }`}
+                   />
+                ))}
+             </div>
           </div>
         )}
       </div>
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-[var(--card-bg,#ffffff)] rounded-xl shadow-lg w-full max-w-md p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
+        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-gray-100 scale-in-center">
+            <div className="flex flex-col items-center text-center mb-6">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                <AlertTriangle className="w-8 h-8 text-red-600" />
               </div>
-              <div>
-                <h3 className="text-base font-bold">{lang === 'bn' ? 'সংবাদ মুছে ফেলুন?' : 'Delete Article?'}</h3>
-                <p className="text-xs text-[var(--text-muted,#9ca3af)]">
-                  {lang === 'bn' ? 'এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না' : 'This action cannot be undone'}
-                </p>
-              </div>
+              <h3 className="text-xl font-bold text-gray-900">{lang === 'bn' ? 'সংবাদ মুছে ফেলুন?' : 'Delete Article?'}</h3>
+              <p className="text-sm text-gray-500 mt-2">
+                {lang === 'bn' ? 'আপনি কি নিশ্চিত যে আপনি এই সংবাদটি স্থায়ীভাবে মুছে ফেলতে চান?' : 'Are you sure you want to permanently delete this article?'}
+              </p>
             </div>
-            <div className="bg-[var(--body-bg,#f0f2f8)] rounded-lg p-3 mb-4">
-              <div className="text-sm font-semibold truncate">
+            
+            <div className="bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-100 text-left">
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Title</div>
+              <div className="text-sm font-bold text-gray-700 line-clamp-2">
                 {lang === 'bn' ? deleteConfirm.title : (deleteConfirm.title_en || deleteConfirm.title)}
               </div>
-              <div className="text-xs text-[var(--text-muted,#9ca3af)] mt-1">
-                {formatDate(deleteConfirm.published_at || deleteConfirm.created_at)}
-              </div>
             </div>
-            <div className="flex gap-2">
+
+            <div className="flex gap-3">
               <button
-                onClick={() => handleDelete(deleteConfirm)}
+                onClick={() => handleDelete(deleteConfirm.id)}
                 disabled={submitting}
-                className="flex-1 bg-red-600 text-white rounded-lg py-2 text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 bg-red-600 text-white rounded-xl py-3 text-sm font-bold hover:bg-red-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-red-200"
               >
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                {lang === 'bn' ? 'মুছে ফেলুন' : 'Delete'}
+                {lang === 'bn' ? 'হ্যাঁ, মুছুন' : 'Yes, Delete'}
               </button>
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="flex-1 bg-white border border-[var(--card-border,#e8ebf4)] rounded-lg py-2 text-sm font-semibold hover:bg-gray-50 transition-colors"
+                className="flex-1 bg-white border border-gray-200 text-gray-600 rounded-xl py-3 text-sm font-bold hover:bg-gray-50 transition-all"
               >
                 {lang === 'bn' ? 'বাতিল' : 'Cancel'}
               </button>
