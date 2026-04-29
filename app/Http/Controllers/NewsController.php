@@ -176,10 +176,11 @@ class NewsController extends Controller
 
         // 6. Popular tags — live count of published articles only
         $popularTags = Tag::withCount(['articles' => fn($q) => $q->where('status', 'published')])
-            ->having('articles_count', '>', 0)
             ->orderByDesc('articles_count')
-            ->limit(24)
+            ->limit(50)
             ->get()
+            ->filter(fn($t) => $t->articles_count > 0)
+            ->take(24)
             ->map(fn($t) => [
                 'id'    => $t->id,
                 'name'  => $t->getName($edition),
