@@ -4,8 +4,9 @@ import { Save, Send, Image as ImageIcon, X, ChevronLeft, Globe, FileText, Settin
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
-import RichTextEditor from '../../components/editor/RichTextEditor';
+import RichTextEditor from '../../components/editor/TiptapEditor';
 import MediaLibraryModal from '../../components/media/MediaLibraryModal';
+import { detectVideoProvider } from '../../../../lib/video';
 
 function slugify(text, lang) {
   if (!text) return '';
@@ -59,6 +60,7 @@ export default function WriteOpinion() {
     guestAuthorBioBn: '',
     guestAuthorBioEn: '',
     guestAuthorImage: '',
+    allowComments: true,
   });
 
   useEffect(() => {
@@ -80,6 +82,7 @@ export default function WriteOpinion() {
         featuredImageAltBn: '',
         featuredImageAltEn: '',
         isExclusive: !!article.isExclusive,
+        allowComments: article.allowComments !== undefined ? !!article.allowComments : true,
         secondaryAuthorId: article.secondaryAuthorId || '',
         isGuestAuthor: !!article.isGuestAuthor,
         guestAuthorNameBn: article.guestAuthorNameBn || '',
@@ -108,16 +111,30 @@ export default function WriteOpinion() {
     }
   }, [form.data.titleEn]);
 
-  const handleSubmit = (status) => {
-    form.transform(data => ({ ...data, status }));
+  const handleSubmit = (status = null) => {
+    // If status is provided, update form data
+    if (status) {
+      form.setData('status', status);
+    }
+    
+    // We must use form.transform or a manual object if we want to ensure status is included 
+    // because setData is async. However, Inertia's transform is perfect here.
+    form.transform(data => ({
+      ...data,
+      status: status || data.status
+    }));
+
     const url = article ? `/admin/opinions/${article.id}` : '/admin/opinions';
     const method = article ? 'put' : 'post';
     
     form[method](url, {
-      onSuccess: () => showToast(lang === 'bn' ? 'মতামত সংরক্ষিত হয়েছে' : 'Opinion saved successfully'),
+      preserveScroll: true,
+      onSuccess: () => {
+        showToast(lang === 'bn' ? 'মতামত সংরক্ষিত হয়েছে' : 'Opinion saved successfully');
+      },
       onError: (errors) => {
-        showToast(lang === 'bn' ? 'দুঃখিত, কিছু সমস্যা হয়েছে' : 'Sorry, there were some errors', 'error');
-        console.error(errors);
+        const firstError = Object.values(errors)[0];
+        showToast(firstError || (lang === 'bn' ? 'দুঃখিত, কিছু সমস্যা হয়েছে' : 'Sorry, there were some errors'), 'error');
       }
     });
   };
@@ -243,6 +260,15 @@ export default function WriteOpinion() {
               <h3 className="text-sm font-bold">{lang === 'bn' ? 'প্রকাশনা (Publish)' : 'Publish'}</h3>
             </div>
             <div className="space-y-3">
+              {article && (
+                <button 
+                  onClick={() => handleSubmit()} 
+                  disabled={form.processing} 
+                  className="w-full bg-[#10b981] text-white rounded-lg py-2.5 text-sm font-bold hover:bg-[#059669] transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  <Save className="w-4 h-4" /> {lang === 'bn' ? 'পরিবর্তন সংরক্ষণ' : 'Save Changes'}
+                </button>
+              )}
               <button 
                 onClick={() => handleSubmit('published')} 
                 disabled={form.processing} 
@@ -260,11 +286,12 @@ export default function WriteOpinion() {
             </div>
             {article && (
               <div className="mt-4 pt-3 border-t border-gray-50 text-center">
-                <span className={`text-[10px] px-2 py-1 rounded-md font-medium uppercase tracking-wider ${
-                  article.status === 'published' ? 'bg-[#ecfdf5] text-[#10b981]' : 
-                  article.status === 'pending' ? 'bg-orange-50 text-orange-600' : 'bg-gray-100 text-gray-600'
+                <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider ${
+                  form.data.status === 'published' ? 'bg-[#ecfdf5] text-[#10b981]' : 
+                  form.data.status === 'pending' ? 'bg-orange-50 text-orange-600' : 
+                  form.data.status === 'scheduled' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-600'
                 }`}>
-                  Current Status: {article.status}
+                  {lang === 'bn' ? 'বর্তমান অবস্থা' : 'Current Status'}: {form.data.status}
                 </span>
               </div>
             )}
@@ -288,6 +315,20 @@ export default function WriteOpinion() {
                 <div className="text-xs font-bold text-orange-700">{lang === 'bn' ? 'এক্সক্লুসিভ নিবন্ধ' : 'Mark as Exclusive'}</div>
              </label>
 
+             <label className="flex items-center gap-3 cursor-pointer group">
+                <div className="relative">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only" 
+                    checked={form.data.allowComments} 
+                    onChange={e => form.setData('allowComments', e.target.checked)} 
+                  />
+                  <div className={`block w-8 h-5 rounded-full transition-colors ${form.data.allowComments ? 'bg-[#10b981]' : 'bg-gray-200'}`}></div>
+                  <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${form.data.allowComments ? 'translate-x-3' : ''}`}></div>
+                </div>
+                <div className="text-xs font-bold text-gray-700">{lang === 'bn' ? 'মন্তব্য অনুমোদন' : 'Allow Comments'}</div>
+             </label>
+
              <div className="pt-2 border-t border-gray-50">
                 <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'सह-লেখক (Co-author)' : 'Secondary Author'}</label>
                 <select
@@ -300,6 +341,49 @@ export default function WriteOpinion() {
                     <option key={a.id} value={a.id}>{a.name}</option>
                   ))}
                 </select>
+             </div>
+          </div>
+
+          {/* Video Options */}
+          <div className="bg-white p-5 rounded-xl border border-[var(--card-border,#e8ebf4)] shadow-sm space-y-4">
+             <h3 className="text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider mb-2">{lang === 'bn' ? 'ভিডিও অপশন' : 'Video Options'}</h3>
+             
+             <div>
+               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'ভিডিও লিঙ্ক' : 'Video URL'}</label>
+               <input 
+                 type="url" 
+                 value={form.data.videoUrl} 
+                 onChange={e => handleUrlChange(e.target.value)}
+                 placeholder="https://..."
+                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#e8001e]" 
+               />
+             </div>
+
+             <div className="grid grid-cols-2 gap-3">
+               <div>
+                 <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'দৈর্ঘ্য' : 'Duration'}</label>
+                 <input 
+                   type="text" 
+                   value={form.data.videoDuration} 
+                   onChange={e => form.setData('videoDuration', e.target.value)}
+                   placeholder="00:00"
+                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#e8001e]" 
+                 />
+               </div>
+               <div>
+                 <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'সোর্স' : 'Provider'}</label>
+                 <select 
+                   value={form.data.videoProvider} 
+                   onChange={e => form.setData('videoProvider', e.target.value)}
+                   className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#e8001e]"
+                 >
+                   <option value="youtube">YouTube</option>
+                   <option value="vimeo">Vimeo</option>
+                   <option value="facebook">Facebook</option>
+                   <option value="dailymotion">Dailymotion</option>
+                   <option value="local">Local</option>
+                 </select>
+               </div>
              </div>
           </div>
 

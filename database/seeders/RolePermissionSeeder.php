@@ -258,6 +258,7 @@ class RolePermissionSeeder extends Seeder
                 'role' => 'super_admin',
                 'role_id' => $superAdminRole?->id,
                 'email_verified_at' => now(),
+                'profile_photo_path' => null,
             ]
         );
 

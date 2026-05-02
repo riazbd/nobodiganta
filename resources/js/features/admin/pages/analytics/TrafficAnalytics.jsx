@@ -1,4 +1,4 @@
-import { BarChart3, TrendingUp, Users, Clock, Globe, Smartphone, Monitor, Tablet } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, Clock, Globe, Smartphone, Monitor, Tablet, Calendar, Award, Map } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
 import { DonutChart } from '../../components/charts/DonutChart';
@@ -16,10 +16,16 @@ export default function TrafficAnalytics() {
     <div>
       <div className="flex items-start justify-between mb-5.5">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">📊 {lang === 'bn' ? 'ট্র্যাফিক বিশ্লেষণ' : 'Traffic Analytics'}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
+            <BarChart3 className="w-5 h-5 text-[#e8001e]" />
+            {lang === 'bn' ? 'ট্র্যাফিক বিশ্লেষণ' : 'Traffic Analytics'}
+          </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'ভিজিটর আচরণ ও ট্র্যাফিক প্যাটার্ন' : 'Visitor behavior and traffic patterns'}</p>
         </div>
-        <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-1.5">📅 {lang === 'bn' ? 'সোমবার, ০৬ এপ্রিল ২০২৬' : 'Monday, 06 April 2026'}</div>
+        <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-2">
+          <Calendar className="w-3.5 h-3.5" />
+          <span>{lang === 'bn' ? 'সোমবার, ০৬ এপ্রিল ২০২৬' : 'Monday, 06 April 2026'}</span>
+        </div>
       </div>
 
       <div className="grid grid-cols-4 gap-4 mb-5">
@@ -32,7 +38,10 @@ export default function TrafficAnalytics() {
       <div className="grid grid-cols-[2fr_1fr] gap-4.5 mb-4.5">
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '📈 ট্র্যাফিক ট্রেন্ড' : '📈 Traffic Trend'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[#e8001e]" />
+              {lang === 'bn' ? 'ট্র্যাফিক ট্রেন্ড' : 'Traffic Trend'}
+            </h3>
             <select className="border border-[var(--card-border,#e8ebf4)] rounded-md px-2 py-1 text-xs outline-none bg-[#fafafa]">
               <option>{lang === 'bn' ? 'এই সপ্তাহ' : 'This Week'}</option>
               <option>{lang === 'bn' ? 'এই মাস' : 'This Month'}</option>
@@ -45,7 +54,10 @@ export default function TrafficAnalytics() {
         </div>
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '🌐 ট্র্যাফিকের উৎস' : '🌐 Traffic Sources'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <Globe className="w-4 h-4 text-[#3b82f6]" />
+              {lang === 'bn' ? 'ট্র্যাফিকের উৎস' : 'Traffic Sources'}
+            </h3>
           </div>
           <div className="p-5">
             <TrafficSource items={[]} />
@@ -55,7 +67,10 @@ export default function TrafficAnalytics() {
 
       <div className="grid grid-cols-3 gap-4.5 mb-4.5">
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-5">
-          <h3 className="text-sm font-bold mb-4">{lang === 'bn' ? '📱 ডিভাইস' : '📱 Devices'}</h3>
+          <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
+            <Smartphone className="w-4 h-4 text-[#e8001e]" />
+            {lang === 'bn' ? 'ডিভাইস' : 'Devices'}
+          </h3>
           <div className="space-y-3">
             {[
               { icon: Smartphone, labelBn: 'মোবাইল', labelEn: 'Mobile', pct: 62.4, color: '#e8001e' },
@@ -78,7 +93,10 @@ export default function TrafficAnalytics() {
         </div>
 
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-5">
-          <h3 className="text-sm font-bold mb-4">{lang === 'bn' ? '🏆 শীর্ষ পৃষ্ঠা' : '🏆 Top Pages'}</h3>
+          <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
+            <Award className="w-4 h-4 text-[#f59e0b]" />
+            {lang === 'bn' ? 'শীর্ষ পৃষ্ঠা' : 'Top Pages'}
+          </h3>
           <div className="space-y-2.5">
             {[
               { titleBn: 'সংসদে সাইবার আইন পাস', titleEn: 'Cyber Law Passed', views: '45,234' },
@@ -99,7 +117,10 @@ export default function TrafficAnalytics() {
         </div>
 
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-5">
-          <h3 className="text-sm font-bold mb-4">{lang === 'bn' ? '🗺️ ভৌগোলিক' : '🗺️ Geographic'}</h3>
+          <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
+            <Map className="w-4 h-4 text-[#3b82f6]" />
+            {lang === 'bn' ? 'ভৌগোলিক' : 'Geographic'}
+          </h3>
           <div className="space-y-2.5">
             {[
               { countryBn: 'ঢাকা', countryEn: 'Dhaka', pct: 42.3 },

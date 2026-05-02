@@ -1,6 +1,7 @@
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
 import { relativeTime, formatViews } from '../../lib/formatters';
+import Icon from '../Icon';
 
 /**
  * Unified news card — works with toAPIArray() article shape.
@@ -73,7 +74,7 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
       <div onClick={handleClick} role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleClick()}>
         <div className="vid-thumb">
           <Img h={imgH || 130} />
-          <div className="play-btn">▶</div>
+          <div className="play-btn"><Icon name="play" size={16} /></div>
         </div>
         <div className="vid-info"><h4>{title}</h4></div>
       </div>
@@ -93,9 +94,21 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
         {catName && <span className="tag">{catName}</span>}
         <h3>{title}</h3>
         {excerpt && <p>{excerpt}</p>}
-        <div className="meta">
-          <span>{timeStr}</span>
-          {viewStr && <span className="views">👁 {viewStr}</span>}
+        <div className="meta" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {article.author?.image ? (
+              <img src={article.author.image} alt={article.author.name} style={{ width: 18, height: 24, borderRadius: '50%', objectFit: 'cover' }} />
+            ) : (
+              <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 'bold' }}>
+                {article.author?.name?.charAt(0)}
+              </div>
+            )}
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#555' }}>{article.author?.name}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span>{timeStr}</span>
+            {viewStr && <span className="views">👁 {viewStr}</span>}
+          </div>
         </div>
       </div>
     </article>

@@ -1,4 +1,4 @@
-import { TrendingUp, DollarSign, BarChart3, CreditCard } from 'lucide-react';
+import { TrendingUp, DollarSign, BarChart3, CreditCard, Download } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { GroupedBarChart } from '../../components/charts/BarChart';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -14,11 +14,14 @@ export default function RevenueReport() {
     <div>
       <div className="flex items-start justify-between mb-5.5">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">💹 {lang === 'bn' ? 'রাজস্ব রিপোর্ট' : 'Revenue Report'}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
+            <TrendingUp className="w-5 h-5 text-[#10b981]" />
+            {lang === 'bn' ? 'রাজস্ব রিপোর্ট' : 'Revenue Report'}
+          </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'আয়, বিজ্ঞাপন ও সাবস্ক্রিপশন বিশ্লেষণ' : 'Revenue, ads and subscription analysis'}</p>
         </div>
         <button onClick={() => showToast(lang === 'bn' ? 'রিপোর্ট এক্সপোর্ট হচ্ছে...' : 'Exporting report...')} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
-          📤 {lang === 'bn' ? 'এক্সপোর্ট' : 'Export'}
+          <Download className="w-4 h-4" /> {lang === 'bn' ? 'এক্সপোর্ট' : 'Export'}
         </button>
       </div>
 
@@ -32,7 +35,10 @@ export default function RevenueReport() {
       <div className="grid grid-cols-[2fr_1fr] gap-4.5 mb-4.5">
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '📊 মাসিক রাজস্ব' : '📊 Monthly Revenue'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-[#e8001e]" />
+              {lang === 'bn' ? 'মাসিক রাজস্ব' : 'Monthly Revenue'}
+            </h3>
             <div className="flex gap-4 items-center">
               <div className="text-xs text-[var(--text-muted,#9ca3af)] flex items-center gap-1"><span className="w-2 h-2 bg-[#e8001e] rounded-sm inline-block" />{lang === 'bn' ? 'বিজ্ঞাপন' : 'Ads'}</div>
               <div className="text-xs text-[var(--text-muted,#9ca3af)] flex items-center gap-1"><span className="w-2 h-2 bg-[#3b82f6] rounded-sm inline-block" />{lang === 'bn' ? 'সাবস্ক্রিপশন' : 'Subscriptions'}</div>
@@ -42,18 +48,42 @@ export default function RevenueReport() {
             </div>
           </div>
           <div className="p-5">
-            <GroupedBarChart data1={{ labels: [], datasets: [] }.ads} data2={{ labels: [], datasets: [] }.subscriptions} labels={lang === 'bn' ? { labels: [], datasets: [] }.labels : { labels: [], datasets: [] }.labelsEn} color1="#e8001e" color2="#3b82f6" height={160} />
-            <div className="flex mt-1.5">
-              {(lang === 'bn' ? { labels: [], datasets: [] }.labels : { labels: [], datasets: [] }.labelsEn).map((l, i) => (
-                <div key={i} className="flex-1 text-center text-[10px] text-[var(--text-muted,#9ca3af)]">{l}</div>
-              ))}
-            </div>
+            {(() => {
+              const mockData = {
+                labels: ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন'],
+                labelsEn: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                ads: [45, 52, 38, 65, 48, 72],
+                subscriptions: [32, 41, 45, 52, 58, 61]
+              };
+              const activeLabels = lang === 'bn' ? mockData.labels : mockData.labelsEn;
+              
+              return (
+                <>
+                  <GroupedBarChart 
+                    data1={mockData.ads} 
+                    data2={mockData.subscriptions} 
+                    labels={activeLabels} 
+                    color1="#e8001e" 
+                    color2="#3b82f6" 
+                    height={160} 
+                  />
+                  <div className="flex mt-1.5">
+                    {activeLabels.map((l, i) => (
+                      <div key={i} className="flex-1 text-center text-[10px] text-[var(--text-muted,#9ca3af)]">{l}</div>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
 
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '💰 আয়ের উৎস' : '💰 Revenue Sources'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-[#10b981]" />
+              {lang === 'bn' ? 'আয়ের উৎস' : 'Revenue Sources'}
+            </h3>
           </div>
           <div className="p-5 space-y-4">
             {[

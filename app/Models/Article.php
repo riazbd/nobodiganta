@@ -17,13 +17,15 @@ class Article extends Model
         'slug_bn', 'slug_en',
         'excerpt_bn', 'excerpt_en',
         'edition', 'article_type', 'status',
-        'is_breaking', 'is_featured', 'is_premium', 'is_exclusive',
+        'is_breaking', 'is_featured', 'is_premium', 'is_exclusive', 'allow_comments',
         'category_id', 'subcategory_id', 'author_id', 'secondary_author_id',
         'is_guest_author',
         'guest_author_name_bn', 'guest_author_name_en',
         'guest_author_bio_bn', 'guest_author_bio_en',
         'guest_author_image',
         'video_provider',
+        'video_url',
+        'video_duration',
         'featured_image',
         'featured_image_alt_bn', 'featured_image_alt_en',
         'featured_image_caption_bn', 'featured_image_caption_en',
@@ -39,6 +41,7 @@ class Article extends Model
         'is_featured' => 'boolean',
         'is_exclusive' => 'boolean',
         'is_premium' => 'boolean',
+        'allow_comments' => 'boolean',
         'views' => 'integer',
         'read_time_bn' => 'integer',
         'read_time_en' => 'integer',
@@ -276,7 +279,7 @@ class Article extends Model
                 'name' => $reporter->getName($edition),
                 'slug' => $reporter->slug,
                 'designation' => $reporter->getDesignation($edition),
-                'image' => $reporter->image,
+                'image' => $reporter->image ?: $this->author->profile_photo_url,
             ];
         }
 
@@ -285,7 +288,7 @@ class Article extends Model
             'name' => $this->author->name,
             'slug' => strtolower(str_replace(' ', '-', $this->author->name)),
             'designation' => null,
-            'image' => null,
+            'image' => $this->author->profile_photo_url,
         ];
     }
 
@@ -303,9 +306,13 @@ class Article extends Model
             'excerpt' => $this->getExcerpt($edition),
             'edition' => $this->edition,
             'article_type' => $this->article_type,
+            'video_provider' => $this->video_provider,
+            'video_url' => $this->video_url,
+            'video_duration' => $this->video_duration,
             'is_breaking' => $this->is_breaking,
             'is_featured' => $this->is_featured,
             'is_premium' => $this->is_premium,
+            'allow_comments' => $this->allow_comments,
             'category' => [
                 'id' => $this->category->id,
                 'name' => $this->category->getName($edition),

@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { getLiveblogUpdates } from '../services/newsService';
 import PageSidebar from '../Components/PageSidebar';
 import { toBengaliNum } from '../lib/formatters';
+import Icon from '../Components/Icon';
 
 export default function Liveblog({ article, initialUpdates = [] }) {
   const { lang } = useApp();
@@ -45,8 +46,8 @@ export default function Liveblog({ article, initialUpdates = [] }) {
       <div className="article-layout">
         <div className="article-main">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <span style={{ background: '#c00', color: '#fff', padding: '3px 10px', borderRadius: 3, fontSize: 12, fontWeight: 700 }}>
-              🔴 {lang === 'bn' ? 'লাইভ' : 'LIVE'}
+            <span style={{ background: '#c00', color: '#fff', padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Icon name="radio" size={12} /> {lang === 'bn' ? 'লাইভ' : 'LIVE'}
             </span>
             <h1 style={{ fontSize: 22 }}>{displayTitle}</h1>
           </div>

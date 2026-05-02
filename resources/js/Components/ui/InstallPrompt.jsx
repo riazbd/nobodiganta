@@ -75,7 +75,7 @@ export default function InstallPrompt() {
 
   const t = {
     bn: {
-      title: '📱 অ্যাপ ইনস্টল করুন',
+      title: 'অ্যাপ ইনস্টল করুন',
       description: 'দ্রুত ব্রেকিং নিউজ পেতে নবদিগন্ত অ্যাপ ইনস্টল করুন',
       benefits: [
         'তাৎক্ষণিক ব্রেকিং নিউজ নোটিফিকেশন',
@@ -87,7 +87,7 @@ export default function InstallPrompt() {
       later: 'পরে করব',
     },
     en: {
-      title: '📱 Install App',
+      title: 'Install App',
       description: 'Install NoboDiganta app for faster access and breaking news alerts',
       benefits: [
         'Instant breaking news notifications',

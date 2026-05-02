@@ -1,6 +1,7 @@
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
+import Icon from './Icon';
 
 const FbIcon = () => (
   <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
@@ -26,6 +27,7 @@ const IgIcon = () => (
 export default function TopBar() {
   const { lang, settings } = useApp();
   const { onNavigate } = useNavigation();
+  const { auth } = usePage().props;
 
   const handleEdition = (ed) => {
     const path = window.location.pathname;
@@ -60,17 +62,48 @@ export default function TopBar() {
           ))}
         </div>
 
-        <div className="tb-edition" role="group" aria-label="Edition" style={{ marginLeft: 'auto' }}>
-          <button
-            className={`tb-ed-btn${lang === 'bn' ? ' active' : ''}`}
-            onClick={() => handleEdition('bn')}
-            aria-pressed={lang === 'bn'}
-          >বাংলা</button>
-          <button
-            className={`tb-ed-btn${lang === 'en' ? ' active' : ''}`}
-            onClick={() => handleEdition('en')}
-            aria-pressed={lang === 'en'}
-          >EN</button>
+        <div className="tb-user" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+          {auth.user ? (
+            <div 
+              className="tb-auth-user" 
+              onClick={() => router.visit('/admin')}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+            >
+              <div className="tb-user-av" style={{ width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                {auth.user.profile_photo_url ? (
+                  <img src={auth.user.profile_photo_url} alt={auth.user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', background: '#e8001e', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 'bold' }}>
+                    {auth.user.name?.charAt(0)}
+                  </div>
+                )}
+              </div>
+              <span className="tb-user-name" style={{ fontSize: 11, color: '#ddd', fontWeight: 600 }}>{auth.user.name}</span>
+            </div>
+          ) : (
+            <a 
+              onClick={() => router.visit('/login')}
+              style={{ fontSize: 11, color: '#bbb', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <Icon name="user" size={12} />
+              {lang === 'bn' ? 'লগইন' : 'Login'}
+            </a>
+          )}
+
+          <div className="tb-divider-v" style={{ height: 12, opacity: 0.2 }} />
+
+          <div className="tb-edition" role="group" aria-label="Edition">
+            <button
+              className={`tb-ed-btn${lang === 'bn' ? ' active' : ''}`}
+              onClick={() => handleEdition('bn')}
+              aria-pressed={lang === 'bn'}
+            >বাংলা</button>
+            <button
+              className={`tb-ed-btn${lang === 'en' ? ' active' : ''}`}
+              onClick={() => handleEdition('en')}
+              aria-pressed={lang === 'en'}
+            >EN</button>
+          </div>
         </div>
 
       </div>

@@ -45,7 +45,7 @@ class ReporterController extends Controller
                     'bioEn' => $r->bio_en,
                     'email' => $r->email,
                     'phone' => $r->phone,
-                    'image' => $r->image,
+                    'image' => $r->image ?: ($r->user ? $r->user->profile_photo_url : null),
                     'avatar' => mb_substr($r->name_bn, 0, 1),
                     'articles' => $r->articles_count,
                     'performance' => rand(70, 98), // Mock performance for now

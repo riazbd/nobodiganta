@@ -1,10 +1,9 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useApp } from '../contexts/AppContext';
 import PageSidebar from '../Components/PageSidebar';
 import Pagination from '../Components/ui/Pagination';
 import NewsCard from '../Components/ui/NewsCard';
 import EmptyState from '../Components/ui/EmptyState';
-import { router } from '@inertiajs/react';
 
 const DIVISIONS = [
   { slug: 'dhaka',       bn: 'ঢাকা',         en: 'Dhaka' },

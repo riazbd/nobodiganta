@@ -147,6 +147,9 @@ class Media extends Model
      */
     public function getUrlAttribute(): string
     {
+        if (str_starts_with($this->file_path, 'http://') || str_starts_with($this->file_path, 'https://')) {
+            return $this->file_path;
+        }
         return asset('storage/' . $this->file_path);
     }
 
@@ -156,6 +159,11 @@ class Media extends Model
     public function getThumbnailUrlAttribute(?string $size = 'medium'): ?string
     {
         $size = $size ?: 'medium';
+        
+        if (str_starts_with($this->file_path, 'http://') || str_starts_with($this->file_path, 'https://')) {
+            return $this->file_path;
+        }
+
         if (!$this->thumbnails || !isset($this->thumbnails[$size])) {
             return $this->url;
         }

@@ -1,4 +1,4 @@
-import { Camera, Image, Upload, TrendingUp, FileText, Eye, GalleryHorizontal, Clock } from 'lucide-react';
+import { Camera, Image, Upload, TrendingUp, FileText, Eye, GalleryHorizontal, Clock, Calendar } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -6,21 +6,27 @@ import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
 
 export default function PhotographerDashboard() {
   const { lang, t } = useLanguage();
-  const { showToast } = useToast();
+  const { showToast } = showToast();
   const { onNavigate } = useAdminNavigation();
 
   return (
     <div>
       <div className="flex items-start justify-between mb-5.5">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">📸 {lang === 'bn' ? 'ফটোগ্রাফার ড্যাশবোর্ড' : 'Photographer Dashboard'}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
+            <Camera className="w-5 h-5 text-[#e8001e]" />
+            {lang === 'bn' ? 'ফটোগ্রাফার ড্যাশবোর্ড' : 'Photographer Dashboard'}
+          </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'মিডিয়া আপলোড, গ্যালারি ও অ্যাসাইনমেন্ট' : 'Media upload, gallery and assignments'}</p>
         </div>
         <div className="flex items-center gap-2.5">
           <button onClick={() => showToast(lang === 'bn' ? 'মিডিয়া আপলোড খুলছে...' : 'Opening media upload...')} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
             <Upload className="w-4 h-4" /> {lang === 'bn' ? 'আপলোড' : 'Upload'}
           </button>
-          <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-1.5">📅 {lang === 'bn' ? 'সোমবার, ০৬ এপ্রিল ২০২৬' : 'Monday, 06 April 2026'}</div>
+          <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-2">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>{lang === 'bn' ? 'সোমবার, ০৬ এপ্রিল ২০২৬' : 'Monday, 06 April 2026'}</span>
+          </div>
         </div>
       </div>
 
@@ -41,7 +47,10 @@ export default function PhotographerDashboard() {
       {/* Media Grid */}
       <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden mb-4.5">
         <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
-          <h3 className="text-sm font-bold">{lang === 'bn' ? '🖼️ সাম্প্রতিক মিডিয়া' : '🖼️ Recent Media'}</h3>
+          <h3 className="text-sm font-bold flex items-center gap-2">
+            <Image className="w-4 h-4 text-[#e8001e]" />
+            {lang === 'bn' ? 'সাম্প্রতিক মিডিয়া' : 'Recent Media'}
+          </h3>
           <button onClick={() => onNavigate?.('media')} className="bg-[#e8001e] text-white text-[11px] font-semibold px-3 py-1.25 rounded-md hover:bg-[#b8001a] transition-colors">
             {lang === 'bn' ? 'সব দেখুন' : 'View All'}
           </button>

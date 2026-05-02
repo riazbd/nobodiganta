@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { getDSEData } from '../../services/stockService';
 import { toBengaliNum } from '../../lib/formatters';
+import Icon from '../Icon';
 
 export default function StockWidget() {
   const { lang } = useApp();
@@ -18,8 +19,8 @@ export default function StockWidget() {
 
   return (
     <div className="stock-widget widget-block">
-      <div className="widget-header">
-        📈 {lang === 'bn' ? 'শেয়ার বাজার' : 'Stock Market'}
+      <div className="widget-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Icon name="trendingUp" size={16} /> {lang === 'bn' ? 'শেয়ার বাজার' : 'Stock Market'}
       </div>
       {data.indices?.map((idx) => (
         <div key={idx.name} className="stock-index-row">

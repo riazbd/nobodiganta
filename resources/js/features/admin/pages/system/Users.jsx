@@ -600,11 +600,17 @@ export default function Users({ initialUsers, roles, filters }) {
                 <tr key={user.id} className="hover:bg-[#fafbff] transition-colors">
                   <td className="px-4 py-3 border-b border-[#f3f4f6]">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                        {(user.name ?? '?').charAt(0).toUpperCase()}
+                      <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 shadow-sm">
+                        {user.profile_photo_url ? (
+                          <img src={user.profile_photo_url} alt={user.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-sm font-bold">
+                            {(user.name ?? '?').charAt(0).toUpperCase()}
+                          </div>
+                        )}
                       </div>
                       <div>
-                        <div className="font-semibold text-[var(--text-primary,#1a1d2e)]">{user.name}</div>
+                        <div className="font-semibold text-[var(--text-primary,#1a1d2e)] hover:text-[#e8001e] transition-colors cursor-pointer">{user.name}</div>
                         <div className="text-[10.5px] text-[var(--text-muted,#9ca3af)]">{user.created_at}</div>
                       </div>
                     </div>

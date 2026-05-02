@@ -19,6 +19,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
     titleBn: '',
     titleEn: '',
     image: '',
+    video_url: '',
     link: '',
     position: 'home_top',
     type: 'image',
@@ -46,6 +47,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
       titleBn: '',
       titleEn: '',
       image: '',
+      video_url: '',
       link: '',
       position: 'home_top',
       type: 'image',
@@ -64,6 +66,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
       titleBn: ad.title || '',
       titleEn: ad.titleEn || '',
       image: ad.image || '',
+      video_url: ad.video_url || '',
       link: ad.link || '',
       position: ad.position || 'home_top',
       type: ad.type || 'image',
@@ -258,6 +261,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                     <select value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]">
                        <option value="header">Header</option>
                        <option value="home_top">Home Top</option>
+                       <option value="between_sections">Between Sections</option>
                        <option value="sidebar_top">Sidebar Top</option>
                        <option value="sidebar_middle">Sidebar Middle</option>
                        <option value="category_middle">Category Middle</option>
@@ -270,6 +274,8 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                     <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]">
                        <option value="image">Image Banner</option>
                        <option value="google_ad">Google AdSense</option>
+                       <option value="video">Video Ad</option>
+                       <option value="script">Javascript / Script</option>
                        <option value="html">Custom HTML</option>
                     </select>
                   </div>
@@ -279,7 +285,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                   </div>
                </div>
 
-               {formData.type === 'image' ? (
+               {formData.type === 'image' && (
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'ব্যানার ছবি' : 'Banner Image'}</label>
@@ -293,10 +299,28 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                       <input type="url" value={formData.link} onChange={e => setFormData({...formData, link: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" placeholder="https://..." />
                     </div>
                  </div>
-               ) : (
+               )}
+
+               {formData.type === 'video' && (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'পোস্টার ছবি' : 'Poster Image'}</label>
+                      <div onClick={() => setShowMediaLibrary(true)} className="w-full h-14 border border-gray-200 border-dashed rounded-xl flex items-center px-4 gap-3 cursor-pointer hover:bg-gray-50 transition-colors">
+                        <ImageIcon size={18} className="text-gray-400" />
+                        <span className="text-xs text-gray-500 truncate">{formData.image || 'Choose from media library...'}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'ভিডিও লিঙ্ক (MP4/YouTube)' : 'Video URL'} *</label>
+                      <input type="url" value={formData.video_url} onChange={e => setFormData({...formData, video_url: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" placeholder="https://..." required />
+                    </div>
+                 </div>
+               )}
+
+               {(formData.type === 'html' || formData.type === 'google_ad' || formData.type === 'script') && (
                  <div className="mb-6">
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'কোড' : 'Ad Code / HTML'}</label>
-                    <textarea rows="4" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e] font-mono" placeholder="<script>...</script>" />
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'কোড' : 'Ad Code / HTML / JS'}</label>
+                    <textarea rows="6" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e] font-mono" placeholder={formData.type === 'script' ? '<script>\n  // Your JS code here\n</script>' : '<div class="my-ad">...</div>'} />
                  </div>
                )}
 

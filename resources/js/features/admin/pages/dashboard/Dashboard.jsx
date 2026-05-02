@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { Newspaper, Users, MessageSquare, CreditCard, PenLine, Upload, TrendingUp, Flame, BarChart3, Globe, Zap, Clock, Activity } from 'lucide-react';
+import { Newspaper, Users, MessageSquare, CreditCard, PenLine, Upload, TrendingUp, Flame, BarChart3, Globe, Zap, Clock, Activity, Calendar } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
 import { DonutChart } from '../../components/charts/DonutChart';
@@ -44,14 +44,18 @@ export default function Dashboard({
       {/* Page Header */}
       <div className="flex items-start justify-between mb-5.5 row-anim">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">🗞️ {t('adminDashboard')}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
+            <Newspaper className="w-5 h-5 text-[#e8001e]" />
+            {t('adminDashboard')}
+          </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">
             {lang === 'bn' ? `স্বাগতম, ${userName}!` : `Welcome, ${userName}!`} {t('welcomeMessage')}
           </p>
         </div>
         <div className="flex items-center gap-2.5">
-          <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-1.5">
-            📅 <span>{new Date().toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-2">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>{new Date().toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
           </div>
         </div>
       </div>

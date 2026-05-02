@@ -21,6 +21,8 @@ class TestDataSeeder extends Seeder
             'email'    => 'editor@nobodigonto.com',
             'password' => Hash::make('password123'),
             'role'     => 'editor_in_chief',
+            'profile_photo_path' => null,
+            'email_verified_at' => now(),
         ]);
 
         $reporters = Reporter::all();
@@ -686,6 +688,7 @@ class TestDataSeeder extends Seeder
                     'published_at' => now()->subHours($a['hours_ago']),
                     'featured_image' => 'https://picsum.photos/seed/' . ($idx + 1) . 'news/800/450',
                     'views'        => $a['views'],
+                    'allow_comments' => true,
                 ]
             );
 

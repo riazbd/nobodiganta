@@ -4,6 +4,7 @@ import AdSlot from '../Components/ui/AdSlot';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { relativeTime, formatViews, toBengaliNum } from '../lib/formatters';
+import Icon from '../Components/Icon';
 
 // ─── tiny helpers ──────────────────────────────────────────────────────────────
 
@@ -12,14 +13,40 @@ function go(article, nav) {
   nav('article', { categorySlug: article.category.slug, articleSlug: article.slug });
 }
 
-function Img({ src, alt, h, w, style = {} }) {
+function Img({ src, alt, h, w, isVideo, style = {} }) {
   const base = { objectFit: 'cover', display: 'block', ...style };
   if (w) base.width = w;
   if (h) base.height = h;
   if (!w) base.width = '100%';
-  return src
-    ? <img src={src} alt={alt || ''} loading="lazy" style={base} />
-    : <div className="ph" style={{ height: h || 160, width: w || '100%' }}>📰</div>;
+  
+  return (
+    <div style={{ position: 'relative', width: w || '100%', height: h || 'auto', flexShrink: 0, overflow: 'hidden' }}>
+      {src
+        ? <img src={src} alt={alt || ''} loading="lazy" style={base} />
+        : <div className="ph" style={{ height: h || 160, width: w || '100%' }}>📰</div>
+      }
+      {isVideo && (
+        <div style={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)', 
+          width: h ? Math.min(h/3, 44) : 32, 
+          height: h ? Math.min(h/3, 44) : 32, 
+          background: 'rgba(232,0,30,0.85)', 
+          borderRadius: '50%', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          color: '#fff',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+          zIndex: 5
+        }}>
+          <Icon name="play" size={h ? Math.min(h/6, 20) : 16} />
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ─── LEAD HERO (left col top) ─────────────────────────────────────────────────
@@ -28,7 +55,13 @@ function Hero({ article, lang, nav }) {
   if (!article) return null;
   return (
     <div className="hp-hero" onClick={() => go(article, nav)} role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && go(article, nav)}>
-      <Img src={article.featured_image} alt={article.title} h={390} style={{ width: '100%' }} />
+      <Img 
+        src={article.featured_image} 
+        alt={article.title} 
+        h={390} 
+        isVideo={article.article_type === 'video'}
+        style={{ width: '100%' }} 
+      />
       <div className="hp-hero-cap">
         {article.category && <span className="hp-hero-cat">{article.category.name}</span>}
         <h2>{article.title}</h2>
@@ -67,7 +100,14 @@ function MiniGrid({ items, lang, nav }) {
     <div className="hp-mini">
       {list.map(a => (
         <div key={a.id} className="hp-mini-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-          <Img src={a.featured_image} alt={a.title} h={54} w={72} style={{ flexShrink: 0, borderRadius: 2 }} />
+          <Img 
+            src={a.featured_image} 
+            alt={a.title} 
+            h={54} 
+            w={72} 
+            isVideo={a.article_type === 'video'}
+            style={{ flexShrink: 0, borderRadius: 2 }} 
+          />
           <div className="hp-mini-body">
             {a.category && <span className="hp-mini-cat">{a.category.name}</span>}
             <h5 className="hp-mini-h">{a.title}</h5>
@@ -85,7 +125,13 @@ function MiddleHero({ article, lang, nav }) {
   if (!article) return null;
   return (
     <div className="hp-mid-hero" onClick={() => go(article, nav)} role="button" tabIndex={0}>
-      <Img src={article.featured_image} alt={article.title} h={188} style={{ width: '100%' }} />
+      <Img 
+        src={article.featured_image} 
+        alt={article.title} 
+        h={188} 
+        isVideo={article.article_type === 'video'}
+        style={{ width: '100%' }} 
+      />
       <div className="hp-mid-body">
         {article.category && <span className="hp-mid-cat">{article.category.name}</span>}
         <h3 className="hp-mid-h">{article.title}</h3>
@@ -108,7 +154,13 @@ function MiddleList({ items, lang, nav }) {
       {items.map(a => (
         <div key={a.id} className="hp-mid-row" onClick={() => go(a, nav)} role="button" tabIndex={0}>
           <div className="hp-mid-img-wrap">
-            <Img src={a.featured_image} alt={a.title} h={60} w={84} />
+            <Img 
+              src={a.featured_image} 
+              alt={a.title} 
+              h={60} 
+              w={84} 
+              isVideo={a.article_type === 'video'}
+            />
           </div>
           <div>
             {a.category && <span className="hp-mid-cat">{a.category.name}</span>}
@@ -241,7 +293,13 @@ function CategorySection({ section, lang, nav }) {
         <div className="hp-feat-row">
           {/* Left: main featured */}
           <div className="hp-feat-main" onClick={() => go(main, nav)} role="button" tabIndex={0}>
-            <Img src={main.featured_image} alt={main.title} h={220} style={{ width: '100%', borderRadius: 2 }} />
+            <Img 
+              src={main.featured_image} 
+              alt={main.title} 
+              h={220} 
+              isVideo={main.article_type === 'video'}
+              style={{ width: '100%', borderRadius: 2 }} 
+            />
             <div className="hp-feat-body">
               {main.category && <span className="tag">{main.category.name}</span>}
               {main.subcategory && <span className="tag" style={{ marginLeft: 4, color: '#666' }}>› {main.subcategory.name}</span>}
@@ -268,7 +326,13 @@ function CategorySection({ section, lang, nav }) {
             {rest.slice(0, 5).map(a => (
               <div key={a.id} className="hp-list-row" onClick={() => go(a, nav)} role="button" tabIndex={0}>
                 <div className="hp-list-img">
-                  <Img src={a.featured_image} alt={a.title} h={65} w={92} />
+                  <Img 
+                    src={a.featured_image} 
+                    alt={a.title} 
+                    h={65} 
+                    w={92} 
+                    isVideo={a.article_type === 'video'}
+                  />
                 </div>
                 <div className="hp-list-body">
                   <div className="hp-list-cats">
@@ -300,7 +364,13 @@ function CategorySection({ section, lang, nav }) {
         <div className="hp-grid3">
           {displayItems.slice(0, 6).map(a => (
             <article key={a.id} className="card" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-              <Img src={a.featured_image} alt={a.title} h={160} style={{ width: '100%' }} />
+              <Img 
+                src={a.featured_image} 
+                alt={a.title} 
+                h={160} 
+                isVideo={a.article_type === 'video'}
+                style={{ width: '100%' }} 
+              />
               <div className="cb">
                 {a.category && <span className="tag">{a.category.name}</span>}
                 <h3>{a.title}</h3>
@@ -320,7 +390,14 @@ function CategorySection({ section, lang, nav }) {
         <div>
           {displayItems.slice(0, 6).map(a => (
             <div key={a.id} className="li" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-              <Img src={a.featured_image} alt={a.title} h={68} w={100} style={{ flexShrink: 0 }} />
+              <Img 
+                src={a.featured_image} 
+                alt={a.title} 
+                h={68} 
+                w={100} 
+                isVideo={a.article_type === 'video'}
+                style={{ flexShrink: 0 }} 
+              />
               <div>
                 <div>
                   {a.category && <span className="tag">{a.category.name}</span>}
@@ -343,8 +420,7 @@ function CategorySection({ section, lang, nav }) {
           {displayItems.slice(0, 6).map(a => (
             <div key={a.id} className="hp-vid-card" onClick={() => go(a, nav)} role="button" tabIndex={0}>
               <div className="hp-vid-thumb">
-                <Img src={a.featured_image} alt={a.title} h={136} style={{ width: '100%' }} />
-                <div className="hp-vid-play">▶</div>
+                <Img src={a.featured_image} alt={a.title} h={136} isVideo={true} style={{ width: '100%' }} />
               </div>
               <div className="hp-vid-body">
                 {a.category && <span className="tag">{a.category.name}</span>}
@@ -406,8 +482,7 @@ function VideoSection({ section, lang, nav }) {
         {items.map(a => (
           <div key={a.id} className="hp-vid-card" onClick={() => go(a, nav)} role="button" tabIndex={0}>
             <div className="hp-vid-thumb">
-              <Img src={a.featured_image} alt={a.title} h={136} style={{ width: '100%' }} />
-              <div className="hp-vid-play">▶</div>
+              <Img src={a.featured_image} alt={a.title} h={136} isVideo={true} style={{ width: '100%' }} />
             </div>
             <div className="hp-vid-body">
               {a.category && <span className="tag">{a.category.name}</span>}
@@ -566,6 +641,11 @@ export default function Home({
 
           {/* Tags cloud */}
           <TagsCloud tags={popularTags} lang={lang} nav={onNavigate} />
+
+          {/* Bottom Ad */}
+          <div className="hp-ad-bottom" style={{ marginTop: 40, marginBottom: 20 }}>
+            <AdSlot size="billboard" position="home_bottom" />
+          </div>
 
 
         </div>

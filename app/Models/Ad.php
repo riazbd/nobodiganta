@@ -13,6 +13,7 @@ class Ad extends Model
         'title_bn',
         'title_en',
         'image',
+        'video_url',
         'link',
         'position',
         'type',

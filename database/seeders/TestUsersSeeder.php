@@ -32,6 +32,7 @@ class TestUsersSeeder extends Seeder
                 'role' => $roleName,
                 'role_id' => $role?->id,
                 'email_verified_at' => now(),
+                'profile_photo_path' => null, // Letting the initial avatar handle it by default
             ]);
         }
 
@@ -44,6 +45,7 @@ class TestUsersSeeder extends Seeder
                 'role' => $readerRole,
                 'role_id' => $userRoleModel->id,
                 'email_verified_at' => now()->subDays(rand(0, 30)),
+                'profile_photo_path' => null,
             ]);
         }
 

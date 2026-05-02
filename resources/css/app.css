@@ -1359,3 +1359,41 @@ html[data-font-size="large"]  .art-body { font-size: 20px; line-height: 1.9; }
   .pagination .pag-btn { padding: 5px 8px; font-size: 13px; }
   .art-img-wrap img { height: 220px !important; }
 }
+
+/* ══════════════════════════════════════
+   TIPTAP / ADVANCED EDITOR STYLES
+══════════════════════════════════════ */
+.art-body iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  margin: 24px 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.art-body .highlight-section {
+  background: #fff8f5;
+  border-left: 5px solid var(--red);
+  padding: 24px 30px;
+  margin: 32px 0;
+  border-radius: 0 8px 8px 0;
+  font-family: 'SolaimanLipi', 'Noto Serif Bengali', serif;
+  box-shadow: 0 2px 12px rgba(232,0,30,0.05);
+}
+
+.art-body .highlight-section p {
+  margin-bottom: 0;
+  font-size: 1.1em;
+  font-style: italic;
+  color: #333;
+}
+
+/* Ensure images from editor are responsive and centered */
+.art-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 28px auto;
+  display: block;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}

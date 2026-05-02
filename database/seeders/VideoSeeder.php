@@ -30,28 +30,28 @@ class VideoSeeder extends Seeder
 
         $videos = [
             [
-                'title_bn' => 'সংসদে পাস হলো নতুন সাইবার নিরাপত্তা আইন',
-                'title_en' => 'New Cyber Security Law Passed in Parliament',
-                'body_bn' => '<p>সংসদে আজ নতুন সাইবার নিরাপত্তা আইন পাস হয়েছে। বিস্তারিত দেখুন ভিডিওতে।</p>',
-                'body_en' => '<p>New Cyber Security Law passed in Parliament today. Watch the video for details.</p>',
+                'title_bn' => 'প্রকৃতির স্নিগ্ধতা: সুন্দরবনের অপরূপ দৃশ্য',
+                'title_en' => 'Nature Bliss: Beautiful Scenes of Sundarbans',
+                'body_bn' => '<p>সুন্দরবনের প্রাকৃতিক সৌন্দর্য আমাদের মুগ্ধ করে। দেখুন এই ভিডিওতে।</p>',
+                'body_en' => '<p>The natural beauty of Sundarbans is truly mesmerizing. Watch it in this video.</p>',
                 'featured_image' => 'https://picsum.photos/seed/v1/800/450',
-                'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Placeholder
+                'video_url' => 'https://www.youtube.com/watch?v=y881t8ilMyc', 
             ],
             [
-                'title_bn' => 'বাংলাদেশ-ভারত সিরিজের শেষ মুহূর্তের প্রস্তুতি',
-                'title_en' => 'Last minute preparation for Bangladesh-India series',
-                'body_bn' => '<p>বাংলাদেশ ও ভারতের মধ্যকার টেস্ট সিরিজের প্রস্তুতি চলছে পুরোদমে।</p>',
-                'body_en' => '<p>Preparation is in full swing for the Test series between Bangladesh and India.</p>',
+                'title_bn' => 'সাজেক ভ্যালি: মেঘের দেশ থেকে ঘুরে আসা',
+                'title_en' => 'Sajek Valley: A Journey to the Land of Clouds',
+                'body_bn' => '<p>মেঘের ওপর দিয়ে হাঁটার অভিজ্ঞতা পেতে হলে সাজেক ভ্যালি সেরা।</p>',
+                'body_en' => '<p>For an experience of walking on clouds, Sajek Valley is the best destination.</p>',
                 'featured_image' => 'https://picsum.photos/seed/v2/800/450',
-                'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                'video_url' => 'https://youtu.be/q_6O7qX-Osw',
             ],
             [
-                'title_bn' => 'ঢাকার মেট্রোরেল সম্প্রসারণের নতুন পরিকল্পনা',
-                'title_en' => 'New plan for Dhaka Metro Rail expansion',
-                'body_bn' => '<p>রাজধানীর যানজট নিরসনে মেট্রোরেল সম্প্রসারণের নতুন পরিকল্পনা গ্রহণ করেছে সরকার।</p>',
-                'body_en' => '<p>The government has adopted a new plan to expand the metro rail to alleviate traffic congestion in the capital.</p>',
+                'title_bn' => 'মেট্রোরেলে যাত্রা: ঢাকার নতুন দিগন্ত',
+                'title_en' => 'Journey by Metro Rail: A New Era for Dhaka',
+                'body_bn' => '<p>ঢাকার মেট্রোরেল ভ্রমণের এক দারুণ অভিজ্ঞতা। দেখুন এই শর্ট ভিডিওতে।</p>',
+                'body_en' => '<p>A wonderful experience of traveling by Dhaka Metro Rail. Watch this short video.</p>',
                 'featured_image' => 'https://picsum.photos/seed/v3/800/450',
-                'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                'video_url' => 'https://www.youtube.com/shorts/EngW7tLk6R8',
             ],
         ];
 
@@ -66,14 +66,14 @@ class VideoSeeder extends Seeder
                 'featured_image' => $v['featured_image'],
                 'article_type' => 'video',
                 'video_provider' => 'youtube',
+                'video_url' => $v['video_url'],
+                'video_duration' => '02:30',
                 'status' => 'published',
                 'edition' => 'both',
+                'allow_comments' => true,
                 'category_id' => $category->id,
                 'author_id' => $author->id,
                 'published_at' => now(),
-                // Store video URL in meta or a custom field if exists, 
-                // for now using subtitle_en as a hack if no video_url column exists
-                'subtitle_en' => $v['video_url'],
             ]);
         }
     }

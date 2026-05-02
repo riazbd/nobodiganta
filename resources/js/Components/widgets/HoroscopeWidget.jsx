@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
+import Icon from '../Icon';
 
 const SIGNS = [
   { key: 'aries',       bn: 'মেষ',     en: 'Aries',       emoji: '♈' },
@@ -29,8 +30,8 @@ export default function HoroscopeWidget() {
 
   return (
     <div className="widget-block">
-      <div className="widget-header">
-        🔮 {lang === 'bn' ? 'রাশিফল' : 'Horoscope'}
+      <div className="widget-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Icon name="sparkles" size={16} /> {lang === 'bn' ? 'রাশিফল' : 'Horoscope'}
       </div>
       <select
         value={selected}

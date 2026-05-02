@@ -1,4 +1,4 @@
-import { Search, TrendingUp, BarChart3, Globe, Share2, Target, Eye, Link, FileText, Megaphone } from 'lucide-react';
+import { Search, TrendingUp, BarChart3, Globe, Share2, Target, Eye, Link, FileText, Megaphone, Calendar } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
 import { GroupedBarChart } from '../../components/charts/BarChart';
@@ -16,10 +16,16 @@ export default function SEOManagerDashboard() {
     <div>
       <div className="flex items-start justify-between mb-5.5">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">🔍 {lang === 'bn' ? 'এসইও ম্যানেজার ড্যাশবোর্ড' : 'SEO Manager Dashboard'}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
+            <Search className="w-5 h-5 text-[#e8001e]" />
+            {lang === 'bn' ? 'এসইও ম্যানেজার ড্যাশবোর্ড' : 'SEO Manager Dashboard'}
+          </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'কন্টেন্ট অপ্টিমাইজেশন ও সোশ্যাল ডিস্ট্রিবিউশন' : 'Content optimization and social distribution'}</p>
         </div>
-        <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-1.5">📅 {lang === 'bn' ? 'সোমবার, ০৬ এপ্রিল ২০২৬' : 'Monday, 06 April 2026'}</div>
+        <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-2">
+          <Calendar className="w-3.5 h-3.5" />
+          <span>{lang === 'bn' ? 'সোমবার, ০৬ এপ্রিল ২০২৬' : 'Monday, 06 April 2026'}</span>
+        </div>
       </div>
 
       <div className="grid grid-cols-4 gap-4 mb-5">
@@ -39,7 +45,10 @@ export default function SEOManagerDashboard() {
       <div className="grid grid-cols-[2fr_1fr] gap-4.5 mb-4.5">
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '📈 অর্গানিক ট্র্যাফিক' : '📈 Organic Traffic'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[#10b981]" />
+              {lang === 'bn' ? 'অর্গানিক ট্র্যাফিক' : 'Organic Traffic'}
+            </h3>
             <select className="border border-[var(--card-border,#e8ebf4)] rounded-md px-2 py-1 text-xs outline-none bg-[#fafafa]">
               <option>{lang === 'bn' ? 'এই সপ্তাহ' : 'This Week'}</option>
               <option>{lang === 'bn' ? 'এই মাস' : 'This Month'}</option>
@@ -47,12 +56,20 @@ export default function SEOManagerDashboard() {
             </select>
           </div>
           <div className="px-5 pt-2.5">
-            <LineChart data={[].pageViews} labels={lang === 'bn' ? [].labels : [].labelsEn} color="#10b981" gradientId="gGreen" />
+            <LineChart 
+              data={[4500, 5200, 4800, 7200, 6100, 8400, 7900]} 
+              labels={lang === 'bn' ? ['শনি', 'রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র'] : ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri']} 
+              color="#10b981" 
+              gradientId="gGreen" 
+            />
           </div>
         </div>
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '🌐 ট্র্যাফিকের উৎস' : '🌐 Traffic Sources'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <Globe className="w-4 h-4 text-[#3b82f6]" />
+              {lang === 'bn' ? 'ট্র্যাফিকের উৎস' : 'Traffic Sources'}
+            </h3>
           </div>
           <div className="p-5">
             <TrafficSource items={[]} />
@@ -63,7 +80,10 @@ export default function SEOManagerDashboard() {
       {/* SEO Audit Queue */}
       <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden mb-4.5">
         <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
-          <h3 className="text-sm font-bold">{lang === 'bn' ? '🔍 SEO অডিট কিউ' : '🔍 SEO Audit Queue'}</h3>
+          <h3 className="text-sm font-bold flex items-center gap-2">
+            <Search className="w-4 h-4 text-[#e8001e]" />
+            {lang === 'bn' ? 'SEO অডিট কিউ' : 'SEO Audit Queue'}
+          </h3>
           <button onClick={() => onNavigate?.('seo')} className="bg-[#e8001e] text-white text-[11px] font-semibold px-3 py-1.25 rounded-md hover:bg-[#b8001a] transition-colors">
             {lang === 'bn' ? 'সব দেখুন' : 'View All'}
           </button>

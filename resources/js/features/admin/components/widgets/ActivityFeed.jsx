@@ -1,3 +1,5 @@
+import { PenLine, MessageSquare, TrendingUp, Image, CreditCard, Eye, FileText } from 'lucide-react';
+
 export function ActivityFeed({ items = [], lang = 'bn' }) {
   const iconBgMap = {
     publish: 'bg-[#fff0f2]',
@@ -8,12 +10,33 @@ export function ActivityFeed({ items = [], lang = 'bn' }) {
     review: 'bg-[#fff0f2]',
   };
 
+  const ICON_MAP = {
+    FileText: PenLine,
+    MessageSquare: MessageSquare,
+    TrendingUp: TrendingUp,
+    Image: Image,
+    CreditCard: CreditCard,
+    Eye: Eye,
+    default: FileText
+  };
+
   return (
     <div className="space-y-0">
       {items.map(item => (
         <div key={item.id} className="flex gap-3 py-2.5 border-b border-[#f3f4f6] last:border-0">
           <div className={`w-8.5 h-8.5 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBgMap[item.type] || 'bg-gray-100'}`}>
-            <span className="text-sm">{item.icon === 'FileText' ? '✍️' : item.icon === 'MessageSquare' ? '💬' : item.icon === 'TrendingUp' ? '📈' : item.icon === 'Image' ? '🖼️' : item.icon === 'CreditCard' ? '💳' : item.icon === 'Eye' ? '👁️' : '📝'}</span>
+            {(() => {
+              const IconComp = ICON_MAP[item.icon] || ICON_MAP.default;
+              const iconColors = {
+                publish: 'text-[#e8001e]',
+                comment: 'text-[#3b82f6]',
+                traffic: 'text-[#10b981]',
+                media: 'text-[#8b5cf6]',
+                subscription: 'text-[#f59e0b]',
+                review: 'text-[#e8001e]',
+              };
+              return <IconComp size={14} className={iconColors[item.type] || 'text-gray-500'} />;
+            })()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-[12.5px] text-[var(--text-secondary,#6b7280)] leading-relaxed" dangerouslySetInnerHTML={{ __html: lang === 'bn' ? item.text : (item.textEn || item.text) }} />

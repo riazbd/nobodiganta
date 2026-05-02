@@ -53,13 +53,13 @@ class VideoController extends Controller
                 'categoryEn' => $article->category?->name_en,
                 'edition' => $article->edition,
                 'video_provider' => $article->video_provider,
-                'duration' => '00:00', // Placeholder
+                'duration' => $article->video_duration || '00:00',
                 'date' => $article->created_at->format('Y-m-d'),
-                'video_url' => $article->subtitle_en, 
+                'video_url' => $article->video_url, 
             ];
         });
 
-        if ($request->expectsJson()) {
+        if ($request->expectsJson() && !$request->header('X-Inertia')) {
             return response()->json(['videos' => $videos]);
         }
 
@@ -75,7 +75,7 @@ class VideoController extends Controller
     public function store(Request $request)
     {
         if (!auth()->user()->hasPermission('video.create')) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            abort(403);
         }
 
         $validated = $request->validate([
@@ -83,6 +83,7 @@ class VideoController extends Controller
             'titleEn' => 'nullable|required_if:edition,both,en|string|max:255',
             'videoUrl' => 'required|url',
             'videoProvider' => 'nullable|string',
+            'videoDuration' => 'nullable|string|max:10',
             'thumbnail' => 'nullable|string',
             'edition' => 'required|in:both,bn,en',
         ]);
@@ -100,15 +101,20 @@ class VideoController extends Controller
             'featured_image' => $validated['thumbnail'],
             'article_type' => 'video',
             'video_provider' => $validated['videoProvider'] ?? 'youtube',
+            'video_url' => $validated['videoUrl'],
+            'video_duration' => $validated['videoDuration'] ?? '00:00',
             'status' => 'published',
             'edition' => $validated['edition'],
             'category_id' => $category ? $category->id : 1,
             'author_id' => Auth::id(),
             'published_at' => now(),
-            'subtitle_en' => $validated['videoUrl'],
         ]);
 
-        return response()->json(['success' => true, 'video' => $article]);
+        if ($request->wantsJson() && !$request->header('X-Inertia')) {
+            return response()->json(['success' => true, 'video' => $article]);
+        }
+
+        return back()->with('success', 'Video created successfully');
     }
 
     /**
@@ -117,7 +123,7 @@ class VideoController extends Controller
     public function update(Request $request, Article $article)
     {
         if (!auth()->user()->hasPermission('video.edit')) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            abort(403);
         }
 
         $validated = $request->validate([
@@ -125,6 +131,7 @@ class VideoController extends Controller
             'titleEn' => 'nullable|required_if:edition,both,en|string|max:255',
             'videoUrl' => 'required|url',
             'videoProvider' => 'nullable|string',
+            'videoDuration' => 'nullable|string|max:10',
             'thumbnail' => 'nullable|string',
             'edition' => 'required|in:both,bn,en',
         ]);
@@ -138,25 +145,35 @@ class VideoController extends Controller
             'slug_bn' => $slugBn,
             'slug_en' => $slugEn,
             'featured_image' => $validated['thumbnail'],
-            'subtitle_en' => $validated['videoUrl'],
-            'video_provider' => $validated['videoProvider'] ?? 'youtube',
+            'video_url' => $validated['videoUrl'],
+            'video_duration' => $validated['videoDuration'] ?? $article->video_duration,
+            'video_provider' => $validated['videoProvider'] ?? $article->video_provider,
             'edition' => $validated['edition'],
         ]);
 
-        return response()->json(['success' => true]);
+        if ($request->wantsJson() && !$request->header('X-Inertia')) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Video updated successfully');
     }
 
     /**
      * Remove the specified video.
      */
-    public function destroy(Article $article)
+    public function destroy(Request $request, Article $article)
     {
         if (!auth()->user()->hasPermission('video.delete')) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            abort(403);
         }
 
         $article->delete();
-        return response()->json(['success' => true]);
+        
+        if ($request->wantsJson() && !$request->header('X-Inertia')) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Video deleted successfully');
     }
 
     protected function generateSlug(string $title, string $column, ?int $excludeId = null): string

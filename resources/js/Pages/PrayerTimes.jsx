@@ -3,6 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import { getPrayerTimes } from '../services/prayerService';
 import MetaTags from '../Components/seo/MetaTags';
 import { toBengaliNum } from '../lib/formatters';
+import Icon from '../Components/Icon';
 
 const PRAYER_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
 const NAMES = {
@@ -38,9 +39,9 @@ export default function PrayerTimes() {
     <>
       <MetaTags seo={seo} />
       <div className="page-content">
-        <h1 style={{ fontSize: 24, marginBottom: 20 }}>
-          🕌 {lang === 'bn' ? 'নামাজের সময়সূচী' : 'Prayer Times'}
-          <span style={{ fontSize: 14, color: '#888', fontWeight: 400, marginLeft: 10 }}>
+        <h1 style={{ fontSize: 24, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Icon name="moon" size={24} /> {lang === 'bn' ? 'নামাজের সময়সূচী' : 'Prayer Times'}
+          <span style={{ fontSize: 14, color: '#888', fontWeight: 400, marginLeft: 'auto' }}>
             {lang === 'bn' ? 'ঢাকা' : 'Dhaka'}
           </span>
         </h1>

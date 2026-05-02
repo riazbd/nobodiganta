@@ -1,50 +1,19 @@
-export default function VideoPlayer({ src, provider = 'youtube', title = '', poster }) {
-  if (!src) return null;
+import { getUniversalEmbedConfig } from '../../lib/video';
 
-  const isYoutube = provider === 'youtube' || src.includes('youtu');
-  const isVimeo = provider === 'vimeo' || src.includes('vimeo');
+export default function VideoPlayer({ src, provider = null, title = '', poster }) {
+  const config = getUniversalEmbedConfig(src, provider);
+  
+  if (!config) return null;
 
-  if (isYoutube) {
-    let videoId = '';
-    try {
-      if (src.includes('embed/')) {
-        videoId = src.split('embed/')[1].split('?')[0];
-      } else {
-        const url = new URL(src);
-        videoId = url.searchParams.get('v') || url.pathname.replace('/', '');
-      }
-    } catch {
-      videoId = src.split('/').pop().split('?')[0];
-    }
-    const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+  if (config.type === 'iframe') {
     return (
       <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black shadow-sm">
         <iframe
-          src={embedUrl}
+          src={config.src}
           title={title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
           allowFullScreen
-          className="absolute inset-0 h-full w-full border-0"
-        />
-      </div>
-    );
-  }
-
-  if (isVimeo) {
-    let videoId = '';
-    try {
-      videoId = src.split('/').pop().split('?')[0];
-    } catch {
-      videoId = src;
-    }
-    const embedUrl = `https://player.vimeo.com/video/${videoId}`;
-    return (
-      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black shadow-sm">
-        <iframe
-          src={embedUrl}
-          title={title}
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
           className="absolute inset-0 h-full w-full border-0"
         />
       </div>
@@ -52,12 +21,12 @@ export default function VideoPlayer({ src, provider = 'youtube', title = '', pos
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-lg bg-black shadow-sm">
+    <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black shadow-sm">
       <video
-        src={src}
+        src={config.src}
         poster={poster}
         controls
-        className="w-full"
+        className="w-full h-full"
       >
         <track kind="captions" />
         {title && <p className="sr-only">{title}</p>}
@@ -65,3 +34,4 @@ export default function VideoPlayer({ src, provider = 'youtube', title = '', pos
     </div>
   );
 }
+

@@ -25,7 +25,14 @@ class OpinionController extends Controller
         $search = $request->input('search');
 
         $query = Article::with(['author'])
-            ->where('article_type', 'opinion')
+            ->where(function ($q) {
+                $q->where('article_type', 'opinion')
+                  ->orWhereHas('category', function ($cq) {
+                      $cq->where('slug', 'opinion')
+                        ->orWhere('name_bn', 'মতামত')
+                        ->orWhereHas('parent', fn($pq) => $cq->where('slug', 'opinion'));
+                  });
+            })
             ->latest();
 
         if ($status && $status !== 'all') {
@@ -115,6 +122,10 @@ class OpinionController extends Controller
             'edition' => $validated['edition'],
             'article_type' => 'opinion',
             'is_exclusive' => $validated['isExclusive'] ?? false,
+            'allow_comments' => $validated['allowComments'] ?? true,
+            'video_url' => $validated['videoUrl'] ?? null,
+            'video_provider' => $validated['videoProvider'] ?? null,
+            'video_duration' => $validated['videoDuration'] ?? null,
             'category_id' => $category ? $category->id : 1,
             'author_id' => Auth::id(),
             'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
@@ -161,6 +172,7 @@ class OpinionController extends Controller
                 'status' => $article->status,
                 'featuredImage' => $article->featured_image,
                 'isExclusive' => (bool)$article->is_exclusive,
+                'allowComments' => (bool)$article->allow_comments,
                 'secondaryAuthorId' => $article->secondary_author_id,
                 'isGuestAuthor' => (bool)$article->is_guest_author,
                 'guestAuthorNameBn' => $article->guest_author_name_bn,
@@ -202,6 +214,7 @@ class OpinionController extends Controller
             'featured_image_alt_bn' => $validated['featuredImageAltBn'] ?? null,
             'featured_image_alt_en' => $validated['featuredImageAltEn'] ?? null,
             'is_exclusive' => $validated['isExclusive'] ?? false,
+            'allow_comments' => $validated['allowComments'] ?? true,
             'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
             'is_guest_author' => $validated['isGuestAuthor'] ?? false,
             'guest_author_name_bn' => $validated['guestAuthorNameBn'] ?? null,
@@ -213,8 +226,7 @@ class OpinionController extends Controller
             'published_at' => ($newStatus === 'published' && !$article->published_at) ? now() : $article->published_at,
         ]);
 
-        return redirect()->route('admin.opinions')
-            ->with('success', 'Opinion updated successfully');
+        return back()->with('success', 'Opinion updated successfully');
     }
 
     public function destroy(Article $article)
@@ -305,6 +317,10 @@ class OpinionController extends Controller
             'guestAuthorBioBn' => 'nullable|string',
             'guestAuthorBioEn' => 'nullable|string',
             'guestAuthorImage' => 'nullable|string',
+            'allowComments' => 'boolean',
+            'videoUrl' => 'nullable|url',
+            'videoProvider' => 'nullable|string',
+            'videoDuration' => 'nullable|string|max:10',
         ]);
     }
 }

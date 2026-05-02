@@ -3,6 +3,7 @@ import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
 import { getMostReadArticles, getMostCommentedArticles } from '../../services/newsService';
 import { toBengaliNum } from '../../lib/formatters';
+import Icon from '../Icon';
 
 export default function TrendingWidget() {
   const { lang } = useApp();
@@ -23,8 +24,8 @@ export default function TrendingWidget() {
 
   return (
     <div className="trending-widget widget-block">
-      <div className="widget-header">
-        🔥 {lang === 'bn' ? 'সর্বাধিক পঠিত' : 'Trending'}
+      <div className="widget-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Icon name="flame" size={16} /> {lang === 'bn' ? 'সর্বাধিক পঠিত' : 'Trending'}
       </div>
       <div className="tabs" style={{ marginBottom: 10 }}>
         <button className={`tbtn ${tab === 'read' ? 'on' : ''}`} onClick={() => setTab('read')}>

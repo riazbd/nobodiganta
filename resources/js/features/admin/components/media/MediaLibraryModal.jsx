@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { router } from '@inertiajs/react';
-import { Upload, Image as ImageIcon, Trash2, Grid, List, Search, X, Plus, Copy, ExternalLink, Loader2, FileText, CheckCircle } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useForm, router } from '@inertiajs/react';
+import { Upload, Image as ImageIcon, Trash2, Grid, List, Search, X, Plus, Copy, ExternalLink, Loader2, FileText, CheckCircle, Image } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 
@@ -15,13 +15,13 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
   const [editionFilter, setEditionFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState(initialType);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedItems, setSelectedItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
-  const [showUploadForm, setShowUploadModal] = useState(false);
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadData, setUploadData] = useState({ 
+
+  const [uploadData, setUploadData] = useState({
     edition: 'both', 
     alt_text_bn: '', alt_text_en: '', 
     caption_bn: '', caption_en: '',
@@ -53,7 +53,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
       });
       const response = await fetch(`/admin/api/media?${params.toString()}`);
       const data = await response.json();
-      setMedia(data.data);
+      setMedia(data.data || []);
       setPagination(data);
     } catch (err) {
       showToast(lang === 'bn' ? 'মিডিয়া লোড করতে সমস্যা হয়েছে' : 'Failed to load media', 'error');
@@ -74,7 +74,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
         onSuccess: () => {
           showToast(lang === 'bn' ? 'মিডিয়া মুছে ফেলা হয়েছে' : 'Media deleted');
           setSelectedItem(null);
-          fetchMedia(pagination.current_page);
+          fetchMedia(pagination.current_page || 1);
         },
         onError: () => showToast(lang === 'bn' ? 'মুছতে সমস্যা হয়েছে' : 'Failed to delete', 'error'),
       });
@@ -87,7 +87,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
       onSuccess: () => {
         showToast(lang === 'bn' ? 'মিডিয়া তথ্য আপডেট করা হয়েছে' : 'Media updated successfully');
         setIsEditing(false);
-        fetchMedia(pagination.current_page);
+        fetchMedia(pagination.current_page || 1);
       },
       onError: () => showToast(lang === 'bn' ? 'আপডেট ব্যর্থ হয়েছে' : 'Update failed', 'error'),
     });
@@ -130,16 +130,23 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
           'Accept': 'application/json',
         },
       });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Upload failed');
+      }
+
       const data = await res.json();
 
       if (data.success) {
         showToast(lang === 'bn' ? 'মিডিয়া আপলোড সফল হয়েছে' : 'Media uploaded successfully');
-        setShowUploadModal(false);
+        setShowUploadForm(false);
         setUploadData({
           edition: 'both', alt_text_bn: '', alt_text_en: '',
           caption_bn: '', caption_en: '', credit_bn: '',
           credit_en: '', source_link: '', license_type: 'internal'
         });
+        if (e.target.file) e.target.file.value = '';
         fetchMedia(1);
       } else {
         const errMsg = data.errors
@@ -147,8 +154,8 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
           : (data.message || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed'));
         showToast(errMsg, 'error');
       }
-    } catch {
-      showToast(lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed', 'error');
+    } catch (err) {
+      showToast(err.message || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed'), 'error');
     } finally {
       setUploading(false);
     }
@@ -161,6 +168,12 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
     return <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${colors[ed.color]}`}>{ed.label}</span>;
   };
 
+  const asset = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return '/' + path.replace(/^\//, '');
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -169,12 +182,15 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-gray-800 font-['Noto_Sans_Bengali']">🖼️ {lang === 'bn' ? 'মিডিয়া লাইব্রেরি' : 'Media Library'}</h2>
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2 font-['Noto_Sans_Bengali']">
+              <Image className="w-6 h-6 text-[#e8001e]" />
+              {lang === 'bn' ? 'মিডিয়া লাইব্রেরি' : 'Media Library'}
+            </h2>
             <div className="h-5 w-px bg-gray-200 mx-2 hidden sm:block"></div>
             <p className="text-sm text-gray-500 hidden sm:block">{pagination.total || 0} {lang === 'bn' ? 'টি ফাইল' : 'files found'}</p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowUploadModal(!showUploadForm)} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-[#b8001a] transition-all">
+            <button onClick={() => setShowUploadForm(!showUploadForm)} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-sm font-semibold flex items-center gap-2 hover:bg-[#b8001a] transition-all">
               <Upload className="w-4 h-4" /> {lang === 'bn' ? 'আপলোড' : 'Upload'}
             </button>
             <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -244,7 +260,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                         className={`group relative rounded-xl overflow-hidden bg-white border cursor-pointer transition-all hover:shadow-md ${selectedItem?.id === item.id ? 'ring-2 ring-[#e8001e] border-transparent shadow-md' : 'border-gray-100'}`} 
                         onClick={() => { setSelectedItem(item); setIsEditing(false); }}
                       >
-                        <img src={item.thumbnail_url} className="w-full h-32 object-cover" />
+                        <img src={item.thumbnail_url || item.url} className="w-full h-32 object-cover" />
                         <div className="p-2 border-t border-gray-50">
                           <div className="text-[11px] font-medium text-gray-700 truncate">{item.original_name}</div>
                         </div>
@@ -259,7 +275,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                         className={`flex items-center gap-4 p-2 rounded-lg cursor-pointer hover:bg-gray-50 ${selectedItem?.id === item.id ? 'bg-red-50' : ''}`}
                         onClick={() => { setSelectedItem(item); setIsEditing(false); }}
                       >
-                        <img src={item.thumbnail_url} className="w-12 h-12 rounded object-cover" />
+                        <img src={item.thumbnail_url || item.url || asset('storage/' + item.file_path)} className="w-12 h-12 rounded object-cover" />
                         <div className="text-sm font-medium text-gray-700 flex-1 truncate">{item.original_name}</div>
                         {getEditionBadge(item.edition)}
                       </div>
@@ -295,7 +311,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                  {!isEditing ? (
                    <div className="space-y-5">
                      <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
-                       <img src={selectedItem.url} className="w-full h-auto max-h-48 object-contain bg-gray-50" />
+                       <img src={selectedItem.url || asset('storage/' + selectedItem.file_path)} className="w-full h-auto max-h-48 object-contain bg-gray-50" />
                      </div>
                      
                      <div className="space-y-3 font-['Noto_Sans_Bengali']">
@@ -404,7 +420,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                    <div>
                      <h3 className="text-2xl font-bold text-gray-800 font-['Noto_Sans_Bengali']">{lang === 'bn' ? 'মিডিয়া আপলোড' : 'Upload New Media'}</h3>
                    </div>
-                   <button onClick={() => setShowUploadModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X className="w-6 h-6 text-gray-400" /></button>
+                   <button onClick={() => setShowUploadForm(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X className="w-6 h-6 text-gray-400" /></button>
                 </div>
 
                 <form onSubmit={handleUpload} className="space-y-4">
@@ -458,7 +474,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                   </div>
 
                   <div className="flex gap-4 pt-4">
-                    <button type="button" onClick={() => setShowUploadModal(false)} className="flex-1 py-3 border border-gray-200 rounded-2xl text-sm font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
+                    <button type="button" onClick={() => setShowUploadForm(false)} className="flex-1 py-3 border border-gray-200 rounded-2xl text-sm font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
                     <button type="submit" disabled={uploading} className="flex-[2] py-3 bg-[#e8001e] text-white rounded-2xl text-sm font-bold shadow-lg hover:bg-[#b8001a] disabled:opacity-50 flex items-center justify-center gap-2">
                       {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : (lang === 'bn' ? 'আপলোড শুরু করুন' : 'Start Upload')}
                     </button>

@@ -116,14 +116,26 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
       </div>
 
       {/* User Card */}
-      <div className="px-4 py-3.5 flex items-center gap-2.5 border-b border-[#1e2130] bg-[#1a1d2e]">
-        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-          {roleInfo?.labelBn?.charAt(0) || 'র'}
+      <div 
+        className="px-4 py-3.5 flex items-center gap-2.5 border-b border-[#1e2130] bg-[#1a1d2e] cursor-pointer hover:bg-[#1e2130] transition-colors"
+        onClick={() => handleNav('profile')}
+      >
+        <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#1e2130] flex-shrink-0">
+          {props.auth.user.profile_photo_url ? (
+            <img src={props.auth.user.profile_photo_url} alt={props.auth.user.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-sm font-bold">
+              {props.auth.user.name?.charAt(0) || 'U'}
+            </div>
+          )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[10.5px] text-[#8b92a5] uppercase font-bold tracking-wider">{roleInfo ? (lang === 'bn' ? roleInfo.labelBn : roleInfo.labelEn) : currentRole}</div>
+          <div className="text-[11.5px] text-white font-bold truncate leading-tight mb-0.5">{props.auth.user.name}</div>
+          <div className="text-[9.5px] text-[#8b92a5] uppercase font-bold tracking-wider truncate opacity-70">
+            {roleInfo ? (lang === 'bn' ? roleInfo.labelBn : roleInfo.labelEn) : props.auth.user.role}
+          </div>
         </div>
-        <div className="w-2 h-2 bg-[#10b981] rounded-full flex-shrink-0" />
+        <div className="w-2 h-2 bg-[#10b981] rounded-full flex-shrink-0 animate-pulse" />
       </div>
 
       {/* Navigation */}

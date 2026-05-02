@@ -70,6 +70,7 @@ class ReporterSeeder extends Seeder
                     'name' => $data['name_en'],
                     'password' => bcrypt('password'),
                     'role' => 'reporter',
+                    'profile_photo_path' => null,
                 ]
             );
 

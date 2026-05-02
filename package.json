@@ -15,6 +15,11 @@
         "autoprefixer": "^10.4.12",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
+        "eslint": "^9.39.4",
+        "eslint-import-resolver-alias": "^1.1.2",
+        "eslint-plugin-import": "^2.32.0",
+        "eslint-plugin-react": "^7.37.5",
+        "eslint-plugin-react-hooks": "^7.1.1",
         "laravel-vite-plugin": "^2.0.0",
         "postcss": "^8.4.31",
         "react": "^18.2.0",
@@ -23,6 +28,16 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "@tiptap/extension-bubble-menu": "^3.22.5",
+        "@tiptap/extension-floating-menu": "^3.22.5",
+        "@tiptap/extension-highlight": "^3.22.5",
+        "@tiptap/extension-image": "^3.22.5",
+        "@tiptap/extension-link": "^3.22.5",
+        "@tiptap/extension-placeholder": "^3.22.5",
+        "@tiptap/extension-typography": "^3.22.5",
+        "@tiptap/extension-youtube": "^3.22.5",
+        "@tiptap/react": "^3.22.5",
+        "@tiptap/starter-kit": "^3.22.5",
         "lucide-react": "^1.7.0",
         "recharts": "^3.8.1"
     }

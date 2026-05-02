@@ -443,6 +443,7 @@ class MoreArticlesSeeder extends Seeder
                 'is_featured'     => $item['featured'],
                 'is_breaking'     => $item['breaking'],
                 'views'           => $item['views'],
+                'allow_comments'  => true,
                 'published_at'    => $publishedAt,
             ]);
         }

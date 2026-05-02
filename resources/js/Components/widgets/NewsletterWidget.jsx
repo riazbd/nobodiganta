@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useToast } from '../../contexts/ToastContext';
 import { validateNewsletterEmail } from '../../lib/validators';
+import Icon from '../Icon';
 
 export default function NewsletterWidget() {
   const { lang } = useApp();
@@ -23,8 +24,8 @@ export default function NewsletterWidget() {
   if (submitted) {
     return (
       <div className="newsletter-widget widget-block">
-        <div style={{ textAlign: 'center', padding: '16px 0', color: '#28a745' }}>
-          ✓ {lang === 'bn' ? 'ধন্যবাদ! সাবস্ক্রাইব করা হয়েছে।' : 'Thank you! You are subscribed.'}
+        <div style={{ textAlign: 'center', padding: '16px 0', color: '#28a745', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <Icon name="checkCircle" size={16} /> {lang === 'bn' ? 'ধন্যবাদ! সাবস্ক্রাইব করা হয়েছে।' : 'Thank you! You are subscribed.'}
         </div>
       </div>
     );
@@ -32,8 +33,8 @@ export default function NewsletterWidget() {
 
   return (
     <div className="newsletter-widget widget-block">
-      <div className="widget-header">
-        📧 {lang === 'bn' ? 'নিউজলেটার' : 'Newsletter'}
+      <div className="widget-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Icon name="mail" size={16} /> {lang === 'bn' ? 'নিউজলেটার' : 'Newsletter'}
       </div>
       <p style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>
         {lang === 'bn'

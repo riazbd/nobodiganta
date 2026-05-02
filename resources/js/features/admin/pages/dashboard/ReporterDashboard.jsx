@@ -1,4 +1,4 @@
-import { PenLine, FileText, Clock, TrendingUp, Send, Edit3, ListChecks, CalendarDays, MessageSquare, Award } from 'lucide-react';
+import { PenLine, FileText, Clock, TrendingUp, Send, Edit3, ListChecks, CalendarDays, Calendar, Newspaper, MessageSquare, Award } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -27,7 +27,10 @@ export default function ReporterDashboard() {
           <button onClick={() => onNavigate?.('news-write')} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
             <PenLine className="w-4 h-4" /> {lang === 'bn' ? 'নতুন লিখুন' : 'Write New'}
           </button>
-          <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-1.5">📅 {lang === 'bn' ? 'সোমবার, ০৬ এপ্রিল ২০২৬' : 'Monday, 06 April 2026'}</div>
+          <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-2">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>{lang === 'bn' ? 'সোমবার, ০৬ এপ্রিল ২০২৬' : 'Monday, 06 April 2026'}</span>
+          </div>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { getLiveMatches } from '../../services/cricketService';
+import Icon from '../Icon';
 
 export default function CricketScoreWidget() {
   const { lang } = useApp();
@@ -16,10 +17,10 @@ export default function CricketScoreWidget() {
 
   return (
     <div className="cricket-widget widget-block">
-      <div className="widget-header">
-        🏏 {lang === 'bn' ? 'ক্রিকেট স্কোর' : 'Cricket Score'}
+      <div className="widget-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Icon name="trophy" size={16} /> {lang === 'bn' ? 'ক্রিকেট স্কোর' : 'Cricket Score'}
         {match.status === 'live' && (
-          <span className="live-badge">LIVE</span>
+          <span className="live-badge" style={{ marginLeft: 'auto' }}>LIVE</span>
         )}
       </div>
       <div className="cricket-match">

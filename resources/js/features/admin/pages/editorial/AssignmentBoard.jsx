@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarDays, Plus, Search, X as XIcon, User, Clock, CheckCircle } from 'lucide-react';
+import { CalendarDays, Plus, Search, X as XIcon, User, Clock, CheckCircle, ClipboardList } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -38,7 +38,10 @@ export default function AssignmentBoard() {
     <div>
       <div className="flex items-start justify-between mb-5.5">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">📋 {lang === 'bn' ? 'অ্যাসাইনমেন্ট বোর্ড' : 'Assignment Board'}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
+            <ClipboardList className="w-5 h-5 text-[#e8001e]" />
+            {lang === 'bn' ? 'অ্যাসাইনমেন্ট বোর্ড' : 'Assignment Board'}
+          </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'সাংবাদিকদের কাজ বরাদ্দ ও ট্র্যাকিং' : 'Reporter task assignment and tracking'}</p>
         </div>
         <button onClick={() => showToast(lang === 'bn' ? 'নতুন অ্যাসাইনমেন্ট যোগ করুন' : 'Add new assignment')} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">

@@ -272,9 +272,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit-log');
         Route::post('/audit-log/clear', [AuditLogController::class, 'clear'])->name('audit-log.clear');
 
-        Route::get('/profile', function () {
-            return Inertia::render('features/admin/pages/Profile');
-        })->name('profile');
+        // User Profile
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
         // Editorial
         Route::get('/pitch-board', function () {

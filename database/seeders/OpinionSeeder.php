@@ -362,6 +362,7 @@ HTML,
                 'guest_author_bio_en'  => $op['guest_author_bio_en'] ?? null,
                 'guest_author_image'   => $op['is_guest_author'] ? $op['image'] : null,
                 'is_featured'          => ($idx < 2),
+                'allow_comments'       => true,
             ];
 
             // Use first available user as author fallback

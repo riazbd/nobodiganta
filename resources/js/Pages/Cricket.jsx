@@ -3,6 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import { getAllMatches } from '../services/cricketService';
 import MetaTags from '../Components/seo/MetaTags';
 import { toBengaliNum } from '../lib/formatters';
+import Icon from '../Components/Icon';
 
 const STATUS_COLORS = { live: '#c00', upcoming: '#0055a5', completed: '#888' };
 
@@ -24,8 +25,8 @@ export default function Cricket() {
     <>
       <MetaTags seo={seo} />
       <div className="page-content">
-        <h1 style={{ fontSize: 24, marginBottom: 20 }}>
-          🏏 {lang === 'bn' ? 'ক্রিকেট' : 'Cricket'}
+        <h1 style={{ fontSize: 24, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Icon name="trophy" size={24} /> {lang === 'bn' ? 'ক্রিকেট' : 'Cricket'}
         </h1>
         {matches.map((match) => (
           <div key={match.id} style={{ background: '#fff', borderRadius: 8, padding: 20, marginBottom: 16 }}>

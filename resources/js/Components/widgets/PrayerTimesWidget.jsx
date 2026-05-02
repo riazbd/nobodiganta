@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { getPrayerTimes } from '../../services/prayerService';
 import { toBengaliNum } from '../../lib/formatters';
+import Icon from '../Icon';
 
 const PRAYER_NAMES = {
   fajr:    { bn: 'ফজর',   en: 'Fajr' },
@@ -21,7 +22,6 @@ function getCurrentPrayer(times) {
   
   for (const key of order) {
     if (!times[key]) continue;
-    // Format is "04:30 AM" or "12:15 PM"
     const match = times[key].match(/(\d+):(\d+)\s*(AM|PM)/i);
     if (match) {
       let h = parseInt(match[1], 10);
@@ -57,9 +57,9 @@ export default function PrayerTimesWidget() {
 
   return (
     <div className="prayer-widget widget-block">
-      <div className="widget-header">
-        🕌 {lang === 'bn' ? 'নামাজের সময়সূচী' : 'Prayer Times'}
-        <span style={{ fontSize: 11, color: '#999', fontWeight: 400, marginLeft: 6 }}>
+      <div className="widget-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Icon name="moon" size={16} /> {lang === 'bn' ? 'নামাজের সময়সূচী' : 'Prayer Times'}
+        <span style={{ fontSize: 11, color: '#999', fontWeight: 400, marginLeft: 'auto' }}>
           {lang === 'bn' ? 'ঢাকা' : 'Dhaka'}
         </span>
       </div>

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('link')->nullable();
             $table->string('position'); // e.g., 'home_top', 'sidebar', 'between_posts'
-            $table->enum('type', ['image', 'google_ad', 'html'])->default('image');
+            $table->string('type')->default('image');
             $table->text('code')->nullable(); // For Google AdSense or Custom HTML
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();

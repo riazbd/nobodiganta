@@ -6,6 +6,7 @@ import { useToast } from '../hooks/useToast';
 import { useAdminNavigation } from '../contexts/AdminNavigationContext';
 import { router } from '@inertiajs/react';
 import MediaLibraryModal from '../components/media/MediaLibraryModal';
+import { detectVideoProvider } from '../../../lib/video';
 
 export default function Videos({ initialVideos = [], filters = {} }) {
   const { lang } = useLanguage();
@@ -25,6 +26,7 @@ export default function Videos({ initialVideos = [], filters = {} }) {
     titleEn: '',
     videoUrl: '',
     videoProvider: 'youtube',
+    videoDuration: '',
     thumbnail: '',
     edition: 'both',
   });
@@ -53,7 +55,15 @@ export default function Videos({ initialVideos = [], filters = {} }) {
 
   const handleOpenCreate = () => {
     setEditingVideo(null);
-    setFormData({ titleBn: '', titleEn: '', videoUrl: '', thumbnail: '' });
+    setFormData({ 
+      titleBn: '', 
+      titleEn: '', 
+      videoUrl: '', 
+      videoDuration: '', 
+      thumbnail: '', 
+      edition: 'both', 
+      videoProvider: 'youtube' 
+    });
     setShowModal(true);
   };
 
@@ -64,6 +74,7 @@ export default function Videos({ initialVideos = [], filters = {} }) {
       titleEn: video.titleEn || '',
       videoUrl: video.video_url || '',
       videoProvider: video.video_provider || 'youtube',
+      videoDuration: video.duration || '',
       thumbnail: video.thumbnail || '',
       edition: video.edition || 'both',
     });
@@ -235,19 +246,35 @@ export default function Videos({ initialVideos = [], filters = {} }) {
                 </div>
               )}
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{lang === 'bn' ? 'ভিডিও লিঙ্ক (YouTube/Vimeo)' : 'Video URL'}</label>
-                <input required type="url" value={formData.videoUrl} onChange={e => setFormData({...formData, videoUrl: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#e8001e] outline-none" placeholder="https://youtube.com/..." />
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{lang === 'bn' ? 'ভিডিও লিঙ্ক (YouTube/Vimeo/FB)' : 'Video URL'}</label>
+                <input 
+                  required 
+                  type="url" 
+                  value={formData.videoUrl} 
+                  onChange={e => {
+                    const url = e.target.value;
+                    const provider = detectVideoProvider(url);
+                    setFormData({...formData, videoUrl: url, videoProvider: provider});
+                  }} 
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#e8001e] outline-none" 
+                  placeholder="Paste video URL..." 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{lang === 'bn' ? 'ভিডিওর দৈর্ঘ্য' : 'Duration (e.g. 05:20)'}</label>
+                <input type="text" value={formData.videoDuration} onChange={e => setFormData({...formData, videoDuration: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#e8001e] outline-none" placeholder="00:00" />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">{lang === 'bn' ? 'ভিডিও সোর্স' : 'Provider'}</label>
-                <div className="flex gap-2">
-                  {['youtube', 'vimeo', 'local'].map(p => (
+                <div className="flex flex-wrap gap-2">
+                  {['youtube', 'vimeo', 'facebook', 'dailymotion', 'local'].map(p => (
                     <button
                       key={p}
                       type="button"
                       onClick={() => setFormData({ ...formData, videoProvider: p })}
-                      className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all ${
                         formData.videoProvider === p ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                       }`}
                     >

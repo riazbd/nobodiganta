@@ -3,6 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import { getDSEData } from '../services/stockService';
 import MetaTags from '../Components/seo/MetaTags';
 import { toBengaliNum } from '../lib/formatters';
+import Icon from '../Components/Icon';
 
 export default function StockMarket() {
   const { lang } = useApp();
@@ -25,8 +26,8 @@ export default function StockMarket() {
     <>
       <MetaTags seo={seo} />
       <div className="page-content">
-        <h1 style={{ fontSize: 24, marginBottom: 20 }}>
-          📈 {lang === 'bn' ? 'শেয়ার বাজার' : 'Stock Market'}
+        <h1 style={{ fontSize: 24, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Icon name="trendingUp" size={24} /> {lang === 'bn' ? 'শেয়ার বাজার' : 'Stock Market'}
         </h1>
         {!data ? (
           <div style={{ color: '#888', textAlign: 'center', padding: 40 }}>
@@ -40,8 +41,9 @@ export default function StockMarket() {
                 <div key={idx.name} style={{ background: '#fff', borderRadius: 8, padding: 20, textAlign: 'center' }}>
                   <div style={{ fontSize: 13, color: '#888', marginBottom: 6 }}>{idx.name}</div>
                   <div style={{ fontSize: 28, fontWeight: 700 }}>{fmt(idx.value)}</div>
-                  <div style={{ color: changeColor(idx.change), fontSize: 14, marginTop: 4 }}>
-                    {parseFloat(idx.change) >= 0 ? '+' : ''}{fmt(idx.change)} ({idx.pct})
+                  <div style={{ color: changeColor(idx.change), fontSize: 14, marginTop: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    {parseFloat(idx.change) >= 0 ? <Icon name="trendingUp" size={14} /> : <Icon name="trendingDown" size={14} />}
+                    {fmt(idx.change)} ({idx.pct})
                   </div>
                 </div>
               ))}
@@ -50,7 +52,8 @@ export default function StockMarket() {
             {/* Gainers & Losers */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div style={{ background: '#fff', borderRadius: 8, padding: 16 }}>
-                <h3 style={{ color: '#28a745', marginBottom: 12, fontSize: 15 }}>
+                <h3 style={{ color: '#28a745', marginBottom: 12, fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Icon name="trendingUp" size={14} />
                   {lang === 'bn' ? 'শীর্ষ গেইনার' : 'Top Gainers'}
                 </h3>
                 {data.gainers?.map((s) => (
@@ -61,7 +64,8 @@ export default function StockMarket() {
                 ))}
               </div>
               <div style={{ background: '#fff', borderRadius: 8, padding: 16 }}>
-                <h3 style={{ color: '#c00', marginBottom: 12, fontSize: 15 }}>
+                <h3 style={{ color: '#c00', marginBottom: 12, fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Icon name="trendingDown" size={14} />
                   {lang === 'bn' ? 'শীর্ষ লুজার' : 'Top Losers'}
                 </h3>
                 {data.losers?.map((s) => (

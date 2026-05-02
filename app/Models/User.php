@@ -23,9 +23,27 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'profile_photo_path',
         'role',
         'role_id',
         'last_login_at',
+    ];
+
+    /**
+     * Get the URL to the user's profile photo.
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        return $this->profile_photo_path
+            ? asset('storage/' . $this->profile_photo_path)
+            : 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=7F9CF5&background=EBF4FF';
+    }
+
+    /**
+     * The attributes that should be hidden for serialization.
+     */
+    protected $appends = [
+        'profile_photo_url',
     ];
 
     /**

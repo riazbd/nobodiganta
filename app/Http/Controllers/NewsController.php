@@ -156,7 +156,11 @@ class NewsController extends Controller
         $opinions = Article::published()->forEdition($edition)
             ->where(function($q) {
                 $q->where('article_type', 'opinion')
-                  ->orWhereHas('category', fn($q2) => $q2->where('slug', 'opinion')->orWhere('name_bn', 'মতামত'));
+                  ->orWhereHas('category', function($q2) {
+                      $q2->where('slug', 'opinion')
+                        ->orWhere('name_bn', 'মতামত')
+                        ->orWhereHas('parent', fn($q3) => $q3->where('slug', 'opinion'));
+                  });
             })
             ->withRelations()
             ->orderByDesc('published_at')
@@ -409,7 +413,7 @@ class NewsController extends Controller
         
         if (!$reporter) {
             // Fallback: search for user by name slug
-            $user = User::whereRaw('LOWER(REPLACE(name, " ", "-")) = ?', [strtolower($slug)])->firstOrFail();
+            $user = User::whereRaw("LOWER(REPLACE(name, ' ', '-')) = ?", [strtolower($slug)])->firstOrFail();
             
             // Create a temporary reporter object for consistency if none exists
             $authorData = [
@@ -420,7 +424,7 @@ class NewsController extends Controller
                 'slug' => $slug,
                 'designation' => null,
                 'bio' => null,
-                'image' => null,
+                'image' => $user->profile_photo_url,
             ];
             $authorId = $user->id;
         } else {
@@ -432,7 +436,7 @@ class NewsController extends Controller
                 'slug' => $reporter->slug,
                 'designation' => $reporter->getDesignation($edition),
                 'bio' => $reporter->getBio($edition),
-                'image' => $reporter->image,
+                'image' => $reporter->image ?: ($reporter->user ? $reporter->user->profile_photo_url : null),
                 'social_links' => $reporter->social_links,
             ];
             $authorId = $reporter->user_id ?: 0; // If reporter has no user_id, use 0
@@ -916,9 +920,9 @@ class NewsController extends Controller
                 'title' => $edition === 'en' ? $a->title_en : $a->title_bn,
                 'time' => $a->published_at ? $a->published_at->diffForHumans() : '',
                 'views' => $a->views,
-                'duration' => '3:45', // default since not stored
+                'duration' => $a->video_duration ?: '03:45',
                 'thumbnail' => $a->featured_image,
-                'src' => $edition === 'en' ? $a->subtitle_en : $a->subtitle_bn, // Seeder uses subtitle as URL
+                'video_url' => $a->video_url,
             ]);
 
         return Inertia::render('Video', [

@@ -1,4 +1,4 @@
-import { Newspaper, Users, MessageSquare, TrendingUp, PenLine, FileText, AlertTriangle, BarChart3, Clock, Award, CalendarDays, Globe, Megaphone, Shield } from 'lucide-react';
+import { Newspaper, Users, MessageSquare, TrendingUp, PenLine, FileText, AlertTriangle, BarChart3, Clock, Award, CalendarDays, Calendar, Globe, Megaphone, Shield, Crown, FolderTree, Activity } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
 import { DonutChart } from '../../components/charts/DonutChart';
@@ -38,11 +38,14 @@ export default function EditorInChiefDashboard({
     <div>
       <div className="flex items-start justify-between mb-5.5">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">👑 {lang === 'bn' ? 'প্রধান সম্পাদক ড্যাশবোর্ড' : 'Editor-in-Chief Dashboard'}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
+            <Crown className="w-5 h-5 text-[#f59e0b]" />
+            {lang === 'bn' ? 'প্রধান সম্পাদক ড্যাশবোর্ড' : 'Editor-in-Chief Dashboard'}
+          </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'সম্পাদকীয় নিয়ন্ত্রণ ও চূড়ান্ত অনুমোদন' : 'Editorial oversight and final approval authority'}</p>
         </div>
         <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-1.5">
-          📅 <span>{new Date().toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          <Calendar className="w-3.5 h-3.5" /> <span>{new Date().toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
         </div>
       </div>
 
@@ -63,7 +66,10 @@ export default function EditorInChiefDashboard({
       <div className="grid grid-cols-[2fr_1fr] gap-4.5 mb-4.5">
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '📈 রিয়েল-টাইম ট্র্যাফিক' : '📈 Real-Time Traffic'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[#e8001e]" />
+              {lang === 'bn' ? 'রিয়েল-টাইম ট্র্যাফিক' : 'Real-Time Traffic'}
+            </h3>
           </div>
           <div className="px-5 pt-2.5">
             <LineChart data={traffic.pageViews || []} labels={lang === 'bn' ? (traffic.labels || []) : (traffic.labelsEn || [])} color="#e8001e" gradientId="gRed" />
@@ -82,7 +88,10 @@ export default function EditorInChiefDashboard({
       <div className="grid grid-cols-[1fr_1fr_320px] gap-4.5 mb-4.5">
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '🗂️ বিভাগ অনুযায়ী সংবাদ' : '🗂️ News by Category'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <FolderTree className="w-4 h-4 text-[#e8001e]" />
+              {lang === 'bn' ? 'বিভাগ অনুযায়ী সংবাদ' : 'News by Category'}
+            </h3>
           </div>
           <div className="p-5">
             <CategoryBar items={categoryBreakdown} lang={lang} />
@@ -90,7 +99,10 @@ export default function EditorInChiefDashboard({
         </div>
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '📊 কন্টেন্ট অবস্থা' : '📊 Content Status'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-[#3b82f6]" />
+              {lang === 'bn' ? 'কন্টেন্ট অবস্থা' : 'Content Status'}
+            </h3>
           </div>
           <div className="p-5">
             <DonutChart
@@ -107,7 +119,10 @@ export default function EditorInChiefDashboard({
         </div>
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '🏆 শীর্ষ সাংবাদিক' : '🏆 Top Reporters'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <Award className="w-4 h-4 text-[#f59e0b]" />
+              {lang === 'bn' ? 'শীর্ষ সাংবাদিক' : 'Top Reporters'}
+            </h3>
           </div>
           <div className="p-4 pt-1.5">
             <ReporterCard data={[]} lang={lang} />
@@ -118,15 +133,19 @@ export default function EditorInChiefDashboard({
       <div className="grid grid-cols-[1fr_1fr] gap-4.5 mb-5">
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '🕐 সাম্প্রতিক কার্যক্রম' : '🕐 Recent Activity'}</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <Activity className="w-4 h-4 text-[#8b5cf6]" />
+              {lang === 'bn' ? 'সাম্প্রতিক কার্যক্রম' : 'Recent Activity'}
+            </h3>
           </div>
           <div className="p-4 pt-1.5">
             <ActivityFeed items={activities} lang={lang} />
           </div>
         </div>
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
-            <h3 className="text-sm font-bold">{lang === 'bn' ? '📅 আজকের শিডিউল' : '📅 Today\'s Schedule'}</h3>
+          <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-[#e8001e]" />
+            <h3 className="text-sm font-bold">{lang === 'bn' ? 'আজকের শিডিউল' : 'Today\'s Schedule'}</h3>
           </div>
           <div className="p-4 pt-1.5">
             <ScheduleList items={schedule} lang={lang} />

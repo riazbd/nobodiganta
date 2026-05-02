@@ -179,6 +179,10 @@ class ArticleController extends Controller
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:100',
             'sendPushNotification' => 'boolean',
+            'allowComments' => 'boolean',
+            'videoUrl' => 'nullable|url',
+            'videoProvider' => 'nullable|string',
+            'videoDuration' => 'nullable|string|max:10',
         ]);
 
         $category = Category::where('slug', $validated['category'])
@@ -223,6 +227,10 @@ class ArticleController extends Controller
             'is_featured' => $validated['isFeatured'] ?? false,
             'is_premium' => $validated['isPremium'] ?? false,
             'is_exclusive' => $validated['isExclusive'] ?? false,
+            'allow_comments' => $validated['allowComments'] ?? true,
+            'video_url' => $validated['videoUrl'] ?? null,
+            'video_provider' => $validated['videoProvider'] ?? null,
+            'video_duration' => $validated['videoDuration'] ?? null,
             'category_id' => $category->id,
             'subcategory_id' => $subcategoryId,
             'author_id' => $validated['authorId'] ?? Auth::id(),
@@ -266,7 +274,7 @@ class ArticleController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && !$request->header('X-Inertia')) {
             return response()->json(['success' => true, 'article' => $article], 201);
         }
 
@@ -320,7 +328,10 @@ class ArticleController extends Controller
                 'isBreaking' => $article->is_breaking,
                 'isFeatured' => $article->is_featured,
                 'isExclusive' => $article->is_exclusive,
-                'isPremium' => $article->is_premium,
+                'allowComments' => (bool)$article->allow_comments,
+                'videoUrl' => $article->video_url,
+                'videoProvider' => $article->video_provider,
+                'videoDuration' => $article->video_duration,
                 'category' => $article->category_id,
                 'subcategory' => $article->subcategory_id,
                 'authorId' => $article->author_id,
@@ -394,6 +405,10 @@ class ArticleController extends Controller
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:100',
             'sendPushNotification' => 'boolean',
+            'allowComments' => 'boolean',
+            'videoUrl' => 'nullable|url',
+            'videoProvider' => 'nullable|string',
+            'videoDuration' => 'nullable|string|max:10',
         ]);
 
         $category = Category::where('slug', $validated['category'])->orWhere('id', $validated['category'])->first();
@@ -438,6 +453,10 @@ class ArticleController extends Controller
             'is_featured' => $validated['isFeatured'] ?? false,
             'is_premium' => $validated['isPremium'] ?? false,
             'is_exclusive' => $validated['isExclusive'] ?? false,
+            'allow_comments' => $validated['allowComments'] ?? true,
+            'video_url' => $validated['videoUrl'] ?? null,
+            'video_provider' => $validated['videoProvider'] ?? null,
+            'video_duration' => $validated['videoDuration'] ?? null,
             'category_id' => $category->id,
             'subcategory_id' => $subcategoryId,
             'author_id' => $validated['authorId'] ?? $article->author_id,
@@ -478,11 +497,11 @@ class ArticleController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && !$request->header('X-Inertia')) {
             return response()->json(['success' => true, 'article' => $article->fresh()->load(['category', 'author', 'tags'])]);
         }
 
-        return redirect()->route('admin.news')->with('success', 'Article updated successfully');
+        return back()->with('success', 'Article updated successfully');
     }
 
     /**

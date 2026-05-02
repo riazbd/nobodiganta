@@ -9,8 +9,9 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
 import MediaUpload from '../../components/forms/MediaUpload';
-import RichTextEditor from '../../components/editor/RichTextEditor';
+import RichTextEditor from '../../components/editor/TiptapEditor';
 import MediaLibraryModal from '../../components/media/MediaLibraryModal';
+import { detectVideoProvider } from '../../../../lib/video';
 
 /**
  * Slugify helper — creates URL-friendly slugs from titles.
@@ -142,6 +143,9 @@ export default function WriteNews() {
     edition: 'both',
     articleType: 'news',
     status: 'draft',
+    videoUrl: '',
+    videoProvider: 'youtube',
+    videoDuration: '',
 
     // Flags
     isBreaking: false,
@@ -198,12 +202,16 @@ export default function WriteNews() {
         slugEn: article.slugEn || '',
         edition: article.edition || 'both',
         articleType: article.articleType || 'news',
+        videoUrl: article.videoUrl || '',
+        videoProvider: article.videoProvider || 'youtube',
+        videoDuration: article.videoDuration || '',
         status: article.status || 'draft',
         isBreaking: !!article.isBreaking,
         isFeatured: !!article.isFeatured,
         isPremium: !!article.isPremium,
         isExclusive: !!article.isExclusive,
         isGuestAuthor: !!article.isGuestAuthor,
+        allowComments: article.allowComments !== undefined ? !!article.allowComments : true,
         category: article.category?.id || article.category || '',
         subcategory: article.subcategory?.id || article.subcategory || '',
         authorId: article.authorId || '',
@@ -288,7 +296,12 @@ export default function WriteNews() {
     return article ? route('admin.news.update', { article: article.id }) : route('admin.news.store');
   };
 
-  const submitForm = (status, successMessage) => {
+  const submitForm = (newStatus = null, successMessage = null) => {
+    // If status is provided, update form data
+    if (newStatus) {
+      form.setData('status', newStatus);
+    }
+
     // Validate required fields based on edition
     const needsBn = form.data.edition === 'bn' || form.data.edition === 'both';
     const needsEn = form.data.edition === 'en' || form.data.edition === 'both';
@@ -320,21 +333,24 @@ export default function WriteNews() {
       return;
     }
 
-    const payload = { ...form.data, status };
-    if (article) {
-       payload._method = 'put';
-    }
-
-    router.post(getSubmitUrl(), payload, {
+    // Use transform to ensure the payload is correct including the potentially new status
+    form.transform(data => ({
+      ...data,
+      status: newStatus || data.status,
+      _method: article ? 'put' : 'post'
+    })).post(getSubmitUrl(), {
       preserveScroll: true,
-      onSuccess: () => showToast(successMessage),
+      onSuccess: () => {
+        showToast(successMessage || (lang === 'bn' ? 'সংরক্ষণ করা হয়েছে' : 'Saved successfully'));
+      },
       onError: (errors) => {
-        const errMsg = Object.values(errors).flat()[0] || (lang === 'bn' ? 'সংরক্ষণ করতে ব্যর্থ' : 'Failed to save');
-        showToast(errMsg, 'error');
+        const firstError = Object.values(errors)[0];
+        showToast(firstError || (lang === 'bn' ? 'সংরক্ষণ করতে ব্যর্থ' : 'Failed to save'), 'error');
       }
     });
   };
 
+  const handleSaveChanges = () => submitForm(null, lang === 'bn' ? 'পরিবর্তন সংরক্ষিত হয়েছে' : 'Changes saved successfully');
   const handlePublish = () => submitForm('published', lang === 'bn' ? 'সংবাদ প্রকাশিত হয়েছে!' : 'Article published!');
   const handleDraft = () => submitForm('draft', lang === 'bn' ? 'ড্রাফট সংরক্ষিত হয়েছে' : 'Draft saved');
   const handleSubmitForReview = () => submitForm('pending', lang === 'bn' ? 'অনুমোদনের জন্য পাঠানো হয়েছে' : 'Sent for approval');
@@ -362,16 +378,19 @@ export default function WriteNews() {
         },
       });
 
-      if (!res.ok && res.status !== 422) {
-        throw new Error(`Server error: ${res.status}`);
-      }
-
       const data = await res.json();
 
-      if (data.success && data.url) {
-        form.setData('featuredImage', data.url);
-        if (data.media?.alt_text_bn) form.setData('featuredImageAltBn', data.media.alt_text_bn);
-        if (data.media?.alt_text_en) form.setData('featuredImageAltEn', data.media.alt_text_en);
+      if (res.ok && data.success && data.url) {
+        // Use a single functional update to ensure all data is set correctly
+        form.setData((prev) => ({
+          ...prev,
+          featuredImage: data.url,
+          featuredImageAltBn: data.media?.alt_text_bn || prev.featuredImageAltBn,
+          featuredImageAltEn: data.media?.alt_text_en || prev.featuredImageAltEn,
+        }));
+        
+        setMediaFiles([]); // Clear local file state
+        showToast(lang === 'bn' ? 'ছবি আপলোড সফল হয়েছে' : 'Image uploaded successfully');
       } else {
         const errMsg = data.errors
           ? Object.values(data.errors).flat().join(' ')
@@ -582,8 +601,77 @@ export default function WriteNews() {
               )}
             </div>
 
+            {/* Article Type */}
+            <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-5 mt-4.5">
+              <h3 className="text-sm font-bold mb-3">{lang === 'bn' ? 'নিবন্ধের ধরন' : 'Article Type'}</h3>
+              <select
+                value={form.data.articleType}
+                onChange={(e) => form.setData('articleType', e.target.value)}
+                className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] transition-colors mb-4"
+              >
+                <option value="news">{lang === 'bn' ? 'সাধারণ সংবাদ' : 'General News'}</option>
+                <option value="video">{lang === 'bn' ? 'ভিডিও সংবাদ' : 'Video News'}</option>
+                <option value="opinion">{lang === 'bn' ? 'মতামত' : 'Opinion'}</option>
+                <option value="feature">{lang === 'bn' ? 'ফিচার' : 'Feature'}</option>
+                <option value="liveblog">{lang === 'bn' ? 'লাইভ ব্লগ' : 'Live Blog'}</option>
+                <option value="sponsored">{lang === 'bn' ? 'স্পনসরড' : 'Sponsored'}</option>
+              </select>
+
+              {form.data.articleType === 'video' && (
+                <div className="space-y-4 pt-4 border-t border-gray-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'ভিডিও লিঙ্ক (YouTube/Vimeo)' : 'Video URL'}</label>
+                      <input 
+                        type="url" 
+                        value={form.data.videoUrl} 
+                        onChange={(e) => {
+                          const url = e.target.value;
+                          const provider = detectVideoProvider(url);
+                          form.setData({
+                            ...form.data,
+                            videoUrl: url,
+                            videoProvider: provider
+                          });
+                        }}
+                        placeholder="https://..."
+                        className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] transition-colors" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'ভিডিওর দৈর্ঘ্য' : 'Duration (MM:SS)'}</label>
+                      <input 
+                        type="text" 
+                        value={form.data.videoDuration} 
+                        onChange={(e) => form.setData('videoDuration', e.target.value)}
+                        placeholder="03:45"
+                        className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] transition-colors" 
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'ভিডিও সোর্স (অটো-ডিটেক্ট)' : 'Video Provider'}</label>
+                    <div className="flex flex-wrap gap-2">
+                      {['youtube', 'vimeo', 'facebook', 'dailymotion', 'local'].map(p => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => form.setData('videoProvider', p)}
+                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all ${
+                            form.data.videoProvider === p ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Edition */}
-            <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-5">
+            <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-5 mt-4.5">
               <h3 className="text-sm font-bold mb-3">{lang === 'bn' ? 'এডিশন নির্বাচন করুন' : 'Select Edition'}</h3>
               <div className="space-y-2">
                 <label className="flex items-center gap-3 p-3 border border-[var(--card-border,#e8ebf4)] rounded-lg cursor-pointer hover:bg-[#fff0f2] transition-colors">
@@ -660,7 +748,24 @@ export default function WriteNews() {
                   <select
                     value={form.data.category}
                     onChange={(e) => {
-                      form.setData({ ...form.data, category: e.target.value, subcategory: '' });
+                      const catId = e.target.value;
+                      const selectedCat = categories.find(c => String(c.id) === String(catId));
+                      
+                      // Auto-switch article type if Opinion category is selected
+                      if (selectedCat && (selectedCat.slug === 'opinion' || selectedCat.nameBn === 'মতামত')) {
+                        form.setData({
+                          ...form.data,
+                          category: catId,
+                          subcategory: '',
+                          articleType: 'opinion'
+                        });
+                      } else {
+                        form.setData({ 
+                          ...form.data, 
+                          category: catId, 
+                          subcategory: '' 
+                        });
+                      }
                     }}
                     className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] bg-white transition-all"
                   >
@@ -1305,6 +1410,15 @@ export default function WriteNews() {
             <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-5">
               <h3 className="text-sm font-bold mb-3">{lang === 'bn' ? 'ক্রিয়া' : 'Actions'}</h3>
               <div className="space-y-2">
+                {article && (
+                  <button
+                    onClick={handleSaveChanges}
+                    disabled={form.processing}
+                    className="w-full bg-[#10b981] text-white rounded-lg px-4 py-2.5 text-[12.5px] font-semibold flex items-center justify-center gap-1.5 hover:bg-[#059669] transition-colors disabled:opacity-50 shadow-md shadow-emerald-100"
+                  >
+                    <Save className="w-4 h-4" /> {lang === 'bn' ? 'পরিবর্তন সংরক্ষণ' : 'Save Changes'}
+                  </button>
+                )}
                 <button
                   onClick={handleDraft}
                   disabled={form.processing}
@@ -1326,6 +1440,17 @@ export default function WriteNews() {
                 >
                   <Send className="w-4 h-4" /> {lang === 'bn' ? 'এখনই প্রকাশ' : 'Publish Now'}
                 </button>
+              </div>
+
+              {/* Current Status Badge */}
+              <div className="mt-4 pt-3 border-t border-gray-50 text-center">
+                <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider ${
+                  form.data.status === 'published' ? 'bg-[#ecfdf5] text-[#10b981]' : 
+                  form.data.status === 'pending' ? 'bg-orange-50 text-orange-600' : 
+                  form.data.status === 'scheduled' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {lang === 'bn' ? 'বর্তমান অবস্থা' : 'Current Status'}: {form.data.status}
+                </span>
               </div>
             </div>
           </div>

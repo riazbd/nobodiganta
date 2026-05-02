@@ -7,6 +7,7 @@ import AdSlot from '../Components/ui/AdSlot';
 import ArticleShare from '../Components/article/ArticleShare';
 import ArticleComments from '../Components/article/ArticleComments';
 import AuthorBio from '../Components/article/AuthorBio';
+import VideoPlayer from '../Components/media/VideoPlayer';
 import PaywallOverlay from '../Components/ui/PaywallOverlay';
 import { useApp } from '../contexts/AppContext';
 import { useToast } from '../contexts/ToastContext';
@@ -97,7 +98,16 @@ export default function Article({
 
   return (
     <>
-      <Head title={`${article.title} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
+      <Head>
+        <title>{`${article.title} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`}</title>
+        <meta name="description" content={article.meta_description} />
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content={article.meta_description} />
+        {article.featured_image && <meta property="og:image" content={article.featured_image} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={article.title} />
+        <meta name="twitter:description" content={article.meta_description} />
+      </Head>
 
       {/* Reading progress bar */}
       <div
@@ -132,16 +142,40 @@ export default function Article({
           <h1 className="art-h1">{article.title}</h1>
           <div className="art-sub">{article.subtitle}</div>
           <div className="art-meta">
-            <span className="author"><Icon name="pen" size={16} /> {article.author?.name}</span>
+            <span className="author" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              {article.author?.image ? (
+                <img 
+                  src={article.author.image} 
+                  alt={article.author.name} 
+                  style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} 
+                />
+              ) : (
+                <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyCenter: 'center', fontSize: 10, fontWeight: 'bold' }}>
+                  {article.author?.name?.charAt(0)}
+                </div>
+              )}
+              {article.author?.name}
+            </span>
             <span className="time"><Icon name="clock" size={14} /> {relativeTime(article.published_at, lang)}</span>
             <span className="time"><Icon name="eye" size={12} /> {article.views || 0} {t('article.readers', lang)}</span>
-            <span style={{ fontSize: 12, color: '#888' }}>📖 {readingTimeLabel}</span>
+            <span style={{ fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Icon name="book" size={14} /> {readingTimeLabel}
+            </span>
           </div>
 
           {/* Share buttons */}
           <ArticleShare url={articleUrl} title={article.title} />
 
-          {article.featured_image && (
+          {article.article_type === 'video' && article.video_url ? (
+            <div className="art-video-wrap" style={{ marginBottom: 20 }}>
+              <VideoPlayer 
+                src={article.video_url} 
+                provider={article.video_provider} 
+                title={article.title}
+                poster={article.featured_image}
+              />
+            </div>
+          ) : article.featured_image && (
             <div className="art-img-wrap">
               <img
                 src={article.featured_image}
@@ -197,7 +231,7 @@ export default function Article({
           )}
 
           {/* Comments */}
-          <ArticleComments articleId={article.id} />
+          {article.allow_comments && <ArticleComments articleId={article.id} />}
         </article>
 
         <PageSidebar />

@@ -28,7 +28,15 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE)
-      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then((cache) => {
+        console.log('[SW] Pre-caching static assets');
+        // Use individual add calls to be resilient to missing files
+        return Promise.allSettled(
+          STATIC_ASSETS.map((url) => 
+            cache.add(url).catch(err => console.warn(`[SW] Failed to cache: ${url}`, err))
+          )
+        );
+      })
       .then(() => self.skipWaiting())
   );
 });

@@ -32,7 +32,10 @@ export default function EPaperManager({ editions = [] }) {
     <div>
       <div className="flex items-start justify-between mb-5.5">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">📄 {lang === 'bn' ? 'ই-পেপার ম্যানেজার' : 'E-Paper Manager'}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
+            <FileText className="w-5 h-5 text-[#e8001e]" />
+            {lang === 'bn' ? 'ই-পেপার ম্যানেজার' : 'E-Paper Manager'}
+          </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'ই-পেপার আপলোড ও ব্যবস্থাপনা' : 'E-paper upload and management'}</p>
         </div>
         <button onClick={() => setShowModal(true)} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">

@@ -40,7 +40,10 @@ export default function PitchBoard() {
     <div>
       <div className="flex items-start justify-between mb-5.5">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">💡 {lang === 'bn' ? 'পিচ বোর্ড' : 'Pitch Board'}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
+            <Lightbulb className="w-5 h-5 text-[#f59e0b]" />
+            {lang === 'bn' ? 'পিচ বোর্ড' : 'Pitch Board'}
+          </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'সংবাদ আইডিয়া ও পিচ ব্যবস্থাপনা' : 'News ideas and pitch management'}</p>
         </div>
         <button onClick={() => setShowModal(true)} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">

@@ -47,11 +47,6 @@ class MediaController extends Controller
         $media = $query->paginate(24);
 
         if (!$request->header('X-Inertia') && $request->wantsJson()) {
-            $media->getCollection()->transform(function ($item) {
-                $item->url = asset('storage/' . $item->file_path);
-                return $item;
-            });
-            
             return response()->json([
                 'media' => $media,
             ]);
@@ -202,7 +197,7 @@ class MediaController extends Controller
             ? response()->json([
                 'success' => true,
                 'media' => $media,
-                'url' => asset('storage/' . $media->file_path),
+                'url' => $media->url,
             ], 201)
             : back()->with('success', 'Media uploaded successfully');
     }

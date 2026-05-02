@@ -48,9 +48,11 @@ export default function Video({ videos = [] }) {
               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 70, height: 70, background: 'rgba(232,0,30,0.9)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
                 <Icon name="play" size={28} />
               </div>
-              <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: 11, padding: '2px 7px', borderRadius: 2 }}>
-                {feat.duration}
-              </div>
+              {feat.duration && (
+                <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: 11, padding: '2px 7px', borderRadius: 2 }}>
+                  {lang === 'bn' ? toBengaliNum(feat.duration) : feat.duration}
+                </div>
+              )}
             </div>
             <div style={{ padding: 12 }}>
               <h3 style={{ fontFamily: "'Noto Serif Bengali', serif", fontSize: 19, fontWeight: 700, marginBottom: 8, lineHeight: 1.45 }}>
@@ -95,7 +97,7 @@ export default function Video({ videos = [] }) {
                     )}
                   </div>
                   <div className="play-btn"><Icon name="play" size={16} /></div>
-                  <div className="vid-dur">{v.duration}</div>
+                  {v.duration && <div className="vid-dur">{lang === 'bn' ? toBengaliNum(v.duration) : v.duration}</div>}
                 </div>
                 <div className="vid-info">
                   <h4>{v.title}</h4>
@@ -119,11 +121,11 @@ export default function Video({ videos = [] }) {
           lang={lang}
         >
           <VideoPlayer
-            src={playing.src}
+            src={playing.video_url}
             title={playing.title}
             poster={playing.thumbnail}
           />
-          {!playing.src && (
+          {!playing.video_url && (
             <div style={{ textAlign: 'center', padding: '20px 0', color: '#888', fontSize: 14 }}>
               {lang === 'bn' ? 'ভিডিও লিংক এখনো যোগ করা হয়নি।' : 'Video link not yet available.'}
             </div>
