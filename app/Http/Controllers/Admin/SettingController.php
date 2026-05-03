@@ -62,7 +62,7 @@ class SettingController extends Controller
 
         $request->validate([
             'key'  => ['required', 'string', 'exists:settings,key'],
-            'file' => ['required', 'file', 'image', 'max:2048'],
+            'file' => ['required', 'file', 'image', 'max:5120'],
         ]);
 
         $key = $request->input('key');
@@ -74,7 +74,7 @@ class SettingController extends Controller
         }
 
         $path = $request->file('file')->store("settings", 'public');
-        $url  = '/storage/' . $path;
+        $url  = asset('storage/' . $path);
 
         Setting::where('key', $key)->update(['value' => $url]);
 

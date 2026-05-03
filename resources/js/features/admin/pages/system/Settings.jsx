@@ -34,45 +34,46 @@ export default function Settings({ settings = {}, groups = [] }) {
   const handleImageUpload = async (key, file) => {
     if (!file) return;
     setUploading(prev => ({ ...prev, [key]: true }));
-    const data = new FormData();
-    data.append('key', key);
-    data.append('file', file);
-    data.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+    
+    const formData = new FormData();
+    formData.append('key', key);
+    formData.append('file', file);
+
     try {
-      const res = await fetch(route('admin.settings.upload-image'), { method: 'POST', body: data });
-      const json = await res.json();
-      if (res.ok) {
-        handleChange(key, json.url);
+      const res = await window.axios.post(route('admin.settings.upload-image'), formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      if (res.data.url) {
+        handleChange(key, res.data.url);
         showToast(lang === 'bn' ? 'ছবি আপলোড হয়েছে' : 'Image uploaded');
-        applyImageLive(key, json.url);
-        router.reload({ only: [] }); // refresh shared settings so header/favicon update
-      } else {
-        showToast(lang === 'bn' ? 'আপলোড ব্যর্থ' : 'Upload failed', 'error');
+        applyImageLive(key, res.data.url);
+        router.reload({ only: [] }); // Refresh shared data
       }
-    } catch {
-      showToast(lang === 'bn' ? 'আপলোড ব্যর্থ' : 'Upload failed', 'error');
+    } catch (err) {
+      console.error('Upload error:', err);
+      const msg = err.response?.data?.message || (lang === 'bn' ? 'আপলোড ব্যর্থ' : 'Upload failed');
+      showToast(msg, 'error');
+    } finally {
+      setUploading(prev => ({ ...prev, [key]: false }));
     }
-    setUploading(prev => ({ ...prev, [key]: false }));
   };
 
   const handleImageDelete = async (key) => {
+    if (!confirm(lang === 'bn' ? 'আপনি কি নিশ্চিত?' : 'Are you sure?')) return;
+    
     setUploading(prev => ({ ...prev, [key]: true }));
-    const data = new FormData();
-    data.append('key', key);
-    data.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-    data.append('_method', 'DELETE');
     try {
-      const res = await fetch(route('admin.settings.delete-image'), { method: 'POST', body: data });
-      if (res.ok) {
-        handleChange(key, null);
-        showToast(lang === 'bn' ? 'ছবি মুছে ফেলা হয়েছে' : 'Image removed');
-        applyImageLive(key, null);
-        router.reload({ only: [] });
-      }
-    } catch {
-      showToast(lang === 'bn' ? 'ব্যর্থ হয়েছে' : 'Failed', 'error');
+      await window.axios.delete(route('admin.settings.delete-image'), { data: { key } });
+      handleChange(key, null);
+      showToast(lang === 'bn' ? 'ছবি মুছে ফেলা হয়েছে' : 'Image removed');
+      applyImageLive(key, null);
+      router.reload({ only: [] });
+    } catch (err) {
+      showToast(lang === 'bn' ? 'ব্যর্থ হয়েছে' : 'Action failed', 'error');
+    } finally {
+      setUploading(prev => ({ ...prev, [key]: false }));
     }
-    setUploading(prev => ({ ...prev, [key]: false }));
   };
 
   // Apply logo/favicon changes immediately in the browser without waiting for a full reload
@@ -82,6 +83,12 @@ export default function Settings({ settings = {}, groups = [] }) {
       if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
       link.href = url ? (url + '?t=' + Date.now()) : '/favicon.ico';
       link.type = url && url.endsWith('.png') ? 'image/png' : 'image/x-icon';
+    }
+    if (key === 'site_logo') {
+      const logoImg = document.querySelector('.hdr-logo-img');
+      if (logoImg) {
+        logoImg.src = url ? (url + '?t=' + Date.now()) : '';
+      }
     }
   };
 
