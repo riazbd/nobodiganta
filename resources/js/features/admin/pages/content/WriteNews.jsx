@@ -3,7 +3,7 @@ import { useForm, usePage, router } from '@inertiajs/react';
 import {
   Save, Send, Eye, Image as ImageIcon, X, Plus, Type, Tag, FileText,
   Settings, ChevronRight, ChevronLeft, Newspaper, Globe, Clock, CheckCircle,
-  FolderTree, Trash2
+  FolderTree, Trash2, Languages, Loader2
 } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -11,6 +11,7 @@ import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
 import MediaUpload from '../../components/forms/MediaUpload';
 import RichTextEditor from '../../components/editor/TiptapEditor';
 import MediaLibraryModal from '../../components/media/MediaLibraryModal';
+import ConfirmationModal from '../../components/feedback/ConfirmationModal';
 import { detectVideoProvider } from '../../../../lib/video';
 
 /**
@@ -22,8 +23,9 @@ function slugify(text, lang) {
   let slug = text.toLowerCase().trim();
   
   if (lang === 'bn') {
-    // Keep Unicode letters and numbers, replace everything else with dash
-    slug = slug.replace(/[^\p{L}\p{N}]+/gu, '-');
+    // Keep Unicode letters (L), numbers (N), and marks (M - vowels/accents)
+    // Replace everything else (spaces, punctuation) with a dash
+    slug = slug.replace(/[^\p{L}\p{N}\p{M}]+/gu, '-');
   } else {
     // Standard latin slugify
     slug = slug.replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
@@ -97,6 +99,7 @@ export default function WriteNews() {
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
   const [categories, setCategories] = useState([]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showTranslateConfirm, setShowTranslateConfirm] = useState(false);
 
   // Props passed from controller when editing
   const { article } = usePage().props;
@@ -463,16 +466,119 @@ export default function WriteNews() {
   const showBn = form.data.edition === 'bn' || form.data.edition === 'both';
   const showEn = form.data.edition === 'en' || form.data.edition === 'both';
 
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const translateEmptyFields = async (skipOverwrite = false) => {
+    if (form.data.edition !== 'both') return;
+    
+    // Check if we are overwriting anything
+    const willOverwrite = (form.data.titleEn || form.data.subtitleEn || form.data.excerptEn || form.data.bodyEn) && 
+                         (form.data.titleBn || form.data.subtitleBn || form.data.excerptBn || form.data.bodyBn);
+    
+    if (willOverwrite && !skipOverwrite) {
+      setShowTranslateConfirm(true);
+      return;
+    }
+
+    const fieldsToTranslate = {};
+    
+    // Logic: If BN exists, prioritize translating BN -> EN
+    // If BN is missing but EN exists, translate EN -> BN
+    if (form.data.titleBn) fieldsToTranslate.titleEn = form.data.titleBn;
+    else if (form.data.titleEn) fieldsToTranslate.titleBn = form.data.titleEn;
+
+    if (form.data.subtitleBn) fieldsToTranslate.subtitleEn = form.data.subtitleBn;
+    else if (form.data.subtitleEn) fieldsToTranslate.subtitleBn = form.data.subtitleEn;
+
+    if (form.data.excerptBn) fieldsToTranslate.excerptEn = form.data.excerptBn;
+    else if (form.data.excerptEn) fieldsToTranslate.excerptBn = form.data.excerptEn;
+
+    if (form.data.bodyBn) fieldsToTranslate.bodyEn = form.data.bodyBn;
+    else if (form.data.bodyEn) fieldsToTranslate.bodyBn = form.data.bodyEn;
+
+    if (Object.keys(fieldsToTranslate).length === 0) {
+      showToast(lang === 'bn' ? 'অনুবাদ করার মতো কোনো তথ্য নেই' : 'No content to translate', 'info');
+      return;
+    }
+
+    setIsTranslating(true);
+    showToast(lang === 'bn' ? 'অনুবাদ করা হচ্ছে...' : 'Translating...');
+
+    try {
+      // Create translation requests. We separate them by target language.
+      const enKeys = ['titleEn', 'subtitleEn', 'excerptEn', 'bodyEn'];
+      const bnKeys = ['titleBn', 'subtitleBn', 'excerptBn', 'bodyBn'];
+      
+      const enPayload = {};
+      const bnPayload = {};
+      
+      Object.keys(fieldsToTranslate).forEach(k => {
+        if (enKeys.includes(k)) enPayload[k] = fieldsToTranslate[k];
+        if (bnKeys.includes(k)) bnPayload[k] = fieldsToTranslate[k];
+      });
+
+      let finalUpdates = {};
+
+      if (Object.keys(enPayload).length > 0) {
+        const res = await window.axios.post('/admin/api/translate', {
+          fields: enPayload,
+          target_lang: 'en',
+          source_lang: 'bn'
+        });
+        if (res.data.success) {
+          finalUpdates = { ...finalUpdates, ...res.data.translations };
+        }
+      }
+
+      if (Object.keys(bnPayload).length > 0) {
+        const res = await window.axios.post('/admin/api/translate', {
+          fields: bnPayload,
+          target_lang: 'bn',
+          source_lang: 'en'
+        });
+        if (res.data.success) {
+          finalUpdates = { ...finalUpdates, ...res.data.translations };
+        }
+      }
+
+      if (Object.keys(finalUpdates).length > 0) {
+        form.setData(prev => ({ ...prev, ...finalUpdates }));
+        showToast(lang === 'bn' ? 'অনুবাদ সফল হয়েছে' : 'Translation complete', 'success');
+      }
+
+    } catch (err) {
+      console.error('Translation failed:', err);
+      showToast(lang === 'bn' ? 'অনুবাদ ব্যর্থ হয়েছে' : 'Translation failed', 'error');
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   return (
     <div>
       {/* Header */}
       <div className="flex items-start justify-between mb-5.5">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali']">✏️ {lang === 'bn' ? 'নতুন সংবাদ লিখুন' : 'Write New Article'}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
+            <Newspaper className="w-5 h-5 text-[#e8001e]" />
+            {lang === 'bn' ? 'নতুন সংবাদ লিখুন' : 'Write New Article'}
+          </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'নতুন সংবাদ তৈরি ও প্রকাশ করুন' : 'Create and publish a new article'}</p>
         </div>
         <div className="flex items-center gap-2.5">
+          {form.data.edition === 'both' && (
+            <button
+              type="button"
+              onClick={translateEmptyFields}
+              disabled={isTranslating}
+              className="bg-[#eff6ff] text-[#3b82f6] border border-[#bfdbfe] rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#dbeafe] transition-colors disabled:opacity-50"
+            >
+              {isTranslating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Languages className="w-4 h-4" />}
+              {lang === 'bn' ? 'অটো ট্রান্সলেট' : 'Auto Translate'}
+            </button>
+          )}
           <button
+            type="button"
             onClick={() => showToast(lang === 'bn' ? 'প্রিভিউ দেখা হচ্ছে...' : 'Previewing...')}
             className="bg-white text-[var(--text-secondary,#6b7280)] border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-gray-50 transition-colors"
           >
@@ -1062,14 +1168,6 @@ export default function WriteNews() {
                   </div>
                 </div>
               )}
-
-
-              <MediaLibraryModal 
-                isOpen={showMediaLibrary}
-                onClose={() => setShowMediaLibrary(false)}
-                onSelect={handleMediaSelect}
-                initialType="image"
-              />
             </div>
 
             {/* Bengali SEO */}
@@ -1482,6 +1580,27 @@ export default function WriteNews() {
           )}
         </div>
       </div>
+
+      <MediaLibraryModal 
+        isOpen={showMediaLibrary}
+        onClose={() => setShowMediaLibrary(false)}
+        onSelect={handleMediaSelect}
+        initialType="image"
+      />
+
+      <ConfirmationModal 
+        isOpen={showTranslateConfirm}
+        onClose={() => setShowTranslateConfirm(false)}
+        onConfirm={() => translateEmptyFields(true)}
+        variant="warning"
+        title={lang === 'bn' ? 'অনুবাদ ওভাররাইট নিশ্চিতকরণ' : 'Confirm Overwrite'}
+        message={lang === 'bn' 
+          ? 'আপনি কি নিশ্চিত যে আপনি বিদ্যমান অনুবাদগুলি মুছে ফেলে নতুন করে অনুবাদ করতে চান?' 
+          : 'Are you sure you want to overwrite existing fields with fresh translations? This will replace your current text.'}
+        confirmText={lang === 'bn' ? 'হ্যাঁ, অনুবাদ করুন' : 'Yes, Translate'}
+        cancelText={lang === 'bn' ? 'না, থাক' : 'Cancel'}
+        lang={lang}
+      />
     </div>
   );
 }

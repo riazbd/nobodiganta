@@ -25,8 +25,8 @@
         {{-- Only loads Bengali Unicode block (U+0980-09FF) for smaller download --}}
         <link href="https://fonts.maateen.me/solaiman-lipi/font.css" rel="stylesheet">
 
-        {{-- Secondary: Noto Sans Bengali with unicode-range restriction --}}
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Serif+Bengali:wght@400;700&display=swap&text=" rel="stylesheet">
+        {{-- Secondary: Noto Sans Bengali & Noto Serif Bengali --}}
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
         {{-- Quill RTE (for Admin) --}}
         <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">

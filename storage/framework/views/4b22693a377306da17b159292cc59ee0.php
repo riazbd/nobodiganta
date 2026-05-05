@@ -26,7 +26,7 @@
         <link href="https://fonts.maateen.me/solaiman-lipi/font.css" rel="stylesheet">
 
         
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Serif+Bengali:wght@400;700&display=swap&text=" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
         
         <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">

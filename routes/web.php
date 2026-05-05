@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OpinionController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ReporterController;
 use App\Http\Controllers\Admin\AdController;
@@ -241,6 +242,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/epaper-manager', [EpaperController::class, 'index'])->name('epaper-manager');
         Route::post('/epaper-manager', [EpaperController::class, 'store'])->name('epaper-manager.store');
         Route::delete('/epaper-manager/{epaper}', [EpaperController::class, 'destroy'])->name('epaper-manager.destroy')->whereNumber('epaper');
+
+        // Translations
+        Route::post('/api/translate', [TranslationController::class, 'translate'])->name('translate');
 
         Route::get('/newsletter', [NewsletterController::class, 'index'])->name('newsletter');
         Route::post('/newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');

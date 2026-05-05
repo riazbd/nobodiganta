@@ -6,7 +6,7 @@ import Youtube from '@tiptap/extension-youtube';
 import Placeholder from '@tiptap/extension-placeholder';
 import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { 
   Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3, 
   Link as LinkIcon, Image as ImageIcon, Video, Highlighter, Undo, Redo,
@@ -81,6 +81,13 @@ export default function TiptapEditor({ value, onChange, placeholder, lang = 'bn'
       },
     },
   });
+
+  // Critical: Sync external value changes to the editor (for auto-translate)
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value, false);
+    }
+  }, [value, editor]);
 
   const setLink = useCallback(() => {
     const previousUrl = editor.getAttributes('link').href;
