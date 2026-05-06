@@ -262,13 +262,9 @@ class NewsController extends Controller
 
         $query = Article::published()->forEdition($edition);
 
-        if ($category->parent_id) {
-            // It's a subcategory
-            $query->where('subcategory_id', $category->id);
-        } else {
-            // It's a parent category
-            $query->where('category_id', $category->id);
-        }
+        $query->whereHas('categories', function ($q) use ($category) {
+            $q->where('categories.id', $category->id);
+        });
 
         $articles = $query->latest()
             ->paginate(20)

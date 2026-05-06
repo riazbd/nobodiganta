@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { 
   MessageSquare, Check, X, Eye, Search, X as XIcon, 
   Loader2, Trash2, AlertTriangle, ShieldCheck, 
@@ -44,12 +44,11 @@ export default function Comments({ comments = {}, filters = {} }) {
     router[method](url, {}, {
       onSuccess: () => {
         showToast(lang === 'bn' ? 'কার্যকর হয়েছে' : 'Action successful');
-        setProcessing(false);
       },
       onError: () => {
         showToast(lang === 'bn' ? 'ব্যর্থ হয়েছে' : 'Action failed', 'error');
-        setProcessing(false);
-      }
+      },
+      onFinish: () => setProcessing(false),
     });
   };
 
@@ -64,11 +63,11 @@ export default function Comments({ comments = {}, filters = {} }) {
       onSuccess: () => {
         showToast(lang === 'bn' ? 'বাল্ক অ্যাকশন সফল' : 'Bulk action successful');
         setSelectedIds([]);
-        setProcessing(false);
       },
       onError: () => {
-        setProcessing(false);
-      }
+        showToast(lang === 'bn' ? 'বাল্ক অ্যাকশন ব্যর্থ' : 'Bulk action failed', 'error');
+      },
+      onFinish: () => setProcessing(false),
     });
   };
 

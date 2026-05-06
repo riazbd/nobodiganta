@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import AdSlot from '../Components/ui/AdSlot';
 import { useApp } from '../contexts/AppContext';
@@ -264,7 +264,7 @@ function CategorySection({ section, lang, nav }) {
   if (!allItems.length) return null;
 
   const displayItems = activeSub
-    ? allItems.filter(a => a.subcategory?.slug === activeSub)
+    ? allItems.filter(a => (a.categories || []).some(c => c.slug === activeSub))
     : allItems;
 
   const isEmpty = activeSub && displayItems.length === 0;
@@ -302,7 +302,7 @@ function CategorySection({ section, lang, nav }) {
             />
             <div className="hp-feat-body">
               {main.category && <span className="tag">{main.category.name}</span>}
-              {main.subcategory && <span className="tag" style={{ marginLeft: 4, color: '#666' }}>› {main.subcategory.name}</span>}
+              {(main.categories || []).filter(c => !c.is_primary).slice(0, 1).map(c => <span key={c.id} className="tag" style={{ marginLeft: 4, color: '#666' }}>› {c.name}</span>)}
               <h3 className="hp-feat-h">{main.title}</h3>
               {main.excerpt && <p className="hp-feat-p">{main.excerpt}</p>}
               <div className="meta">
@@ -337,7 +337,7 @@ function CategorySection({ section, lang, nav }) {
                 <div className="hp-list-body">
                   <div className="hp-list-cats">
                     {a.category && <span className="tag">{a.category.name}</span>}
-                    {a.subcategory && <span className="hp-sub-tag">› {a.subcategory.name}</span>}
+                    {(a.categories || []).filter(c => !c.is_primary).slice(0, 1).map(c => <span key={c.id} className="hp-sub-tag">› {c.name}</span>)}
                   </div>
                   <h5 className="hp-list-h">{a.title}</h5>
                   <div className="meta">
@@ -401,7 +401,7 @@ function CategorySection({ section, lang, nav }) {
               <div>
                 <div>
                   {a.category && <span className="tag">{a.category.name}</span>}
-                  {a.subcategory && <span className="hp-sub-tag">› {a.subcategory.name}</span>}
+                  {(a.categories || []).filter(c => !c.is_primary).slice(0, 1).map(c => <span key={c.id} className="hp-sub-tag">› {c.name}</span>)}
                 </div>
                 <h4>{a.title}</h4>
                 <div className="meta">
@@ -424,7 +424,7 @@ function CategorySection({ section, lang, nav }) {
               </div>
               <div className="hp-vid-body">
                 {a.category && <span className="tag">{a.category.name}</span>}
-                {a.subcategory && <span className="hp-sub-tag">› {a.subcategory.name}</span>}
+                {(a.categories || []).filter(c => !c.is_primary).slice(0, 1).map(c => <span key={c.id} className="hp-sub-tag">› {c.name}</span>)}
                 <h5 className="hp-vid-h">{a.title}</h5>
                 <div className="meta"><span>{relativeTime(a.published_at, lang)}</span></div>
               </div>

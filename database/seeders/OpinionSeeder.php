@@ -370,6 +370,10 @@ HTML,
 
             $article = Article::firstOrCreate($matchAttr, $data);
 
+            $article->categories()->syncWithoutDetaching([
+                $category->id => ['is_primary' => true, 'sort_order' => 0],
+            ]);
+
             // Attach tags
             foreach ($op['tags'] as $tSlug) {
                 if (isset($tagMap[$tSlug])) {

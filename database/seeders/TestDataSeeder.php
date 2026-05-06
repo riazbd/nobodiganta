@@ -692,6 +692,16 @@ class TestDataSeeder extends Seeder
                 ]
             );
 
+            // Sync categories pivot
+            $article->categories()->syncWithoutDetaching([
+                $cat->id => ['is_primary' => true, 'sort_order' => 0],
+            ]);
+            if ($sub) {
+                $article->categories()->syncWithoutDetaching([
+                    $sub->id => ['is_primary' => false, 'sort_order' => 1],
+                ]);
+            }
+
             // Attach tags
             if (!empty($a['tags'])) {
                 $tagIds = collect($a['tags'])->map(fn($s) => $tagMap[$s] ?? null)->filter()->pluck('id');

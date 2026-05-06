@@ -139,6 +139,18 @@ export default function Article({
           >
             {article.category?.name}
           </span>
+          {(article.categories || []).filter(c => !c.is_primary).map(c => (
+            <span
+              key={c.id}
+              className="art-category"
+              style={{ cursor: 'pointer', fontSize: 11, color: '#666', marginLeft: 6, opacity: 0.8 }}
+              onClick={() => onNavigate('cat', c.slug)}
+              role="link"
+              tabIndex={0}
+            >
+              {c.name}
+            </span>
+          ))}
           <h1 className="art-h1">{article.title}</h1>
           <div className="art-sub">{article.subtitle}</div>
           <div className="art-meta">

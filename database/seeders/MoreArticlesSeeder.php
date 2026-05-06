@@ -429,7 +429,6 @@ class MoreArticlesSeeder extends Seeder
             $a = Article::create([
                 'author_id'       => $author->id,
                 'category_id'     => $cat->id,
-                'subcategory_id'  => $subCat?->id,
                 'title_bn'        => $item['title_bn'],
                 'title_en'        => $item['title_en'] ?? null,
                 'slug_bn'         => $slug,
@@ -446,6 +445,15 @@ class MoreArticlesSeeder extends Seeder
                 'allow_comments'  => true,
                 'published_at'    => $publishedAt,
             ]);
+
+            $a->categories()->syncWithoutDetaching([
+                $cat->id => ['is_primary' => true, 'sort_order' => 0],
+            ]);
+            if ($subCat) {
+                $a->categories()->syncWithoutDetaching([
+                    $subCat->id => ['is_primary' => false, 'sort_order' => 1],
+                ]);
+            }
         }
 
         $this->command->info('✅ ' . count($items) . ' additional articles seeded.');

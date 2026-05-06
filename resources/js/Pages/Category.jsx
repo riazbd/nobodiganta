@@ -52,7 +52,9 @@ function ArticleListItem({ item, lang, onNavigate }) {
         : <div className="ph" style={{ width: 100, height: 70, flexShrink: 0 }}>📰</div>}
       <div>
         <span className="tag">{item.category?.name}</span>
-        {item.subcategory?.name && <span className="tag" style={{ marginLeft: 4, color: '#666', background: '#f5f5f5' }}>› {item.subcategory.name}</span>}
+        {(item.categories || []).filter(c => !c.is_primary).slice(0, 2).map(c => (
+          <span key={c.id} className="tag" style={{ marginLeft: 4, color: '#666', background: '#f5f5f5' }}>› {c.name}</span>
+        ))}
         <h4>{item.title}</h4>
         <div className="meta">
           {item.author?.name && <span style={{ fontWeight: 600 }}>{item.author.name}</span>}

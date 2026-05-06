@@ -23,6 +23,10 @@ class UserController extends Controller
 
         $query = User::with('roleRelation');
 
+        if (auth()->user()->role !== 'supreme_admin') {
+            $query->where('role', '!=', 'supreme_admin');
+        }
+
         // Sort
         $sortField = 'created_at';
         $sortDir = 'desc';
@@ -100,10 +104,15 @@ class UserController extends Controller
             'created_at' => $user->created_at?->format('Y-m-d H:i'),
         ]);
 
+        $rolesQuery = Role::orderBy('level', 'desc');
+        if (auth()->user()->role !== 'supreme_admin') {
+            $rolesQuery->where('name', '!=', 'supreme_admin');
+        }
+
         return Inertia::render('features/admin/pages/system/Users', [
-            'initialUsers' => $users,
-            'roles' => Role::orderBy('level', 'desc')->get(['id', 'name', 'label_en', 'label_bn', 'level']),
-            'filters' => $request->only(['search', 'role', 'status', 'sort', 'date_from', 'date_to', 'last_login', 'per_page']),
+            'users' => $users,
+            'roles' => $rolesQuery->get(['id', 'name', 'label_en', 'label_bn', 'level']),
+            'filters' => request()->only(['search', 'role', 'status', 'date_from', 'date_to', 'last_login', 'per_page', 'sort']),
         ]);
     }
 
@@ -122,6 +131,10 @@ class UserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'exists:roles,name'],
         ]);
+
+        if (auth()->user()->role !== 'supreme_admin' && $validated['role'] === 'supreme_admin') {
+            abort(403, 'Unauthorized action.');
+        }
 
         $role = Role::where('name', $validated['role'])->first();
 
@@ -145,12 +158,20 @@ class UserController extends Controller
             abort(403);
         }
 
+        if ($user->role === 'supreme_admin' && auth()->user()->role !== 'supreme_admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'role' => ['required', 'string', 'exists:roles,name'],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
+
+        if (auth()->user()->role !== 'supreme_admin' && $validated['role'] === 'supreme_admin') {
+            abort(403, 'Unauthorized action.');
+        }
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
@@ -175,6 +196,10 @@ class UserController extends Controller
     {
         if (!auth()->user()->hasPermission('user.delete')) {
             abort(403);
+        }
+
+        if ($user->role === 'supreme_admin') {
+            return back()->with('error', __('The Supreme Admin user cannot be deleted.'));
         }
 
         // Prevent self-deletion

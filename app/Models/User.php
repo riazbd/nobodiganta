@@ -101,7 +101,8 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permission): bool
     {
-        if ($this->role === 'super_admin' || ($this->roleRelation && $this->roleRelation->name === 'super_admin')) {
+        if (in_array($this->role, ['supreme_admin', 'super_admin']) || 
+            ($this->roleRelation && in_array($this->roleRelation->name, ['supreme_admin', 'super_admin']))) {
             return true;
         }
 

@@ -1,10 +1,10 @@
-import { Bell, MessageSquare, Settings, Search, Plus, Upload, ChevronDown, Globe, X, Home, FileText, TrendingUp, AlertTriangle, CreditCard, PenLine } from 'lucide-react';
+import { Bell, MessageSquare, Settings, Search, Plus, Upload, ChevronDown, Globe, X, Home, FileText, TrendingUp, AlertTriangle, CreditCard, PenLine, User, LogOut } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useRole } from '../../hooks/useRole';
 import { PERMISSIONS } from '../../api/permissions';
 import { usePermission } from '../../hooks/usePermission';
 import { useState, useEffect, useRef } from 'react';
-import { usePage } from '@inertiajs/react';
+import { usePage, router } from '@inertiajs/react';
 
 export default function Topbar({ currentPage, onNavigate, showToast }) {
   const { auth } = usePage().props;
@@ -12,8 +12,10 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
   const { roleInfo } = useRole();
   const { hasPermission } = usePermission();
   const [showNotif, setShowNotif] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const notifRef = useRef(null);
+  const profileRef = useRef(null);
   
   // Sample notifications
   const [notifications, setNotifications] = useState([
@@ -28,6 +30,9 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
     const handleClickOutside = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setShowNotif(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setShowProfileMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -90,6 +95,11 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
             placeholder={`${lang === 'bn' ? 'খুঁজুন...' : 'Search...'}`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && searchQuery.trim()) {
+                router.get(route('admin.news.all'), { search: searchQuery.trim() });
+              }
+            }}
             className="border-none bg-transparent outline-none text-[12.5px] text-[var(--text-primary,#1a1d2e)] w-full placeholder:text-[var(--text-muted,#9ca3af)] focus:outline-none focus:ring-0"
           />
           {searchQuery && (
@@ -102,7 +112,8 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
-        {/* Notification Bell */}
+        {/* Notification Bell (Temporarily Hidden) */}
+        {false && (
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setShowNotif(!showNotif)}
@@ -159,21 +170,30 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
             </div>
           )}
         </div>
+        )}
 
         {/* Message Icon */}
-        <button className="w-9 h-9 border border-[var(--card-border,#e8ebf4)] bg-[var(--card-bg,#ffffff)] rounded-lg flex items-center justify-center cursor-pointer text-[15px] transition-all hover:border-[#e8001e] hover:text-[#e8001e] hover:bg-[#fff0f2] text-[var(--text-secondary,#6b7280)]" title={lang === 'bn' ? 'বার্তা' : 'Messages'}>
+        <button
+          onClick={() => onNavigate?.('comments')}
+          className="w-9 h-9 border border-[var(--card-border,#e8ebf4)] bg-[var(--card-bg,#ffffff)] rounded-lg flex items-center justify-center cursor-pointer text-[15px] transition-all hover:border-[#e8001e] hover:text-[#e8001e] hover:bg-[#fff0f2] text-[var(--text-secondary,#6b7280)]"
+          title={lang === 'bn' ? 'বার্তা/মন্তব্য' : 'Messages & Comments'}
+        >
           <MessageSquare className="w-4 h-4" />
         </button>
 
         {/* Settings Icon */}
-        <button className="w-9 h-9 border border-[var(--card-border,#e8ebf4)] bg-[var(--card-bg,#ffffff)] rounded-lg flex items-center justify-center cursor-pointer text-[15px] transition-all hover:border-[#e8001e] hover:text-[#e8001e] hover:bg-[#fff0f2] text-[var(--text-secondary,#6b7280)]" title={lang === 'bn' ? 'সেটিংস' : 'Settings'}>
+        <button
+          onClick={() => onNavigate?.('settings')}
+          className="w-9 h-9 border border-[var(--card-border,#e8ebf4)] bg-[var(--card-bg,#ffffff)] rounded-lg flex items-center justify-center cursor-pointer text-[15px] transition-all hover:border-[#e8001e] hover:text-[#e8001e] hover:bg-[#fff0f2] text-[var(--text-secondary,#6b7280)]"
+          title={lang === 'bn' ? 'সেটিংস' : 'Settings'}
+        >
           <Settings className="w-4 h-4" />
         </button>
 
         {/* New Article Button */}
         {hasPermission(PERMISSIONS.NEWS_CREATE) && (
           <button
-            onClick={() => { showToast?.(lang === 'bn' ? 'নতুন সংবাদ এডিটর খুলছে...' : 'Opening new article editor...'); onNavigate?.('news-write'); }}
+            onClick={() => onNavigate?.('news-write')}
             className="bg-[#e8001e] text-white border-none rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 transition-all hover:bg-[#b8001a] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(232,0,30,0.3)]"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -184,25 +204,53 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
         <div className="h-8 w-px bg-gray-100 mx-1" />
 
         {/* User Profile */}
-        <button 
-          onClick={() => onNavigate?.('profile')}
-          className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100 group"
-        >
-          <div className="text-right hidden md:block">
-            <div className="text-[12.5px] font-bold text-gray-800 leading-none mb-1 group-hover:text-[#e8001e] transition-colors">{auth.user.name}</div>
-            <div className="text-[10px] text-gray-400 font-medium uppercase tracking-tighter">{auth.user.role}</div>
-          </div>
-          <div className="w-9 h-9 rounded-lg overflow-hidden border-2 border-white shadow-sm ring-1 ring-gray-100">
-            {auth.user.profile_photo_url ? (
-              <img src={auth.user.profile_photo_url} alt={auth.user.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-xs font-bold uppercase">
-                {auth.user.name?.charAt(0)}
-              </div>
-            )}
-          </div>
-          <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600 transition-colors" />
-        </button>
+        <div className="relative" ref={profileRef}>
+          <button 
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100 group"
+          >
+            <div className="text-right hidden md:block">
+              <div className="text-[12.5px] font-bold text-gray-800 leading-none mb-1 group-hover:text-[#e8001e] transition-colors">{auth.user.name}</div>
+              <div className="text-[10px] text-gray-400 font-medium uppercase tracking-tighter">{auth.user.role}</div>
+            </div>
+            <div className="w-9 h-9 rounded-lg overflow-hidden border-2 border-white shadow-sm ring-1 ring-gray-100">
+              {auth.user.profile_photo_url ? (
+                <img src={auth.user.profile_photo_url} alt={auth.user.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-xs font-bold uppercase">
+                  {auth.user.name?.charAt(0)}
+                </div>
+              )}
+            </div>
+            <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showProfileMenu && (
+            <div className="absolute top-12 right-0 w-48 bg-white border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-lg z-[1000] overflow-hidden py-1">
+              <button 
+                onClick={() => { setShowProfileMenu(false); onNavigate?.('profile'); }}
+                className="w-full text-left px-4 py-2 text-sm text-[var(--text-primary,#1a1d2e)] hover:bg-gray-50 flex items-center gap-2"
+              >
+                <User className="w-4 h-4 text-gray-500" />
+                {lang === 'bn' ? 'আমার প্রোফাইল' : 'My Profile'}
+              </button>
+              <button 
+                onClick={() => { setShowProfileMenu(false); onNavigate?.('settings'); }}
+                className="w-full text-left px-4 py-2 text-sm text-[var(--text-primary,#1a1d2e)] hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100 pb-3"
+              >
+                <Settings className="w-4 h-4 text-gray-500" />
+                {lang === 'bn' ? 'অ্যাকাউন্ট সেটিংস' : 'Account Settings'}
+              </button>
+              <button 
+                onClick={() => { setShowProfileMenu(false); router.post(route('logout')); }}
+                className="w-full text-left px-4 py-2 text-sm text-[#e8001e] hover:bg-red-50 flex items-center gap-2 pt-3"
+              >
+                <LogOut className="w-4 h-4 text-[#e8001e]" />
+                {lang === 'bn' ? 'লগ আউট' : 'Logout'}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

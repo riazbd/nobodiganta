@@ -97,6 +97,7 @@ class RolePermissionSeeder extends Seeder
     ];
 
     private const ROLE_PERMS = [
+        'supreme_admin' => 'all',
         'super_admin' => 'all',
 
         'editor_in_chief' => [
@@ -218,6 +219,7 @@ class RolePermissionSeeder extends Seeder
 
         // 2. Create roles
         $roles = [
+            ['name' => 'supreme_admin', 'label_en' => 'Supreme Admin', 'label_bn' => 'সুপ্রিম অ্যাডমিন', 'level' => 8],
             ['name' => 'super_admin', 'label_en' => 'Super Admin', 'label_bn' => 'সুপার অ্যাডমিন', 'level' => 7],
             ['name' => 'editor_in_chief', 'label_en' => 'Editor-in-Chief', 'label_bn' => 'প্রধান সম্পাদক', 'level' => 6],
             ['name' => 'managing_editor', 'label_en' => 'Managing Editor', 'label_bn' => 'ব্যবস্থাপনা সম্পাদক', 'level' => 5],
@@ -257,6 +259,20 @@ class RolePermissionSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'super_admin',
                 'role_id' => $superAdminRole?->id,
+                'email_verified_at' => now(),
+                'profile_photo_path' => null,
+            ]
+        );
+
+        $supremeAdminRole = Role::where('name', 'supreme_admin')->first();
+
+        User::updateOrCreate(
+            ['email' => 'supreme@nobodigonto.com'],
+            [
+                'name' => 'Supreme Admin',
+                'password' => Hash::make('password'),
+                'role' => 'supreme_admin',
+                'role_id' => $supremeAdminRole?->id,
                 'email_verified_at' => now(),
                 'profile_photo_path' => null,
             ]

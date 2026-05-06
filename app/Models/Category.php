@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -48,11 +49,21 @@ class Category extends Model
     }
 
     /**
-     * Articles in this category
+     * All articles in this category (via pivot)
      */
-    public function articles(): HasMany
+    public function articles(): BelongsToMany
     {
-        return $this->hasMany(Article::class)->where('status', 'published');
+        return $this->belongsToMany(Article::class, 'article_category')
+                    ->withPivot('is_primary', 'sort_order')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Published articles in this category
+     */
+    public function publishedArticles(): BelongsToMany
+    {
+        return $this->articles()->where('status', 'published');
     }
 
     /**

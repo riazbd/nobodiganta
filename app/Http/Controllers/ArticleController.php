@@ -158,8 +158,9 @@ class ArticleController extends Controller
             'isFeatured' => 'boolean',
             'isPremium' => 'boolean',
             'isExclusive' => 'boolean',
-            'category' => 'required',
-            'subcategory' => 'nullable',
+            'categories' => 'required|array|min:1',
+            'categories.*' => 'integer|exists:categories,id',
+            'primaryCategory' => 'required|integer|exists:categories,id',
             'authorId' => 'nullable|exists:users,id',
             'secondaryAuthorId' => 'nullable|exists:users,id',
             'featuredImage' => 'nullable|string',
@@ -185,22 +186,11 @@ class ArticleController extends Controller
             'videoDuration' => 'nullable|string|max:10',
         ]);
 
-        $category = Category::where('slug', $validated['category'])
-            ->orWhere('id', $validated['category'])
-            ->first();
+        $categoryIds = $validated['categories'];
+        $primaryId   = (int) $validated['primaryCategory'];
 
-        if (!$category) {
-            return back()->withErrors(['category' => 'Invalid category'])->withInput();
-        }
-
-        $subcategoryId = null;
-        if (!empty($validated['subcategory'])) {
-            $sub = Category::where('parent_id', $category->id)
-                ->where(function($q) use ($validated) {
-                    $q->where('slug', $validated['subcategory'])
-                      ->orWhere('id', $validated['subcategory']);
-                })->first();
-            $subcategoryId = $sub?->id;
+        if (!in_array($primaryId, $categoryIds)) {
+            return back()->withErrors(['primaryCategory' => 'Primary category must be one of the selected categories'])->withInput();
         }
 
         $slugBn = $validated['slugBn'] ?? $this->generateSlug($validated['titleBn'] ?? '', 'slug_bn');
@@ -231,8 +221,7 @@ class ArticleController extends Controller
             'video_url' => $validated['videoUrl'] ?? null,
             'video_provider' => $validated['videoProvider'] ?? null,
             'video_duration' => $validated['videoDuration'] ?? null,
-            'category_id' => $category->id,
-            'subcategory_id' => $subcategoryId,
+            'category_id' => $primaryId,
             'author_id' => $validated['authorId'] ?? Auth::id(),
             'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
             'is_guest_author' => $validated['isGuestAuthor'] ?? false,
@@ -251,6 +240,8 @@ class ArticleController extends Controller
             'published_at' => $publishedAt,
             'scheduled_at' => $scheduledAt,
         ]);
+
+        $this->syncCategoryPivot($article, $categoryIds, $primaryId);
 
         if (!empty($validated['tags'])) {
             $tagIds = [];
@@ -332,8 +323,8 @@ class ArticleController extends Controller
                 'videoUrl' => $article->video_url,
                 'videoProvider' => $article->video_provider,
                 'videoDuration' => $article->video_duration,
-                'category' => $article->category_id,
-                'subcategory' => $article->subcategory_id,
+                'categories' => $article->load('categories')->categories->pluck('id')->toArray(),
+                'primaryCategory' => $article->category_id,
                 'authorId' => $article->author_id,
                 'secondaryAuthorId' => $article->secondary_author_id,
                 'isGuestAuthor' => (bool)$article->is_guest_author,
@@ -384,8 +375,9 @@ class ArticleController extends Controller
             'isFeatured' => 'boolean',
             'isPremium' => 'boolean',
             'isExclusive' => 'boolean',
-            'category' => 'required',
-            'subcategory' => 'nullable',
+            'categories' => 'required|array|min:1',
+            'categories.*' => 'integer|exists:categories,id',
+            'primaryCategory' => 'required|integer|exists:categories,id',
             'authorId' => 'nullable|exists:users,id',
             'secondaryAuthorId' => 'nullable|exists:users,id',
             'featuredImage' => 'nullable|string',
@@ -411,15 +403,11 @@ class ArticleController extends Controller
             'videoDuration' => 'nullable|string|max:10',
         ]);
 
-        $category = Category::where('slug', $validated['category'])->orWhere('id', $validated['category'])->first();
-        if (!$category) return back()->withErrors(['category' => 'Invalid category']);
+        $categoryIds = $validated['categories'];
+        $primaryId   = (int) $validated['primaryCategory'];
 
-        $subcategoryId = null;
-        if (!empty($validated['subcategory'])) {
-            $sub = Category::where('parent_id', $category->id)->where(function($q) use ($validated) {
-                $q->where('slug', $validated['subcategory'])->orWhere('id', $validated['subcategory']);
-            })->first();
-            $subcategoryId = $sub?->id;
+        if (!in_array($primaryId, $categoryIds)) {
+            return back()->withErrors(['primaryCategory' => 'Primary category must be one of the selected categories']);
         }
 
         $slugBn = $validated['slugBn'] ?? $this->generateSlug($validated['titleBn'] ?? '', 'slug_bn', $article->id);
@@ -457,8 +445,7 @@ class ArticleController extends Controller
             'video_url' => $validated['videoUrl'] ?? null,
             'video_provider' => $validated['videoProvider'] ?? null,
             'video_duration' => $validated['videoDuration'] ?? null,
-            'category_id' => $category->id,
-            'subcategory_id' => $subcategoryId,
+            'category_id' => $primaryId,
             'author_id' => $validated['authorId'] ?? $article->author_id,
             'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
             'is_guest_author' => $validated['isGuestAuthor'] ?? false,
@@ -477,6 +464,8 @@ class ArticleController extends Controller
             'published_at' => $publishedAt,
             'scheduled_at' => $scheduledAt,
         ]);
+
+        $this->syncCategoryPivot($article, $categoryIds, $primaryId);
 
         if (isset($validated['tags'])) {
             $tagIds = [];
@@ -560,6 +549,18 @@ class ArticleController extends Controller
         ]);
 
         return back()->with('success', "{$count} articles deleted successfully");
+    }
+
+    private function syncCategoryPivot(Article $article, array $categoryIds, int $primaryId): void
+    {
+        $pivotData = [];
+        foreach ($categoryIds as $i => $catId) {
+            $pivotData[$catId] = [
+                'is_primary' => $catId === $primaryId,
+                'sort_order' => $catId === $primaryId ? 0 : $i + 1,
+            ];
+        }
+        $article->categories()->sync($pivotData);
     }
 
     /**

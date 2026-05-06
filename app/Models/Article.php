@@ -18,7 +18,7 @@ class Article extends Model
         'excerpt_bn', 'excerpt_en',
         'edition', 'article_type', 'status',
         'is_breaking', 'is_featured', 'is_premium', 'is_exclusive', 'allow_comments',
-        'category_id', 'subcategory_id', 'author_id', 'secondary_author_id',
+        'category_id', 'author_id', 'secondary_author_id',
         'is_guest_author',
         'guest_author_name_bn', 'guest_author_name_en',
         'guest_author_bio_bn', 'guest_author_bio_en',
@@ -58,11 +58,14 @@ class Article extends Model
     }
 
     /**
-     * Subcategory this article belongs to
+     * All categories this article belongs to (via pivot)
      */
-    public function subcategory(): BelongsTo
+    public function categories(): BelongsToMany
     {
-        return $this->belongsTo(Category::class, 'subcategory_id');
+        return $this->belongsToMany(Category::class, 'article_category')
+                    ->withPivot('is_primary', 'sort_order')
+                    ->withTimestamps()
+                    ->orderBy('article_category.sort_order');
     }
 
     /**
@@ -246,7 +249,7 @@ class Article extends Model
      */
     public function scopeWithRelations($query)
     {
-        return $query->with(['category', 'subcategory', 'author', 'tags']);
+        return $query->with(['category', 'categories', 'author', 'tags']);
     }
 
     /**
@@ -318,11 +321,15 @@ class Article extends Model
                 'name' => $this->category->getName($edition),
                 'slug' => $this->category->slug,
             ],
-            'subcategory' => $this->subcategory ? [
-                'id' => $this->subcategory->id,
-                'name' => $this->subcategory->getName($edition),
-                'slug' => $this->subcategory->slug,
-            ] : null,
+            'categories' => $this->relationLoaded('categories')
+                ? $this->categories->map(fn($cat) => [
+                    'id'         => $cat->id,
+                    'name'       => $cat->getName($edition),
+                    'slug'       => $cat->slug,
+                    'is_primary' => (bool) $cat->pivot->is_primary,
+                    'parent_id'  => $cat->parent_id,
+                ])->values()->toArray()
+                : [],
             'author' => $this->getAuthorData($edition),
             'featured_image' => $this->featured_image,
             'featured_image_alt' => $this->getFeaturedImageAlt($edition),

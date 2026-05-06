@@ -56,7 +56,7 @@ class VideoSeeder extends Seeder
         ];
 
         foreach ($videos as $v) {
-            Article::create([
+            $article = Article::create([
                 'title_bn' => $v['title_bn'],
                 'title_en' => $v['title_en'],
                 'slug_bn' => Str::slug($v['title_bn']),
@@ -74,6 +74,10 @@ class VideoSeeder extends Seeder
                 'category_id' => $category->id,
                 'author_id' => $author->id,
                 'published_at' => now(),
+            ]);
+
+            $article->categories()->syncWithoutDetaching([
+                $category->id => ['is_primary' => true, 'sort_order' => 0],
             ]);
         }
     }

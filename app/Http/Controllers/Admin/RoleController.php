@@ -20,9 +20,14 @@ class RoleController extends Controller
         }
 
         $perPage = $request->get('per_page', 15);
-        $roles = Role::with('permissions')
-            ->orderBy('level', 'desc')
-            ->paginate($perPage)
+        $query = Role::with('permissions')
+            ->orderBy('level', 'desc');
+
+        if (auth()->user()->role !== 'supreme_admin') {
+            $query->where('name', '!=', 'supreme_admin');
+        }
+
+        $roles = $query->paginate($perPage)
             ->withQueryString();
 
         $roles->getCollection()->transform(function ($role) {
@@ -84,6 +89,10 @@ class RoleController extends Controller
             abort(403);
         }
 
+        if ($role->name === 'supreme_admin' && auth()->user()->role !== 'supreme_admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
         $validated = $request->validate([
             'label_en' => ['required', 'string', 'max:255'],
             'label_bn' => ['required', 'string', 'max:255'],
@@ -102,6 +111,10 @@ class RoleController extends Controller
     {
         if (!auth()->user()->hasPermission('user.role.manage')) {
             abort(403);
+        }
+
+        if ($role->name === 'supreme_admin') {
+            return back()->with('error', __('The Supreme Admin role cannot be deleted.'));
         }
 
         // Prevent deleting super_admin
@@ -127,6 +140,10 @@ class RoleController extends Controller
     {
         if (!auth()->user()->hasPermission('user.role.manage')) {
             abort(403);
+        }
+
+        if ($role->name === 'supreme_admin' && auth()->user()->role !== 'supreme_admin') {
+            abort(403, 'Unauthorized action.');
         }
 
         $validated = $request->validate([
