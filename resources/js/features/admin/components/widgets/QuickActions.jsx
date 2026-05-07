@@ -1,4 +1,4 @@
-import { FileText, Camera, Megaphone, Smartphone, Mail, Search, Megaphone as Bullhorn, Trash2 } from 'lucide-react';
+﻿import { FileText, Camera, Megaphone, Smartphone, Mail, Search, Megaphone as Bullhorn, Trash2 } from 'lucide-react';
 
 const quickActions = [
   { id: 'write', icon: FileText, labelBn: 'নতুন সংবাদ', labelEn: 'New Article', toastBn: 'নতুন সংবাদ এডিটর খুলছে...', toastEn: 'Opening article editor...' },
@@ -23,12 +23,12 @@ export function QuickActions({ onAction, showToast, lang }) {
               showToast?.(lang === 'bn' ? action.toastBn : action.toastEn);
               onAction?.(action.id);
             }}
-            className="bg-[var(--body-bg,#f0f2f8)] border border-[var(--card-border,#e8ebf4)] rounded-lg p-3.5 flex flex-col items-center gap-2 cursor-pointer transition-all hover:border-[#e8001e] hover:bg-[#fff0f2] text-center group"
+            className="bg-[var(--body-bg,#f0f2f8)] border border-[var(--card-border,#e8ebf4)] rounded-lg p-3.5 flex flex-col items-center gap-2 cursor-pointer transition-all hover:border-[#263238] hover:bg-[#eceff1] text-center group"
           >
-            <div className="w-9.5 h-9.5 rounded-lg bg-white flex items-center justify-center text-lg shadow-sm transition-all group-hover:bg-[#e8001e]">
+            <div className="w-9.5 h-9.5 rounded-lg bg-white flex items-center justify-center text-lg shadow-sm transition-all group-hover:bg-[#263238]">
               <Icon className="w-4.5 h-4.5 text-[var(--text-secondary,#6b7280)] transition-colors group-hover:text-white" />
             </div>
-            <span className="text-[11.5px] font-semibold text-[var(--text-secondary,#6b7280)] transition-colors group-hover:text-[#e8001e]">
+            <span className="text-[11.5px] font-semibold text-[var(--text-secondary,#6b7280)] transition-colors group-hover:text-[#263238]">
               {lang === 'bn' ? action.labelBn : action.labelEn}
             </span>
           </button>

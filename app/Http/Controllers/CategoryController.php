@@ -153,36 +153,35 @@ class CategoryController extends Controller
     {
         $edition = $request->get('edition', 'bn');
 
-        $categories = Category::active()
+        // Load all active categories in one query, build recursive tree in PHP
+        $all = Category::active()
             ->forEdition($edition)
-            ->parents()
             ->ordered()
-            ->with(['children' => function ($query) {
-                $query->active()->ordered();
-            }])
-            ->get()
-            ->map(function ($category) use ($edition) {
-                return [
-                    'id' => $category->id,
-                    'name_bn' => $category->name_bn,
-                    'name_en' => $category->name_en,
-                    'slug' => $category->slug,
-                    'edition' => $category->edition,
-                    'description_bn' => $category->getDescription('bn'),
-                    'description_en' => $category->getDescription('en'),
-                    'icon' => $category->icon,
-                    'color' => $category->color,
-                    'children' => $category->children->map(fn($child) => [
-                        'id' => $child->id,
-                        'name_bn' => $child->name_bn,
-                        'name_en' => $child->name_en,
-                        'slug' => $child->slug,
-                        'edition' => $child->edition,
-                    ]),
-                ];
-            });
+            ->get();
+
+        $categories = $this->buildCategoryTree($all, null, $edition);
 
         return response()->json($categories);
+    }
+
+    private function buildCategoryTree($all, $parentId, string $edition): array
+    {
+        return $all
+            ->filter(fn($c) => $c->parent_id === $parentId)
+            ->values()
+            ->map(fn($c) => [
+                'id'             => $c->id,
+                'name_bn'        => $c->name_bn,
+                'name_en'        => $c->name_en,
+                'slug'           => $c->slug,
+                'edition'        => $c->edition,
+                'description_bn' => $c->getDescription('bn'),
+                'description_en' => $c->getDescription('en'),
+                'icon'           => $c->icon,
+                'color'          => $c->color,
+                'children'       => $this->buildCategoryTree($all, $c->id, $edition),
+            ])
+            ->toArray();
     }
 
     /**

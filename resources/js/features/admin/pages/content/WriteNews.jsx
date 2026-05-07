@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+﻿import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm, usePage, router } from '@inertiajs/react';
 import {
   Save, Send, Eye, Image as ImageIcon, X, Plus, Type, Tag, FileText,
@@ -422,7 +422,7 @@ export default function WriteNews() {
           id={`cat-${cat.id}`}
           checked={isChecked}
           onChange={toggleCategory}
-          className="w-4 h-4 rounded accent-[#e8001e] cursor-pointer flex-shrink-0"
+          className="w-4 h-4 rounded accent-[#263238] cursor-pointer flex-shrink-0"
         />
         <label htmlFor={`cat-${cat.id}`} className="flex-1 text-sm cursor-pointer select-none truncate">{name}</label>
         {isChecked && (
@@ -430,7 +430,7 @@ export default function WriteNews() {
             type="button"
             onClick={() => form.setData('primaryCategory', String(cat.id))}
             className={`flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded font-bold transition-colors ${
-              isPrimary ? 'bg-[#e8001e] text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
+              isPrimary ? 'bg-[#263238] text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
             }`}
           >
             {lang === 'bn' ? 'প্রধান' : 'Primary'}
@@ -450,8 +450,8 @@ export default function WriteNews() {
       {/* Sticky Action Bar */}
       <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[var(--card-border,#e8ebf4)] px-6 py-4 flex flex-wrap items-center justify-between gap-4 -mx-6 -mt-6 mb-6 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="bg-[#fff0f2] p-2 rounded-lg">
-            <Newspaper className="w-5 h-5 text-[#e8001e]" />
+          <div className="bg-[#eceff1] p-2 rounded-lg">
+            <Newspaper className="w-5 h-5 text-[#263238]" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali'] leading-none">
@@ -514,7 +514,7 @@ export default function WriteNews() {
           <button
             onClick={handlePublish}
             disabled={form.processing}
-            className="bg-[#e8001e] text-white rounded-lg px-4.5 py-2 text-xs font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-colors disabled:opacity-50 shadow-md shadow-red-100"
+            className="bg-[#263238] text-white rounded-lg px-4.5 py-2 text-xs font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-colors disabled:opacity-50 shadow-md shadow-red-100"
             title={lang === 'bn' ? 'এখনই প্রকাশ করুন' : 'Publish Now'}
           >
             <Send className="w-4 h-4" />
@@ -541,7 +541,7 @@ export default function WriteNews() {
                   onClick={() => form.setData('edition', opt.value)}
                   className={`px-6 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${
                     form.data.edition === opt.value
-                      ? 'bg-white text-[#e8001e] shadow-sm'
+                      ? 'bg-white text-[#263238] shadow-sm'
                       : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
                   }`}
                 >
@@ -656,7 +656,7 @@ export default function WriteNews() {
                     onChange={(e) => form.setData('excerptBn', e.target.value)}
                     placeholder={lang === 'bn' ? 'সংক্ষিপ্ত সার...' : 'Excerpt...'}
                     rows={3}
-                    className="w-full bg-white border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] transition-colors resize-none"
+                    className="w-full bg-white border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238] transition-colors resize-none"
                   />
                 </div>
               )}
@@ -668,7 +668,7 @@ export default function WriteNews() {
                     onChange={(e) => form.setData('excerptEn', e.target.value)}
                     placeholder="Short summary..."
                     rows={3}
-                    className="w-full bg-white border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] transition-colors resize-none"
+                    className="w-full bg-white border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238] transition-colors resize-none"
                   />
                 </div>
               )}
@@ -683,17 +683,17 @@ export default function WriteNews() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {showBn && (
-                <div className="bg-[#fff0f2]/50 p-4 rounded-xl border border-[#e8001e]/20">
-                  <div className="text-[10px] font-bold text-[#e8001e] uppercase mb-3">Bangla SEO</div>
+                <div className="bg-[#eceff1]/50 p-4 rounded-xl border border-[#263238]/20">
+                  <div className="text-[10px] font-bold text-[#263238] uppercase mb-3">Bangla SEO</div>
                   <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1.5">URL Slug</label>
-                  <input type="text" value={form.data.slugBn} onChange={(e) => { setManuallyEditedSlugBn(true); form.setData('slugBn', e.target.value); }} className="w-full mb-4 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#e8001e] outline-none transition-colors" />
+                  <input type="text" value={form.data.slugBn} onChange={(e) => { setManuallyEditedSlugBn(true); form.setData('slugBn', e.target.value); }} className="w-full mb-4 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#263238] outline-none transition-colors" />
                   
                   <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1.5">Meta Title</label>
-                  <input type="text" value={form.data.metaTitleBn} onChange={(e) => { setManuallyEditedMetaBn(true); form.setData('metaTitleBn', e.target.value); }} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#e8001e] outline-none transition-colors" />
+                  <input type="text" value={form.data.metaTitleBn} onChange={(e) => { setManuallyEditedMetaBn(true); form.setData('metaTitleBn', e.target.value); }} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#263238] outline-none transition-colors" />
                   <CharCounter current={(form.data.metaTitleBn || '').length} max={60} />
                   
                   <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1.5 mt-3">Meta Description</label>
-                  <textarea rows={2} value={form.data.metaDescBn} onChange={(e) => form.setData('metaDescBn', e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:border-[#e8001e] outline-none transition-colors" />
+                  <textarea rows={2} value={form.data.metaDescBn} onChange={(e) => form.setData('metaDescBn', e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:border-[#263238] outline-none transition-colors" />
                   <CharCounter current={(form.data.metaDescBn || '').length} max={160} />
                 </div>
               )}
@@ -723,7 +723,7 @@ export default function WriteNews() {
             {!form.data.featuredImage ? (
               uploadingFeatured ? (
                 <div className="flex items-center justify-center py-4 border border-dashed border-[var(--card-border,#e8ebf4)] rounded-lg gap-2 bg-gray-50">
-                  <div className="w-4 h-4 border-2 border-[#e8001e] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-[#263238] border-t-transparent rounded-full animate-spin" />
                   <span className="text-xs text-gray-500 font-medium">{lang === 'bn' ? 'আপলোড হচ্ছে...' : 'Uploading...'}</span>
                 </div>
               ) : (
@@ -781,7 +781,7 @@ export default function WriteNews() {
                   onChange={(e) => setTagsInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                   placeholder={lang === 'bn' ? 'ট্যাগ যোগ করুন...' : 'Add a tag...'}
-                  className="flex-1 bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.5 text-xs outline-none focus:bg-white focus:border-[#e8001e] transition-colors"
+                  className="flex-1 bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.5 text-xs outline-none focus:bg-white focus:border-[#263238] transition-colors"
                 />
                 <button type="button" onClick={addTag} className="bg-gray-800 text-white rounded-lg px-2.5 py-1.5 hover:bg-black transition-colors">
                   <Plus className="w-4 h-4" />
@@ -805,7 +805,7 @@ export default function WriteNews() {
                 <select
                   value={form.data.articleType}
                   onChange={(e) => form.setData('articleType', e.target.value)}
-                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#e8001e]"
+                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
                 >
                   <option value="news">News</option>
                   <option value="feature">Feature</option>
@@ -847,7 +847,7 @@ export default function WriteNews() {
                 <label className="flex items-center gap-3 cursor-pointer group">
                   <div className="relative">
                     <input type="checkbox" className="sr-only" checked={form.data.isBreaking} onChange={e => { form.setData('isBreaking', e.target.checked); if(e.target.checked) form.setData('sendPushNotification', true); }} />
-                    <div className={`block w-8 h-4.5 rounded-full transition-colors ${form.data.isBreaking ? 'bg-[#e8001e]' : 'bg-gray-200'}`}></div>
+                    <div className={`block w-8 h-4.5 rounded-full transition-colors ${form.data.isBreaking ? 'bg-[#263238]' : 'bg-gray-200'}`}></div>
                     <div className={`absolute left-0.5 top-0.5 bg-white w-3.5 h-3.5 rounded-full transition-transform shadow-sm ${form.data.isBreaking ? 'translate-x-3.5' : ''}`}></div>
                   </div>
                   <span className="text-sm font-semibold text-gray-700">Breaking News</span>
@@ -890,7 +890,7 @@ export default function WriteNews() {
                 <select
                   value={form.data.authorId}
                   onChange={(e) => form.setData('authorId', e.target.value)}
-                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#e8001e]"
+                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
                 >
                   <option value="">Current User (Default)</option>
                   {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -902,7 +902,7 @@ export default function WriteNews() {
                 <select
                   value={form.data.secondaryAuthorId}
                   onChange={(e) => form.setData('secondaryAuthorId', e.target.value)}
-                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#e8001e]"
+                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
                 >
                   <option value="">None</option>
                   {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}

@@ -1,4 +1,4 @@
-import { TrendingUp, DollarSign, BarChart3, CreditCard, Download } from 'lucide-react';
+﻿import { TrendingUp, DollarSign, BarChart3, CreditCard, Download } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { GroupedBarChart } from '../../components/charts/BarChart';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -20,7 +20,7 @@ export default function RevenueReport() {
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'আয়, বিজ্ঞাপন ও সাবস্ক্রিপশন বিশ্লেষণ' : 'Revenue, ads and subscription analysis'}</p>
         </div>
-        <button onClick={() => showToast(lang === 'bn' ? 'রিপোর্ট এক্সপোর্ট হচ্ছে...' : 'Exporting report...')} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
+        <button onClick={() => showToast(lang === 'bn' ? 'রিপোর্ট এক্সপোর্ট হচ্ছে...' : 'Exporting report...')} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
           <Download className="w-4 h-4" /> {lang === 'bn' ? 'এক্সপোর্ট' : 'Export'}
         </button>
       </div>
@@ -36,11 +36,11 @@ export default function RevenueReport() {
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
             <h3 className="text-sm font-bold flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-[#e8001e]" />
+              <BarChart3 className="w-4 h-4 text-[#263238]" />
               {lang === 'bn' ? 'মাসিক রাজস্ব' : 'Monthly Revenue'}
             </h3>
             <div className="flex gap-4 items-center">
-              <div className="text-xs text-[var(--text-muted,#9ca3af)] flex items-center gap-1"><span className="w-2 h-2 bg-[#e8001e] rounded-sm inline-block" />{lang === 'bn' ? 'বিজ্ঞাপন' : 'Ads'}</div>
+              <div className="text-xs text-[var(--text-muted,#9ca3af)] flex items-center gap-1"><span className="w-2 h-2 bg-[#263238] rounded-sm inline-block" />{lang === 'bn' ? 'বিজ্ঞাপন' : 'Ads'}</div>
               <div className="text-xs text-[var(--text-muted,#9ca3af)] flex items-center gap-1"><span className="w-2 h-2 bg-[#3b82f6] rounded-sm inline-block" />{lang === 'bn' ? 'সাবস্ক্রিপশন' : 'Subscriptions'}</div>
               <select className="border border-[var(--card-border,#e8ebf4)] rounded-md px-2 py-1 text-xs outline-none bg-[#fafafa]">
                 <option>২০২৬</option><option>২০২৫</option>
@@ -63,7 +63,7 @@ export default function RevenueReport() {
                     data1={mockData.ads} 
                     data2={mockData.subscriptions} 
                     labels={activeLabels} 
-                    color1="#e8001e" 
+                    color1="#263238" 
                     color2="#3b82f6" 
                     height={160} 
                   />
@@ -87,7 +87,7 @@ export default function RevenueReport() {
           </div>
           <div className="p-5 space-y-4">
             {[
-              { labelBn: 'ডিসপ্লে বিজ্ঞাপন', labelEn: 'Display Ads', amount: '৳ ৪৫ লাখ', pct: 35.7, color: '#e8001e' },
+              { labelBn: 'ডিসপ্লে বিজ্ঞাপন', labelEn: 'Display Ads', amount: '৳ ৪৫ লাখ', pct: 35.7, color: '#263238' },
               { labelBn: 'সাবস্ক্রিপশন', labelEn: 'Subscriptions', amount: '৳ ৪২ লাখ', pct: 33.3, color: '#3b82f6' },
               { labelBn: 'স্পনসরড কন্টেন্ট', labelEn: 'Sponsored Content', amount: '৳ ২২ লাখ', pct: 17.5, color: '#10b981' },
               { labelBn: 'অ্যাফিলিয়েট', labelEn: 'Affiliate', amount: '৳ ১০ লাখ', pct: 7.9, color: '#f59e0b' },

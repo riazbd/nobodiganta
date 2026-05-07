@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Plus, Clock } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -39,12 +39,12 @@ export default function EditorialCalendar() {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
-            <Calendar className="w-5 h-5 text-[#e8001e]" />
+            <Calendar className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'সম্পাদকীয় ক্যালেন্ডার' : 'Editorial Calendar'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'কন্টেন্ট পরিকল্পনা ও শিডিউলিং' : 'Content planning and scheduling'}</p>
         </div>
-        <button onClick={() => showToast(lang === 'bn' ? 'নতুন সংবাদ শিডিউল করুন' : 'Schedule new article')} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
+        <button onClick={() => showToast(lang === 'bn' ? 'নতুন সংবাদ শিডিউল করুন' : 'Schedule new article')} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
           <Plus className="w-4 h-4" /> {lang === 'bn' ? 'নতুন শিডিউল' : 'New Schedule'}
         </button>
       </div>

@@ -1,4 +1,4 @@
-import { Newspaper, Users, MessageSquare, TrendingUp, PenLine, FileText, AlertTriangle, BarChart3, Clock, Award, CalendarDays, Calendar, Globe, Megaphone, Shield, Crown, FolderTree, Activity } from 'lucide-react';
+﻿import { Newspaper, Users, MessageSquare, TrendingUp, PenLine, FileText, AlertTriangle, BarChart3, Clock, Award, CalendarDays, Calendar, Globe, Megaphone, Shield, Crown, FolderTree, Activity } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
 import { DonutChart } from '../../components/charts/DonutChart';
@@ -67,12 +67,12 @@ export default function EditorInChiefDashboard({
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
             <h3 className="text-sm font-bold flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#e8001e]" />
+              <TrendingUp className="w-4 h-4 text-[#263238]" />
               {lang === 'bn' ? 'রিয়েল-টাইম ট্র্যাফিক' : 'Real-Time Traffic'}
             </h3>
           </div>
           <div className="px-5 pt-2.5">
-            <LineChart data={traffic.pageViews || []} labels={lang === 'bn' ? (traffic.labels || []) : (traffic.labelsEn || [])} color="#e8001e" gradientId="gRed" />
+            <LineChart data={traffic.pageViews || []} labels={lang === 'bn' ? (traffic.labels || []) : (traffic.labelsEn || [])} color="#263238" gradientId="gRed" />
           </div>
         </div>
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
@@ -89,7 +89,7 @@ export default function EditorInChiefDashboard({
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
             <h3 className="text-sm font-bold flex items-center gap-2">
-              <FolderTree className="w-4 h-4 text-[#e8001e]" />
+              <FolderTree className="w-4 h-4 text-[#263238]" />
               {lang === 'bn' ? 'বিভাগ অনুযায়ী সংবাদ' : 'News by Category'}
             </h3>
           </div>
@@ -109,7 +109,7 @@ export default function EditorInChiefDashboard({
               segments={[
                 { name: lang === 'bn' ? 'প্রকাশিত' : 'Published', value: cs.published.count, pct: cs.published.pct, color: '#10b981' },
                 { name: lang === 'bn' ? 'ড্রাফট' : 'Draft', value: cs.draft.count, pct: cs.draft.pct, color: '#f59e0b' },
-                { name: lang === 'bn' ? 'অনুমোদন অপেক্ষায়' : 'Pending', value: cs.pending.count, pct: cs.pending.pct, color: '#e8001e' },
+                { name: lang === 'bn' ? 'অনুমোদন অপেক্ষায়' : 'Pending', value: cs.pending.count, pct: cs.pending.pct, color: '#263238' },
                 { name: lang === 'bn' ? 'আর্কাইভড' : 'Archived', value: cs.archived.count, pct: cs.archived.pct, color: '#3b82f6' },
               ]}
               centerValue={cs.total}
@@ -144,7 +144,7 @@ export default function EditorInChiefDashboard({
         </div>
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-[#e8001e]" />
+            <Calendar className="w-4 h-4 text-[#263238]" />
             <h3 className="text-sm font-bold">{lang === 'bn' ? 'আজকের শিডিউল' : 'Today\'s Schedule'}</h3>
           </div>
           <div className="p-4 pt-1.5">

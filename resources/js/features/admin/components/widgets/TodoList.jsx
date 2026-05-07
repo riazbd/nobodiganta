@@ -1,4 +1,4 @@
-import { Check, Plus } from 'lucide-react';
+﻿import { Check, Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export function TodoList({ items = [], onToggle, onAdd, lang = 'bn' }) {
@@ -21,13 +21,13 @@ export function TodoList({ items = [], onToggle, onAdd, lang = 'bn' }) {
     onAdd?.(newTodo);
   };
 
-  const priorityColors = { high: '#e8001e', medium: '#f59e0b', low: '#3b82f6' };
+  const priorityColors = { high: '#263238', medium: '#f59e0b', low: '#3b82f6' };
 
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold">{lang === 'bn' ? 'কাজের তালিকা' : 'Todo List'}</h3>
-        <button onClick={addRandom} className="bg-[#e8001e] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md flex items-center gap-1 hover:bg-[#b8001a] transition-colors">
+        <button onClick={addRandom} className="bg-[#263238] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md flex items-center gap-1 hover:bg-[#1a2428] transition-colors">
           <Plus className="w-3 h-3" /> {lang === 'bn' ? 'যোগ' : 'Add'}
         </button>
       </div>

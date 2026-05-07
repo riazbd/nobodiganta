@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Search, Edit3, Trash2, Eye, Send, Loader2, AlertTriangle, X, CheckCircle, Archive, ChevronDown, Plus, RotateCcw } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
@@ -31,7 +31,7 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
 
   const [search,    setSearch]    = useState(filters?.search   || '');
   const [category,  setCategory]  = useState(filters?.category || 'all');
-  const [edition,   setEdition]   = useState(filters?.edition  || 'all');
+  const [edition,   setEdition]   = useState(filters?.edition  || lang);
   const [perPage,   setPerPage]   = useState(filters?.per_page || '20');
   const [selected,  setSelected]  = useState([]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -39,6 +39,15 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
 
   const l = (bn, en) => lang === 'bn' ? bn : en;
   const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+
+  // Sync edition with the sidebar language switcher
+  useEffect(() => {
+    if (filters?.edition) return;
+    setEdition(lang);
+    const params = { ...filters, edition: lang, page: 1 };
+    Object.keys(params).forEach(k => { if (!params[k] || params[k] === 'all') delete params[k]; });
+    router.get(window.location.pathname, params, { preserveState: true, preserveScroll: true });
+  }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const applyFilters = (overrides = {}) => {
     const p = { search, category, edition, per_page: perPage, page: 1, ...overrides };
@@ -96,7 +105,7 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
           <p className="text-sm text-gray-400 mt-1">{articles.total} {l('টি সংবাদ', 'articles')}</p>
         </div>
         <Link href={route('admin.news.write')}
-          className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#c00] transition-all shadow-md">
+          className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#c00] transition-all shadow-md">
           <Plus className="w-4 h-4" /> {l('নতুন সংবাদ', 'New Article')}
         </Link>
       </div>
@@ -104,7 +113,7 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
       {/* Filter bar */}
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4 mb-4">
         <div className="flex flex-wrap gap-3 items-center">
-          <div className="flex items-center bg-gray-50 border border-gray-100 rounded-xl px-3.5 py-2.5 gap-2.5 flex-1 min-w-[220px] focus-within:border-[#e8001e]/40 focus-within:bg-white transition-all">
+          <div className="flex items-center bg-gray-50 border border-gray-100 rounded-xl px-3.5 py-2.5 gap-2.5 flex-1 min-w-[220px] focus-within:border-[#263238]/40 focus-within:bg-white transition-all">
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <input type="text" placeholder={l('শিরোনাম খুঁজুন...', 'Search title...')}
               value={search} onChange={e => handleSearch(e.target.value)}
@@ -154,7 +163,7 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
             <tr className="bg-gray-50/70 border-b border-gray-100 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               <th className="px-5 py-3.5 text-left w-10">
                 <input type="checkbox" checked={selected.length === articles.data.length && articles.data.length > 0}
-                  onChange={toggleAll} className="rounded border-gray-300 text-[#e8001e] focus:ring-[#e8001e]" />
+                  onChange={toggleAll} className="rounded border-gray-300 text-[#263238] focus:ring-[#263238]" />
               </th>
               <th className="px-4 py-3.5 text-left">{l('শিরোনাম', 'Title')}</th>
               <th className="px-4 py-3.5 text-left">{l('বিভাগ', 'Category')}</th>
@@ -174,17 +183,17 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
                 <tr key={article.id} className={`hover:bg-gray-50/50 transition-colors group ${selected.includes(article.id) ? 'bg-[#fff8f8]' : ''}`}>
                   <td className="px-5 py-3.5">
                     <input type="checkbox" checked={selected.includes(article.id)} onChange={() => toggleSelect(article.id)}
-                      className="rounded border-gray-300 text-[#e8001e] focus:ring-[#e8001e]" />
+                      className="rounded border-gray-300 text-[#263238] focus:ring-[#263238]" />
                   </td>
                   <td className="px-4 py-3.5 max-w-xs">
-                    <div className="font-semibold text-gray-800 text-sm line-clamp-2 group-hover:text-[#e8001e] transition-colors leading-snug">
+                    <div className="font-semibold text-gray-800 text-sm line-clamp-2 group-hover:text-[#263238] transition-colors leading-snug">
                       {l(article.title, article.title_en || article.title)}
                     </div>
                   </td>
                   <td className="px-4 py-3.5">
                     {article.category ? (
                       <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: article.category?.color_code || '#e8001e' }} />
+                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: article.category?.color_code || '#263238' }} />
                         <span className="text-xs font-medium text-gray-600 truncate max-w-[90px]">
                           {l(article.category?.name, article.category?.name_en || article.category?.name)}
                         </span>
@@ -194,7 +203,7 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
                   <td className="px-4 py-3.5">
                     <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${
                       article.edition === 'both' ? 'bg-gray-100 text-gray-600' :
-                      article.edition === 'bn'   ? 'bg-[#fff0f2] text-[#e8001e]' : 'bg-blue-50 text-blue-600'
+                      article.edition === 'bn'   ? 'bg-[#eceff1] text-[#263238]' : 'bg-blue-50 text-blue-600'
                     }`}>
                       {article.edition === 'both' ? 'BN+EN' : article.edition?.toUpperCase()}
                     </span>
@@ -263,7 +272,7 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
               {articles.links.map((link, i) =>
                 link.url ? (
                   <a key={i} href={link.url} dangerouslySetInnerHTML={{ __html: link.label }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${link.active ? 'bg-[#e8001e] text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${link.active ? 'bg-[#263238] text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                     onClick={e => { e.preventDefault(); router.get(link.url, {}, { preserveState: true }); }}
                   />
                 ) : (

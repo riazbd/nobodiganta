@@ -1,6 +1,6 @@
-export function ReporterCard({ reporters = [], lang = 'bn' }) {
-  const avBgColors = ['bg-[#fff0f2]', 'bg-[#eff6ff]', 'bg-[#ecfdf5]', 'bg-[#f5f3ff]', 'bg-[#fef9ee]'];
-  const perfColors = { high: 'text-[#10b981]', medium: 'text-[#f59e0b]', low: 'text-[#e8001e]' };
+﻿export function ReporterCard({ reporters = [], lang = 'bn' }) {
+  const avBgColors = ['bg-[#eceff1]', 'bg-[#eff6ff]', 'bg-[#ecfdf5]', 'bg-[#f5f3ff]', 'bg-[#fef9ee]'];
+  const perfColors = { high: 'text-[#10b981]', medium: 'text-[#f59e0b]', low: 'text-[#263238]' };
   const icons = ['✍️', '📡', '⚽', '💹', '💻', '🏏', '🎭', '📰'];
 
   return (
@@ -19,7 +19,7 @@ export function ReporterCard({ reporters = [], lang = 'bn' }) {
             <div className="text-[10.5px] text-[var(--text-muted,#9ca3af)]">{lang === 'bn' ? 'সংবাদ' : 'News'}</div>
           </div>
           <div className="ml-2">
-            <div className={`text-[11px] font-semibold ${r.performance >= 90 ? 'text-[#10b981]' : r.performance >= 80 ? 'text-[#f59e0b]' : 'text-[#e8001e]'}`}>
+            <div className={`text-[11px] font-semibold ${r.performance >= 90 ? 'text-[#10b981]' : r.performance >= 80 ? 'text-[#f59e0b]' : 'text-[#263238]'}`}>
               ▲ {r.performance}%
             </div>
             <div className="text-[10px] text-[var(--text-muted,#9ca3af)]">{lang === 'bn' ? 'পারফরম্যান্স' : 'Performance'}</div>

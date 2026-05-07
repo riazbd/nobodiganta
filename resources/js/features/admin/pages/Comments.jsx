@@ -92,7 +92,7 @@ export default function Comments({ comments = {}, filters = {} }) {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] font-['Noto_Sans_Bengali'] flex items-center gap-3">
-            <MessageSquare className="w-7 h-7 text-[#e8001e]" /> 
+            <MessageSquare className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'মন্তব্য মডারেশন' : 'Comment Moderation'}
           </h1>
           <p className="text-sm text-gray-500 mt-1.5 flex items-center gap-1.5">
@@ -115,7 +115,7 @@ export default function Comments({ comments = {}, filters = {} }) {
             onClick={() => setStatusFilter(item.key)}
             className={`p-4 rounded-2xl border transition-all flex items-center gap-4 ${
               statusFilter === item.key 
-              ? 'bg-white border-[#e8001e] shadow-lg shadow-red-50 ring-1 ring-[#e8001e]' 
+              ? 'bg-white border-[#263238] shadow-lg shadow-red-50 ring-1 ring-[#263238]' 
               : 'bg-white border-gray-100 hover:border-gray-200'
             }`}
           >
@@ -139,7 +139,7 @@ export default function Comments({ comments = {}, filters = {} }) {
               placeholder={lang === 'bn' ? 'মন্তব্য বা নাম দিয়ে খুঁজুন...' : 'Search comments or names...'} 
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
-              className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none" 
+              className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none" 
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery('')} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
@@ -175,7 +175,7 @@ export default function Comments({ comments = {}, filters = {} }) {
                     type="checkbox" 
                     checked={selectedIds.length === localComments.length && localComments.length > 0} 
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 text-[#e8001e] focus:ring-[#e8001e] border-gray-300 rounded" 
+                    className="w-4 h-4 text-[#263238] focus:ring-[#263238] border-gray-300 rounded" 
                   />
                 </th>
                 <th className="text-[11px] font-bold text-gray-500 uppercase tracking-widest px-6 py-4 border-b border-gray-100 text-left">{lang === 'bn' ? 'মন্তব্যকারী' : 'Commenter'}</th>
@@ -192,7 +192,7 @@ export default function Comments({ comments = {}, filters = {} }) {
                       type="checkbox" 
                       checked={selectedIds.includes(comment.id)} 
                       onChange={() => toggleSelect(comment.id)}
-                      className="w-4 h-4 text-[#e8001e] focus:ring-[#e8001e] border-gray-300 rounded" 
+                      className="w-4 h-4 text-[#263238] focus:ring-[#263238] border-gray-300 rounded" 
                     />
                   </td>
                   <td className="px-6 py-5">
@@ -286,7 +286,7 @@ export default function Comments({ comments = {}, filters = {} }) {
                   onClick={() => router.get(link.url, { status: statusFilter, search: searchQuery }, { preserveState: true })}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     link.active 
-                    ? 'bg-[#e8001e] text-white shadow-md' 
+                    ? 'bg-[#263238] text-white shadow-md' 
                     : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-30'
                   }`}
                   dangerouslySetInnerHTML={{ __html: link.label }}
@@ -300,7 +300,7 @@ export default function Comments({ comments = {}, filters = {} }) {
       {processing && (
         <div className="fixed inset-0 bg-white/50 backdrop-blur-sm z-[10000] flex items-center justify-center">
            <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 text-[#e8001e] animate-spin" />
+              <Loader2 className="w-8 h-8 text-[#263238] animate-spin" />
               <p className="text-sm font-bold text-gray-900">{lang === 'bn' ? 'প্রসেসিং হচ্ছে...' : 'Processing...'}</p>
            </div>
         </div>

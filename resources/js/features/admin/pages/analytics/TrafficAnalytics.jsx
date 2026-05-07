@@ -1,4 +1,4 @@
-import { BarChart3, TrendingUp, Users, Clock, Globe, Smartphone, Monitor, Tablet, Calendar, Award, Map } from 'lucide-react';
+﻿import { BarChart3, TrendingUp, Users, Clock, Globe, Smartphone, Monitor, Tablet, Calendar, Award, Map } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
 import { DonutChart } from '../../components/charts/DonutChart';
@@ -17,7 +17,7 @@ export default function TrafficAnalytics() {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
-            <BarChart3 className="w-5 h-5 text-[#e8001e]" />
+            <BarChart3 className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'ট্র্যাফিক বিশ্লেষণ' : 'Traffic Analytics'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'ভিজিটর আচরণ ও ট্র্যাফিক প্যাটার্ন' : 'Visitor behavior and traffic patterns'}</p>
@@ -39,7 +39,7 @@ export default function TrafficAnalytics() {
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
             <h3 className="text-sm font-bold flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#e8001e]" />
+              <TrendingUp className="w-4 h-4 text-[#263238]" />
               {lang === 'bn' ? 'ট্র্যাফিক ট্রেন্ড' : 'Traffic Trend'}
             </h3>
             <select className="border border-[var(--card-border,#e8ebf4)] rounded-md px-2 py-1 text-xs outline-none bg-[#fafafa]">
@@ -49,7 +49,7 @@ export default function TrafficAnalytics() {
             </select>
           </div>
           <div className="px-5 pt-2.5">
-            <LineChart data={[].pageViews} labels={lang === 'bn' ? [].labels : [].labelsEn} color="#e8001e" gradientId="gRed" />
+            <LineChart data={[].pageViews} labels={lang === 'bn' ? [].labels : [].labelsEn} color="#263238" gradientId="gRed" />
           </div>
         </div>
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
@@ -68,12 +68,12 @@ export default function TrafficAnalytics() {
       <div className="grid grid-cols-3 gap-4.5 mb-4.5">
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-5">
           <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
-            <Smartphone className="w-4 h-4 text-[#e8001e]" />
+            <Smartphone className="w-4 h-4 text-[#263238]" />
             {lang === 'bn' ? 'ডিভাইস' : 'Devices'}
           </h3>
           <div className="space-y-3">
             {[
-              { icon: Smartphone, labelBn: 'মোবাইল', labelEn: 'Mobile', pct: 62.4, color: '#e8001e' },
+              { icon: Smartphone, labelBn: 'মোবাইল', labelEn: 'Mobile', pct: 62.4, color: '#263238' },
               { icon: Monitor, labelBn: 'ডেস্কটপ', labelEn: 'Desktop', pct: 25.1, color: '#3b82f6' },
               { icon: Tablet, labelBn: 'ট্যাবলেট', labelEn: 'Tablet', pct: 12.5, color: '#f59e0b' },
             ].map((d, i) => {
@@ -106,7 +106,7 @@ export default function TrafficAnalytics() {
               { titleBn: 'বোরো ধানের বাম্পার ফলন', titleEn: 'Bumper Boro Rice Harvest', views: '28,567' },
             ].map((p, i) => (
               <div key={i} className="flex items-center gap-2.5">
-                <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold flex-shrink-0 ${i === 0 ? 'bg-[#fff0f2] text-[#e8001e]' : 'bg-[var(--body-bg,#f0f2f8)] text-[var(--text-muted,#9ca3af)]'}`}>{i + 1}</div>
+                <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold flex-shrink-0 ${i === 0 ? 'bg-[#eceff1] text-[#263238]' : 'bg-[var(--body-bg,#f0f2f8)] text-[var(--text-muted,#9ca3af)]'}`}>{i + 1}</div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[12px] font-semibold text-[var(--text-primary,#1a1d2e)] truncate">{lang === 'bn' ? p.titleBn : p.titleEn}</div>
                 </div>
@@ -133,7 +133,7 @@ export default function TrafficAnalytics() {
               <div key={i} className="flex items-center gap-2.5">
                 <span className="text-xs text-[var(--text-secondary,#6b7280)] w-20 flex-shrink-0">{lang === 'bn' ? loc.countryBn : loc.countryEn}</span>
                 <div className="flex-1 h-1.5 bg-[#f3f4f6] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full bg-[#e8001e]" style={{ width: `${loc.pct}%` }} />
+                  <div className="h-full rounded-full bg-[#263238]" style={{ width: `${loc.pct}%` }} />
                 </div>
                 <span className="text-xs font-bold font-['Inter']">{loc.pct}%</span>
               </div>

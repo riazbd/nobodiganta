@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { Save, Send, Image as ImageIcon, X, ChevronLeft, Globe, FileText, Settings, Trash2, Languages, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -297,7 +297,7 @@ export default function WriteOpinion() {
           {showBn && (
             <div className="bg-white p-6 rounded-xl border border-[var(--card-border,#e8ebf4)] shadow-sm space-y-4">
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 text-[#e8001e]">
+                <div className="flex items-center gap-2 text-[#263238]">
                   <Globe className="w-4 h-4" />
                   <span className="text-sm font-bold">বাংলা বিষয়বস্তু (Bengali Content)</span>
                 </div>
@@ -305,26 +305,26 @@ export default function WriteOpinion() {
               
               <div>
                 <label className="block text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase mb-1">শিরোনাম *</label>
-                <input required type="text" value={form.data.titleBn} onChange={e => form.setData('titleBn', e.target.value)} placeholder="মূল শিরোনাম..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e8001e] transition-colors bg-gray-50/50 focus:bg-white" />
-                {form.errors.titleBn && <div className="text-[#e8001e] text-[11px] mt-1">{form.errors.titleBn}</div>}
+                <input required type="text" value={form.data.titleBn} onChange={e => form.setData('titleBn', e.target.value)} placeholder="মূল শিরোনাম..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#263238] transition-colors bg-gray-50/50 focus:bg-white" />
+                {form.errors.titleBn && <div className="text-[#263238] text-[11px] mt-1">{form.errors.titleBn}</div>}
               </div>
               
               <div>
                 <label className="block text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase mb-1">উপ-শিরোনাম</label>
-                <input type="text" value={form.data.subtitleBn} onChange={e => form.setData('subtitleBn', e.target.value)} placeholder="বিষয়বস্তুর সংক্ষিপ্ত বর্ণনা..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e8001e] transition-colors bg-gray-50/50 focus:bg-white" />
+                <input type="text" value={form.data.subtitleBn} onChange={e => form.setData('subtitleBn', e.target.value)} placeholder="বিষয়বস্তুর সংক্ষিপ্ত বর্ণনা..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#263238] transition-colors bg-gray-50/50 focus:bg-white" />
               </div>
               
               <div>
                 <label className="block text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase mb-1">মতামত *</label>
-                <div className="border border-[var(--card-border,#e8ebf4)] rounded-lg overflow-hidden focus-within:border-[#e8001e] transition-colors">
+                <div className="border border-[var(--card-border,#e8ebf4)] rounded-lg overflow-hidden focus-within:border-[#263238] transition-colors">
                   <RichTextEditor value={form.data.bodyBn} onChange={val => form.setData('bodyBn', val)} lang="bn" placeholder="এখানে আপনার মতামত লিখুন..." />
                 </div>
-                {form.errors.bodyBn && <div className="text-[#e8001e] text-[11px] mt-1">{form.errors.bodyBn}</div>}
+                {form.errors.bodyBn && <div className="text-[#263238] text-[11px] mt-1">{form.errors.bodyBn}</div>}
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase mb-1">সারাংশ (Excerpt)</label>
-                <textarea rows="2" value={form.data.excerptBn} onChange={e => form.setData('excerptBn', e.target.value)} placeholder="হোমপেজ বা তালিকার জন্য ছোট সারাংশ..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e8001e] transition-colors bg-gray-50/50 focus:bg-white resize-none" />
+                <textarea rows="2" value={form.data.excerptBn} onChange={e => form.setData('excerptBn', e.target.value)} placeholder="হোমপেজ বা তালিকার জন্য ছোট সারাংশ..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#263238] transition-colors bg-gray-50/50 focus:bg-white resize-none" />
               </div>
             </div>
           )}
@@ -340,26 +340,26 @@ export default function WriteOpinion() {
               
               <div>
                 <label className="block text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase mb-1">Title *</label>
-                <input required type="text" value={form.data.titleEn} onChange={e => form.setData('titleEn', e.target.value)} placeholder="Enter title..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e8001e] transition-colors bg-gray-50/50 focus:bg-white" />
-                {form.errors.titleEn && <div className="text-[#e8001e] text-[11px] mt-1">{form.errors.titleEn}</div>}
+                <input required type="text" value={form.data.titleEn} onChange={e => form.setData('titleEn', e.target.value)} placeholder="Enter title..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#263238] transition-colors bg-gray-50/50 focus:bg-white" />
+                {form.errors.titleEn && <div className="text-[#263238] text-[11px] mt-1">{form.errors.titleEn}</div>}
               </div>
               
               <div>
                 <label className="block text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase mb-1">Subtitle</label>
-                <input type="text" value={form.data.subtitleEn} onChange={e => form.setData('subtitleEn', e.target.value)} placeholder="Brief subtitle..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e8001e] transition-colors bg-gray-50/50 focus:bg-white" />
+                <input type="text" value={form.data.subtitleEn} onChange={e => form.setData('subtitleEn', e.target.value)} placeholder="Brief subtitle..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#263238] transition-colors bg-gray-50/50 focus:bg-white" />
               </div>
               
               <div>
                 <label className="block text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase mb-1">Opinion *</label>
-                <div className="border border-[var(--card-border,#e8ebf4)] rounded-lg overflow-hidden focus-within:border-[#e8001e] transition-colors">
+                <div className="border border-[var(--card-border,#e8ebf4)] rounded-lg overflow-hidden focus-within:border-[#263238] transition-colors">
                   <RichTextEditor value={form.data.bodyEn} onChange={val => form.setData('bodyEn', val)} lang="en" placeholder="Write your opinion here..." />
                 </div>
-                {form.errors.bodyEn && <div className="text-[#e8001e] text-[11px] mt-1">{form.errors.bodyEn}</div>}
+                {form.errors.bodyEn && <div className="text-[#263238] text-[11px] mt-1">{form.errors.bodyEn}</div>}
               </div>
 
               <div>
                 <label className="block text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase mb-1">Excerpt</label>
-                <textarea rows="2" value={form.data.excerptEn} onChange={e => form.setData('excerptEn', e.target.value)} placeholder="Short excerpt for homepage..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#e8001e] transition-colors bg-gray-50/50 focus:bg-white resize-none" />
+                <textarea rows="2" value={form.data.excerptEn} onChange={e => form.setData('excerptEn', e.target.value)} placeholder="Short excerpt for homepage..." className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-4 py-2.5 text-sm outline-none focus:border-[#263238] transition-colors bg-gray-50/50 focus:bg-white resize-none" />
               </div>
             </div>
           )}
@@ -370,7 +370,7 @@ export default function WriteOpinion() {
           {/* Publication Status */}
           <div className="bg-white p-5 rounded-xl border border-[var(--card-border,#e8ebf4)] shadow-sm">
             <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-50">
-              <Settings className="w-4 h-4 text-[#e8001e]" />
+              <Settings className="w-4 h-4 text-[#263238]" />
               <h3 className="text-sm font-bold">{lang === 'bn' ? 'প্রকাশনা (Publish)' : 'Publish'}</h3>
             </div>
             <div className="space-y-3">
@@ -386,7 +386,7 @@ export default function WriteOpinion() {
               <button 
                 onClick={() => handleSubmit('published')} 
                 disabled={form.processing} 
-                className="w-full bg-[#e8001e] text-white rounded-lg py-2.5 text-sm font-bold hover:bg-[#b8001a] transition-all shadow-lg shadow-red-100 flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full bg-[#263238] text-white rounded-lg py-2.5 text-sm font-bold hover:bg-[#1a2428] transition-all shadow-lg shadow-red-100 flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Send className="w-4 h-4" /> {lang === 'bn' ? 'এখনই প্রকাশ করুন' : 'Publish Now'}
               </button>
@@ -448,7 +448,7 @@ export default function WriteOpinion() {
                 <select
                   value={form.data.secondaryAuthorId}
                   onChange={(e) => form.setData('secondaryAuthorId', e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#e8001e]"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#263238]"
                 >
                   <option value="">{lang === 'bn' ? 'কেউ নেই' : 'None'}</option>
                   {authors.map(a => (
@@ -469,7 +469,7 @@ export default function WriteOpinion() {
                  value={form.data.videoUrl} 
                  onChange={e => handleUrlChange(e.target.value)}
                  placeholder="https://..."
-                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#e8001e]" 
+                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#263238]" 
                />
              </div>
 
@@ -481,7 +481,7 @@ export default function WriteOpinion() {
                    value={form.data.videoDuration} 
                    onChange={e => form.setData('videoDuration', e.target.value)}
                    placeholder="00:00"
-                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#e8001e]" 
+                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#263238]" 
                  />
                </div>
                <div>
@@ -489,7 +489,7 @@ export default function WriteOpinion() {
                  <select 
                    value={form.data.videoProvider} 
                    onChange={e => form.setData('videoProvider', e.target.value)}
-                   className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#e8001e]"
+                   className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#263238]"
                  >
                    <option value="youtube">YouTube</option>
                    <option value="vimeo">Vimeo</option>
@@ -513,7 +513,7 @@ export default function WriteOpinion() {
                     checked={form.data.isGuestAuthor} 
                     onChange={e => form.setData('isGuestAuthor', e.target.checked)} 
                   />
-                  <div className={`block w-8 h-5 rounded-full transition-colors ${form.data.isGuestAuthor ? 'bg-[#e8001e]' : 'bg-gray-200'}`}></div>
+                  <div className={`block w-8 h-5 rounded-full transition-colors ${form.data.isGuestAuthor ? 'bg-[#263238]' : 'bg-gray-200'}`}></div>
                   <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${form.data.isGuestAuthor ? 'translate-x-3' : ''}`}></div>
                 </div>
               </label>
@@ -525,20 +525,20 @@ export default function WriteOpinion() {
                    <label className="block text-[10px] font-bold text-gray-400 uppercase">Photo</label>
                    <div 
                      onClick={() => openMediaLibrary('guest')}
-                     className="w-16 h-16 rounded-full border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-[#e8001e]/30 hover:bg-red-50/10 transition-all overflow-hidden group mx-auto mb-2"
+                     className="w-16 h-16 rounded-full border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-[#263238]/30 hover:bg-red-50/10 transition-all overflow-hidden group mx-auto mb-2"
                    >
                      {form.data.guestAuthorImage ? (
                        <img src={form.data.guestAuthorImage} className="w-full h-full object-cover" />
                      ) : (
-                       <ImageIcon className="w-5 h-5 text-gray-300 group-hover:text-[#e8001e]" />
+                       <ImageIcon className="w-5 h-5 text-gray-300 group-hover:text-[#263238]" />
                      )}
                    </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <input type="text" value={form.data.guestAuthorNameBn} onChange={e => form.setData('guestAuthorNameBn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#e8001e]" placeholder="নাম (বাংলা)..." />
-                  <input type="text" value={form.data.guestAuthorNameEn} onChange={e => form.setData('guestAuthorNameEn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#e8001e]" placeholder="Name (EN)..." />
+                  <input type="text" value={form.data.guestAuthorNameBn} onChange={e => form.setData('guestAuthorNameBn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" placeholder="নাম (বাংলা)..." />
+                  <input type="text" value={form.data.guestAuthorNameEn} onChange={e => form.setData('guestAuthorNameEn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" placeholder="Name (EN)..." />
                 </div>
-                <textarea rows="2" value={form.data.guestAuthorBioBn} onChange={e => form.setData('guestAuthorBioBn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#e8001e] resize-none" placeholder="লেখকের সংক্ষিপ্ত পরিচিতি..." />
+                <textarea rows="2" value={form.data.guestAuthorBioBn} onChange={e => form.setData('guestAuthorBioBn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238] resize-none" placeholder="লেখকের সংক্ষিপ্ত পরিচিতি..." />
               </div>
             )}
             
@@ -556,16 +556,16 @@ export default function WriteOpinion() {
                 { val: 'bn', labelBn: 'শুধু বাংলা', labelEn: 'Bangla Only' },
                 { val: 'en', labelBn: 'শুধু ইংরেজি', labelEn: 'English Only' }
               ].map(ed => (
-                <label key={ed.val} className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${form.data.edition === ed.val ? 'border-[#e8001e] bg-[#fff0f2]' : 'border-gray-100 hover:bg-gray-50'}`}>
+                <label key={ed.val} className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${form.data.edition === ed.val ? 'border-[#263238] bg-[#eceff1]' : 'border-gray-100 hover:bg-gray-50'}`}>
                   <input
                     type="radio"
                     name="edition"
                     value={ed.val}
                     checked={form.data.edition === ed.val}
                     onChange={(e) => form.setData('edition', e.target.value)}
-                    className="w-4 h-4 text-[#e8001e] focus:ring-[#e8001e]"
+                    className="w-4 h-4 text-[#263238] focus:ring-[#263238]"
                   />
-                  <span className={`text-xs font-semibold ${form.data.edition === ed.val ? 'text-[#e8001e]' : 'text-gray-700'}`}>
+                  <span className={`text-xs font-semibold ${form.data.edition === ed.val ? 'text-[#263238]' : 'text-gray-700'}`}>
                     {lang === 'bn' ? ed.labelBn : ed.labelEn}
                   </span>
                 </label>
@@ -580,7 +580,7 @@ export default function WriteOpinion() {
               <button 
                 type="button"
                 onClick={() => setShowMediaLibrary(true)}
-                className="text-[10px] font-bold text-[#e8001e] hover:underline flex items-center gap-1"
+                className="text-[10px] font-bold text-[#263238] hover:underline flex items-center gap-1"
               >
                 <ImageIcon className="w-3 h-3" /> {lang === 'bn' ? 'লাইব্রেরি' : 'Library'}
               </button>
@@ -590,12 +590,12 @@ export default function WriteOpinion() {
               <button
                 type="button"
                 onClick={() => setShowMediaLibrary(true)}
-                className="w-full border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center gap-2 hover:border-[#e8001e]/30 hover:bg-red-50/10 transition-all group"
+                className="w-full border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center gap-2 hover:border-[#263238]/30 hover:bg-red-50/10 transition-all group"
               >
                 <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-red-50 transition-colors">
-                  <ImageIcon className="w-5 h-5 text-gray-400 group-hover:text-[#e8001e]" />
+                  <ImageIcon className="w-5 h-5 text-gray-400 group-hover:text-[#263238]" />
                 </div>
-                <span className="text-xs font-medium text-gray-500 group-hover:text-[#e8001e]">{lang === 'bn' ? 'ছবি নির্বাচন করুন' : 'Select Image'}</span>
+                <span className="text-xs font-medium text-gray-500 group-hover:text-[#263238]">{lang === 'bn' ? 'ছবি নির্বাচন করুন' : 'Select Image'}</span>
               </button>
             ) : (
               <div className="relative rounded-xl overflow-hidden border border-gray-200 group">
@@ -604,14 +604,14 @@ export default function WriteOpinion() {
                    <button 
                      type="button"
                      onClick={() => setShowMediaLibrary(true)}
-                     className="p-2 bg-white rounded-full text-gray-700 hover:text-[#e8001e] transition-colors"
+                     className="p-2 bg-white rounded-full text-gray-700 hover:text-[#263238] transition-colors"
                    >
                      <ImageIcon className="w-4 h-4" />
                    </button>
                    <button 
                      type="button"
                      onClick={() => form.setData('featuredImage', '')}
-                     className="p-2 bg-white rounded-full text-[#e8001e] hover:bg-red-50 transition-colors"
+                     className="p-2 bg-white rounded-full text-[#263238] hover:bg-red-50 transition-colors"
                    >
                      <Trash2 className="w-4 h-4" />
                    </button>
@@ -634,9 +634,9 @@ export default function WriteOpinion() {
                     setManuallyEditedSlugBn(true);
                     form.setData('slugBn', e.target.value);
                   }} 
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono outline-none focus:border-[#e8001e] bg-gray-50 focus:bg-white transition-colors" 
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono outline-none focus:border-[#263238] bg-gray-50 focus:bg-white transition-colors" 
                 />
-                {form.errors.slugBn && <div className="text-[#e8001e] text-[10px] mt-1">{form.errors.slugBn}</div>}
+                {form.errors.slugBn && <div className="text-[#263238] text-[10px] mt-1">{form.errors.slugBn}</div>}
               </div>
             )}
             
@@ -650,9 +650,9 @@ export default function WriteOpinion() {
                     setManuallyEditedSlugEn(true);
                     form.setData('slugEn', e.target.value);
                   }} 
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono outline-none focus:border-[#e8001e] bg-gray-50 focus:bg-white transition-colors" 
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono outline-none focus:border-[#263238] bg-gray-50 focus:bg-white transition-colors" 
                 />
-                {form.errors.slugEn && <div className="text-[#e8001e] text-[10px] mt-1">{form.errors.slugEn}</div>}
+                {form.errors.slugEn && <div className="text-[#263238] text-[10px] mt-1">{form.errors.slugEn}</div>}
               </div>
             )}
           </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="<?php echo e($htmlEdition ?? 'bn'); ?>">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,11 +22,11 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
         
-        
+        <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
         <link href="https://fonts.maateen.me/solaiman-lipi/font.css" rel="stylesheet">
 
         
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
 
         
         <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">

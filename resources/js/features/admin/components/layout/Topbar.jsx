@@ -1,4 +1,4 @@
-import { Bell, MessageSquare, Settings, Search, Plus, Upload, ChevronDown, Globe, X, Home, FileText, TrendingUp, AlertTriangle, CreditCard, PenLine, User, LogOut } from 'lucide-react';
+﻿import { Bell, MessageSquare, Settings, Search, Plus, Upload, ChevronDown, Globe, X, Home, FileText, TrendingUp, AlertTriangle, CreditCard, PenLine, User, LogOut } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useRole } from '../../hooks/useRole';
 import { PERMISSIONS } from '../../api/permissions';
@@ -88,7 +88,7 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
 
       {/* Search */}
       <div className="relative">
-        <div className="flex items-center bg-[#f5f6fa] rounded-md px-2.5 py-1.5 gap-2 w-60 transition-all focus-within:bg-white focus-within:ring-2 focus-within:ring-[#e8001e]/20">
+        <div className="flex items-center bg-[#f5f6fa] rounded-md px-2.5 py-1.5 gap-2 w-60 transition-all focus-within:bg-white focus-within:ring-2 focus-within:ring-[#263238]/20">
           <Search className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)] flex-shrink-0" />
           <input
             type="text"
@@ -117,12 +117,12 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setShowNotif(!showNotif)}
-            className="w-9 h-9 border border-[var(--card-border,#e8ebf4)] bg-[var(--card-bg,#ffffff)] rounded-lg flex items-center justify-center cursor-pointer text-[15px] transition-all hover:border-[#e8001e] hover:text-[#e8001e] hover:bg-[#fff0f2] text-[var(--text-secondary,#6b7280)] relative"
+            className="w-9 h-9 border border-[var(--card-border,#e8ebf4)] bg-[var(--card-bg,#ffffff)] rounded-lg flex items-center justify-center cursor-pointer text-[15px] transition-all hover:border-[#263238] hover:text-[#263238] hover:bg-[#eceff1] text-[var(--text-secondary,#6b7280)] relative"
             title={lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notifications'}
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#e8001e] rounded-full text-[9px] font-bold text-white flex items-center justify-center border-2 border-white">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#263238] rounded-full text-[9px] font-bold text-white flex items-center justify-center border-2 border-white">
                 {unreadCount}
               </span>
             )}
@@ -133,10 +133,10 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
             <div className="absolute top-12 right-0 w-80 bg-white border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-lg z-[1000] overflow-hidden">
               <div className="px-4.5 py-3.5 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <Bell className="w-4 h-4 text-[#e8001e]" />
+                  <Bell className="w-4 h-4 text-[#263238]" />
                   <span>{lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notifications'}</span>
                 </div>
-                <button onClick={clearNotifications} className="text-[11.5px] text-[#e8001e] cursor-pointer font-semibold">
+                <button onClick={clearNotifications} className="text-[11.5px] text-[#263238] cursor-pointer font-semibold">
                   {lang === 'bn' ? 'সব মার্ক করুন' : 'Mark all read'}
                 </button>
               </div>
@@ -144,7 +144,7 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
                 {notifications.map(notif => (
                   <div key={notif.id} className="px-4.5 py-3 border-b border-[#f9fafb] flex gap-3 cursor-pointer hover:bg-[var(--body-bg,#f0f2f8)] transition-all">
                     <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      notif.type === 'publish' ? 'bg-red-50 text-[#e8001e]' : 
+                      notif.type === 'publish' ? 'bg-red-50 text-[#263238]' : 
                       notif.type === 'comment' ? 'bg-blue-50 text-[#3b82f6]' :
                       notif.type === 'traffic' ? 'bg-green-50 text-[#10b981]' :
                       'bg-gray-100 text-gray-500'
@@ -163,7 +163,7 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
                       </div>
                       <div className="text-[10.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? notif.time : notif.timeEn}</div>
                     </div>
-                    {notif.unread && <div className="w-1.75 h-1.75 bg-[#e8001e] rounded-full mt-1.25 flex-shrink-0" />}
+                    {notif.unread && <div className="w-1.75 h-1.75 bg-[#263238] rounded-full mt-1.25 flex-shrink-0" />}
                   </div>
                 ))}
               </div>
@@ -175,7 +175,7 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
         {/* Message Icon */}
         <button
           onClick={() => onNavigate?.('comments')}
-          className="w-9 h-9 border border-[var(--card-border,#e8ebf4)] bg-[var(--card-bg,#ffffff)] rounded-lg flex items-center justify-center cursor-pointer text-[15px] transition-all hover:border-[#e8001e] hover:text-[#e8001e] hover:bg-[#fff0f2] text-[var(--text-secondary,#6b7280)]"
+          className="w-9 h-9 border border-[var(--card-border,#e8ebf4)] bg-[var(--card-bg,#ffffff)] rounded-lg flex items-center justify-center cursor-pointer text-[15px] transition-all hover:border-[#263238] hover:text-[#263238] hover:bg-[#eceff1] text-[var(--text-secondary,#6b7280)]"
           title={lang === 'bn' ? 'বার্তা/মন্তব্য' : 'Messages & Comments'}
         >
           <MessageSquare className="w-4 h-4" />
@@ -184,7 +184,7 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
         {/* Settings Icon */}
         <button
           onClick={() => onNavigate?.('settings')}
-          className="w-9 h-9 border border-[var(--card-border,#e8ebf4)] bg-[var(--card-bg,#ffffff)] rounded-lg flex items-center justify-center cursor-pointer text-[15px] transition-all hover:border-[#e8001e] hover:text-[#e8001e] hover:bg-[#fff0f2] text-[var(--text-secondary,#6b7280)]"
+          className="w-9 h-9 border border-[var(--card-border,#e8ebf4)] bg-[var(--card-bg,#ffffff)] rounded-lg flex items-center justify-center cursor-pointer text-[15px] transition-all hover:border-[#263238] hover:text-[#263238] hover:bg-[#eceff1] text-[var(--text-secondary,#6b7280)]"
           title={lang === 'bn' ? 'সেটিংস' : 'Settings'}
         >
           <Settings className="w-4 h-4" />
@@ -194,7 +194,7 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
         {hasPermission(PERMISSIONS.NEWS_CREATE) && (
           <button
             onClick={() => onNavigate?.('news-write')}
-            className="bg-[#e8001e] text-white border-none rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 transition-all hover:bg-[#b8001a] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(232,0,30,0.3)]"
+            className="bg-[#263238] text-white border-none rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 transition-all hover:bg-[#1a2428] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(232,0,30,0.3)]"
           >
             <Plus className="w-3.5 h-3.5" />
             {lang === 'bn' ? 'নতুন সংবাদ' : 'New Article'}
@@ -210,14 +210,14 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
             className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100 group"
           >
             <div className="text-right hidden md:block">
-              <div className="text-[12.5px] font-bold text-gray-800 leading-none mb-1 group-hover:text-[#e8001e] transition-colors">{auth.user.name}</div>
+              <div className="text-[12.5px] font-bold text-gray-800 leading-none mb-1 group-hover:text-[#263238] transition-colors">{auth.user.name}</div>
               <div className="text-[10px] text-gray-400 font-medium uppercase tracking-tighter">{auth.user.role}</div>
             </div>
             <div className="w-9 h-9 rounded-lg overflow-hidden border-2 border-white shadow-sm ring-1 ring-gray-100">
               {auth.user.profile_photo_url ? (
                 <img src={auth.user.profile_photo_url} alt={auth.user.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-xs font-bold uppercase">
+                <div className="w-full h-full bg-gradient-to-br from-[#263238] to-[#ff6b6b] flex items-center justify-center text-white text-xs font-bold uppercase">
                   {auth.user.name?.charAt(0)}
                 </div>
               )}
@@ -243,9 +243,9 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
               </button>
               <button 
                 onClick={() => { setShowProfileMenu(false); router.post(route('logout')); }}
-                className="w-full text-left px-4 py-2 text-sm text-[#e8001e] hover:bg-red-50 flex items-center gap-2 pt-3"
+                className="w-full text-left px-4 py-2 text-sm text-[#263238] hover:bg-red-50 flex items-center gap-2 pt-3"
               >
-                <LogOut className="w-4 h-4 text-[#e8001e]" />
+                <LogOut className="w-4 h-4 text-[#263238]" />
                 {lang === 'bn' ? 'লগ আউট' : 'Logout'}
               </button>
             </div>

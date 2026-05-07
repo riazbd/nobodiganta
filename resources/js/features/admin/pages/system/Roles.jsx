@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { 
   Shield, Edit3, Trash2, Users, X, ChevronDown, ChevronRight, 
@@ -11,7 +11,7 @@ import { useToast } from '../../hooks/useToast';
 import { usePermission } from '../../hooks/usePermission';
 
 const ROLE_GRADIENTS = {
-  super_admin: 'from-[#e8001e] to-[#ff6b6b]',
+  super_admin: 'from-[#263238] to-[#ff6b6b]',
   editor_in_chief: 'from-[#f59e0b] to-[#fbbf24]',
   managing_editor: 'from-[#3b82f6] to-[#60a5fa]',
   section_editor: 'from-[#06b6d4] to-[#22d3ee]',
@@ -166,7 +166,7 @@ export default function Roles({ roles, allPermissions, filters }) {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] font-['Noto_Sans_Bengali'] flex items-center gap-3">
-            <Shield className="w-7 h-7 text-[#e8001e]" /> 
+            <Shield className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'রোল ও পারমিশন' : 'Roles & Permissions'}
           </h1>
           <p className="text-sm text-gray-500 mt-1.5 flex items-center gap-1.5">
@@ -176,7 +176,7 @@ export default function Roles({ roles, allPermissions, filters }) {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg active:scale-95"
+          className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg active:scale-95"
         >
           <Plus className="w-4.5 h-4.5" /> {lang === 'bn' ? 'নতুন রোল' : 'New Role'}
         </button>
@@ -184,7 +184,7 @@ export default function Roles({ roles, allPermissions, filters }) {
 
       <div className="space-y-4">
         {rolesData.map((role) => (
-          <div key={role.id} className={`bg-white border rounded-2xl shadow-sm transition-all overflow-hidden ${expandedRole === role.name ? 'border-[#e8001e] ring-4 ring-red-50' : 'border-gray-100 hover:border-gray-200'}`}>
+          <div key={role.id} className={`bg-white border rounded-2xl shadow-sm transition-all overflow-hidden ${expandedRole === role.name ? 'border-[#263238] ring-4 ring-red-50' : 'border-gray-100 hover:border-gray-200'}`}>
             <div 
               className="flex items-center gap-4 px-6 py-5 cursor-pointer"
               onClick={() => toggleRole(role)}
@@ -203,7 +203,7 @@ export default function Roles({ roles, allPermissions, filters }) {
                   {role.name === 'super_admin' && <Lock size={14} className="text-gray-300" />}
                 </div>
                 <div className="flex items-center gap-4 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                  <span className="flex items-center gap-1.5"><Shield size={12} className="text-[#e8001e]" /> {role.permission_count} {lang === 'bn' ? 'পারমিশন' : 'Permissions'}</span>
+                  <span className="flex items-center gap-1.5"><Shield size={12} className="text-[#263238]" /> {role.permission_count} {lang === 'bn' ? 'পারমিশন' : 'Permissions'}</span>
                   <span className="flex items-center gap-1.5"><Users size={12} className="text-blue-500" /> {role.user_count} {lang === 'bn' ? 'ব্যবহারকারী' : 'Users'}</span>
                   <span className="flex items-center gap-1.5"><Settings size={12} className="text-orange-500" /> {lang === 'bn' ? 'লেভেল' : 'Level'} {role.level}</span>
                 </div>
@@ -219,12 +219,12 @@ export default function Roles({ roles, allPermissions, filters }) {
                 {role.name !== 'super_admin' && (
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(role); }}
-                    className="p-2.5 rounded-xl hover:bg-red-50 text-gray-400 hover:text-[#e8001e] transition-all"
+                    className="p-2.5 rounded-xl hover:bg-red-50 text-gray-400 hover:text-[#263238] transition-all"
                   >
                     <Trash2 size={18} />
                   </button>
                 )}
-                <div className={`p-2 rounded-lg transition-transform duration-300 ${expandedRole === role.name ? 'rotate-180 bg-red-50 text-[#e8001e]' : 'text-gray-300'}`}>
+                <div className={`p-2 rounded-lg transition-transform duration-300 ${expandedRole === role.name ? 'rotate-180 bg-red-50 text-[#263238]' : 'text-gray-300'}`}>
                    <ChevronDown size={20} />
                 </div>
               </div>
@@ -238,18 +238,18 @@ export default function Roles({ roles, allPermissions, filters }) {
                       {selectedCount} / {totalPerms} {lang === 'bn' ? 'টি পারমিশন নির্বাচিত' : 'permissions selected'}
                     </div>
                     <div className="h-1.5 w-32 bg-gray-100 rounded-full overflow-hidden">
-                       <div className="h-full bg-[#e8001e] transition-all duration-500" style={{ width: `${(selectedCount / totalPerms) * 100}%` }} />
+                       <div className="h-full bg-[#263238] transition-all duration-500" style={{ width: `${(selectedCount / totalPerms) * 100}%` }} />
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-3">
-                    <button onClick={() => { const all = {}; Object.values(allPermissions).flat().forEach(p => all[p.name] = true); setSelectedPermissions(all); }} className="text-xs font-bold text-[#e8001e] hover:underline uppercase tracking-tight">{t('selectAll')}</button>
+                    <button onClick={() => { const all = {}; Object.values(allPermissions).flat().forEach(p => all[p.name] = true); setSelectedPermissions(all); }} className="text-xs font-bold text-[#263238] hover:underline uppercase tracking-tight">{t('selectAll')}</button>
                     <span className="w-1 h-1 rounded-full bg-gray-300"></span>
                     <button onClick={() => setSelectedPermissions({})} className="text-xs font-bold text-gray-400 hover:underline uppercase tracking-tight">{t('deselectAll')}</button>
                     <button
                       onClick={() => handleSavePermissions(role)}
                       disabled={saving || role.name === 'super_admin'}
-                      className="ml-4 bg-[#e8001e] text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-[#b8001a] shadow-lg shadow-red-100 transition-all active:scale-95 disabled:opacity-30 flex items-center gap-2"
+                      className="ml-4 bg-[#263238] text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-[#1a2428] shadow-lg shadow-red-100 transition-all active:scale-95 disabled:opacity-30 flex items-center gap-2"
                     >
                       <Save size={14} />
                       {saving ? '...' : (lang === 'bn' ? 'সেভ করুন' : 'Save Changes')}
@@ -278,7 +278,7 @@ export default function Roles({ roles, allPermissions, filters }) {
                                onClick={() => toggleGroup(group)}
                              >
                                <span className="text-[11px] font-bold text-gray-900 uppercase tracking-widest flex items-center gap-2">
-                                  {expandedGroups[group] ? <ChevronDown size={14} className="text-[#e8001e]" /> : <ChevronRight size={14} />}
+                                  {expandedGroups[group] ? <ChevronDown size={14} className="text-[#263238]" /> : <ChevronRight size={14} />}
                                   {getGroupLabel(group)}
                                </span>
                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -296,7 +296,7 @@ export default function Roles({ roles, allPermissions, filters }) {
                                             type="checkbox" 
                                             checked={!!selectedPermissions[p.name]}
                                             onChange={() => togglePermission(p.name)}
-                                            className="w-4.5 h-4.5 rounded-md border-gray-200 text-[#e8001e] focus:ring-[#e8001e] transition-all" 
+                                            className="w-4.5 h-4.5 rounded-md border-gray-200 text-[#263238] focus:ring-[#263238] transition-all" 
                                           />
                                        </div>
                                        <span className={`text-xs font-medium transition-colors ${selectedPermissions[p.name] ? 'text-gray-900 font-bold' : 'text-gray-500'}`}>
@@ -323,7 +323,7 @@ export default function Roles({ roles, allPermissions, filters }) {
            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
               <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
                  <h3 className="text-xl font-bold flex items-center gap-2">
-                    <Plus className="text-[#e8001e]" size={22} />
+                    <Plus className="text-[#263238]" size={22} />
                     {lang === 'bn' ? 'নতুন রোল যুক্ত করুন' : 'Create New Role'}
                  </h3>
                  <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={20} /></button>
@@ -331,23 +331,23 @@ export default function Roles({ roles, allPermissions, filters }) {
               <div className="p-8 space-y-5">
                  <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'সিস্টেম নাম (ইংরেজি)' : 'System Name'} *</label>
-                    <input type="text" value={createForm.name} onChange={e => setCreateForm({...createForm, name: e.target.value.toLowerCase().replace(/\s+/g, '_')})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e] font-mono" placeholder="e.g. news_editor" />
+                    <input type="text" value={createForm.name} onChange={e => setCreateForm({...createForm, name: e.target.value.toLowerCase().replace(/\s+/g, '_')})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238] font-mono" placeholder="e.g. news_editor" />
                  </div>
                  <div className="grid grid-cols-2 gap-4">
                     <div>
                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'লেবেল (EN)' : 'Label (EN)'} *</label>
-                       <input type="text" value={createForm.label_en} onChange={e => setCreateForm({...createForm, label_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                       <input type="text" value={createForm.label_en} onChange={e => setCreateForm({...createForm, label_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                     </div>
                     <div>
                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'লেবেল (BN)' : 'Label (BN)'} *</label>
-                       <input type="text" value={createForm.label_bn} onChange={e => setCreateForm({...createForm, label_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                       <input type="text" value={createForm.label_bn} onChange={e => setCreateForm({...createForm, label_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                     </div>
                  </div>
                  <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'লেভেল' : 'Access Level'} (0-10)</label>
-                    <input type="number" value={createForm.level} onChange={e => setCreateForm({...createForm, level: parseInt(e.target.value)})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" min={0} max={10} />
+                    <input type="number" value={createForm.level} onChange={e => setCreateForm({...createForm, level: parseInt(e.target.value)})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" min={0} max={10} />
                  </div>
-                 <button onClick={handleCreateRole} disabled={saving} className="w-full bg-[#e8001e] text-white rounded-2xl py-4 text-base font-bold shadow-lg shadow-red-100 transition-all hover:bg-[#b8001a] active:scale-95 disabled:opacity-50">
+                 <button onClick={handleCreateRole} disabled={saving} className="w-full bg-[#263238] text-white rounded-2xl py-4 text-base font-bold shadow-lg shadow-red-100 transition-all hover:bg-[#1a2428] active:scale-95 disabled:opacity-50">
                     {saving ? '...' : (lang === 'bn' ? 'রোল তৈরি করুন' : 'Create Role')}
                  </button>
               </div>
@@ -370,16 +370,16 @@ export default function Roles({ roles, allPermissions, filters }) {
                  <div className="grid grid-cols-2 gap-4">
                     <div>
                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'লেবেল (EN)' : 'Label (EN)'} *</label>
-                       <input type="text" value={editForm.label_en} onChange={e => setEditForm({...editForm, label_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                       <input type="text" value={editForm.label_en} onChange={e => setEditForm({...editForm, label_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                     </div>
                     <div>
                        <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'লেবেল (BN)' : 'Label (BN)'} *</label>
-                       <input type="text" value={editForm.label_bn} onChange={e => setEditForm({...editForm, label_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                       <input type="text" value={editForm.label_bn} onChange={e => setEditForm({...editForm, label_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                     </div>
                  </div>
                  <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'লেভেল' : 'Access Level'} (0-10)</label>
-                    <input type="number" value={editForm.level} onChange={e => setEditForm({...editForm, level: parseInt(e.target.value)})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" min={0} max={10} />
+                    <input type="number" value={editForm.level} onChange={e => setEditForm({...editForm, level: parseInt(e.target.value)})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" min={0} max={10} />
                  </div>
                  <button onClick={handleSaveRole} disabled={saving} className="w-full bg-blue-600 text-white rounded-2xl py-4 text-base font-bold shadow-lg shadow-blue-100 transition-all hover:bg-blue-700 active:scale-95 disabled:opacity-50">
                     {saving ? '...' : (lang === 'bn' ? 'হালনাগাদ করুন' : 'Update Role')}

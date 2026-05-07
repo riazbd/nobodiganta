@@ -1,4 +1,4 @@
-import { TrendingUp, Trophy, DollarSign, BarChart2, CloudSun, Star, Clock, Moon, Thermometer, Wind, Droplets, MapPin } from 'lucide-react';
+﻿import { TrendingUp, Trophy, DollarSign, BarChart2, CloudSun, Star, Clock, Moon, Thermometer, Wind, Droplets, MapPin } from 'lucide-react';
 import { Badge } from '../feedback/Badge';
 
 export function StockWidget({ stocks = [], lang = 'bn' }) {
@@ -6,7 +6,7 @@ export function StockWidget({ stocks = [], lang = 'bn' }) {
     <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-gray-50 flex items-center justify-between">
         <h4 className="text-[12px] font-bold text-gray-700 flex items-center gap-2">
-          <TrendingUp size={14} className="text-[#e8001e]" /> {lang === 'bn' ? 'শেয়ার বাজার' : 'Stock Market'}
+          <TrendingUp size={14} className="text-[#263238]" /> {lang === 'bn' ? 'শেয়ার বাজার' : 'Stock Market'}
         </h4>
       </div>
       <div className="divide-y divide-gray-50">
@@ -34,14 +34,14 @@ export function CricketWidget({ matches = [], lang = 'bn' }) {
     <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-gray-50">
         <h4 className="text-[12px] font-bold text-gray-700 flex items-center gap-2">
-          <Trophy size={14} className="text-[#e8001e]" /> {lang === 'bn' ? 'লাইভ ক্রিকেট' : 'Live Cricket'}
+          <Trophy size={14} className="text-[#263238]" /> {lang === 'bn' ? 'লাইভ ক্রিকেট' : 'Live Cricket'}
         </h4>
       </div>
       <div className="p-4 space-y-4">
         {matches.map(m => (
           <div key={m.id} className="bg-gray-50 rounded-lg p-3">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-[10px] font-black text-[#e8001e] uppercase tracking-wider">{m.status}</span>
+              <span className="text-[10px] font-black text-[#263238] uppercase tracking-wider">{m.status}</span>
               <span className="text-[10px] text-gray-400 font-bold">{lang === 'bn' ? m.status_text_bn : m.status_text_en}</span>
             </div>
             <div className="space-y-2">
@@ -66,7 +66,7 @@ export function PriceWidget({ prices = [], lang = 'bn' }) {
     <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-gray-50">
         <h4 className="text-[12px] font-bold text-gray-700 flex items-center gap-2">
-          <DollarSign size={14} className="text-[#e8001e]" /> {lang === 'bn' ? 'বাজার দর' : 'Market Prices'}
+          <DollarSign size={14} className="text-[#263238]" /> {lang === 'bn' ? 'বাজার দর' : 'Market Prices'}
         </h4>
       </div>
       <div className="p-4 grid grid-cols-2 gap-3">
@@ -90,7 +90,7 @@ export function PollWidget({ poll, lang = 'bn' }) {
     <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-gray-50 flex items-center justify-between">
         <h4 className="text-[12px] font-bold text-gray-700 flex items-center gap-2">
-          <BarChart2 size={14} className="text-[#e8001e]" /> {lang === 'bn' ? 'জনমত জরিপ' : 'Current Poll'}
+          <BarChart2 size={14} className="text-[#263238]" /> {lang === 'bn' ? 'জনমত জরিপ' : 'Current Poll'}
         </h4>
         <Badge variant="green" className="!text-[9px]">LIVE</Badge>
       </div>
@@ -101,10 +101,10 @@ export function PollWidget({ poll, lang = 'bn' }) {
             <div key={opt.id}>
               <div className="flex justify-between text-[11px] mb-1">
                 <span className="font-bold text-gray-600">{lang === 'bn' ? opt.option_bn : opt.option_en}</span>
-                <span className="font-black text-[#e8001e]">{poll.total_votes > 0 ? Math.round(opt.votes / poll.total_votes * 100) : 0}%</span>
+                <span className="font-black text-[#263238]">{poll.total_votes > 0 ? Math.round(opt.votes / poll.total_votes * 100) : 0}%</span>
               </div>
               <div className="w-full bg-gray-100 rounded-full h-1">
-                <div className="bg-[#e8001e] h-full rounded-full transition-all duration-500" style={{ width: `${poll.total_votes > 0 ? (opt.votes / poll.total_votes * 100) : 0}%` }} />
+                <div className="bg-[#263238] h-full rounded-full transition-all duration-500" style={{ width: `${poll.total_votes > 0 ? (opt.votes / poll.total_votes * 100) : 0}%` }} />
               </div>
             </div>
           ))}
@@ -185,19 +185,19 @@ export function HoroscopeWidget({ horoscopes = [], lang = 'bn' }) {
     <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-gray-50">
         <h4 className="text-[12px] font-bold text-gray-700 flex items-center gap-2">
-          <Star size={14} className="text-[#e8001e]" /> {lang === 'bn' ? 'রাশিফল' : 'Horoscope'}
+          <Star size={14} className="text-[#263238]" /> {lang === 'bn' ? 'রাশিফল' : 'Horoscope'}
         </h4>
       </div>
       <div className="p-4 space-y-3">
         {horoscopes.slice(0, 2).map(h => (
           <div key={h.id} className="group">
-             <div className="text-[11px] font-black text-[#e8001e] uppercase tracking-wider mb-1">{lang === 'bn' ? h.sign_bn : h.sign}</div>
+             <div className="text-[11px] font-black text-[#263238] uppercase tracking-wider mb-1">{lang === 'bn' ? h.sign_bn : h.sign}</div>
              <p className="text-[10.5px] text-gray-600 line-clamp-2 leading-relaxed">
                 {lang === 'bn' ? h.prediction_bn : h.prediction_en}
              </p>
           </div>
         ))}
-        <button className="w-full text-[10px] font-bold text-gray-400 uppercase pt-2 border-t border-gray-50 hover:text-[#e8001e] transition-colors">View All Signs →</button>
+        <button className="w-full text-[10px] font-bold text-gray-400 uppercase pt-2 border-t border-gray-50 hover:text-[#263238] transition-colors">View All Signs →</button>
       </div>
     </div>
   );

@@ -23,22 +23,40 @@ return new class extends Migration
             $table->index(['category_id', 'is_primary']);
         });
 
+        $now = now()->toDateTimeString();
+
         // 2. Seed pivot from existing category_id (primary entries)
-        DB::statement("
-            INSERT INTO article_category (article_id, category_id, is_primary, sort_order, created_at, updated_at)
-            SELECT id, category_id, TRUE, 0, NOW(), NOW()
-            FROM articles
-            WHERE category_id IS NOT NULL
-        ");
+        DB::table('articles')
+            ->whereNotNull('category_id')
+            ->select('id', 'category_id')
+            ->orderBy('id')
+            ->each(function ($row) use ($now) {
+                DB::table('article_category')->insertOrIgnore([
+                    'article_id'  => $row->id,
+                    'category_id' => $row->category_id,
+                    'is_primary'  => true,
+                    'sort_order'  => 0,
+                    'created_at'  => $now,
+                    'updated_at'  => $now,
+                ]);
+            });
 
         // 3. Seed pivot from existing subcategory_id (secondary entries)
-        DB::statement("
-            INSERT INTO article_category (article_id, category_id, is_primary, sort_order, created_at, updated_at)
-            SELECT id, subcategory_id, FALSE, 1, NOW(), NOW()
-            FROM articles
-            WHERE subcategory_id IS NOT NULL
-            ON CONFLICT (article_id, category_id) DO NOTHING
-        ");
+        // insertOrIgnore() skips duplicates on both MySQL and PostgreSQL
+        DB::table('articles')
+            ->whereNotNull('subcategory_id')
+            ->select('id', 'subcategory_id')
+            ->orderBy('id')
+            ->each(function ($row) use ($now) {
+                DB::table('article_category')->insertOrIgnore([
+                    'article_id'  => $row->id,
+                    'category_id' => $row->subcategory_id,
+                    'is_primary'  => false,
+                    'sort_order'  => 1,
+                    'created_at'  => $now,
+                    'updated_at'  => $now,
+                ]);
+            });
 
         // 4. Drop subcategory_id column
         Schema::table('articles', function (Blueprint $table) {
@@ -60,17 +78,20 @@ return new class extends Migration
             $table->index(['subcategory_id', 'status']);
         });
 
-        // Restore subcategory_id from pivot (first non-primary category per article)
-        DB::statement("
-            UPDATE articles SET subcategory_id = ac.category_id
-            FROM (
-                SELECT DISTINCT ON (article_id) article_id, category_id
-                FROM article_category
-                WHERE is_primary = FALSE
-                ORDER BY article_id, sort_order
-            ) ac
-            WHERE articles.id = ac.article_id AND articles.subcategory_id IS NULL
-        ");
+        // Restore subcategory_id from pivot (lowest sort_order non-primary per article)
+        DB::table('article_category')
+            ->where('is_primary', false)
+            ->orderBy('article_id')
+            ->orderBy('sort_order')
+            ->select('article_id', 'category_id')
+            ->get()
+            ->unique('article_id')
+            ->each(function ($row) {
+                DB::table('articles')
+                    ->where('id', $row->article_id)
+                    ->whereNull('subcategory_id')
+                    ->update(['subcategory_id' => $row->category_id]);
+            });
 
         Schema::dropIfExists('article_category');
     }

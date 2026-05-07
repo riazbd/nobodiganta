@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { CalendarDays, Plus, Search, X as XIcon, User, Clock, CheckCircle, ClipboardList } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -29,7 +29,7 @@ export default function AssignmentBoard() {
   };
 
   const priorityMap = {
-    high: { bn: 'জরুরি', en: 'Urgent', color: '#e8001e' },
+    high: { bn: 'জরুরি', en: 'Urgent', color: '#263238' },
     medium: { bn: 'মাঝারি', en: 'Medium', color: '#f59e0b' },
     low: { bn: 'নিম্ন', en: 'Low', color: '#3b82f6' },
   };
@@ -39,12 +39,12 @@ export default function AssignmentBoard() {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
-            <ClipboardList className="w-5 h-5 text-[#e8001e]" />
+            <ClipboardList className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'অ্যাসাইনমেন্ট বোর্ড' : 'Assignment Board'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'সাংবাদিকদের কাজ বরাদ্দ ও ট্র্যাকিং' : 'Reporter task assignment and tracking'}</p>
         </div>
-        <button onClick={() => showToast(lang === 'bn' ? 'নতুন অ্যাসাইনমেন্ট যোগ করুন' : 'Add new assignment')} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
+        <button onClick={() => showToast(lang === 'bn' ? 'নতুন অ্যাসাইনমেন্ট যোগ করুন' : 'Add new assignment')} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
           <Plus className="w-4 h-4" /> {lang === 'bn' ? 'নতুন অ্যাসাইনমেন্ট' : 'New Assignment'}
         </button>
       </div>
@@ -59,7 +59,7 @@ export default function AssignmentBoard() {
           const priority = priorityMap[a.priority];
           return (
             <div key={a.id} className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#263238] to-[#ff6b6b] flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
                 {(lang === 'bn' ? a.reporter : a.reporterEn).charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
@@ -74,7 +74,7 @@ export default function AssignmentBoard() {
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: priority.color }} title={lang === 'bn' ? priority.bn : priority.en} />
               </div>
               {a.status === 'pending' && (
-                <button onClick={() => { setAssignments(assignments.map(x => x.id === a.id ? { ...x, status: 'in_progress' } : x)); showToast(lang === 'bn' ? 'শুরু হয়েছে' : 'Started'); }} className="bg-[#e8001e] text-white text-[11px] font-semibold px-3 py-1.5 rounded-md hover:bg-[#b8001a] transition-colors">
+                <button onClick={() => { setAssignments(assignments.map(x => x.id === a.id ? { ...x, status: 'in_progress' } : x)); showToast(lang === 'bn' ? 'শুরু হয়েছে' : 'Started'); }} className="bg-[#263238] text-white text-[11px] font-semibold px-3 py-1.5 rounded-md hover:bg-[#1a2428] transition-colors">
                   {lang === 'bn' ? 'শুরু করুন' : 'Start'}
                 </button>
               )}

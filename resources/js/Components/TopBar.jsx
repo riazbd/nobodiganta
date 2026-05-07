@@ -30,9 +30,12 @@ export default function TopBar() {
   const { auth } = usePage().props;
 
   const handleEdition = (ed) => {
+    if (ed === lang) return;
     const path = window.location.pathname;
-    if (ed === 'en') router.visit(path === '/' ? '/en' : `/en${path}`);
-    else router.visit(path.replace(/^\/en/, '') || '/');
+    const target = ed === 'en'
+      ? (path === '/' ? '/en' : `/en${path}`)
+      : (path.replace(/^\/en/, '') || '/');
+    window.location.href = target;
   };
 
   const socials = [
@@ -96,11 +99,13 @@ export default function TopBar() {
             <button
               className={`tb-ed-btn${lang === 'bn' ? ' active' : ''}`}
               onClick={() => handleEdition('bn')}
+              disabled={lang === 'bn'}
               aria-pressed={lang === 'bn'}
             >বাংলা</button>
             <button
               className={`tb-ed-btn${lang === 'en' ? ' active' : ''}`}
               onClick={() => handleEdition('en')}
+              disabled={lang === 'en'}
               aria-pressed={lang === 'en'}
             >EN</button>
           </div>

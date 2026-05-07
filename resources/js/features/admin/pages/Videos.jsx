@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Video, Play, Eye, Trash2, Edit3, Plus, Search, X, Loader2, Image as ImageIcon } from 'lucide-react';
 import { Badge } from '../components/feedback/Badge';
 import { useLanguage } from '../hooks/useLanguage';
@@ -144,7 +144,7 @@ export default function Videos({ initialVideos = [], filters = {} }) {
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)]">🎬 {lang === 'bn' ? 'ভিডিও ব্যবস্থাপনা' : 'Video Management'}</h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{localVideos.length} {lang === 'bn' ? 'টি ভিডিও' : 'videos'}</p>
         </div>
-        <button onClick={handleOpenCreate} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
+        <button onClick={handleOpenCreate} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
           <Plus className="w-4 h-4" /> {lang === 'bn' ? 'নতুন ভিডিও' : 'New Video'}
         </button>
       </div>
@@ -168,7 +168,7 @@ export default function Videos({ initialVideos = [], filters = {} }) {
               key={ed.value}
               onClick={() => setEditionFilter(ed.value)}
               className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
-                editionFilter === ed.value ? 'bg-[#e8001e] text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'
+                editionFilter === ed.value ? 'bg-[#263238] text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'
               }`}
             >
               {ed.label}
@@ -190,7 +190,7 @@ export default function Videos({ initialVideos = [], filters = {} }) {
               )}
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={() => window.open(video.video_url, '_blank')}>
                 <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                  <Play className="w-5 h-5 text-[#e8001e] ml-0.5" />
+                  <Play className="w-5 h-5 text-[#263238] ml-0.5" />
                 </div>
               </div>
               <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
@@ -213,7 +213,7 @@ export default function Videos({ initialVideos = [], filters = {} }) {
                   <button onClick={() => handleOpenEdit(video)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors" title={lang === 'bn' ? 'সম্পাদনা' : 'Edit'}>
                     <Edit3 className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleDelete(video.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-[#e8001e] transition-colors" title={lang === 'bn' ? 'মুছে ফেলুন' : 'Delete'}>
+                  <button onClick={() => handleDelete(video.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-[#263238] transition-colors" title={lang === 'bn' ? 'মুছে ফেলুন' : 'Delete'}>
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -236,13 +236,13 @@ export default function Videos({ initialVideos = [], filters = {} }) {
               {(formData.edition === 'both' || formData.edition === 'bn') && (
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{lang === 'bn' ? 'শিরোনাম (বাংলা)' : 'Title (BN)'}</label>
-                  <input required type="text" value={formData.titleBn} onChange={e => setFormData({...formData, titleBn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#e8001e] outline-none" />
+                  <input required type="text" value={formData.titleBn} onChange={e => setFormData({...formData, titleBn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#263238] outline-none" />
                 </div>
               )}
               {(formData.edition === 'both' || formData.edition === 'en') && (
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{lang === 'bn' ? 'শিরোনাম (ইংরেজি)' : 'Title (EN)'}</label>
-                  <input required type="text" value={formData.titleEn} onChange={e => setFormData({...formData, titleEn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#e8001e] outline-none" />
+                  <input required type="text" value={formData.titleEn} onChange={e => setFormData({...formData, titleEn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#263238] outline-none" />
                 </div>
               )}
               <div>
@@ -256,14 +256,14 @@ export default function Videos({ initialVideos = [], filters = {} }) {
                     const provider = detectVideoProvider(url);
                     setFormData({...formData, videoUrl: url, videoProvider: provider});
                   }} 
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#e8001e] outline-none" 
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#263238] outline-none" 
                   placeholder="Paste video URL..." 
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{lang === 'bn' ? 'ভিডিওর দৈর্ঘ্য' : 'Duration (e.g. 05:20)'}</label>
-                <input type="text" value={formData.videoDuration} onChange={e => setFormData({...formData, videoDuration: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#e8001e] outline-none" placeholder="00:00" />
+                <input type="text" value={formData.videoDuration} onChange={e => setFormData({...formData, videoDuration: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#263238] outline-none" placeholder="00:00" />
               </div>
 
               <div>
@@ -293,7 +293,7 @@ export default function Videos({ initialVideos = [], filters = {} }) {
                       type="button"
                       onClick={() => setFormData({ ...formData, edition: ed.value })}
                       className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
-                        formData.edition === ed.value ? 'bg-white shadow-sm text-[#e8001e]' : 'text-gray-400 hover:text-gray-600'
+                        formData.edition === ed.value ? 'bg-white shadow-sm text-[#263238]' : 'text-gray-400 hover:text-gray-600'
                       }`}
                     >
                       {ed.label}
@@ -322,7 +322,7 @@ export default function Videos({ initialVideos = [], filters = {} }) {
 
               <div className="flex gap-3 pt-4">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50">{lang === 'bn' ? 'বাতিল' : 'Cancel'}</button>
-                <button type="submit" disabled={loading} className="flex-[2] py-3 bg-[#e8001e] text-white rounded-xl text-sm font-bold shadow-lg shadow-red-50 hover:bg-[#b8001a] disabled:opacity-50 flex items-center justify-center gap-2">
+                <button type="submit" disabled={loading} className="flex-[2] py-3 bg-[#263238] text-white rounded-xl text-sm font-bold shadow-lg shadow-red-50 hover:bg-[#1a2428] disabled:opacity-50 flex items-center justify-center gap-2">
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (lang === 'bn' ? 'সংরক্ষণ করুন' : 'Save Video')}
                 </button>
               </div>

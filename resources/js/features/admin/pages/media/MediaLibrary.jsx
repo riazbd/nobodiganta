@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Upload, Image, Trash2, Grid, List, Search, X, Plus, Copy, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -170,7 +170,7 @@ export default function MediaLibrary({ onSelect = null }) {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
-            <Image className="w-5 h-5 text-[#e8001e]" />
+            <Image className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'মিডিয়া লাইব্রেরি' : 'Media Library'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{pagination.total || 0} {lang === 'bn' ? 'টি মিডিয়া' : 'media items'}</p>
@@ -178,20 +178,20 @@ export default function MediaLibrary({ onSelect = null }) {
         <div className="flex items-center gap-2.5">
           <button 
             onClick={toggleSelectAll} 
-            className={`px-3 py-2 text-[12px] font-medium border rounded-lg transition-colors ${selectedItems.length === media.length && media.length > 0 ? 'bg-[#e8001e] text-white border-[#e8001e]' : 'bg-white text-gray-600 border-[var(--card-border,#e8ebf4)] hover:bg-gray-50'}`}
+            className={`px-3 py-2 text-[12px] font-medium border rounded-lg transition-colors ${selectedItems.length === media.length && media.length > 0 ? 'bg-[#263238] text-white border-[#263238]' : 'bg-white text-gray-600 border-[var(--card-border,#e8ebf4)] hover:bg-gray-50'}`}
           >
             {selectedItems.length === media.length && media.length > 0 ? (lang === 'bn' ? 'সব দেশিলেক্ট করুন' : 'Deselect All') : (lang === 'bn' ? 'সব সিলেক্ট করুন' : 'Select All')}
           </button>
           {selectedItems.length > 0 && (
-            <button onClick={handleBulkDelete} className="bg-red-50 text-[#e8001e] border border-red-100 rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-red-100 transition-colors">
+            <button onClick={handleBulkDelete} className="bg-red-50 text-[#263238] border border-red-100 rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-red-100 transition-colors">
               <Trash2 className="w-4 h-4" /> {lang === 'bn' ? 'মুছে ফেলুন' : 'Delete'} ({selectedItems.length})
             </button>
           )}
           <div className="flex border border-[var(--card-border,#e8ebf4)] rounded-md overflow-hidden">
-            <button onClick={() => setViewMode('grid')} className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-[#e8001e] text-white' : 'bg-white text-[var(--text-muted,#9ca3af)]'}`}><Grid className="w-4 h-4" /></button>
-            <button onClick={() => setViewMode('list')} className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-[#e8001e] text-white' : 'bg-white text-[var(--text-muted,#9ca3af)]'}`}><List className="w-4 h-4" /></button>
+            <button onClick={() => setViewMode('grid')} className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-[#263238] text-white' : 'bg-white text-[var(--text-muted,#9ca3af)]'}`}><Grid className="w-4 h-4" /></button>
+            <button onClick={() => setViewMode('list')} className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-[#263238] text-white' : 'bg-white text-[var(--text-muted,#9ca3af)]'}`}><List className="w-4 h-4" /></button>
           </div>
-          <button onClick={() => setShowUploadModal(true)} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
+          <button onClick={() => setShowUploadModal(true)} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
             <Upload className="w-4 h-4" /> {lang === 'bn' ? 'আপলোড' : 'Upload'}
           </button>
         </div>
@@ -207,7 +207,7 @@ export default function MediaLibrary({ onSelect = null }) {
               onClick={() => setEditionFilter(ed.value)}
               className={`px-3 py-1.5 rounded-md text-[11px] font-medium transition-all ${
                 editionFilter === ed.value
-                  ? 'bg-[#e8001e] text-white'
+                  ? 'bg-[#263238] text-white'
                   : 'text-[var(--text-muted,#9ca3af)] hover:bg-gray-50'
               }`}
             >
@@ -220,7 +220,7 @@ export default function MediaLibrary({ onSelect = null }) {
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="px-3 py-1.5 text-[12px] border border-[var(--card-border,#e8ebf4)] rounded-lg bg-white focus:outline-none focus:border-[#e8001e]"
+          className="px-3 py-1.5 text-[12px] border border-[var(--card-border,#e8ebf4)] rounded-lg bg-white focus:outline-none focus:border-[#263238]"
         >
           {TYPES.map((t) => (
             <option key={t.value} value={t.value}>{t.label}</option>
@@ -244,7 +244,7 @@ export default function MediaLibrary({ onSelect = null }) {
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {media.map(item => (
-            <div key={item.id} className={`group relative rounded-lg overflow-hidden bg-white border cursor-pointer transition-all ${selectedItems.includes(item.id) ? 'ring-2 ring-[#e8001e] border-transparent shadow-md' : 'border-[var(--card-border,#e8ebf4)]'}`} onClick={() => setSelectedMedia(item)}>
+            <div key={item.id} className={`group relative rounded-lg overflow-hidden bg-white border cursor-pointer transition-all ${selectedItems.includes(item.id) ? 'ring-2 ring-[#263238] border-transparent shadow-md' : 'border-[var(--card-border,#e8ebf4)]'}`} onClick={() => setSelectedMedia(item)}>
               {item.mime_type?.startsWith('image/') ? (
                 <img src={item.thumbnail_url} alt={lang === 'bn' ? (item.alt_text_bn || item.original_name) : (item.alt_text_en || item.original_name)} className="w-full h-32 object-cover transition-transform group-hover:scale-105" />
               ) : (
@@ -255,7 +255,7 @@ export default function MediaLibrary({ onSelect = null }) {
               
               <button 
                 onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }} 
-                className={`absolute top-2 left-2 w-5 h-5 rounded border-2 transition-all flex items-center justify-center z-10 ${selectedItems.includes(item.id) ? 'bg-[#e8001e] border-[#e8001e] text-white' : 'bg-white/80 border-white/50 opacity-0 group-hover:opacity-100'}`}
+                className={`absolute top-2 left-2 w-5 h-5 rounded border-2 transition-all flex items-center justify-center z-10 ${selectedItems.includes(item.id) ? 'bg-[#263238] border-[#263238] text-white' : 'bg-white/80 border-white/50 opacity-0 group-hover:opacity-100'}`}
               >
                 {selectedItems.includes(item.id) && <Plus className="w-3.5 h-3.5 rotate-45" />}
               </button>
@@ -267,8 +267,8 @@ export default function MediaLibrary({ onSelect = null }) {
                   <div className="text-white/70 text-[10px] mt-0.5">{item.formatted_size || item.file_size}</div>
                 </div>
               </div>
-              <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} className="absolute top-2 right-2 p-1.5 bg-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#fff0f2] z-10">
-                <Trash2 className="w-3.5 h-3.5 text-[#e8001e]" />
+              <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }} className="absolute top-2 right-2 p-1.5 bg-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#eceff1] z-10">
+                <Trash2 className="w-3.5 h-3.5 text-[#263238]" />
               </button>
             </div>
           ))}
@@ -296,7 +296,7 @@ export default function MediaLibrary({ onSelect = null }) {
                         checked={selectedItems.includes(item.id)} 
                         onChange={(e) => { e.stopPropagation(); toggleSelect(item.id); }} 
                         onClick={(e) => e.stopPropagation()}
-                        className="rounded border-gray-300 text-[#e8001e] focus:ring-[#e8001e]" 
+                        className="rounded border-gray-300 text-[#263238] focus:ring-[#263238]" 
                       />
                       {item.mime_type?.startsWith('image/') ? (
                         <img src={item.thumbnail_url} alt="" className="w-12 h-8 object-cover rounded" />
@@ -319,8 +319,8 @@ export default function MediaLibrary({ onSelect = null }) {
                       <a href={item.url} target="_blank" rel="noopener" className="p-1.5 rounded-md hover:bg-gray-100 transition-colors" title={lang === 'bn' ? 'দেখুন' : 'View'}>
                         <ExternalLink className="w-3.5 h-3.5 text-gray-500" />
                       </a>
-                      <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded-md hover:bg-[#fff0f2] transition-colors">
-                        <Trash2 className="w-3.5 h-3.5 text-[#e8001e]" />
+                      <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded-md hover:bg-[#eceff1] transition-colors">
+                        <Trash2 className="w-3.5 h-3.5 text-[#263238]" />
                       </button>
                     </div>
                   </td>
@@ -339,7 +339,7 @@ export default function MediaLibrary({ onSelect = null }) {
               key={i}
               onClick={() => link.url && router.get(link.url)}
               disabled={!link.url}
-              className={`px-3 py-1.5 rounded-md text-sm ${link.active ? 'bg-[#e8001e] text-white' : 'bg-white border border-[var(--card-border,#e8ebf4)] text-gray-600 hover:bg-gray-50'} ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`px-3 py-1.5 rounded-md text-sm ${link.active ? 'bg-[#263238] text-white' : 'bg-white border border-[var(--card-border,#e8ebf4)] text-gray-600 hover:bg-gray-50'} ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
               dangerouslySetInnerHTML={{ __html: link.label }}
             />
           ))}
@@ -429,7 +429,7 @@ export default function MediaLibrary({ onSelect = null }) {
                     <div className="flex gap-2 pt-4">
                       <button onClick={() => startEditing(selectedMedia)} className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">{lang === 'bn' ? 'এডিট করুন' : 'Edit'}</button>
                       {onSelect && (
-                        <button onClick={() => { onSelect(selectedMedia); setSelectedMedia(null); }} className="flex-[2] py-2 bg-[#e8001e] text-white rounded-lg text-sm font-semibold hover:bg-[#b8001a] transition-colors">{lang === 'bn' ? 'নির্বাচন করুন' : 'Select'}</button>
+                        <button onClick={() => { onSelect(selectedMedia); setSelectedMedia(null); }} className="flex-[2] py-2 bg-[#263238] text-white rounded-lg text-sm font-semibold hover:bg-[#1a2428] transition-colors">{lang === 'bn' ? 'নির্বাচন করুন' : 'Select'}</button>
                       )}
                     </div>
                   </>
@@ -437,37 +437,37 @@ export default function MediaLibrary({ onSelect = null }) {
                   <form onSubmit={handleUpdate} className="space-y-3 font-['Noto_Sans_Bengali']">
                     <div>
                       <label className="block text-xs font-medium mb-1">{lang === 'bn' ? 'অল্ট টেক্সট (বাংলা)' : 'Alt Text (BN)'}</label>
-                      <input type="text" value={editData.alt_text_bn} onChange={e => setEditData({...editData, alt_text_bn: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#e8001e] outline-none" />
+                      <input type="text" value={editData.alt_text_bn} onChange={e => setEditData({...editData, alt_text_bn: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#263238] outline-none" />
                     </div>
                     <div>
                       <label className="block text-xs font-medium mb-1">{lang === 'bn' ? 'অল্ট টেক্সট (ইংরেজি)' : 'Alt Text (EN)'}</label>
-                      <input type="text" value={editData.alt_text_en} onChange={e => setEditData({...editData, alt_text_en: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#e8001e] outline-none" />
+                      <input type="text" value={editData.alt_text_en} onChange={e => setEditData({...editData, alt_text_en: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#263238] outline-none" />
                     </div>
                     <div>
                       <label className="block text-xs font-medium mb-1">{lang === 'bn' ? 'ক্যাপশন (বাংলা)' : 'Caption (BN)'}</label>
-                      <textarea value={editData.caption_bn} onChange={e => setEditData({...editData, caption_bn: e.target.value})} rows={2} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#e8001e] outline-none" />
+                      <textarea value={editData.caption_bn} onChange={e => setEditData({...editData, caption_bn: e.target.value})} rows={2} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#263238] outline-none" />
                     </div>
                     <div>
                       <label className="block text-xs font-medium mb-1">{lang === 'bn' ? 'ক্যাপশন (ইংরেজি)' : 'Caption (EN)'}</label>
-                      <textarea value={editData.caption_en} onChange={e => setEditData({...editData, caption_en: e.target.value})} rows={2} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#e8001e] outline-none" />
+                      <textarea value={editData.caption_en} onChange={e => setEditData({...editData, caption_en: e.target.value})} rows={2} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#263238] outline-none" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-medium mb-1">{lang === 'bn' ? 'ক্রেডিট (বাংলা)' : 'Credit (BN)'}</label>
-                        <input type="text" value={editData.credit_bn} onChange={e => setEditData({...editData, credit_bn: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#e8001e] outline-none" />
+                        <input type="text" value={editData.credit_bn} onChange={e => setEditData({...editData, credit_bn: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#263238] outline-none" />
                       </div>
                       <div>
                         <label className="block text-xs font-medium mb-1">{lang === 'bn' ? 'ক্রেডিট (ইংরেজি)' : 'Credit (EN)'}</label>
-                        <input type="text" value={editData.credit_en} onChange={e => setEditData({...editData, credit_en: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#e8001e] outline-none" />
+                        <input type="text" value={editData.credit_en} onChange={e => setEditData({...editData, credit_en: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#263238] outline-none" />
                       </div>
                     </div>
                     <div>
                       <label className="block text-xs font-medium mb-1">{lang === 'bn' ? 'সোর্স লিঙ্ক' : 'Source Link'}</label>
-                      <input type="text" value={editData.source_link} onChange={e => setEditData({...editData, source_link: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#e8001e] outline-none" />
+                      <input type="text" value={editData.source_link} onChange={e => setEditData({...editData, source_link: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#263238] outline-none" />
                     </div>
                     <div>
                       <label className="block text-xs font-medium mb-1">{lang === 'bn' ? 'লাইসেন্স' : 'License'}</label>
-                      <select value={editData.license_type} onChange={e => setEditData({...editData, license_type: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#e8001e] outline-none">
+                      <select value={editData.license_type} onChange={e => setEditData({...editData, license_type: e.target.value})} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 text-sm focus:border-[#263238] outline-none">
                         <option value="internal">Internal / Staff</option>
                         <option value="creative_commons">Creative Commons</option>
                         <option value="stock">Stock Photo (Licensed)</option>
@@ -483,7 +483,7 @@ export default function MediaLibrary({ onSelect = null }) {
                             type="button"
                             onClick={() => setEditData({ ...editData, edition: ed.value })}
                             className={`px-3 py-1.5 rounded-md text-[10px] font-medium transition-all ${
-                              editData.edition === ed.value ? 'bg-[#e8001e] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              editData.edition === ed.value ? 'bg-[#263238] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                           >
                             {ed.label}
@@ -499,7 +499,7 @@ export default function MediaLibrary({ onSelect = null }) {
                 )}
                 
                 <div className="pt-4 border-t border-gray-100">
-                   <button onClick={() => handleDelete(selectedMedia.id)} className="w-full flex items-center justify-center gap-1.5 py-2 text-[#e8001e] text-sm font-semibold hover:bg-[#fff0f2] rounded-lg transition-colors">
+                   <button onClick={() => handleDelete(selectedMedia.id)} className="w-full flex items-center justify-center gap-1.5 py-2 text-[#263238] text-sm font-semibold hover:bg-[#eceff1] rounded-lg transition-colors">
                      <Trash2 className="w-4 h-4" /> {lang === 'bn' ? 'মুছে ফেলুন' : 'Delete Media'}
                    </button>
                 </div>
@@ -535,7 +535,7 @@ export default function MediaLibrary({ onSelect = null }) {
                       onClick={() => setUploadData({ ...uploadData, edition: ed.value })}
                       className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
                         uploadData.edition === ed.value
-                          ? 'bg-[#e8001e] text-white'
+                          ? 'bg-[#263238] text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                     >
@@ -596,7 +596,7 @@ export default function MediaLibrary({ onSelect = null }) {
 
               <div className="flex justify-end gap-3">
                 <button type="button" onClick={() => setShowUploadModal(false)} className="px-4 py-2 border border-[var(--card-border,#e8ebf4)] rounded-lg text-sm hover:bg-gray-50">{lang === 'bn' ? 'বাতিল' : 'Cancel'}</button>
-                <button type="submit" disabled={uploading} className="px-4 py-2 bg-[#e8001e] text-white rounded-lg text-sm font-semibold hover:bg-[#b8001a] disabled:opacity-50">
+                <button type="submit" disabled={uploading} className="px-4 py-2 bg-[#263238] text-white rounded-lg text-sm font-semibold hover:bg-[#1a2428] disabled:opacity-50">
                   {uploading ? (lang === 'bn' ? 'আপলোড হচ্ছে...' : 'Uploading...') : (lang === 'bn' ? 'আপলোড করুন' : 'Upload')}
                 </button>
               </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { CreditCard, UserPlus, Search, X, Edit3, Trash2, Calendar, DollarSign, User as UserIcon, ShieldCheck, Clock, Filter, Check, MoreVertical } from 'lucide-react';
 import { Badge } from '../components/feedback/Badge';
 import { useLanguage } from '../hooks/useLanguage';
@@ -124,7 +124,7 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] font-['Noto_Sans_Bengali'] flex items-center gap-3">
-            <CreditCard className="w-7 h-7 text-[#e8001e]" /> 
+            <CreditCard className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'সদস্যপদ ব্যবস্থাপনা' : 'Subscription Management'}
           </h1>
           <div className="flex items-center gap-4 mt-2">
@@ -138,7 +138,7 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
              </div>
           </div>
         </div>
-        <button onClick={openAddModal} className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg active:scale-95">
+        <button onClick={openAddModal} className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg active:scale-95">
           <UserPlus className="w-4.5 h-4.5" /> {lang === 'bn' ? 'নতুন সদস্য' : 'Add Member'}
         </button>
       </div>
@@ -146,7 +146,7 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
          <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-5">
-            <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-[#e8001e]">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-[#263238]">
                <UserIcon size={24} />
             </div>
             <div>
@@ -175,7 +175,7 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-3 w-full max-w-md shadow-sm focus-within:border-[#e8001e] focus-within:ring-4 focus-within:ring-red-50 transition-all">
+        <div className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-3 w-full max-w-md shadow-sm focus-within:border-[#263238] focus-within:ring-4 focus-within:ring-red-50 transition-all">
           <Search className="w-4.5 h-4.5 text-gray-400" />
           <input 
             type="text" 
@@ -202,7 +202,7 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
            <select 
              value={statusFilter} 
              onChange={e => setStatusFilter(e.target.value)}
-             className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-[#e8001e]"
+             className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-[#263238]"
            >
               <option value="all">{lang === 'bn' ? 'সব অবস্থা' : 'All Status'}</option>
               <option value="active">{lang === 'bn' ? 'সক্রিয়' : 'Active'}</option>
@@ -233,7 +233,7 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
                         {sub.user?.name?.charAt(0) || 'U'}
                       </div>
                       <div>
-                        <div className="font-bold text-gray-900 text-sm group-hover:text-[#e8001e] transition-colors">{sub.user?.name}</div>
+                        <div className="font-bold text-gray-900 text-sm group-hover:text-[#263238] transition-colors">{sub.user?.name}</div>
                         <div className="text-[11px] text-gray-400 font-medium">{sub.user?.email}</div>
                       </div>
                     </div>
@@ -307,7 +307,7 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
                   onClick={() => router.get(link.url, { search: searchQuery, plan: planFilter, status: statusFilter }, { preserveState: true })}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     link.active 
-                    ? 'bg-[#e8001e] text-white shadow-md' 
+                    ? 'bg-[#263238] text-white shadow-md' 
                     : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-30'
                   }`}
                   dangerouslySetInnerHTML={{ __html: link.label }}
@@ -323,7 +323,7 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl my-8 transform transition-all animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
             <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
                <h3 className="text-xl font-bold flex items-center gap-2">
-                 <CreditCard className="text-[#e8001e]" size={22} />
+                 <CreditCard className="text-[#263238]" size={22} />
                  {editingSub ? (lang === 'bn' ? 'সদস্যপদ সম্পাদনা' : 'Edit Subscription') : (lang === 'bn' ? 'নতুন সদস্য যোগ' : 'Add New Subscription')}
                </h3>
                <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={20} /></button>
@@ -333,7 +333,7 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
                {!editingSub && (
                  <div className="mb-6">
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'ব্যবহারকারী' : 'User'} *</label>
-                    <select value={formData.user_id} onChange={e => setFormData({...formData, user_id: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]">
+                    <select value={formData.user_id} onChange={e => setFormData({...formData, user_id: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]">
                        <option value="">Select User</option>
                        {users.map(u => (
                          <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
@@ -345,7 +345,7 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'প্ল্যান' : 'Plan'}</label>
-                    <select value={formData.plan} onChange={e => setFormData({...formData, plan: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]">
+                    <select value={formData.plan} onChange={e => setFormData({...formData, plan: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]">
                        <option value="digital">Digital (Monthly)</option>
                        <option value="premium">Premium (Monthly)</option>
                        <option value="annual_digital">Digital (Annual)</option>
@@ -355,25 +355,25 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'মূল্য (টাকা)' : 'Price (BDT)'}</label>
-                    <input type="number" value={formData.price_bdt} onChange={e => setFormData({...formData, price_bdt: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="number" value={formData.price_bdt} onChange={e => setFormData({...formData, price_bdt: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'শুরু তারিখ' : 'Start Date'}</label>
-                    <input type="date" value={formData.starts_at} onChange={e => setFormData({...formData, starts_at: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="date" value={formData.starts_at} onChange={e => setFormData({...formData, starts_at: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'শেষ তারিখ' : 'End Date'}</label>
-                    <input type="date" value={formData.ends_at} onChange={e => setFormData({...formData, ends_at: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="date" value={formData.ends_at} onChange={e => setFormData({...formData, ends_at: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'পেমেন্ট মেথড' : 'Payment Method'}</label>
-                    <select value={formData.payment_method} onChange={e => setFormData({...formData, payment_method: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]">
+                    <select value={formData.payment_method} onChange={e => setFormData({...formData, payment_method: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]">
                        <option value="bkash">bKash</option>
                        <option value="nagad">Nagad</option>
                        <option value="sslcommerz">SSLCommerz</option>
@@ -383,12 +383,12 @@ export default function Subscriptions({ subscriptions = {}, filters = {}, users 
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'রেফারেন্স (TrxID)' : 'Reference (TrxID)'}</label>
-                    <input type="text" value={formData.payment_reference} onChange={e => setFormData({...formData, payment_reference: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="text" value={formData.payment_reference} onChange={e => setFormData({...formData, payment_reference: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
                <div className="flex gap-4">
-                  <button onClick={handleSubmit} className="flex-1 bg-[#e8001e] text-white rounded-2xl py-4 text-base font-bold shadow-lg shadow-red-100 transition-all hover:bg-[#b8001a] active:scale-95">
+                  <button onClick={handleSubmit} className="flex-1 bg-[#263238] text-white rounded-2xl py-4 text-base font-bold shadow-lg shadow-red-100 transition-all hover:bg-[#1a2428] active:scale-95">
                     {editingSub ? (lang === 'bn' ? 'হালনাগাদ করুন' : 'Update Subscription') : (lang === 'bn' ? 'সংরক্ষণ করুন' : 'Save Subscription')}
                   </button>
                   <button onClick={() => setShowModal(false)} className="flex-1 bg-gray-50 text-gray-600 rounded-2xl py-4 text-base font-bold transition-all hover:bg-gray-100 active:scale-95">

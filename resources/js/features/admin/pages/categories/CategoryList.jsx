@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Plus, Edit3, Trash2, X, Check, Loader2, AlertTriangle, FolderTree } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -32,7 +32,7 @@ export default function CategoryList() {
   const [submitting, setSubmitting] = useState(false);
 
   const COLORS = [
-    '#e8001e', '#0055a5', '#6b21a8', '#059669', '#dc2626', '#d946ef',
+    '#263238', '#0055a5', '#6b21a8', '#059669', '#dc2626', '#d946ef',
     '#f59e0b', '#0ea5e9', '#ec4899', '#8b5cf6', '#10b981', '#22c55e',
     '#f97316', '#14b8a6', '#6b7280', '#ef4444', '#3b82f6', '#84cc16',
   ];
@@ -233,7 +233,7 @@ export default function CategoryList() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#e8001e] mx-auto mb-3" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#263238] mx-auto mb-3" />
           <p className="text-sm text-[var(--text-muted,#9ca3af)]">
             {lang === 'bn' ? 'বিভাগ লোড হচ্ছে...' : 'Loading categories...'}
           </p>
@@ -264,12 +264,12 @@ export default function CategoryList() {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali'] flex items-center gap-3">
-             <FolderTree className="w-7 h-7 text-[#e8001e]" />
+             <FolderTree className="w-7 h-7 text-[#263238]" />
              {lang === 'bn' ? 'বিভাগ ব্যবস্থাপনা' : 'Category Management'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{categories.length} {lang === 'bn' ? 'টি বিভাগ ও উপ-বিভাগ' : 'categories & subcategories'}</p>
         </div>
-        <button onClick={openAddModal} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
+        <button onClick={openAddModal} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
           <Plus className="w-4 h-4" /> {lang === 'bn' ? 'নতুন বিভাগ' : 'New Category'}
         </button>
       </div>
@@ -422,7 +422,7 @@ export default function CategoryList() {
                     type="text"
                     value={catNameBn}
                     onChange={(e) => setCatNameBn(e.target.value)}
-                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e]"
+                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238]"
                   />
                 </div>
                 <div>
@@ -431,7 +431,7 @@ export default function CategoryList() {
                     type="text"
                     value={catNameEn}
                     onChange={(e) => setCatNameEn(e.target.value)}
-                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e]"
+                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238]"
                   />
                 </div>
               </div>
@@ -442,14 +442,14 @@ export default function CategoryList() {
                   type="text"
                   value={catSlug}
                   onChange={(e) => setCatSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''))}
-                  className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm font-mono outline-none focus:border-[#e8001e]"
+                  className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm font-mono outline-none focus:border-[#263238]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'এডিশন' : 'Edition'}</label>
-                  <select value={catEdition} onChange={(e) => setCatEdition(e.target.value)} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] bg-white">
+                  <select value={catEdition} onChange={(e) => setCatEdition(e.target.value)} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238] bg-white">
                     <option value="both">Both</option>
                     <option value="bn">Bangla</option>
                     <option value="en">English</option>
@@ -460,7 +460,7 @@ export default function CategoryList() {
                   <select 
                     value={catParentId} 
                     onChange={(e) => setCatParentId(e.target.value)} 
-                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] bg-white"
+                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238] bg-white"
                   >
                     <option value="">{lang === 'bn' ? 'কোনটিই নয় (প্রধান)' : 'None (Main Category)'}</option>
                     {categories
@@ -486,7 +486,7 @@ export default function CategoryList() {
                       key={color}
                       type="button"
                       onClick={() => setCatColor(color)}
-                      className={`w-7 h-7 rounded-full transition-transform ${catColor === color ? 'scale-110 ring-2 ring-offset-2 ring-[#e8001e]' : 'hover:scale-105'}`}
+                      className={`w-7 h-7 rounded-full transition-transform ${catColor === color ? 'scale-110 ring-2 ring-offset-2 ring-[#263238]' : 'hover:scale-105'}`}
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -500,7 +500,7 @@ export default function CategoryList() {
                     value={catDescBn}
                     onChange={(e) => setCatDescBn(e.target.value)}
                     rows={2}
-                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] resize-none"
+                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238] resize-none"
                   />
                 </div>
                 <div>
@@ -509,7 +509,7 @@ export default function CategoryList() {
                     value={catDescEn}
                     onChange={(e) => setCatDescEn(e.target.value)}
                     rows={2}
-                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] resize-none"
+                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238] resize-none"
                   />
                 </div>
               </div>
@@ -519,7 +519,7 @@ export default function CategoryList() {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="flex-1 bg-[#e8001e] text-white rounded-xl py-3 text-sm font-bold hover:bg-[#b8001a] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 bg-[#263238] text-white rounded-xl py-3 text-sm font-bold hover:bg-[#1a2428] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 {editingCat ? (lang === 'bn' ? 'আপডেট করুন' : 'Update') : (lang === 'bn' ? 'যোগ করুন' : 'Add')}
@@ -541,7 +541,7 @@ export default function CategoryList() {
 // Helper Components
 function EditionBadge({ edition }) {
   if (edition === 'both') return <span className="text-[9px] px-1.5 py-0.5 bg-[#ecfdf5] text-[#10b981] rounded-full font-black uppercase ml-1">Both</span>;
-  if (edition === 'bn') return <span className="text-[9px] px-1.5 py-0.5 bg-[#fff0f2] text-[#e8001e] rounded-full font-black uppercase ml-1">বাংলা</span>;
+  if (edition === 'bn') return <span className="text-[9px] px-1.5 py-0.5 bg-[#eceff1] text-[#263238] rounded-full font-black uppercase ml-1">বাংলা</span>;
   return <span className="text-[9px] px-1.5 py-0.5 bg-[#eff6ff] text-[#3b82f6] rounded-full font-black uppercase ml-1">EN</span>;
 }
 

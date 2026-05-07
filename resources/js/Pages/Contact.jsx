@@ -1,4 +1,4 @@
-import { t } from '../translations';
+﻿import { t } from '../translations';
 import Icon from '../Components/Icon';
 import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
@@ -25,10 +25,10 @@ export default function Contact() {
   };
 
   const contactInfo = lang === 'bn' ? [
-    ['building', 'প্রধান কার্যালয়', '১২৩, মতিঝিল বাণিজ্যিক এলাকা\nঢাকা-১০০০, বাংলাদেশ'],
-    ['phone', 'ফোন', contactPhone],
-    ['mail', 'ইমেইল', contactEmail],
-    ['globe', 'ওয়েবসাইট', siteUrl],
+    ['building', 'à¦ªà§à¦°à¦§à¦¾à¦¨ à¦•à¦¾à¦°à§à¦¯à¦¾à¦²à¦¯à¦¼', 'à§§à§¨à§©, à¦®à¦¤à¦¿à¦à¦¿à¦² à¦¬à¦¾à¦£à¦¿à¦œà§à¦¯à¦¿à¦• à¦à¦²à¦¾à¦•à¦¾\nà¦¢à¦¾à¦•à¦¾-à§§à§¦à§¦à§¦, à¦¬à¦¾à¦‚à¦²à¦¾à¦¦à§‡à¦¶'],
+    ['phone', 'à¦«à§‹à¦¨', contactPhone],
+    ['mail', 'à¦‡à¦®à§‡à¦‡à¦²', contactEmail],
+    ['globe', 'à¦“à¦¯à¦¼à§‡à¦¬à¦¸à¦¾à¦‡à¦Ÿ', siteUrl],
   ] : [
     ['building', 'Head Office', '123, Motijheel C/A\nDhaka-1000, Bangladesh'],
     ['phone', 'Phone', contactPhone],
@@ -37,7 +37,7 @@ export default function Contact() {
   ];
 
   const subjectOptions = lang === 'bn' ? [
-    'সংবাদ পাঠান', 'বিজ্ঞাপন সংক্রান্ত', 'সদস্যপদ বিষয়ে', 'প্রযুক্তিগত সহায়তা', 'অভিযোগ', 'অন্যান্য'
+    'à¦¸à¦‚à¦¬à¦¾à¦¦ à¦ªà¦¾à¦ à¦¾à¦¨', 'à¦¬à¦¿à¦œà§à¦žà¦¾à¦ªà¦¨ à¦¸à¦‚à¦•à§à¦°à¦¾à¦¨à§à¦¤', 'à¦¸à¦¦à¦¸à§à¦¯à¦ªà¦¦ à¦¬à¦¿à¦·à¦¯à¦¼à§‡', 'à¦ªà§à¦°à¦¯à§à¦•à§à¦¤à¦¿à¦—à¦¤ à¦¸à¦¹à¦¾à¦¯à¦¼à¦¤à¦¾', 'à¦…à¦­à¦¿à¦¯à§‹à¦—', 'à¦…à¦¨à§à¦¯à¦¾à¦¨à§à¦¯'
   ] : [
     'Submit News', 'Advertising', 'Subscription', 'Technical Support', 'Complaint', 'Other'
   ];
@@ -47,7 +47,7 @@ export default function Contact() {
       <div className="sec-hdr"><div className="sec-ttl">{t('contact.title', lang)}</div></div>
       <div className="contact-grid">
         <div>
-          <h3 style={{ fontFamily: "'Noto Serif Bengali', serif", fontSize: 17, fontWeight: 700, marginBottom: 16 }}>{t('contact.send_msg', lang)}</h3>
+          <h3 style={{ fontFamily: "'Kalpurush','SolaimanLipi',sans-serif", fontSize: 17, fontWeight: 700, marginBottom: 16 }}>{t('contact.send_msg', lang)}</h3>
           <div className="contact-form">
             <div className="form-group">
               <label>{t('contact.subject', lang)}</label>
@@ -71,11 +71,11 @@ export default function Contact() {
               <label>{t('contact.message', lang)}</label>
               <textarea value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder={t('contact.msg_placeholder', lang)} />
             </div>
-            <button className="submit-btn" onClick={handleSubmit}><Icon name="send" size={14} /> {lang === 'bn' ? 'পাঠান' : 'Send'}</button>
+            <button className="submit-btn" onClick={handleSubmit}><Icon name="send" size={14} /> {lang === 'bn' ? 'à¦ªà¦¾à¦ à¦¾à¦¨' : 'Send'}</button>
           </div>
         </div>
         <div>
-          <h3 style={{ fontFamily: "'Noto Serif Bengali', serif", fontSize: 17, fontWeight: 700, marginBottom: 16 }}>{t('contact.address_title', lang)}</h3>
+          <h3 style={{ fontFamily: "'Kalpurush','SolaimanLipi',sans-serif", fontSize: 17, fontWeight: 700, marginBottom: 16 }}>{t('contact.address_title', lang)}</h3>
           {contactInfo.map(([icon, label, val], i) => (
             <div key={i} className="contact-info-item">
               <div className="icon"><Icon name={icon} size={20} /></div>
@@ -95,3 +95,4 @@ export default function Contact() {
     </div>
   );
 }
+

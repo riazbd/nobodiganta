@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+﻿import { useEffect, useRef } from 'react';
 
 /**
  * RichTextEditor — a wrapper for Quill.js RTE.
@@ -98,7 +98,7 @@ export default function RichTextEditor({ value, onChange, placeholder, lang = 'b
         }
         .ql-snow.ql-toolbar button:hover .ql-stroke,
         .ql-snow.ql-toolbar button.ql-active .ql-stroke {
-          stroke: #e8001e;
+          stroke: #263238;
         }
       `}} />
       <div ref={editorRef} />

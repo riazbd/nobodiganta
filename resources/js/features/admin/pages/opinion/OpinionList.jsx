@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { PenLine, Eye, Edit3, Trash2, Send, Search, X, Loader2, AlertTriangle, ChevronDown, CheckCircle, RotateCcw } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
@@ -9,7 +9,7 @@ function Select({ value, onChange, children, className = '' }) {
   return (
     <div className="relative">
       <select value={value} onChange={e => onChange(e.target.value)}
-        className={`appearance-none border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.75 pr-8 text-xs outline-none bg-white cursor-pointer focus:border-[#e8001e] transition-all ${className}`}>
+        className={`appearance-none border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.75 pr-8 text-xs outline-none bg-white cursor-pointer focus:border-[#263238] transition-all ${className}`}>
         {children}
       </select>
       <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -24,7 +24,7 @@ export default function OpinionList({ opinions, authors = [], filters }) {
 
   const [search,    setSearch]    = useState(filters?.search   || '');
   const [status,    setStatus]    = useState(filters?.status   || 'all');
-  const [edition,   setEdition]   = useState(filters?.edition  || 'all');
+  const [edition,   setEdition]   = useState(filters?.edition  || lang);
   const [author,    setAuthor]    = useState(filters?.author   || 'all');
   const [perPage,   setPerPage]   = useState(filters?.per_page || '20');
   const [selected,  setSelected]  = useState([]);
@@ -33,6 +33,15 @@ export default function OpinionList({ opinions, authors = [], filters }) {
 
   const l = (bn, en) => lang === 'bn' ? bn : en;
   const fmt = (d) => d ? new Date(d).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+
+  // Sync edition with the sidebar language switcher
+  useEffect(() => {
+    if (filters?.edition) return;
+    setEdition(lang);
+    const params = { ...filters, edition: lang, page: 1 };
+    Object.keys(params).forEach(k => { if (!params[k] || params[k] === 'all') delete params[k]; });
+    router.get('/admin/opinions', params, { preserveState: true, preserveScroll: true });
+  }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const applyFilters = (overrides = {}) => {
     const p = { search, status, edition, author, per_page: perPage, page: 1, ...overrides };
@@ -86,7 +95,7 @@ export default function OpinionList({ opinions, authors = [], filters }) {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali'] flex items-center gap-2">
-            <PenLine className="w-5 h-5 text-[#e8001e]" />
+            <PenLine className="w-5 h-5 text-[#263238]" />
             {l('মতামত কলাম', 'Opinion Column')}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">
@@ -95,7 +104,7 @@ export default function OpinionList({ opinions, authors = [], filters }) {
         </div>
         <button
           onClick={() => router.visit('/admin/opinions/write')}
-          className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors"
+          className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors"
         >
           <PenLine className="w-4 h-4" /> {l('নতুন মতামত', 'New Opinion')}
         </button>
@@ -105,7 +114,7 @@ export default function OpinionList({ opinions, authors = [], filters }) {
       <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-4 mb-4.5">
         <div className="flex flex-wrap gap-3 items-center">
           {/* Search */}
-          <div className="flex items-center bg-[var(--body-bg,#f0f2f8)] border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.75 gap-2 flex-1 min-w-[200px] focus-within:border-[#e8001e]/40 focus-within:bg-white transition-all">
+          <div className="flex items-center bg-[var(--body-bg,#f0f2f8)] border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.75 gap-2 flex-1 min-w-[200px] focus-within:border-[#263238]/40 focus-within:bg-white transition-all">
             <Search className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)] flex-shrink-0" />
             <input type="text" placeholder={l('মতামত খুঁজুন...', 'Search opinions...')}
               value={search} onChange={e => handleSearch(e.target.value)}
@@ -162,7 +171,7 @@ export default function OpinionList({ opinions, authors = [], filters }) {
             <tr className="bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider">
               <th className="px-4 py-3 text-left w-10">
                 <input type="checkbox" checked={selected.length === opinions.data.length && opinions.data.length > 0}
-                  onChange={toggleAll} className="rounded accent-[#e8001e] cursor-pointer" />
+                  onChange={toggleAll} className="rounded accent-[#263238] cursor-pointer" />
               </th>
               <th className="px-4 py-3 text-left">{l('শিরোনাম', 'Title')}</th>
               <th className="px-4 py-3 text-left">{l('লেখক', 'Author')}</th>
@@ -178,15 +187,15 @@ export default function OpinionList({ opinions, authors = [], filters }) {
               <tr key={op.id} className={`hover:bg-[#fafbff] transition-colors group ${selected.includes(op.id) ? 'bg-[#fff8f8]' : ''}`}>
                 <td className="px-4 py-3">
                   <input type="checkbox" checked={selected.includes(op.id)} onChange={() => toggleSelect(op.id)}
-                    className="rounded accent-[#e8001e] cursor-pointer" />
+                    className="rounded accent-[#263238] cursor-pointer" />
                 </td>
                 <td className="px-4 py-3">
-                  <div className="font-semibold text-[var(--text-primary,#1a1d2e)] text-[13px] group-hover:text-[#e8001e] transition-colors line-clamp-1">
+                  <div className="font-semibold text-[var(--text-primary,#1a1d2e)] text-[13px] group-hover:text-[#263238] transition-colors line-clamp-1">
                     {l(op.title, op.title_en || op.title)}
                   </div>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     {op.edition === 'both' && <span className="text-[9px] px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded-full font-medium">BN+EN</span>}
-                    {op.edition === 'bn'   && <span className="text-[9px] px-1.5 py-0.5 bg-[#fff0f2] text-[#e8001e] rounded-full font-medium">বাংলা</span>}
+                    {op.edition === 'bn'   && <span className="text-[9px] px-1.5 py-0.5 bg-[#eceff1] text-[#263238] rounded-full font-medium">বাংলা</span>}
                     {op.edition === 'en'   && <span className="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded-full font-medium">EN</span>}
                     {op.is_exclusive && <span className="text-[9px] px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded-full font-bold">🔥 EXCLUSIVE</span>}
                     {op.is_guest && <span className="text-[9px] px-1.5 py-0.5 bg-purple-50 text-purple-600 rounded-full font-medium">{l('অতিথি', 'Guest')}</span>}
@@ -230,7 +239,7 @@ export default function OpinionList({ opinions, authors = [], filters }) {
                       </button>
                     )}
                     <button onClick={() => setDeleteConfirm(op)}
-                      className="p-1.5 rounded-md hover:bg-[#fff0f2] text-gray-400 hover:text-[#e8001e] transition-colors">
+                      className="p-1.5 rounded-md hover:bg-[#eceff1] text-gray-400 hover:text-[#263238] transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -259,7 +268,7 @@ export default function OpinionList({ opinions, authors = [], filters }) {
               {opinions.links.map((link, i) =>
                 link.url ? (
                   <a key={i} href={link.url} dangerouslySetInnerHTML={{ __html: link.label }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${link.active ? 'bg-[#e8001e] text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${link.active ? 'bg-[#263238] text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                     onClick={e => { e.preventDefault(); router.get(link.url, {}, { preserveState: true }); }}
                   />
                 ) : (

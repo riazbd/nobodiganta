@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { 
   FileText, Search, X, Filter, Calendar, User, 
@@ -72,7 +72,7 @@ export default function AuditLog({ logs = {}, filters = {}, users = [], events =
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] font-['Noto_Sans_Bengali'] flex items-center gap-3">
-            <Terminal className="w-7 h-7 text-[#e8001e]" /> 
+            <Terminal className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'সিস্টেম অডিট লগ' : 'System Audit Log'}
           </h1>
           <p className="text-sm text-gray-500 mt-1.5 flex items-center gap-1.5">
@@ -105,14 +105,14 @@ export default function AuditLog({ logs = {}, filters = {}, users = [], events =
             placeholder={lang === 'bn' ? 'বিবরণ বা ইউজার দিয়ে খুঁজুন...' : 'Search description or user...'} 
             value={searchQuery} 
             onChange={(e) => setSearchQuery(e.target.value)} 
-            className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none" 
+            className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none" 
           />
         </div>
         
         <select 
           value={eventFilter} 
           onChange={e => setEventFilter(e.target.value)}
-          className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#e8001e] min-w-[160px]"
+          className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#263238] min-w-[160px]"
         >
           <option value="all">{lang === 'bn' ? 'সব ইভেন্ট' : 'All Events'}</option>
           {events.map(e => <option key={e} value={e}>{e}</option>)}
@@ -121,13 +121,13 @@ export default function AuditLog({ logs = {}, filters = {}, users = [], events =
         <select 
           value={userFilter} 
           onChange={e => setUserFilter(e.target.value)}
-          className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#e8001e] min-w-[160px]"
+          className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-[#263238] min-w-[160px]"
         >
           <option value="all">{lang === 'bn' ? 'সব ইউজার' : 'All Users'}</option>
           {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
         </select>
 
-        <button onClick={() => { setSearchQuery(''); setEventFilter('all'); setUserFilter('all'); }} className="p-2.5 text-gray-400 hover:text-[#e8001e] transition-colors" title="Reset Filters">
+        <button onClick={() => { setSearchQuery(''); setEventFilter('all'); setUserFilter('all'); }} className="p-2.5 text-gray-400 hover:text-[#263238] transition-colors" title="Reset Filters">
            <RefreshCw size={20} />
         </button>
       </div>
@@ -177,7 +177,7 @@ export default function AuditLog({ logs = {}, filters = {}, users = [], events =
                   <td className="px-6 py-4 text-right">
                     <button 
                       onClick={() => setSelectedLog(log)}
-                      className="p-2 rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-[#e8001e] transition-all"
+                      className="p-2 rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-[#263238] transition-all"
                     >
                        <Eye size={16} />
                     </button>
@@ -215,7 +215,7 @@ export default function AuditLog({ logs = {}, filters = {}, users = [], events =
            <div className="bg-[#0f1117] text-[#e0e0e0] rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-[#1e2130] animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
               <div className="px-8 py-6 border-b border-[#1e2130] flex items-center justify-between bg-[#1a1d2e]/50">
                  <div className="flex items-center gap-3">
-                    <Terminal className="text-[#e8001e]" size={22} />
+                    <Terminal className="text-[#263238]" size={22} />
                     <h3 className="text-xl font-bold font-['Inter']">Event Details</h3>
                  </div>
                  <button onClick={() => setSelectedLog(null)} className="p-2 hover:bg-[#1e2130] rounded-full transition-colors text-gray-500"><X size={24} /></button>
@@ -226,7 +226,7 @@ export default function AuditLog({ logs = {}, filters = {}, users = [], events =
                     <div>
                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Timestamp</label>
                        <div className="text-sm font-medium flex items-center gap-2">
-                          <Calendar size={14} className="text-[#e8001e]" />
+                          <Calendar size={14} className="text-[#263238]" />
                           {new Date(selectedLog.created_at).toLocaleString()}
                        </div>
                     </div>

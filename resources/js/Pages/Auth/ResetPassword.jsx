@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+﻿import { Head, useForm } from '@inertiajs/react';
 
 export default function ResetPassword({ token, email }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -22,7 +22,7 @@ export default function ResetPassword({ token, email }) {
                 <div className="w-full max-w-md">
                     {/* Logo */}
                     <div className="text-center mb-8">
-                        <div className="text-4xl font-extrabold text-[#e8001e] font-['Noto_Serif_Bengali']">
+                        <div className="text-4xl font-extrabold text-[#263238] font-['Noto_Serif_Bengali']">
                             নবদিগন্ত
                         </div>
                         <div className="text-xs text-gray-500 tracking-widest uppercase mt-1">Admin Panel</div>
@@ -31,8 +31,8 @@ export default function ResetPassword({ token, email }) {
                     {/* Card */}
                     <div className="bg-white rounded-xl shadow-md p-8 border border-gray-100">
                         {/* Icon */}
-                        <div className="w-14 h-14 bg-[#e8001e]/5 border border-[#e8001e]/20 rounded-xl flex items-center justify-center mx-auto mb-5">
-                            <svg className="w-7 h-7 text-[#e8001e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-14 h-14 bg-[#263238]/5 border border-[#263238]/20 rounded-xl flex items-center justify-center mx-auto mb-5">
+                            <svg className="w-7 h-7 text-[#263238]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                             </svg>
                         </div>
@@ -77,7 +77,7 @@ export default function ResetPassword({ token, email }) {
                                         autoFocus
                                         autoComplete="new-password"
                                         placeholder="Min. 8 characters"
-                                        className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.75 text-sm outline-none focus:border-[#e8001e] focus:ring-2 focus:ring-[#e8001e]/20 transition-all bg-white"
+                                        className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.75 text-sm outline-none focus:border-[#263238] focus:ring-2 focus:ring-[#263238]/20 transition-all bg-white"
                                     />
                                 </div>
                                 {errors.password && <p className="mt-1.5 text-xs text-red-600">{errors.password}</p>}
@@ -102,7 +102,7 @@ export default function ResetPassword({ token, email }) {
                                         required
                                         autoComplete="new-password"
                                         placeholder="Re-enter password"
-                                        className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.75 text-sm outline-none focus:border-[#e8001e] focus:ring-2 focus:ring-[#e8001e]/20 transition-all bg-white"
+                                        className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.75 text-sm outline-none focus:border-[#263238] focus:ring-2 focus:ring-[#263238]/20 transition-all bg-white"
                                     />
                                 </div>
                                 {errors.password_confirmation && <p className="mt-1.5 text-xs text-red-600">{errors.password_confirmation}</p>}
@@ -111,7 +111,7 @@ export default function ResetPassword({ token, email }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full bg-[#e8001e] text-white font-semibold py-3 rounded-xl hover:bg-[#c0001a] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#e8001e]/25"
+                                className="w-full bg-[#263238] text-white font-semibold py-3 rounded-xl hover:bg-[#1a2428] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#263238]/20"
                             >
                                 {processing ? (
                                     <span className="flex items-center justify-center gap-2">

@@ -1,8 +1,8 @@
-import { CheckCircle, AlertCircle, XCircle, Info } from 'lucide-react';
+﻿import { CheckCircle, AlertCircle, XCircle, Info } from 'lucide-react';
 
 export function Badge({ variant = 'gray', children, className = '' }) {
   const variants = {
-    red: 'bg-[#fff0f2] text-[#e8001e]',
+    red: 'bg-[#eceff1] text-[#263238]',
     green: 'bg-[#ecfdf5] text-[#10b981]',
     blue: 'bg-[#eff6ff] text-[#3b82f6]',
     orange: 'bg-[#fffbeb] text-[#f59e0b]',
@@ -18,7 +18,7 @@ export function Badge({ variant = 'gray', children, className = '' }) {
   );
 }
 
-export function ProgressBar({ value, color = '#e8001e', className = '' }) {
+export function ProgressBar({ value, color = '#263238', className = '' }) {
   return (
     <div className={`h-1.25 bg-[#f3f4f6] rounded-full overflow-hidden ${className}`}>
       <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${value}%`, backgroundColor: color }} />
@@ -42,7 +42,7 @@ export function Toggle({ checked, onChange, label }) {
     <div className="flex items-center gap-2">
       <button
         onClick={() => onChange?.(!checked)}
-        className={`w-9 h-5 rounded-full relative transition-colors ${checked ? 'bg-[#e8001e]' : 'bg-[#374151]'}`}
+        className={`w-9 h-5 rounded-full relative transition-colors ${checked ? 'bg-[#263238]' : 'bg-[#374151]'}`}
       >
         <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform shadow ${checked ? 'translate-x-4' : ''}`} />
       </button>

@@ -1,4 +1,4 @@
-import { Search, TrendingUp, BarChart3, Globe, Share2, Target, Eye, Link, FileText, Megaphone, Calendar } from 'lucide-react';
+﻿import { Search, TrendingUp, BarChart3, Globe, Share2, Target, Eye, Link, FileText, Megaphone, Calendar } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
 import { GroupedBarChart } from '../../components/charts/BarChart';
@@ -17,7 +17,7 @@ export default function SEOManagerDashboard() {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
-            <Search className="w-5 h-5 text-[#e8001e]" />
+            <Search className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'এসইও ম্যানেজার ড্যাশবোর্ড' : 'SEO Manager Dashboard'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'কন্টেন্ট অপ্টিমাইজেশন ও সোশ্যাল ডিস্ট্রিবিউশন' : 'Content optimization and social distribution'}</p>
@@ -38,7 +38,7 @@ export default function SEOManagerDashboard() {
       <div className="grid grid-cols-4 gap-4 mb-5">
         <MiniStat icon={Eye} value="62.4%" label={lang === 'bn' ? 'CTR হার' : 'CTR Rate'} change={lang === 'bn' ? '▲ ৩.২%' : '▲ 3.2%'} changeColor="green" iconBg="bg-[#eff6ff]" />
         <MiniStat icon={Link} value="1,240" label={lang === 'bn' ? 'ব্যাকলিঙ্ক' : 'Backlinks'} change={lang === 'bn' ? '▲ ৪৫ নতুন' : '▲ 45 new'} changeColor="green" iconBg="bg-[#ecfdf5]" />
-        <MiniStat icon={FileText} value="18" label={lang === 'bn' ? 'SEO সমস্যা' : 'SEO Issues'} change={lang === 'bn' ? '▲ ৫ জরুরি' : '▲ 5 urgent'} changeColor="red" iconBg="bg-[#fff0f2]" />
+        <MiniStat icon={FileText} value="18" label={lang === 'bn' ? 'SEO সমস্যা' : 'SEO Issues'} change={lang === 'bn' ? '▲ ৫ জরুরি' : '▲ 5 urgent'} changeColor="red" iconBg="bg-[#eceff1]" />
         <MiniStat icon={Megaphone} value="156" label={lang === 'bn' ? 'সোশ্যাল পোস্ট' : 'Social Posts'} change={lang === 'bn' ? '▲ ২৪ এই সপ্তাহে' : '▲ 24 this week'} changeColor="green" iconBg="bg-[#f5f3ff]" />
       </div>
 
@@ -81,10 +81,10 @@ export default function SEOManagerDashboard() {
       <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden mb-4.5">
         <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
           <h3 className="text-sm font-bold flex items-center gap-2">
-            <Search className="w-4 h-4 text-[#e8001e]" />
+            <Search className="w-4 h-4 text-[#263238]" />
             {lang === 'bn' ? 'SEO অডিট কিউ' : 'SEO Audit Queue'}
           </h3>
-          <button onClick={() => onNavigate?.('seo')} className="bg-[#e8001e] text-white text-[11px] font-semibold px-3 py-1.25 rounded-md hover:bg-[#b8001a] transition-colors">
+          <button onClick={() => onNavigate?.('seo')} className="bg-[#263238] text-white text-[11px] font-semibold px-3 py-1.25 rounded-md hover:bg-[#1a2428] transition-colors">
             {lang === 'bn' ? 'সব দেখুন' : 'View All'}
           </button>
         </div>
@@ -110,7 +110,7 @@ export default function SEOManagerDashboard() {
                 <td className="px-4 py-2.75 text-[12.5px] text-[var(--text-secondary,#6b7280)] border-b border-[#f3f4f6]">{lang === 'bn' ? item.issueBn : item.issueEn}</td>
                 <td className="px-4 py-2.75 border-b border-[#f3f4f6]">
                   <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                    item.priority === 'high' ? 'bg-[#fff0f2] text-[#e8001e]' :
+                    item.priority === 'high' ? 'bg-[#eceff1] text-[#263238]' :
                     item.priority === 'medium' ? 'bg-[#fffbeb] text-[#f59e0b]' :
                     'bg-[#f3f4f6] text-[#6b7280]'
                   }`}>
@@ -118,7 +118,7 @@ export default function SEOManagerDashboard() {
                   </span>
                 </td>
                 <td className="px-4 py-2.75 border-b border-[#f3f4f6]">
-                  <button onClick={() => showToast(lang === 'bn' ? 'SEO ঠিক করা হচ্ছে...' : 'Fixing SEO...')} className="bg-[#e8001e] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md hover:bg-[#b8001a] transition-colors">
+                  <button onClick={() => showToast(lang === 'bn' ? 'SEO ঠিক করা হচ্ছে...' : 'Fixing SEO...')} className="bg-[#263238] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md hover:bg-[#1a2428] transition-colors">
                     {lang === 'bn' ? 'ঠিক করুন' : 'Fix'}
                   </button>
                 </td>

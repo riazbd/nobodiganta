@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { CloudSun, Plus, Trash2, X, Save, RefreshCw, Wind, Droplets, Thermometer, MapPin } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
@@ -57,12 +57,12 @@ export default function WeatherManagement({ weathers = [] }) {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] flex items-center gap-3">
-            <CloudSun className="w-7 h-7 text-[#e8001e]" /> 
+            <CloudSun className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'আবহাওয়া ব্যবস্থাপনা' : 'Weather Management'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">{lang === 'bn' ? 'শহরভিত্তিক আবহাওয়া আপডেট পরিচালনা করুন' : 'Manage city-wise weather updates'}</p>
         </div>
-        <button onClick={openAddModal} className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg active:scale-95">
+        <button onClick={openAddModal} className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg active:scale-95">
           <Plus size={18} /> {lang === 'bn' ? 'নতুন আপডেট' : 'New Update'}
         </button>
       </div>
@@ -109,7 +109,7 @@ export default function WeatherManagement({ weathers = [] }) {
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl animate-in zoom-in-95 duration-200">
             <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
                <h3 className="text-xl font-bold flex items-center gap-2">
-                 <CloudSun className="text-[#e8001e]" size={22} />
+                 <CloudSun className="text-[#263238]" size={22} />
                  Weather Update
                </h3>
                <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={20} /></button>
@@ -119,54 +119,54 @@ export default function WeatherManagement({ weathers = [] }) {
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">City (BN/EN)</label>
                     <div className="flex gap-2">
-                       <input type="text" value={form.city_bn} onChange={e => setForm({...form, city_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
-                       <input type="text" value={form.city_en} onChange={e => setForm({...form, city_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
+                       <input type="text" value={form.city_bn} onChange={e => setForm({...form, city_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
+                       <input type="text" value={form.city_en} onChange={e => setForm({...form, city_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Date</label>
-                    <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Current Temp</label>
-                    <input type="number" value={form.temp_c} onChange={e => setForm({...form, temp_c: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="number" value={form.temp_c} onChange={e => setForm({...form, temp_c: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Min Temp</label>
-                    <input type="number" value={form.min_temp_c} onChange={e => setForm({...form, min_temp_c: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="number" value={form.min_temp_c} onChange={e => setForm({...form, min_temp_c: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Max Temp</label>
-                    <input type="number" value={form.max_temp_c} onChange={e => setForm({...form, max_temp_c: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="number" value={form.max_temp_c} onChange={e => setForm({...form, max_temp_c: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Condition (BN)</label>
-                    <input type="text" value={form.condition_bn} onChange={e => setForm({...form, condition_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="text" value={form.condition_bn} onChange={e => setForm({...form, condition_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Condition (EN)</label>
-                    <input type="text" value={form.condition_en} onChange={e => setForm({...form, condition_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="text" value={form.condition_en} onChange={e => setForm({...form, condition_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Humidity %</label>
-                    <input type="number" value={form.humidity} onChange={e => setForm({...form, humidity: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="number" value={form.humidity} onChange={e => setForm({...form, humidity: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Wind Speed (kph)</label>
-                    <input type="number" value={form.wind_kph} onChange={e => setForm({...form, wind_kph: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="number" value={form.wind_kph} onChange={e => setForm({...form, wind_kph: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
-               <button onClick={handleSubmit} disabled={saving} className="w-full bg-[#e8001e] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#b8001a] active:scale-95 flex items-center justify-center gap-2">
+               <button onClick={handleSubmit} disabled={saving} className="w-full bg-[#263238] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#1a2428] active:scale-95 flex items-center justify-center gap-2">
                   {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save size={18} />}
                   Save Weather Data
                </button>

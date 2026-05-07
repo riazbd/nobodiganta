@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { 
   Users, UserPlus, Edit3, Trash2, Mail, Phone, Search, X, 
   Globe, User, SortAsc, 
@@ -132,7 +132,7 @@ export default function Reporters({ reporters = [], filters = {} }) {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali'] flex items-center gap-3">
-            <Users className="w-7 h-7 text-[#e8001e]" /> 
+            <Users className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'সাংবাদিক ও লেখক ব্যবস্থাপনা' : 'Reporters & Writers Management'}
           </h1>
           <p className="text-sm text-[var(--text-muted,#9ca3af)] mt-1.5 flex items-center gap-1.5">
@@ -140,13 +140,13 @@ export default function Reporters({ reporters = [], filters = {} }) {
             {reporters.length} {lang === 'bn' ? 'জন সাংবাদিক নিবন্ধিত আছে' : 'reporters registered in the system'}
           </p>
         </div>
-        <button onClick={openAddModal} className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg hover:shadow-red-200 active:scale-95">
+        <button onClick={openAddModal} className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg hover:shadow-red-200 active:scale-95">
           <UserPlus className="w-4.5 h-4.5" /> {lang === 'bn' ? 'নতুন সাংবাদিক' : 'Add Reporter'}
         </button>
       </div>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <form onSubmit={handleSearch} className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-3 w-full max-w-md shadow-sm focus-within:border-[#e8001e] focus-within:ring-4 focus-within:ring-red-50 transition-all">
+        <form onSubmit={handleSearch} className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-3 w-full max-w-md shadow-sm focus-within:border-[#263238] focus-within:ring-4 focus-within:ring-red-50 transition-all">
           <Search className="w-4.5 h-4.5 text-gray-400" />
           <input 
             type="text" 
@@ -190,14 +190,14 @@ export default function Reporters({ reporters = [], filters = {} }) {
                         {r.image ? (
                           <img src={r.image} alt={r.name} className="w-12 h-12 rounded-xl object-cover ring-2 ring-white shadow-sm" />
                         ) : (
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-lg font-bold shadow-md ring-2 ring-white">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#263238] to-[#ff6b6b] flex items-center justify-center text-white text-lg font-bold shadow-md ring-2 ring-white">
                             {r.avatar}
                           </div>
                         )}
                         <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${r.status === 'active' ? 'bg-[#10b981]' : 'bg-gray-300'}`}></div>
                       </div>
                       <div>
-                        <div className="font-bold text-gray-900 group-hover:text-[#e8001e] transition-colors flex items-center gap-2">
+                        <div className="font-bold text-gray-900 group-hover:text-[#263238] transition-colors flex items-center gap-2">
                           {lang === 'bn' ? r.name : r.nameEn}
                           {r.is_featured && <Badge variant="blue" className="text-[9px] px-1 py-0 uppercase">Staff</Badge>}
                         </div>
@@ -228,7 +228,7 @@ export default function Reporters({ reporters = [], filters = {} }) {
                   <td className="px-6 py-5">
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2 text-[12px] text-gray-500 font-medium group-hover:text-gray-900 transition-colors">
-                        <Mail className="w-3.5 h-3.5 text-[#e8001e]" /> 
+                        <Mail className="w-3.5 h-3.5 text-[#263238]" /> 
                         {r.email || '—'}
                       </div>
                       {r.phone && (
@@ -250,7 +250,7 @@ export default function Reporters({ reporters = [], filters = {} }) {
                       </button>
                       <button 
                         onClick={() => handleDelete(r.id)} 
-                        className="p-2.5 rounded-xl hover:bg-red-50 text-gray-400 hover:text-[#e8001e] transition-all"
+                        className="p-2.5 rounded-xl hover:bg-red-50 text-gray-400 hover:text-[#263238] transition-all"
                         title={lang === 'bn' ? 'মুছে ফেলুন' : 'Delete'}
                       >
                         <Trash2 className="w-4.5 h-4.5" />
@@ -283,7 +283,7 @@ export default function Reporters({ reporters = [], filters = {} }) {
             <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/50 rounded-t-3xl">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-white rounded-xl shadow-sm border border-gray-100">
-                  {editingReporter ? <Edit3 className="w-5 h-5 text-blue-600" /> : <UserPlus className="w-5 h-5 text-[#e8001e]" />}
+                  {editingReporter ? <Edit3 className="w-5 h-5 text-blue-600" /> : <UserPlus className="w-5 h-5 text-[#263238]" />}
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">
@@ -307,7 +307,7 @@ export default function Reporters({ reporters = [], filters = {} }) {
                     <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">{lang === 'bn' ? 'প্রোফাইল ছবি' : 'Profile Image'}</label>
                     <div 
                       onClick={() => setShowMediaLibrary(true)}
-                      className="aspect-square rounded-3xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center cursor-pointer hover:border-[#e8001e]/30 hover:bg-red-50/20 transition-all overflow-hidden group relative"
+                      className="aspect-square rounded-3xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center cursor-pointer hover:border-[#263238]/30 hover:bg-red-50/20 transition-all overflow-hidden group relative"
                     >
                       {formData.image ? (
                         <>
@@ -318,7 +318,7 @@ export default function Reporters({ reporters = [], filters = {} }) {
                         </>
                       ) : (
                         <div className="flex flex-col items-center">
-                          <ImageIcon className="w-10 h-10 text-gray-300 group-hover:text-[#e8001e] mb-2 transition-colors" />
+                          <ImageIcon className="w-10 h-10 text-gray-300 group-hover:text-[#263238] mb-2 transition-colors" />
                           <span className="text-[10px] font-bold text-gray-400 uppercase">{lang === 'bn' ? 'ছবি আপলোড' : 'Upload'}</span>
                         </div>
                       )}
@@ -330,14 +330,14 @@ export default function Reporters({ reporters = [], filters = {} }) {
                       <label className="block text-xs font-bold text-gray-700 mb-1.5">{lang === 'bn' ? 'ইমেইল এড্রেস' : 'Email Address'}</label>
                       <div className="relative">
                         <Mail className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
-                        <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none" placeholder="example@mail.com" />
+                        <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none" placeholder="example@mail.com" />
                       </div>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1.5">{lang === 'bn' ? 'ফোন নম্বর' : 'Phone Number'}</label>
                       <div className="relative">
                         <Phone className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
-                        <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none" placeholder="+880..." />
+                        <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none" placeholder="+880..." />
                       </div>
                     </div>
                   </div>
@@ -349,11 +349,11 @@ export default function Reporters({ reporters = [], filters = {} }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1.5">{lang === 'bn' ? 'নাম (বাংলা)' : 'Name (Bangla)'} *</label>
-                      <input type="text" value={formData.nameBn} onChange={e => setFormData({...formData, nameBn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none" />
+                      <input type="text" value={formData.nameBn} onChange={e => setFormData({...formData, nameBn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none" />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1.5">{lang === 'bn' ? 'নাম (ইংরেজি)' : 'Name (English)'} *</label>
-                      <input type="text" value={formData.nameEn} onChange={e => setFormData({...formData, nameEn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none" />
+                      <input type="text" value={formData.nameEn} onChange={e => setFormData({...formData, nameEn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none" />
                     </div>
                   </div>
 
@@ -361,18 +361,18 @@ export default function Reporters({ reporters = [], filters = {} }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1.5">{lang === 'bn' ? 'পদবী (বাংলা)' : 'Designation (Bangla)'}</label>
-                      <input type="text" value={formData.designationBn} onChange={e => setFormData({...formData, designationBn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none" />
+                      <input type="text" value={formData.designationBn} onChange={e => setFormData({...formData, designationBn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none" />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1.5">{lang === 'bn' ? 'পদবী (ইংরেজি)' : 'Designation (English)'}</label>
-                      <input type="text" value={formData.designationEn} onChange={e => setFormData({...formData, designationEn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none" />
+                      <input type="text" value={formData.designationEn} onChange={e => setFormData({...formData, designationEn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none" />
                     </div>
                   </div>
 
                   {/* Bio */}
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5">{lang === 'bn' ? 'জীবনী (বাংলা)' : 'Bio (Bangla)'}</label>
-                    <textarea rows="2" value={formData.bioBn} onChange={e => setFormData({...formData, bioBn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none resize-none" />
+                    <textarea rows="2" value={formData.bioBn} onChange={e => setFormData({...formData, bioBn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none resize-none" />
                   </div>
 
                   {/* Social Links */}
@@ -403,12 +403,12 @@ export default function Reporters({ reporters = [], filters = {} }) {
                   {/* Settings */}
                   <div className="flex items-center gap-6 pt-2">
                     <label className="flex items-center gap-2 cursor-pointer group">
-                      <input type="checkbox" checked={formData.isFeatured} onChange={e => setFormData({...formData, isFeatured: e.target.checked})} className="w-4 h-4 text-[#e8001e] focus:ring-[#e8001e] border-gray-300 rounded" />
-                      <span className="text-sm font-bold text-gray-700 group-hover:text-[#e8001e] transition-colors">{lang === 'bn' ? 'সেরা সাংবাদিক' : 'Feature Reporter'}</span>
+                      <input type="checkbox" checked={formData.isFeatured} onChange={e => setFormData({...formData, isFeatured: e.target.checked})} className="w-4 h-4 text-[#263238] focus:ring-[#263238] border-gray-300 rounded" />
+                      <span className="text-sm font-bold text-gray-700 group-hover:text-[#263238] transition-colors">{lang === 'bn' ? 'সেরা সাংবাদিক' : 'Feature Reporter'}</span>
                     </label>
                     <div className="flex items-center gap-3">
                        <label className="text-xs font-bold text-gray-500 uppercase">{lang === 'bn' ? 'ক্রম' : 'Order'}</label>
-                       <input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: e.target.value})} className="w-16 border border-gray-200 rounded-lg px-2 py-1 text-center text-xs outline-none focus:border-[#e8001e]" />
+                       <input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: e.target.value})} className="w-16 border border-gray-200 rounded-lg px-2 py-1 text-center text-xs outline-none focus:border-[#263238]" />
                     </div>
                   </div>
                 </div>
@@ -416,7 +416,7 @@ export default function Reporters({ reporters = [], filters = {} }) {
 
               {/* Action Buttons */}
               <div className="flex gap-4 mt-10">
-                <button onClick={handleSubmit} className="flex-1 bg-gradient-to-r from-[#e8001e] to-[#ff4d4d] text-white rounded-2xl py-4 text-base font-bold hover:shadow-xl hover:shadow-red-100 transition-all active:scale-95 flex items-center justify-center gap-2">
+                <button onClick={handleSubmit} className="flex-1 bg-gradient-to-r from-[#263238] to-[#ff4d4d] text-white rounded-2xl py-4 text-base font-bold hover:shadow-xl hover:shadow-red-100 transition-all active:scale-95 flex items-center justify-center gap-2">
                   <Save className="w-5 h-5" />
                   {editingReporter 
                     ? (lang === 'bn' ? 'তথ্য হালনাগাদ করুন' : 'Update Profile') 

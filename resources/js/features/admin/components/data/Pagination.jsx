@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+﻿import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 
 /**
@@ -104,7 +104,7 @@ export function Pagination({ meta, links, onPageChange, onPerPageChange, perPage
                 const newPerPage = parseInt(e.target.value);
                 onPerPageChange(newPerPage, 1);
               }}
-              className="border border-[var(--card-border,#e8ebf4)] rounded-md px-2.5 py-1 pr-7 text-[12px] outline-none bg-white focus:border-[#e8001e] focus:ring-1 focus:ring-[#e8001e]/20 cursor-pointer appearance-none"
+              className="border border-[var(--card-border,#e8ebf4)] rounded-md px-2.5 py-1 pr-7 text-[12px] outline-none bg-white focus:border-[#263238] focus:ring-1 focus:ring-[#263238]/20 cursor-pointer appearance-none"
               style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.25rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em' }}
             >
               {perPageOptions.map(opt => (
@@ -150,7 +150,7 @@ export function Pagination({ meta, links, onPageChange, onPerPageChange, perPage
                 onClick={() => handlePageClick(page)}
                 className={`min-w-[32px] h-8 rounded-md text-[12.5px] font-medium transition-all ${
                   page === currentPage
-                    ? 'bg-[#e8001e] text-white shadow-sm'
+                    ? 'bg-[#263238] text-white shadow-sm'
                     : 'bg-white text-[var(--text-secondary,#6b7280)] border border-[var(--card-border,#e8ebf4)] hover:bg-gray-50 hover:text-[var(--text-primary,#1a1d2e)]'
                 }`}
               >

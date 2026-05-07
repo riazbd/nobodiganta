@@ -266,7 +266,8 @@ class NewsController extends Controller
             $q->where('categories.id', $category->id);
         });
 
-        $articles = $query->latest()
+        $articles = $query->withRelations()
+            ->latest()
             ->paginate(20)
             ->through(fn($article) => $article->toAPIArray($edition));
 

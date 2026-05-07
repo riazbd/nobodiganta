@@ -1,4 +1,4 @@
-import {
+﻿import {
   LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 
@@ -7,7 +7,7 @@ import {
  */
 export function LineChart({
   data, data2, labels,
-  color = '#e8001e', color2 = '#3b82f6',
+  color = '#263238', color2 = '#3b82f6',
   height = 260,
   label1 = 'Pageviews', label2 = 'Visitors',
 }) {

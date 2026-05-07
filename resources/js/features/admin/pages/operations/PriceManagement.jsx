@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { DollarSign, Plus, Edit3, Trash2, X, Save, Search, RefreshCw } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
@@ -68,12 +68,12 @@ export default function PriceManagement({ prices = [] }) {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] flex items-center gap-3">
-            <DollarSign className="w-7 h-7 text-[#e8001e]" /> 
+            <DollarSign className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'পণ্য ও বাজার দর' : 'Commodity Prices'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">{lang === 'bn' ? 'স্বর্ণ, জ্বালানি ও অন্যান্য দর পরিচালনা করুন' : 'Manage gold, fuel and other market rates'}</p>
         </div>
-        <button onClick={openAddModal} className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg active:scale-95">
+        <button onClick={openAddModal} className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg active:scale-95">
           <Plus size={18} /> {lang === 'bn' ? 'নতুন এন্ট্রি' : 'Add Price'}
         </button>
       </div>
@@ -121,7 +121,7 @@ export default function PriceManagement({ prices = [] }) {
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
             <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
                <h3 className="text-xl font-bold flex items-center gap-2">
-                 <DollarSign className="text-[#e8001e]" size={22} />
+                 <DollarSign className="text-[#263238]" size={22} />
                  {editingPrice ? 'Edit Price' : 'Add New Price'}
                </h3>
                <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={20} /></button>
@@ -130,33 +130,33 @@ export default function PriceManagement({ prices = [] }) {
                {!editingPrice && (
                  <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">System Key (Unique)</label>
-                    <input type="text" value={form.key} onChange={e => setForm({...form, key: e.target.value.toLowerCase().replace(/\s+/g, '_')})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e] font-mono" placeholder="e.g. gold_22k" />
+                    <input type="text" value={form.key} onChange={e => setForm({...form, key: e.target.value.toLowerCase().replace(/\s+/g, '_')})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238] font-mono" placeholder="e.g. gold_22k" />
                  </div>
                )}
                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Title (BN)</label>
-                    <input type="text" value={form.title_bn} onChange={e => setForm({...form, title_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="text" value={form.title_bn} onChange={e => setForm({...form, title_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Title (EN)</label>
-                    <input type="text" value={form.title_en} onChange={e => setForm({...form, title_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="text" value={form.title_en} onChange={e => setForm({...form, title_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
                <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Amount</label>
-                    <input type="number" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="number" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Unit</label>
-                    <input type="text" value={form.unit} onChange={e => setForm({...form, unit: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" placeholder="vori/ltr" />
+                    <input type="text" value={form.unit} onChange={e => setForm({...form, unit: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" placeholder="vori/ltr" />
                   </div>
                </div>
                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Trend</label>
-                    <select value={form.trend} onChange={e => setForm({...form, trend: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]">
+                    <select value={form.trend} onChange={e => setForm({...form, trend: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]">
                        <option value="up">Up</option>
                        <option value="down">Down</option>
                        <option value="neutral">Neutral</option>
@@ -164,10 +164,10 @@ export default function PriceManagement({ prices = [] }) {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Change</label>
-                    <input type="number" value={form.change} onChange={e => setForm({...form, change: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="number" value={form.change} onChange={e => setForm({...form, change: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
-               <button onClick={handleSubmit} disabled={saving} className="w-full bg-[#e8001e] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#b8001a] active:scale-95 flex items-center justify-center gap-2">
+               <button onClick={handleSubmit} disabled={saving} className="w-full bg-[#263238] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#1a2428] active:scale-95 flex items-center justify-center gap-2">
                   {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save size={18} />}
                   Save Price
                </button>

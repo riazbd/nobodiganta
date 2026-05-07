@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { Clock, Plus, Trash2, X, Save, RefreshCw, Calendar, Moon } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
@@ -47,12 +47,12 @@ export default function PrayerTimeManagement({ times = [] }) {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] flex items-center gap-3">
-            <Moon className="w-7 h-7 text-[#e8001e]" /> 
+            <Moon className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'নামাজের সময়সূচী ব্যবস্থাপনা' : 'Prayer Times Management'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">{lang === 'bn' ? 'দৈনিক নামাজের ওয়াক্ত ও সময়সূচী পরিচালনা করুন' : 'Manage daily prayer times and schedules'}</p>
         </div>
-        <button onClick={openAddModal} className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg active:scale-95">
+        <button onClick={openAddModal} className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg active:scale-95">
           <Plus size={18} /> {lang === 'bn' ? 'নতুন সময়সূচী' : 'Add Times'}
         </button>
       </div>
@@ -93,7 +93,7 @@ export default function PrayerTimeManagement({ times = [] }) {
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl animate-in zoom-in-95 duration-200">
             <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
                <h3 className="text-xl font-bold flex items-center gap-2">
-                 <Clock className="text-[#e8001e]" size={22} />
+                 <Clock className="text-[#263238]" size={22} />
                  Set Prayer Times
                </h3>
                <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={20} /></button>
@@ -101,7 +101,7 @@ export default function PrayerTimeManagement({ times = [] }) {
             <div className="p-8 space-y-6">
                <div className="w-1/2">
                   <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Date</label>
-                  <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" />
+                  <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" />
                </div>
 
                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -112,14 +112,14 @@ export default function PrayerTimeManagement({ times = [] }) {
                          type="text" 
                          value={form[field]} 
                          onChange={e => setForm({...form, [field]: e.target.value})} 
-                         className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#e8001e]" 
+                         className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:border-[#263238]" 
                          placeholder="00:00 AM"
                        />
                     </div>
                   ))}
                </div>
 
-               <button onClick={handleSubmit} disabled={saving} className="w-full bg-[#e8001e] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#b8001a] active:scale-95 flex items-center justify-center gap-2">
+               <button onClick={handleSubmit} disabled={saving} className="w-full bg-[#263238] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#1a2428] active:scale-95 flex items-center justify-center gap-2">
                   {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save size={18} />}
                   Save All Times
                </button>

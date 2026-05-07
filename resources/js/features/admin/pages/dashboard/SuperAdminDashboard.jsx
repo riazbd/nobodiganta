@@ -1,4 +1,4 @@
-import { Newspaper, Users, MessageSquare, CreditCard, Shield, Activity, TrendingUp, Zap, Globe, Server, Database, Lock, Eye, Clock, CalendarDays, Award, Calendar, Settings, BarChart3, FolderTree } from 'lucide-react';
+﻿import { Newspaper, Users, MessageSquare, CreditCard, Shield, Activity, TrendingUp, Zap, Globe, Server, Database, Lock, Eye, Clock, CalendarDays, Award, Calendar, Settings, BarChart3, FolderTree } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
 import { DonutChart } from '../../components/charts/DonutChart';
@@ -35,7 +35,7 @@ export default function SuperAdminDashboard({
       <div className="flex items-start justify-between mb-5.5 row-anim">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
-            <Settings className="w-6 h-6 text-[#e8001e]" />
+            <Settings className="w-6 h-6 text-[#263238]" />
             {lang === 'bn' ? 'সুপার এডমিন ড্যাশবোর্ড' : 'Super Admin Dashboard'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'সিস্টেম প্রশাসন ও প্রযুক্তিগত তদারকি' : 'Full system administration and technical oversight'}</p>
@@ -102,7 +102,7 @@ export default function SuperAdminDashboard({
          <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
                <h3 className="text-sm font-bold flex items-center gap-2">
-                 <FolderTree className="w-4 h-4 text-[#e8001e]" />
+                 <FolderTree className="w-4 h-4 text-[#263238]" />
                  {lang === 'bn' ? 'বিভাগ অনুযায়ী কন্টেন্ট' : 'Content by Category'}
                </h3>
             </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Mail, Send, Eye, Plus, Search, X as XIcon, Trash2 } from 'lucide-react';
 import { Badge } from '../components/feedback/Badge';
 import { useLanguage } from '../hooks/useLanguage';
@@ -33,12 +33,12 @@ export default function Newsletter({ newsletters = [] }) {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] font-['Noto_Sans_Bengali'] flex items-center gap-3">
-             <Mail className="w-6 h-6 text-[#e8001e]" />
+             <Mail className="w-6 h-6 text-[#263238]" />
              {lang === 'bn' ? 'নিউজলেটার' : 'Newsletter'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'নিউজলেটার তৈরি ও পাঠানো' : 'Create and send newsletters'}</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
+        <button onClick={() => setShowModal(true)} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
           <Plus className="w-4 h-4" /> {lang === 'bn' ? 'নতুন নিউজলেটার' : 'New Newsletter'}
         </button>
       </div>
@@ -97,7 +97,7 @@ export default function Newsletter({ newsletters = [] }) {
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl p-8 transform transition-all animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold flex items-center gap-2">
-                <Mail className="text-[#e8001e]" size={22} />
+                <Mail className="text-[#263238]" size={22} />
                 {lang === 'bn' ? 'নিউজলেটার তৈরি করুন' : 'Create Newsletter'}
               </h3>
               <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><XIcon size={20} /></button>
@@ -107,30 +107,30 @@ export default function Newsletter({ newsletters = [] }) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                    <label className="text-[10px] font-bold text-gray-400 uppercase">Subject (BN)</label>
-                   <input type="text" value={formData.subject_bn} onChange={e => setFormData({...formData, subject_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#e8001e] outline-none" />
+                   <input type="text" value={formData.subject_bn} onChange={e => setFormData({...formData, subject_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#263238] outline-none" />
                 </div>
                 <div className="space-y-1">
                    <label className="text-[10px] font-bold text-gray-400 uppercase">Subject (EN)</label>
-                   <input type="text" value={formData.subject_en} onChange={e => setFormData({...formData, subject_en: e.target.value})} className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#e8001e] outline-none" />
+                   <input type="text" value={formData.subject_en} onChange={e => setFormData({...formData, subject_en: e.target.value})} className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#263238] outline-none" />
                 </div>
               </div>
               <div className="space-y-1">
                  <label className="text-[10px] font-bold text-gray-400 uppercase">Content (BN)</label>
-                 <textarea value={formData.content_bn} onChange={e => setFormData({...formData, content_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl p-3 text-sm h-32 focus:border-[#e8001e] outline-none" />
+                 <textarea value={formData.content_bn} onChange={e => setFormData({...formData, content_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl p-3 text-sm h-32 focus:border-[#263238] outline-none" />
               </div>
               <div className="space-y-1">
                  <label className="text-[10px] font-bold text-gray-400 uppercase">Content (EN)</label>
-                 <textarea value={formData.content_en} onChange={e => setFormData({...formData, content_en: e.target.value})} className="w-full border border-gray-200 rounded-xl p-3 text-sm h-32 focus:border-[#e8001e] outline-none" />
+                 <textarea value={formData.content_en} onChange={e => setFormData({...formData, content_en: e.target.value})} className="w-full border border-gray-200 rounded-xl p-3 text-sm h-32 focus:border-[#263238] outline-none" />
               </div>
               <div className="space-y-1">
                  <label className="text-[10px] font-bold text-gray-400 uppercase">Status</label>
-                 <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#e8001e] outline-none">
+                 <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-[#263238] outline-none">
                    <option value="draft">Save as Draft</option>
                    <option value="sent">Send Immediately</option>
                  </select>
               </div>
               <div className="flex gap-4 pt-4">
-                <button onClick={handleSubmit} className="flex-1 bg-[#e8001e] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#b8001a] active:scale-95">Save Newsletter</button>
+                <button onClick={handleSubmit} className="flex-1 bg-[#263238] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#1a2428] active:scale-95">Save Newsletter</button>
                 <button onClick={() => setShowModal(false)} className="flex-1 bg-gray-50 text-gray-600 rounded-2xl py-4 text-base font-bold transition-all hover:bg-gray-100 active:scale-95">Cancel</button>
               </div>
             </div>

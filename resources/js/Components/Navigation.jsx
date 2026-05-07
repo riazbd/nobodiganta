@@ -117,6 +117,39 @@ export default function Navigation() {
   const handleDropEnter = ()  => clearTimeout(hoverTimer.current);
   const handleDropLeave = ()  => { hoverTimer.current = setTimeout(() => setHoveredCat(null), 130); };
 
+  // Recursive renderer for desktop dropdown — any depth, with indentation
+  const renderDropdownItems = (items, depth) => items.map(child => (
+    <span key={child.slug}>
+      <a
+        className="nav-sub-link"
+        style={depth > 0 ? { paddingLeft: `${16 + depth * 14}px`, opacity: 0.85 } : undefined}
+        onClick={() => { setHoveredCat(null); onNavigate('cat', child.slug); }}
+        role="menuitem"
+        tabIndex={0}
+        onKeyDown={e => e.key === 'Enter' && onNavigate('cat', child.slug)}
+      >
+        {depth > 0 && <span style={{ marginRight: 4, opacity: 0.4 }}>↳</span>}
+        {lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn)}
+      </a>
+      {child.children?.length > 0 && renderDropdownItems(child.children, depth + 1)}
+    </span>
+  ));
+
+  // Recursive renderer for mobile drawer — any depth, with indentation
+  const renderMobileItems = (items, depth) => items.map(child => (
+    <span key={child.slug}>
+      <button
+        className="nav-mob-subitem"
+        style={depth > 0 ? { paddingLeft: `${16 + depth * 14}px` } : undefined}
+        onClick={() => { onNavigate('cat', child.slug); setMobileOpen(false); }}
+      >
+        {depth > 0 && <span style={{ marginRight: 4, opacity: 0.4 }}>↳</span>}
+        {lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn)}
+      </button>
+      {child.children?.length > 0 && renderMobileItems(child.children, depth + 1)}
+    </span>
+  ));
+
   const handleNav = item => {
     setMoreOpen(false);
     setMobileOpen(false);
@@ -207,18 +240,7 @@ export default function Navigation() {
                       {lang === 'bn' ? `সব ${cat.name_bn}` : `All ${cat.name_en || cat.name_bn}`}
                     </a>
                     <div className="nav-sub-divider" />
-                    {cat.children.map(child => (
-                      <a
-                        key={child.slug}
-                        className="nav-sub-link"
-                        onClick={() => { setHoveredCat(null); onNavigate('cat', child.slug); }}
-                        role="menuitem"
-                        tabIndex={0}
-                        onKeyDown={e => e.key === 'Enter' && onNavigate('cat', child.slug)}
-                      >
-                        {lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn)}
-                      </a>
-                    ))}
+                    {renderDropdownItems(cat.children, 0)}
                   </div>
                 )}
               </div>
@@ -340,15 +362,7 @@ export default function Navigation() {
                     >
                       {lang === 'bn' ? `সব ${cat.name_bn}` : `All ${cat.name_en || cat.name_bn}`}
                     </button>
-                    {cat.children.map(child => (
-                      <button
-                        key={child.slug}
-                        className="nav-mob-subitem"
-                        onClick={() => { onNavigate('cat', child.slug); setMobileOpen(false); }}
-                      >
-                        {lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn)}
-                      </button>
-                    ))}
+                    {renderMobileItems(cat.children, 0)}
                   </div>
                 )}
               </div>

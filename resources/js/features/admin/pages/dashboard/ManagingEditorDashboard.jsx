@@ -1,4 +1,4 @@
-import { Newspaper, Users, MessageSquare, TrendingUp, PenLine, FileText, Clock, BarChart3, CalendarDays, Calendar, AlertTriangle, Send, ListChecks, ClipboardList, Zap, Activity, CheckSquare } from 'lucide-react';
+﻿import { Newspaper, Users, MessageSquare, TrendingUp, PenLine, FileText, Clock, BarChart3, CalendarDays, Calendar, AlertTriangle, Send, ListChecks, ClipboardList, Zap, Activity, CheckSquare } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
 import { QuickActions } from '../../components/widgets/QuickActions';
@@ -22,7 +22,7 @@ export default function ManagingEditorDashboard() {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
-            <ClipboardList className="w-5 h-5 text-[#e8001e]" />
+            <ClipboardList className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'ব্যবস্থাপনা সম্পাদক ড্যাশবোর্ড' : 'Managing Editor Dashboard'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'দৈনন্দিন সম্পাদকীয় পরিচালনা ও ওয়ার্কফ্লো ব্যবস্থাপনা' : 'Day-to-day editorial operations and workflow management'}</p>
@@ -51,7 +51,7 @@ export default function ManagingEditorDashboard() {
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
             <h3 className="text-sm font-bold flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#e8001e]" />
+              <TrendingUp className="w-4 h-4 text-[#263238]" />
               {lang === 'bn' ? 'ট্র্যাফিক ওভারভিউ' : 'Traffic Overview'}
             </h3>
             <select className="border border-[var(--card-border,#e8ebf4)] rounded-md px-2 py-1 text-xs outline-none bg-[#fafafa]">
@@ -63,7 +63,7 @@ export default function ManagingEditorDashboard() {
             <LineChart 
               data={[65, 59, 80, 81, 56, 55, 40]} 
               labels={lang === 'bn' ? ['শনি', 'রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র'] : ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri']} 
-              color="#e8001e" 
+              color="#263238" 
               gradientId="gRed" 
             />
           </div>
@@ -71,7 +71,7 @@ export default function ManagingEditorDashboard() {
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
             <h3 className="text-sm font-bold flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#e8001e]" />
+              <Zap className="w-4 h-4 text-[#263238]" />
               {lang === 'bn' ? 'দ্রুত কাজ' : 'Quick Actions'}
             </h3>
           </div>

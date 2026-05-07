@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { LayoutDashboard, Plus, Edit3, Trash2, X, Save, ChevronUp, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
@@ -112,14 +112,14 @@ export default function HomepageLayout({ sections: initialSections = [], categor
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] flex items-center gap-3">
-            <LayoutDashboard className="w-7 h-7 text-[#e8001e]" />
+            <LayoutDashboard className="w-7 h-7 text-[#263238]" />
             {lang === 'bn' ? 'হোমপেজ লেআউট' : 'Homepage Layout'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             {lang === 'bn' ? 'হোমপেজের সেকশন ও বিন্যাস পরিচালনা করুন' : 'Manage homepage sections, order, and layout styles'}
           </p>
         </div>
-        <button onClick={openAddModal} className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg active:scale-95">
+        <button onClick={openAddModal} className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg active:scale-95">
           <Plus size={16} /> {lang === 'bn' ? 'নতুন সেকশন' : 'Add Section'}
         </button>
       </div>
@@ -133,20 +133,20 @@ export default function HomepageLayout({ sections: initialSections = [], categor
       ) : (
         <div className="space-y-3">
           {sections.map((section, index) => (
-            <div key={section.id} className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5 flex items-center gap-4 hover:border-[#e8001e]/30 transition-all">
+            <div key={section.id} className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5 flex items-center gap-4 hover:border-[#263238]/30 transition-all">
               {/* Order controls */}
               <div className="flex flex-col gap-0.5">
                 <button
                   onClick={() => handleMove(index, 'up')}
                   disabled={index === 0}
-                  className="p-1 rounded text-gray-300 hover:text-[#e8001e] hover:bg-red-50 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                  className="p-1 rounded text-gray-300 hover:text-[#263238] hover:bg-red-50 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronUp size={16} />
                 </button>
                 <button
                   onClick={() => handleMove(index, 'down')}
                   disabled={index === sections.length - 1}
-                  className="p-1 rounded text-gray-300 hover:text-[#e8001e] hover:bg-red-50 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                  className="p-1 rounded text-gray-300 hover:text-[#263238] hover:bg-red-50 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronDown size={16} />
                 </button>
@@ -215,7 +215,7 @@ export default function HomepageLayout({ sections: initialSections = [], categor
                 <select
                   value={formData.type}
                   onChange={e => setFormData({ ...formData, type: e.target.value, category_id: '' })}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#e8001e] outline-none"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
                 >
                   <option value="category">{lang === 'bn' ? 'ক্যাটাগরি আর্টিকেল' : 'Category Articles'}</option>
                   <option value="videos">{lang === 'bn' ? 'সর্বশেষ ভিডিও' : 'Latest Videos'}</option>
@@ -232,7 +232,7 @@ export default function HomepageLayout({ sections: initialSections = [], categor
                   <select
                     value={formData.category_id}
                     onChange={e => setFormData({ ...formData, category_id: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#e8001e] outline-none"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
                   >
                     <option value="">{lang === 'bn' ? '— ক্যাটাগরি বেছে নিন —' : '— Select a category —'}</option>
                     {categories.map(c => (
@@ -253,7 +253,7 @@ export default function HomepageLayout({ sections: initialSections = [], categor
                   <select
                     value={formData.layout}
                     onChange={e => setFormData({ ...formData, layout: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#e8001e] outline-none"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
                   >
                     <option value="featured_left">Featured Left</option>
                     <option value="grid">Grid</option>
@@ -273,7 +273,7 @@ export default function HomepageLayout({ sections: initialSections = [], categor
                     max={20}
                     value={formData.item_count}
                     onChange={e => setFormData({ ...formData, item_count: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#e8001e] outline-none"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
                   />
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default function HomepageLayout({ sections: initialSections = [], categor
                   <select
                     value={formData.edition}
                     onChange={e => setFormData({ ...formData, edition: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#e8001e] outline-none"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
                   >
                     <option value="both">{lang === 'bn' ? 'বাংলা ও ইংরেজি' : 'Both BN & EN'}</option>
                     <option value="bn">{lang === 'bn' ? 'শুধু বাংলা' : 'Bangla Only'}</option>
@@ -302,7 +302,7 @@ export default function HomepageLayout({ sections: initialSections = [], categor
                       type="checkbox"
                       checked={formData.is_active}
                       onChange={e => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="w-4 h-4 rounded text-[#e8001e] focus:ring-[#e8001e]"
+                      className="w-4 h-4 rounded text-[#263238] focus:ring-[#263238]"
                     />
                     <span className="text-sm font-bold text-gray-700">{lang === 'bn' ? 'সক্রিয়' : 'Active'}</span>
                   </label>
@@ -312,7 +312,7 @@ export default function HomepageLayout({ sections: initialSections = [], categor
               <button
                 onClick={handleSubmit}
                 disabled={saving}
-                className="w-full bg-[#e8001e] text-white rounded-2xl py-3.5 text-sm font-bold shadow-lg transition-all hover:bg-[#b8001a] active:scale-95 flex items-center justify-center gap-2 disabled:opacity-60"
+                className="w-full bg-[#263238] text-white rounded-2xl py-3.5 text-sm font-bold shadow-lg transition-all hover:bg-[#1a2428] active:scale-95 flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 <Save size={16} />
                 {saving

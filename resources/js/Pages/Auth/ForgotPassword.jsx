@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+﻿import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function ForgotPassword({ status }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -18,7 +18,7 @@ export default function ForgotPassword({ status }) {
                     {/* Logo */}
                     <div className="text-center mb-8">
                         <Link href={route('login')} className="inline-block">
-                            <div className="text-4xl font-extrabold text-[#e8001e] font-['Noto_Serif_Bengali']">
+                            <div className="text-4xl font-extrabold text-[#263238] font-['Noto_Serif_Bengali']">
                                 নবদিগন্ত
                             </div>
                         </Link>
@@ -66,7 +66,7 @@ export default function ForgotPassword({ status }) {
                                         autoFocus
                                         autoComplete="email"
                                         placeholder="you@example.com"
-                                        className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.75 text-sm outline-none focus:border-[#e8001e] focus:ring-2 focus:ring-[#e8001e]/20 transition-all bg-white"
+                                        className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.75 text-sm outline-none focus:border-[#263238] focus:ring-2 focus:ring-[#263238]/20 transition-all bg-white"
                                     />
                                 </div>
                                 {errors.email && <p className="mt-1.5 text-xs text-red-600">{errors.email}</p>}
@@ -75,7 +75,7 @@ export default function ForgotPassword({ status }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full bg-[#e8001e] text-white font-semibold py-3 rounded-xl hover:bg-[#c0001a] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#e8001e]/25"
+                                className="w-full bg-[#263238] text-white font-semibold py-3 rounded-xl hover:bg-[#1a2428] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#263238]/20"
                             >
                                 {processing ? (
                                     <span className="flex items-center justify-center gap-2">
@@ -92,7 +92,7 @@ export default function ForgotPassword({ status }) {
 
                     {/* Back to Login */}
                     <div className="mt-6 text-center">
-                        <Link href={route('login')} className="text-sm text-[#e8001e] hover:underline font-medium inline-flex items-center gap-1.5">
+                        <Link href={route('login')} className="text-sm text-[#263238] hover:underline font-medium inline-flex items-center gap-1.5">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>

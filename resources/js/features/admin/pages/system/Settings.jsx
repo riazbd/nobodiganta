@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import {
   Settings as SettingsIcon, Globe, Palette, Search, Mail, Shield, Save,
@@ -157,7 +157,7 @@ export default function Settings({ settings = {}, groups = [] }) {
                 <span className="text-sm text-gray-400">{lang === 'bn' ? 'কোনো ছবি নেই' : 'No image uploaded'}</span>
               </div>
             )}
-            <label className={`inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-xl border text-sm font-bold transition-all ${isUploading ? 'opacity-50 cursor-not-allowed border-gray-200 text-gray-400' : 'border-[#e8001e] text-[#e8001e] hover:bg-[#e8001e] hover:text-white'}`}>
+            <label className={`inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-xl border text-sm font-bold transition-all ${isUploading ? 'opacity-50 cursor-not-allowed border-gray-200 text-gray-400' : 'border-[#263238] text-[#263238] hover:bg-[#263238] hover:text-white'}`}>
               {isUploading ? <RefreshCw size={14} className="animate-spin" /> : <Upload size={14} />}
               {lang === 'bn' ? 'ছবি আপলোড করুন' : 'Upload Image'}
               <input
@@ -180,7 +180,7 @@ export default function Settings({ settings = {}, groups = [] }) {
               onChange={e => handleChange(setting.key, e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#e8001e]"></div>
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#263238]"></div>
             <span className="ml-3 text-sm font-bold text-gray-700 uppercase tracking-tighter">
                {value ? (lang === 'bn' ? 'সক্রিয়' : 'Enabled') : (lang === 'bn' ? 'নিষ্ক্রিয়' : 'Disabled')}
             </span>
@@ -192,7 +192,7 @@ export default function Settings({ settings = {}, groups = [] }) {
             rows="3"
             value={value || ''}
             onChange={e => handleChange(setting.key, e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none resize-none"
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none resize-none"
           />
         );
       default:
@@ -201,7 +201,7 @@ export default function Settings({ settings = {}, groups = [] }) {
             type="text" 
             value={value || ''}
             onChange={e => handleChange(setting.key, e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-[#e8001e]/5 focus:border-[#e8001e] transition-all outline-none"
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none"
           />
         );
     }
@@ -214,7 +214,7 @@ export default function Settings({ settings = {}, groups = [] }) {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] font-['Noto_Sans_Bengali'] flex items-center gap-3">
-            <SettingsIcon className="w-7 h-7 text-[#e8001e]" /> 
+            <SettingsIcon className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'সিস্টেম সেটিংস' : 'System Settings'}
           </h1>
           <p className="text-sm text-gray-500 mt-1.5 flex items-center gap-1.5">
@@ -225,7 +225,7 @@ export default function Settings({ settings = {}, groups = [] }) {
         <button 
           onClick={handleSave} 
           disabled={saving}
-          className="bg-[#e8001e] text-white rounded-xl px-6 py-3 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg shadow-red-100 active:scale-95 disabled:opacity-50"
+          className="bg-[#263238] text-white rounded-xl px-6 py-3 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg shadow-red-100 active:scale-95 disabled:opacity-50"
         >
           {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4.5 h-4.5" />}
           {lang === 'bn' ? 'সব পরিবর্তন সেভ করুন' : 'Save Changes'}
@@ -241,7 +241,7 @@ export default function Settings({ settings = {}, groups = [] }) {
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${
                   activeTab === tab.id 
-                  ? 'bg-white text-[#e8001e] shadow-md border-l-4 border-[#e8001e]' 
+                  ? 'bg-white text-[#263238] shadow-md border-l-4 border-[#263238]' 
                   : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                 }`}
               >
@@ -273,7 +273,7 @@ export default function Settings({ settings = {}, groups = [] }) {
                   {settings[activeTab]?.map(setting => (
                     <div key={setting.key} className="group">
                        <div className="flex items-center justify-between mb-2">
-                          <label className="block text-[13px] font-bold text-gray-700 uppercase tracking-tight group-hover:text-[#e8001e] transition-colors">
+                          <label className="block text-[13px] font-bold text-gray-700 uppercase tracking-tight group-hover:text-[#263238] transition-colors">
                              {lang === 'bn' ? setting.label_bn : setting.label_en}
                           </label>
                           {setting.is_public && (

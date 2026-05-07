@@ -1,4 +1,4 @@
-import { t } from '../translations';
+﻿import { t } from '../translations';
 import Icon from '../Components/Icon';
 import Modal from '../Components/ui/Modal';
 import VideoPlayer from '../Components/media/VideoPlayer';
@@ -55,7 +55,7 @@ export default function Video({ videos = [] }) {
               )}
             </div>
             <div style={{ padding: 12 }}>
-              <h3 style={{ fontFamily: "'Noto Serif Bengali', serif", fontSize: 19, fontWeight: 700, marginBottom: 8, lineHeight: 1.45 }}>
+              <h3 style={{ fontFamily: "'Kalpurush','SolaimanLipi',sans-serif", fontSize: 19, fontWeight: 700, marginBottom: 8, lineHeight: 1.45 }}>
                 {feat.title}
               </h3>
               <div className="meta">
@@ -67,7 +67,7 @@ export default function Video({ videos = [] }) {
             </div>
           </div>
         ) : (
-          <p>{lang === 'bn' ? 'কোনো ভিডিও নেই।' : 'No videos found.'}</p>
+          <p>{lang === 'bn' ? 'à¦•à§‹à¦¨à§‹ à¦­à¦¿à¦¡à¦¿à¦“ à¦¨à§‡à¦‡à¥¤' : 'No videos found.'}</p>
         )}
 
         <div className="sec">
@@ -127,7 +127,7 @@ export default function Video({ videos = [] }) {
           />
           {!playing.video_url && (
             <div style={{ textAlign: 'center', padding: '20px 0', color: '#888', fontSize: 14 }}>
-              {lang === 'bn' ? 'ভিডিও লিংক এখনো যোগ করা হয়নি।' : 'Video link not yet available.'}
+              {lang === 'bn' ? 'à¦­à¦¿à¦¡à¦¿à¦“ à¦²à¦¿à¦‚à¦• à¦à¦–à¦¨à§‹ à¦¯à§‹à¦— à¦•à¦°à¦¾ à¦¹à¦¯à¦¼à¦¨à¦¿à¥¤' : 'Video link not yet available.'}
             </div>
           )}
         </Modal>
@@ -135,3 +135,4 @@ export default function Video({ videos = [] }) {
     </div>
   );
 }
+

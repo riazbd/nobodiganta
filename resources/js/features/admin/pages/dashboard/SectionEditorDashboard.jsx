@@ -1,4 +1,4 @@
-import { Newspaper, Users, MessageSquare, TrendingUp, PenLine, FileText, Clock, BarChart3, CalendarDays, AlertTriangle, Calendar, FolderTree, Zap, Activity } from 'lucide-react';
+﻿import { Newspaper, Users, MessageSquare, TrendingUp, PenLine, FileText, Clock, BarChart3, CalendarDays, AlertTriangle, Calendar, FolderTree, Zap, Activity } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
 import { QuickActions } from '../../components/widgets/QuickActions';
@@ -20,7 +20,7 @@ export default function SectionEditorDashboard() {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
-            <FolderTree className="w-5 h-5 text-[#e8001e]" />
+            <FolderTree className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'বিভাগীয় সম্পাদক ড্যাশবোর্ড' : 'Section Editor Dashboard'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'বিভাগ-নির্দিষ্ট কন্টেন্ট ব্যবস্থাপনা ও সাংবাদিক তত্ত্বাবধান' : 'Section-specific content management and reporter oversight'}</p>
@@ -53,7 +53,7 @@ export default function SectionEditorDashboard() {
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
             <h3 className="text-sm font-bold flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#e8001e]" />
+              <Zap className="w-4 h-4 text-[#263238]" />
               {lang === 'bn' ? 'দ্রুত কাজ' : 'Quick Actions'}
             </h3>
           </div>
@@ -78,14 +78,14 @@ export default function SectionEditorDashboard() {
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)]">
             <h3 className="text-sm font-bold flex items-center gap-2">
-              <Newspaper className="w-4 h-4 text-[#e8001e]" />
+              <Newspaper className="w-4 h-4 text-[#263238]" />
               {lang === 'bn' ? 'সাম্প্রতিক সংবাদ' : 'Recent Articles'}
             </h3>
           </div>
           <div className="p-4 pt-1.5 space-y-0">
             {[].slice(0, 5).map((article, i) => (
               <div key={article.id} className="flex gap-3 py-2.75 border-b border-[#f3f4f6] last:border-0 items-start">
-                <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold flex-shrink-0 ${i === 0 ? 'bg-[#fff0f2] text-[#e8001e]' : 'bg-[var(--body-bg,#f0f2f8)] text-[var(--text-muted,#9ca3af)]'}`}>
+                <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold flex-shrink-0 ${i === 0 ? 'bg-[#eceff1] text-[#263238]' : 'bg-[var(--body-bg,#f0f2f8)] text-[var(--text-muted,#9ca3af)]'}`}>
                   {i + 1}
                 </div>
                 <div>

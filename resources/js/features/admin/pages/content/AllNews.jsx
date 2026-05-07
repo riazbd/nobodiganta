@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+﻿import { useState, useCallback, useRef, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import {
   Search, Plus, Eye, Edit3, Trash2, Send, ChevronDown, X, Loader2,
@@ -34,8 +34,8 @@ const TYPE_OPTIONS = [
 function SortIcon({ column, sortBy, sortDir }) {
   if (sortBy !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-30 inline" />;
   return sortDir === 'asc'
-    ? <ArrowUp className="w-3 h-3 ml-1 text-[#e8001e] inline" />
-    : <ArrowDown className="w-3 h-3 ml-1 text-[#e8001e] inline" />;
+    ? <ArrowUp className="w-3 h-3 ml-1 text-[#263238] inline" />
+    : <ArrowDown className="w-3 h-3 ml-1 text-[#263238] inline" />;
 }
 
 export default function AllNews({ articles, categories, authors = [], filters }) {
@@ -47,7 +47,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
   const [search,       setSearch]       = useState(filters.search       || '');
   const [status,       setStatus]       = useState(filters.status       || 'all');
   const [category,     setCategory]     = useState(filters.category     || 'all');
-  const [edition,      setEdition]      = useState(filters.edition      || 'all');
+  const [edition,      setEdition]      = useState(filters.edition      || lang);
   const [articleType,  setArticleType]  = useState(filters.article_type || 'all');
   const [author,       setAuthor]       = useState(filters.author       || 'all');
   const [dateFrom,     setDateFrom]     = useState(filters.date_from    || '');
@@ -59,6 +59,16 @@ export default function AllNews({ articles, categories, authors = [], filters })
   const [selected,     setSelected]     = useState([]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [submitting,   setSubmitting]   = useState(false);
+
+  // Sync edition filter with the sidebar language switcher.
+  // Only fires when lang changes; respects an explicit edition choice in the URL.
+  useEffect(() => {
+    if (filters.edition) return; // user set an explicit edition — don't override
+    setEdition(lang);
+    const params = { ...filters, edition: lang, page: 1 };
+    Object.keys(params).forEach(k => { if (!params[k] || params[k] === 'all') delete params[k]; });
+    router.get(route('admin.news'), params, { preserveState: true, preserveScroll: true });
+  }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buildParams = (overrides = {}) => {
     const p = {
@@ -144,7 +154,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] font-['Noto_Sans_Bengali'] flex items-center gap-2.5">
-            <Globe className="w-6 h-6 text-[#e8001e]" />
+            <Globe className="w-6 h-6 text-[#263238]" />
             {l('সংবাদ ব্যবস্থাপনা', 'News Management')}
           </h1>
           <p className="text-sm text-gray-400 mt-1">
@@ -153,7 +163,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
         </div>
         <Link
           href={route('admin.news.write')}
-          className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#c00] transition-all shadow-md"
+          className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#c00] transition-all shadow-md"
         >
           <Plus className="w-4 h-4" /> {l('নতুন সংবাদ', 'New Article')}
         </Link>
@@ -165,7 +175,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
         {/* Row 1 */}
         <div className="flex flex-wrap gap-3 items-center">
           {/* Search */}
-          <div className="flex items-center bg-gray-50 border border-gray-100 rounded-xl px-3.5 py-2.5 gap-2.5 flex-1 min-w-[220px] focus-within:border-[#e8001e]/40 focus-within:bg-white transition-all">
+          <div className="flex items-center bg-gray-50 border border-gray-100 rounded-xl px-3.5 py-2.5 gap-2.5 flex-1 min-w-[220px] focus-within:border-[#263238]/40 focus-within:bg-white transition-all">
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <input
               type="text"
@@ -200,11 +210,11 @@ export default function AllNews({ articles, categories, authors = [], filters })
           {/* More filters toggle */}
           <button
             onClick={() => setShowFilters(v => !v)}
-            className={`flex items-center gap-1.5 border rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all whitespace-nowrap ${showFilters || hasActiveFilters ? 'border-[#e8001e] text-[#e8001e] bg-[#fff0f2]' : 'border-gray-100 text-gray-500 bg-gray-50 hover:bg-gray-100'}`}
+            className={`flex items-center gap-1.5 border rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all whitespace-nowrap ${showFilters || hasActiveFilters ? 'border-[#263238] text-[#263238] bg-[#eceff1]' : 'border-gray-100 text-gray-500 bg-gray-50 hover:bg-gray-100'}`}
           >
             <Filter className="w-3.5 h-3.5" />
             {l('আরো', 'More')}
-            {hasActiveFilters && <span className="w-1.5 h-1.5 rounded-full bg-[#e8001e]" />}
+            {hasActiveFilters && <span className="w-1.5 h-1.5 rounded-full bg-[#263238]" />}
           </button>
 
           {hasActiveFilters && (
@@ -262,7 +272,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
             <tr className="bg-gray-50/70 border-b border-gray-100">
               <th className="px-5 py-3.5 text-left w-10">
                 <input type="checkbox" checked={selected.length === articles.data.length && articles.data.length > 0}
-                  onChange={toggleAll} className="rounded border-gray-300 text-[#e8001e] focus:ring-[#e8001e]" />
+                  onChange={toggleAll} className="rounded border-gray-300 text-[#263238] focus:ring-[#263238]" />
               </th>
               <Th onClick={() => handleSort('title_bn')} sortable>
                 {l('সংবাদ', 'Article')} <SortIcon column="title_bn" sortBy={sortBy} sortDir={sortDir} />
@@ -288,7 +298,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
                   <Globe className="w-10 h-10 text-gray-200 mx-auto mb-3" />
                   <p className="text-sm font-medium text-gray-400">{l('কোনো সংবাদ পাওয়া যায়নি', 'No articles found')}</p>
                   {hasActiveFilters && (
-                    <button onClick={resetFilters} className="mt-2 text-xs text-[#e8001e] hover:underline">{l('ফিল্টার রিসেট করুন', 'Reset filters')}</button>
+                    <button onClick={resetFilters} className="mt-2 text-xs text-[#263238] hover:underline">{l('ফিল্টার রিসেট করুন', 'Reset filters')}</button>
                   )}
                 </td>
               </tr>
@@ -298,12 +308,12 @@ export default function AllNews({ articles, categories, authors = [], filters })
                 <tr key={article.id} className={`hover:bg-[#fafbff] transition-colors group ${selected.includes(article.id) ? 'bg-[#fff8f8]' : ''}`}>
                   <td className="px-5 py-3.5">
                     <input type="checkbox" checked={selected.includes(article.id)} onChange={() => toggleSelect(article.id)}
-                      className="rounded border-gray-300 text-[#e8001e] focus:ring-[#e8001e]" />
+                      className="rounded border-gray-300 text-[#263238] focus:ring-[#263238]" />
                   </td>
 
                   {/* Article */}
                   <td className="px-4 py-3.5 max-w-xs">
-                    <div className="font-semibold text-[#1a1d2e] text-sm group-hover:text-[#e8001e] transition-colors line-clamp-2 leading-snug">
+                    <div className="font-semibold text-[#1a1d2e] text-sm group-hover:text-[#263238] transition-colors line-clamp-2 leading-snug">
                       {l(article.title, article.title_en || article.title)}
                     </div>
                     <div className="flex items-center gap-2 mt-1.5 flex-wrap">
@@ -323,7 +333,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
                   <td className="px-4 py-3.5">
                     {article.category ? (
                       <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: article.category.color_code || '#e8001e' }} />
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: article.category.color_code || '#263238' }} />
                         <span className="text-xs font-medium text-gray-600 truncate max-w-[100px]">
                           {l(article.category.name, article.category.name_en || article.category.name)}
                         </span>
@@ -335,7 +345,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
                   <td className="px-4 py-3.5">
                     <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${
                       article.edition === 'both' ? 'bg-gray-100 text-gray-600' :
-                      article.edition === 'bn'   ? 'bg-[#fff0f2] text-[#e8001e]' :
+                      article.edition === 'bn'   ? 'bg-[#eceff1] text-[#263238]' :
                                                    'bg-blue-50 text-blue-600'
                     }`}>
                       {article.edition === 'both' ? 'BN+EN' : article.edition?.toUpperCase()}
@@ -423,7 +433,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
               {articles.links.map((link, i) =>
                 link.url ? (
                   <Link key={i} href={link.url} dangerouslySetInnerHTML={{ __html: link.label }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${link.active ? 'bg-[#e8001e] text-white shadow-sm' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${link.active ? 'bg-[#263238] text-white shadow-sm' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                   />
                 ) : (
                   <span key={i} dangerouslySetInnerHTML={{ __html: link.label }}

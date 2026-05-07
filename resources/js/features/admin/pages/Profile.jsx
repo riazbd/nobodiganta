@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { User, Mail, Phone, MapPin, Camera, Save, Shield, Bell, Globe, Loader2, Trash2 } from 'lucide-react';
 import { Badge } from '../components/feedback/Badge';
@@ -98,7 +98,7 @@ export default function Profile() {
       <div className="flex items-start justify-between mb-5.5">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
-            <User className="w-5 h-5 text-[#e8001e]" />
+            <User className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'প্রোফাইল' : 'Profile'}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'আপনার অ্যাকাউন্ট সেটিংস' : 'Your account settings'}</p>
@@ -109,7 +109,7 @@ export default function Profile() {
         {tabs.map(tab => {
           const Icon = tab.icon;
           return (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-4 py-2.5 text-[12.5px] font-semibold border-b-2 transition-colors ${activeTab === tab.id ? 'border-[#e8001e] text-[#e8001e]' : 'border-transparent text-[var(--text-muted,#9ca3af)] hover:text-[var(--text-primary,#1a1d2e)]'}`}>
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center gap-2 px-4 py-2.5 text-[12.5px] font-semibold border-b-2 transition-colors ${activeTab === tab.id ? 'border-[#263238] text-[#263238]' : 'border-transparent text-[var(--text-muted,#9ca3af)] hover:text-[var(--text-primary,#1a1d2e)]'}`}>
               <Icon className="w-4 h-4" />
               {lang === 'bn' ? tab.labelBn : tab.labelEn}
             </button>
@@ -127,7 +127,7 @@ export default function Profile() {
                 ) : user.profile_photo_url ? (
                   <img src={user.profile_photo_url} className="w-full h-full object-cover" alt={user.name} />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-3xl font-bold">
+                  <div className="w-full h-full bg-gradient-to-br from-[#263238] to-[#ff6b6b] flex items-center justify-center text-white text-3xl font-bold">
                     {user.name?.charAt(0)}
                   </div>
                 )}
@@ -135,7 +135,7 @@ export default function Profile() {
               <button 
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute -bottom-2 -right-2 p-2 bg-white rounded-lg shadow-lg border border-gray-100 text-gray-600 hover:text-[#e8001e] transition-all transform hover:scale-110 active:scale-95"
+                className="absolute -bottom-2 -right-2 p-2 bg-white rounded-lg shadow-lg border border-gray-100 text-gray-600 hover:text-[#263238] transition-all transform hover:scale-110 active:scale-95"
               >
                 <Camera className="w-4 h-4" />
               </button>
@@ -179,7 +179,7 @@ export default function Profile() {
                 type="text" 
                 value={profileForm.data.name} 
                 onChange={e => profileForm.setData('name', e.target.value)}
-                className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition-all ${profileForm.errors.name ? 'border-red-500 bg-red-50' : 'border-[#e8ebf4] focus:border-[#e8001e]'}`} 
+                className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition-all ${profileForm.errors.name ? 'border-red-500 bg-red-50' : 'border-[#e8ebf4] focus:border-[#263238]'}`} 
               />
               {profileForm.errors.name && <p className="text-[10px] text-red-500 mt-1 font-medium">{profileForm.errors.name}</p>}
             </div>
@@ -189,7 +189,7 @@ export default function Profile() {
                 type="email" 
                 value={profileForm.data.email} 
                 onChange={e => profileForm.setData('email', e.target.value)}
-                className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition-all ${profileForm.errors.email ? 'border-red-500 bg-red-50' : 'border-[#e8ebf4] focus:border-[#e8001e]'}`} 
+                className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition-all ${profileForm.errors.email ? 'border-red-500 bg-red-50' : 'border-[#e8ebf4] focus:border-[#263238]'}`} 
               />
               {profileForm.errors.email && <p className="text-[10px] text-red-500 mt-1 font-medium">{profileForm.errors.email}</p>}
             </div>
@@ -199,7 +199,7 @@ export default function Profile() {
             <button 
               type="submit" 
               disabled={profileForm.processing}
-              className="bg-[#e8001e] text-white rounded-xl px-8 py-3 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg shadow-red-100 disabled:opacity-50"
+              className="bg-[#263238] text-white rounded-xl px-8 py-3 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg shadow-red-100 disabled:opacity-50"
             >
               {profileForm.processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {lang === 'bn' ? 'পরিবর্তন সংরক্ষণ করুন' : 'Save Changes'}
@@ -211,7 +211,7 @@ export default function Profile() {
       {activeTab === 'security' && (
         <form onSubmit={handleSecuritySubmit} className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-6 max-w-2xl">
           <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-            <Shield className="w-5 h-5 text-[#e8001e]" />
+            <Shield className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'পাসওয়ার্ড পরিবর্তন' : 'Update Password'}
           </h3>
           
@@ -223,7 +223,7 @@ export default function Profile() {
                 autoComplete="current-password"
                 value={securityForm.data.current_password}
                 onChange={e => securityForm.setData('current_password', e.target.value)}
-                className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition-all ${securityForm.errors.current_password ? 'border-red-500 bg-red-50' : 'border-[#e8ebf4] focus:border-[#e8001e]'}`} 
+                className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition-all ${securityForm.errors.current_password ? 'border-red-500 bg-red-50' : 'border-[#e8ebf4] focus:border-[#263238]'}`} 
               />
               {securityForm.errors.current_password && <p className="text-[10px] text-red-500 mt-1 font-medium">{securityForm.errors.current_password}</p>}
             </div>
@@ -236,7 +236,7 @@ export default function Profile() {
                   autoComplete="new-password"
                   value={securityForm.data.password}
                   onChange={e => securityForm.setData('password', e.target.value)}
-                  className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition-all ${securityForm.errors.password ? 'border-red-500 bg-red-50' : 'border-[#e8ebf4] focus:border-[#e8001e]'}`} 
+                  className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition-all ${securityForm.errors.password ? 'border-red-500 bg-red-50' : 'border-[#e8ebf4] focus:border-[#263238]'}`} 
                 />
                 {securityForm.errors.password && <p className="text-[10px] text-red-500 mt-1 font-medium">{securityForm.errors.password}</p>}
               </div>
@@ -247,7 +247,7 @@ export default function Profile() {
                   autoComplete="new-password"
                   value={securityForm.data.password_confirmation}
                   onChange={e => securityForm.setData('password_confirmation', e.target.value)}
-                  className={`w-full border border-[#e8ebf4] rounded-lg px-4 py-2.5 text-sm outline-none transition-all focus:border-[#e8001e]`} 
+                  className={`w-full border border-[#e8ebf4] rounded-lg px-4 py-2.5 text-sm outline-none transition-all focus:border-[#263238]`} 
                 />
               </div>
             </div>
@@ -256,7 +256,7 @@ export default function Profile() {
           <button 
             type="submit" 
             disabled={securityForm.processing}
-            className="mt-8 bg-[#e8001e] text-white rounded-xl px-8 py-3 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg shadow-red-100 disabled:opacity-50"
+            className="mt-8 bg-[#263238] text-white rounded-xl px-8 py-3 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg shadow-red-100 disabled:opacity-50"
           >
             {securityForm.processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
             {lang === 'bn' ? 'পাসওয়ার্ড আপডেট করুন' : 'Update Password'}
@@ -267,7 +267,7 @@ export default function Profile() {
       {activeTab === 'notifications' && (
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-6 max-w-2xl">
           <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-            <Bell className="w-5 h-5 text-[#e8001e]" />
+            <Bell className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'বিজ্ঞপ্তি সেটিংস' : 'Notification Settings'}
           </h3>
           
@@ -293,7 +293,7 @@ export default function Profile() {
               </div>
             ))}
           </div>
-          <button onClick={() => showToast(lang === 'bn' ? 'বিজ্ঞপ্তি সেটিংস সংরক্ষিত!' : 'Notification settings saved!')} className="mt-8 bg-[#e8001e] text-white rounded-xl px-8 py-3 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg shadow-red-100">
+          <button onClick={() => showToast(lang === 'bn' ? 'বিজ্ঞপ্তি সেটিংস সংরক্ষিত!' : 'Notification settings saved!')} className="mt-8 bg-[#263238] text-white rounded-xl px-8 py-3 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg shadow-red-100">
             <Save className="w-4 h-4" /> {lang === 'bn' ? 'সংরক্ষণ করুন' : 'Save Changes'}
           </button>
         </div>

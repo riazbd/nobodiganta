@@ -1,4 +1,4 @@
-import { t } from '../translations';
+﻿import { t } from '../translations';
 import { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { getEpaperEditions } from '../services/epaperService';
@@ -42,7 +42,7 @@ export default function Epaper() {
                   padding: '6px 14px',
                   cursor: 'pointer',
                   borderRadius: 2,
-                  fontFamily: "'Noto Sans Bengali', sans-serif",
+                  fontFamily: "'Kalpurush','SolaimanLipi',sans-serif",
                   fontSize: '12.5px',
                 }}
               >
@@ -53,7 +53,7 @@ export default function Epaper() {
         )}
       </div>
 
-      <h3 style={{ fontFamily: "'Noto Serif Bengali', serif", fontSize: 17, fontWeight: 700, marginBottom: 14, color: 'var(--black)' }}>
+      <h3 style={{ fontFamily: "'Kalpurush','SolaimanLipi',sans-serif", fontSize: 17, fontWeight: 700, marginBottom: 14, color: 'var(--black)' }}>
         {t('epaper.choose', lang)}
       </h3>
 
@@ -81,10 +81,10 @@ export default function Epaper() {
                     loading="lazy"
                   />
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 32 }}>📰</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: 32 }}>ðŸ“°</div>
                 )}
               </div>
-              <h4>{lang === 'bn' ? 'নবদিগন্ত' : 'NoboDiganta'}</h4>
+              <h4>{lang === 'bn' ? 'à¦¨à¦¬à¦¦à¦¿à¦—à¦¨à§à¦¤' : 'NoboDiganta'}</h4>
               <div className="ep-date">{lang === 'bn' ? ed.label : ed.labelEn}</div>
               <span className="ep-btn">{t('epaper.view_btn', lang)}</span>
             </div>
@@ -105,8 +105,8 @@ export default function Epaper() {
             />
           ) : (
             <div style={{ textAlign: 'center', padding: 40, color: '#888' }}>
-              <div style={{ fontSize: 48, marginBottom: 12 }}>📰</div>
-              <p>{lang === 'bn' ? 'PDF লিংক এখনো যোগ করা হয়নি।' : 'PDF link not yet available.'}</p>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>ðŸ“°</div>
+              <p>{lang === 'bn' ? 'PDF à¦²à¦¿à¦‚à¦• à¦à¦–à¦¨à§‹ à¦¯à§‹à¦— à¦•à¦°à¦¾ à¦¹à¦¯à¦¼à¦¨à¦¿à¥¤' : 'PDF link not yet available.'}</p>
             </div>
           )}
         </Modal>
@@ -114,3 +114,4 @@ export default function Epaper() {
     </div>
   );
 }
+

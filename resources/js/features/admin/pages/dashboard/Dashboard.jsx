@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+﻿import { usePage } from '@inertiajs/react';
 import { Newspaper, Users, MessageSquare, CreditCard, PenLine, Upload, TrendingUp, Flame, BarChart3, Globe, Zap, Clock, Activity, Calendar } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
@@ -45,7 +45,7 @@ export default function Dashboard({
       <div className="flex items-start justify-between mb-5.5 row-anim">
         <div>
           <h1 className="text-xl font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2 font-['Noto_Sans_Bengali']">
-            <Newspaper className="w-5 h-5 text-[#e8001e]" />
+            <Newspaper className="w-5 h-5 text-[#263238]" />
             {t('adminDashboard')}
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">
@@ -73,7 +73,7 @@ export default function Dashboard({
         <MiniStat icon={PenLine} value={String(ms.reportersCount || 0)} label={t('reportersWriters')} change={t('newThisMonth')} changeColor="green" iconBg="bg-[#f5f3ff]" />
         <MiniStat icon={Upload} value={String(ms.pendingApproval || 0)} label={t('pendingApproval')} change={t('urgentItems')} changeColor="red" iconBg="bg-[#ecfeff]" />
         <MiniStat icon={TrendingUp} value={lang === 'bn' ? `৳ ${(ms.adRevenue / 100000).toFixed(1)} লাখ` : `৳ ${(ms.adRevenue / 100000).toFixed(1)}L`} label={t('adRevenueMonth')} change={t('revenueGrowth')} changeColor="green" iconBg="bg-[#ecfdf5]" />
-        <MiniStat icon={Flame} value={lang === 'bn' ? `${ms.avgReadTime} মিনিট` : `${ms.avgReadTime} min`} label={t('avgReadTime')} change={t('readTimeIncrease')} changeColor="green" iconBg="bg-[#fff0f2]" />
+        <MiniStat icon={Flame} value={lang === 'bn' ? `${ms.avgReadTime} মিনিট` : `${ms.avgReadTime} min`} label={t('avgReadTime')} change={t('readTimeIncrease')} changeColor="green" iconBg="bg-[#eceff1]" />
       </div>
 
 
@@ -94,7 +94,7 @@ export default function Dashboard({
               data={traffic.pageViews || []}
               data2={traffic.uniqueVisitors || []}
               labels={lang === 'bn' ? (traffic.labels || []) : (traffic.labelsEn || [])}
-              color="#e8001e"
+              color="#263238"
               color2="#3b82f6"
               gradientId="gRed"
               label1={t('pageviewsLabel')}
@@ -136,7 +136,7 @@ export default function Dashboard({
               segments={[
                 { name: t('publishedBn'), value: cs.published.count, pct: cs.published.pct, color: '#10b981' },
                 { name: t('draftBn'), value: cs.draft.count, pct: cs.draft.pct, color: '#f59e0b' },
-                { name: t('pendingBn'), value: cs.pending.count, pct: cs.pending.pct, color: '#e8001e' },
+                { name: t('pendingBn'), value: cs.pending.count, pct: cs.pending.pct, color: '#263238' },
                 { name: t('archivedBn'), value: cs.archived.count, pct: cs.archived.pct, color: '#3b82f6' },
               ]}
               centerValue={cs.total}
@@ -157,7 +157,7 @@ export default function Dashboard({
       <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden mb-4.5 row-anim">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
             <h3 className="text-sm font-bold">{t('recentArticlesHeader')}</h3>
-            <button onClick={() => onNavigate?.('news')} className="bg-[#e8001e] text-white text-[11.5px] font-semibold px-3 py-1.25 rounded-md hover:bg-[#b8001a] transition-colors">
+            <button onClick={() => onNavigate?.('news')} className="bg-[#263238] text-white text-[11.5px] font-semibold px-3 py-1.25 rounded-md hover:bg-[#1a2428] transition-colors">
               {t('viewAllNewsBn')}
             </button>
           </div>

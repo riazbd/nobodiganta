@@ -1,4 +1,4 @@
-export function ScheduleList({ items = [], lang = 'bn' }) {
+﻿export function ScheduleList({ items = [], lang = 'bn' }) {
   const statusBadgeMap = {
     completed: { text: 'সম্পন্ন', textEn: 'Done', variant: 'green' },
     ongoing: { text: 'চলমান', textEn: 'Ongoing', variant: 'blue' },
@@ -6,8 +6,8 @@ export function ScheduleList({ items = [], lang = 'bn' }) {
     scheduled: { text: 'নির্ধারিত', textEn: 'Scheduled', variant: 'gray' },
     live: { text: 'লাইভ', textEn: 'Live', variant: 'red' },
   };
-  const dotColorMap = { completed: '#10b981', ongoing: '#3b82f6', pending: '#f59e0b', scheduled: '#8b5cf6', live: '#e8001e' };
-  const badgeColorMap = { green: 'bg-[#ecfdf5] text-[#10b981]', blue: 'bg-[#eff6ff] text-[#3b82f6]', orange: 'bg-[#fffbeb] text-[#f59e0b]', gray: 'bg-[#f3f4f6] text-[#6b7280]', red: 'bg-[#fff0f2] text-[#e8001e]' };
+  const dotColorMap = { completed: '#10b981', ongoing: '#3b82f6', pending: '#f59e0b', scheduled: '#8b5cf6', live: '#263238' };
+  const badgeColorMap = { green: 'bg-[#ecfdf5] text-[#10b981]', blue: 'bg-[#eff6ff] text-[#3b82f6]', orange: 'bg-[#fffbeb] text-[#f59e0b]', gray: 'bg-[#f3f4f6] text-[#6b7280]', red: 'bg-[#eceff1] text-[#263238]' };
 
   return (
     <div className="space-y-0">

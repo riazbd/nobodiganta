@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+﻿import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -19,7 +19,7 @@ export default function Login({ status, canResetPassword }) {
             <Head title="Log in" />
             <div className="min-h-screen flex bg-[#f0f2f8]">
                 {/* Left Panel - Branding */}
-                <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#e8001e] to-[#b8001a] items-center justify-center relative overflow-hidden">
+                <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#263238] to-[#1a2428] items-center justify-center relative overflow-hidden">
                     {/* Decorative circles */}
                     <div className="absolute top-20 left-20 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
                     <div className="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
@@ -48,7 +48,7 @@ export default function Login({ status, canResetPassword }) {
                     <div className="w-full max-w-md">
                         {/* Mobile Logo */}
                         <div className="lg:hidden text-center mb-8">
-                            <div className="text-4xl font-extrabold text-[#e8001e] font-['Noto_Serif_Bengali']">
+                            <div className="text-4xl font-extrabold text-[#263238] font-['Noto_Serif_Bengali']">
                                 নবদিগন্ত
                             </div>
                             <div className="text-xs text-gray-500 tracking-widest uppercase mt-1">Admin Panel</div>
@@ -96,7 +96,7 @@ export default function Login({ status, canResetPassword }) {
                                         autoFocus
                                         autoComplete="email"
                                         placeholder="admin@nobodiganta.com"
-                                        className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.75 text-sm outline-none focus:border-[#e8001e] focus:ring-2 focus:ring-[#e8001e]/20 transition-all bg-white"
+                                        className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.75 text-sm outline-none focus:border-[#263238] focus:ring-2 focus:ring-[#263238]/20 transition-all bg-white"
                                     />
                                 </div>
                             </div>
@@ -110,7 +110,7 @@ export default function Login({ status, canResetPassword }) {
                                     {canResetPassword && (
                                         <Link
                                             href={route('password.request')}
-                                            className="text-xs text-[#e8001e] hover:underline font-medium"
+                                            className="text-xs text-[#263238] hover:underline font-medium"
                                         >
                                             Forgot password?
                                         </Link>
@@ -130,7 +130,7 @@ export default function Login({ status, canResetPassword }) {
                                         required
                                         autoComplete="current-password"
                                         placeholder="••••••••"
-                                        className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.75 text-sm outline-none focus:border-[#e8001e] focus:ring-2 focus:ring-[#e8001e]/20 transition-all bg-white"
+                                        className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-2.75 text-sm outline-none focus:border-[#263238] focus:ring-2 focus:ring-[#263238]/20 transition-all bg-white"
                                     />
                                 </div>
                             </div>
@@ -142,7 +142,7 @@ export default function Login({ status, canResetPassword }) {
                                     type="checkbox"
                                     checked={data.remember}
                                     onChange={(e) => setData('remember', e.target.checked)}
-                                    className="w-4 h-4 text-[#e8001e] border-gray-300 rounded focus:ring-[#e8001e] cursor-pointer"
+                                    className="w-4 h-4 text-[#263238] border-gray-300 rounded focus:ring-[#263238] cursor-pointer"
                                 />
                                 <label htmlFor="remember" className="ml-2.5 text-sm text-gray-600 cursor-pointer select-none">
                                     Remember me for 30 days
@@ -153,7 +153,7 @@ export default function Login({ status, canResetPassword }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full bg-[#e8001e] text-white font-semibold py-3 rounded-xl hover:bg-[#c0001a] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#e8001e]/25 hover:shadow-[#e8001e]/40"
+                                className="w-full bg-[#263238] text-white font-semibold py-3 rounded-xl hover:bg-[#1a2428] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#263238]/20 hover:shadow-[#263238]/20"
                             >
                                 {processing ? (
                                     <span className="flex items-center justify-center gap-2">

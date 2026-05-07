@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Megaphone, Plus, Edit3, Trash2, ToggleLeft, ToggleRight, Eye, Search, X, Image as ImageIcon, ExternalLink, Calendar, TrendingUp, BarChart } from 'lucide-react';
 import { Badge } from '../components/feedback/Badge';
 import { useLanguage } from '../hooks/useLanguage';
@@ -118,7 +118,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] font-['Noto_Sans_Bengali'] flex items-center gap-3">
-            <Megaphone className="w-7 h-7 text-[#e8001e]" /> 
+            <Megaphone className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'বিজ্ঞাপন ব্যবস্থাপনা' : 'Ads Management'}
           </h1>
           <div className="flex items-center gap-4 mt-2">
@@ -132,13 +132,13 @@ export default function AdsManagement({ ads = [], filters = {} }) {
              </div>
           </div>
         </div>
-        <button onClick={openAddModal} className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg active:scale-95">
+        <button onClick={openAddModal} className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg active:scale-95">
           <Plus className="w-4.5 h-4.5" /> {lang === 'bn' ? 'নতুন বিজ্ঞাপন' : 'New Ad'}
         </button>
       </div>
 
       <div className="mb-6">
-        <form onSubmit={handleSearch} className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-3 w-full max-w-md shadow-sm focus-within:border-[#e8001e] focus-within:ring-4 focus-within:ring-red-50 transition-all">
+        <form onSubmit={handleSearch} className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 gap-3 w-full max-w-md shadow-sm focus-within:border-[#263238] focus-within:ring-4 focus-within:ring-red-50 transition-all">
           <Search className="w-4.5 h-4.5 text-gray-400" />
           <input 
             type="text" 
@@ -176,9 +176,9 @@ export default function AdsManagement({ ads = [], filters = {} }) {
               <div className="flex-1 p-5">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-sm font-bold text-gray-900 group-hover:text-[#e8001e] transition-colors">{lang === 'bn' ? ad.title : ad.titleEn}</h3>
+                    <h3 className="text-sm font-bold text-gray-900 group-hover:text-[#263238] transition-colors">{lang === 'bn' ? ad.title : ad.titleEn}</h3>
                     <div className="text-[11px] font-bold text-gray-400 uppercase tracking-tighter mt-1 flex items-center gap-2">
-                       <span className="text-[#e8001e]">{ad.position}</span>
+                       <span className="text-[#263238]">{ad.position}</span>
                        {ad.link && (
                          <a href={ad.link} target="_blank" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
                             <ExternalLink size={10} /> Link
@@ -198,7 +198,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                     <div className="text-[9px] font-bold text-gray-400 uppercase">{lang === 'bn' ? 'ক্লিক' : 'Clicks'}</div>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-2.5 text-center">
-                    <div className="text-sm font-bold text-[#e8001e] font-Inter">{ad.ctr}%</div>
+                    <div className="text-sm font-bold text-[#263238] font-Inter">{ad.ctr}%</div>
                     <div className="text-[9px] font-bold text-gray-400 uppercase">CTR</div>
                   </div>
                 </div>
@@ -237,7 +237,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl my-8 transform transition-all animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
             <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
                <h3 className="text-xl font-bold flex items-center gap-2">
-                 <Megaphone className="text-[#e8001e]" size={22} />
+                 <Megaphone className="text-[#263238]" size={22} />
                  {editingAd ? (lang === 'bn' ? 'বিজ্ঞাপন সম্পাদনা' : 'Edit Ad') : (lang === 'bn' ? 'নতুন বিজ্ঞাপন যোগ' : 'Add New Ad')}
                </h3>
                <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={20} /></button>
@@ -247,18 +247,18 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'শিরোনাম (বাংলা)' : 'Title (Bangla)'} *</label>
-                    <input type="text" value={formData.titleBn} onChange={e => setFormData({...formData, titleBn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="text" value={formData.titleBn} onChange={e => setFormData({...formData, titleBn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'শিরোনাম (ইংরেজি)' : 'Title (English)'} *</label>
-                    <input type="text" value={formData.titleEn} onChange={e => setFormData({...formData, titleEn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="text" value={formData.titleEn} onChange={e => setFormData({...formData, titleEn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'অবস্থান' : 'Position'}</label>
-                    <select value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]">
+                    <select value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]">
                        <option value="header">Header</option>
                        <option value="home_top">Home Top</option>
                        <option value="between_sections">Between Sections</option>
@@ -271,7 +271,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'টাইপ' : 'Type'}</label>
-                    <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]">
+                    <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]">
                        <option value="image">Image Banner</option>
                        <option value="google_ad">Google AdSense</option>
                        <option value="video">Video Ad</option>
@@ -281,7 +281,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'ক্রম' : 'Order'}</label>
-                    <input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
@@ -296,7 +296,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'লিঙ্ক' : 'Link'}</label>
-                      <input type="url" value={formData.link} onChange={e => setFormData({...formData, link: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" placeholder="https://..." />
+                      <input type="url" value={formData.link} onChange={e => setFormData({...formData, link: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" placeholder="https://..." />
                     </div>
                  </div>
                )}
@@ -312,7 +312,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'ভিডিও লিঙ্ক (MP4/YouTube)' : 'Video URL'} *</label>
-                      <input type="url" value={formData.video_url} onChange={e => setFormData({...formData, video_url: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" placeholder="https://..." required />
+                      <input type="url" value={formData.video_url} onChange={e => setFormData({...formData, video_url: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" placeholder="https://..." required />
                     </div>
                  </div>
                )}
@@ -320,23 +320,23 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                {(formData.type === 'html' || formData.type === 'google_ad' || formData.type === 'script') && (
                  <div className="mb-6">
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'কোড' : 'Ad Code / HTML / JS'}</label>
-                    <textarea rows="6" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e] font-mono" placeholder={formData.type === 'script' ? '<script>\n  // Your JS code here\n</script>' : '<div class="my-ad">...</div>'} />
+                    <textarea rows="6" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238] font-mono" placeholder={formData.type === 'script' ? '<script>\n  // Your JS code here\n</script>' : '<div class="my-ad">...</div>'} />
                  </div>
                )}
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'শুরু তারিখ' : 'Start Date'}</label>
-                    <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">{lang === 'bn' ? 'শেষ তারিখ' : 'End Date'}</label>
-                    <input type="date" value={formData.endDate} onChange={e => setFormData({...formData, endDate: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="date" value={formData.endDate} onChange={e => setFormData({...formData, endDate: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
                <div className="flex gap-4">
-                  <button onClick={handleSubmit} className="flex-1 bg-[#e8001e] text-white rounded-2xl py-4 text-base font-bold shadow-lg shadow-red-100 transition-all hover:bg-[#b8001a] active:scale-95">
+                  <button onClick={handleSubmit} className="flex-1 bg-[#263238] text-white rounded-2xl py-4 text-base font-bold shadow-lg shadow-red-100 transition-all hover:bg-[#1a2428] active:scale-95">
                     {editingAd ? (lang === 'bn' ? 'হালনাগাদ করুন' : 'Update Ad') : (lang === 'bn' ? 'বিজ্ঞাপন সংরক্ষণ করুন' : 'Save Ad')}
                   </button>
                   <button onClick={() => setShowModal(false)} className="flex-1 bg-gray-50 text-gray-600 rounded-2xl py-4 text-base font-bold transition-all hover:bg-gray-100 active:scale-95">

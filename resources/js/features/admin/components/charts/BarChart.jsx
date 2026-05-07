@@ -1,4 +1,4 @@
-export function GroupedBarChart({ data1, data2, labels, color1 = '#e8001e', color2 = '#3b82f6', height = 180 }) {
+﻿export function GroupedBarChart({ data1, data2, labels, color1 = '#263238', color2 = '#3b82f6', height = 180 }) {
   if (!data1 || data1.length === 0) return null;
   const allValues = [...data1, ...(data2 || [])];
   const maxVal = Math.max(...allValues) || 1;

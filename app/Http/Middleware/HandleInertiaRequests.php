@@ -35,6 +35,9 @@ class HandleInertiaRequests extends Middleware
         $path = $request->path();
         $edition = ($path === 'en' || str_starts_with($path, 'en/')) ? 'en' : 'bn';
 
+        // Share edition with Blade so <html lang=""> can be set server-side
+        view()->share('htmlEdition', $edition);
+
         // Load public settings
         $publicSettings = Setting::where('is_public', true)->get()->mapWithKeys(function ($setting) {
             return [$setting->key => $setting->value];

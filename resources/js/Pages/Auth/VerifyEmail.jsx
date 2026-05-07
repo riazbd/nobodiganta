@@ -1,4 +1,4 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+﻿import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
 export default function VerifyEmail({ status }) {
     const { post, processing } = useForm({});
@@ -17,7 +17,7 @@ export default function VerifyEmail({ status }) {
                 <div className="w-full max-w-md">
                     {/* Logo */}
                     <div className="text-center mb-8">
-                        <div className="text-4xl font-extrabold text-[#e8001e] font-['Noto_Serif_Bengali']">
+                        <div className="text-4xl font-extrabold text-[#263238] font-['Noto_Serif_Bengali']">
                             নবদিগন্ত
                         </div>
                         <div className="text-xs text-gray-500 tracking-widest uppercase mt-1">Admin Panel</div>
@@ -47,7 +47,7 @@ export default function VerifyEmail({ status }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full bg-[#e8001e] text-white font-semibold py-3 rounded-xl hover:bg-[#c0001a] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#e8001e]/25"
+                                className="w-full bg-[#263238] text-white font-semibold py-3 rounded-xl hover:bg-[#1a2428] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#263238]/20"
                             >
                                 {processing ? 'Sending...' : 'Resend verification email'}
                             </button>

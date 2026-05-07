@@ -13,16 +13,22 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['"Plus Jakarta Sans"', 'Inter', ...defaultTheme.fontFamily.sans],
-                bengali: ['"Noto Sans Bengali"', 'sans-serif'],
-                'bengali-serif': ['"Noto Serif Bengali"', 'serif'],
+                sans:    ['Kalpurush', 'SolaimanLipi', ...defaultTheme.fontFamily.sans],
+                bengali: ['Kalpurush', 'SolaimanLipi', 'sans-serif'],
             },
             colors: {
+                primary: {
+                    DEFAULT: '#263238',
+                    dark:    '#1a2428',
+                    mid:     '#37474f',
+                    light:   '#eceff1',
+                },
+                // Admin panel keeps its own red
                 red: {
                     600: '#e8001e',
                     700: '#c0001a',
                 },
-                breaking: '#ff3300',
+                breaking: '#e8001e',
                 'pa-blue': '#0055a5',
                 'pa-green': '#00885a',
                 'pa-border': '#e0e0e0',

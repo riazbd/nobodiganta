@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Lightbulb, Plus, Check, X, Search, X as XIcon } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -46,7 +46,7 @@ export default function PitchBoard() {
           </h1>
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'সংবাদ আইডিয়া ও পিচ ব্যবস্থাপনা' : 'News ideas and pitch management'}</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
+        <button onClick={() => setShowModal(true)} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
           <Plus className="w-4 h-4" /> {lang === 'bn' ? 'নতুন পিচ' : 'New Pitch'}
         </button>
       </div>
@@ -72,7 +72,7 @@ export default function PitchBoard() {
                 <button onClick={() => handleApprove(pitch.id)} className="flex-1 bg-[#10b981] text-white text-[11px] font-semibold py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-[#059669] transition-colors">
                   <Check className="w-3 h-3" /> {lang === 'bn' ? 'অনুমোদন' : 'Approve'}
                 </button>
-                <button onClick={() => handleReject(pitch.id)} className="flex-1 bg-white text-[#e8001e] border border-[#e8001e] text-[11px] font-semibold py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-[#fff0f2] transition-colors">
+                <button onClick={() => handleReject(pitch.id)} className="flex-1 bg-white text-[#263238] border border-[#263238] text-[11px] font-semibold py-1.5 rounded-md flex items-center justify-center gap-1 hover:bg-[#eceff1] transition-colors">
                   <X className="w-3 h-3" /> {lang === 'bn' ? 'প্রত্যাখ্যান' : 'Reject'}
                 </button>
               </div>
@@ -84,9 +84,9 @@ export default function PitchBoard() {
         <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-bold mb-4">{lang === 'bn' ? 'নতুন পিচ জমা দিন' : 'Submit New Pitch'}</h3>
-            <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder={lang === 'bn' ? 'পিচের শিরোনাম...' : 'Pitch title...'} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e] mb-4" />
+            <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder={lang === 'bn' ? 'পিচের শিরোনাম...' : 'Pitch title...'} className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238] mb-4" />
             <div className="flex gap-2">
-              <button onClick={handleAdd} className="flex-1 bg-[#e8001e] text-white rounded-lg py-2 text-sm font-semibold hover:bg-[#b8001a]">{lang === 'bn' ? 'জমা দিন' : 'Submit'}</button>
+              <button onClick={handleAdd} className="flex-1 bg-[#263238] text-white rounded-lg py-2 text-sm font-semibold hover:bg-[#1a2428]">{lang === 'bn' ? 'জমা দিন' : 'Submit'}</button>
               <button onClick={() => setShowModal(false)} className="flex-1 bg-white border border-[var(--card-border,#e8ebf4)] rounded-lg py-2 text-sm font-semibold hover:bg-gray-50">{lang === 'bn' ? 'বাতিল' : 'Cancel'}</button>
             </div>
           </div>

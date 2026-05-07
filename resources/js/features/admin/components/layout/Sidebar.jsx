@@ -1,4 +1,4 @@
-import { useLanguage } from '../../hooks/useLanguage';
+﻿import { useLanguage } from '../../hooks/useLanguage';
 import { PERMISSIONS } from '../../api/permissions';
 import { router, usePage } from '@inertiajs/react';
 import {
@@ -107,8 +107,8 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
             style={{ maxHeight: 40, maxWidth: 180, objectFit: 'contain', display: 'block' }}
           />
         ) : (
-          <div className="flex items-center gap-2 text-[#e8001e] font-['Noto_Serif_Bengali'] text-xl font-extrabold leading-none">
-            <div className="w-2 h-2 bg-[#e8001e] rounded-full" />
+          <div className="flex items-center gap-2 text-[#263238] font-['Noto_Serif_Bengali'] text-xl font-extrabold leading-none">
+            <div className="w-2 h-2 bg-[#263238] rounded-full" />
             {siteName}
           </div>
         )}
@@ -124,7 +124,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
           {props.auth.user.profile_photo_url ? (
             <img src={props.auth.user.profile_photo_url} alt={props.auth.user.name} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-sm font-bold">
+            <div className="w-full h-full bg-gradient-to-br from-[#263238] to-[#ff6b6b] flex items-center justify-center text-white text-sm font-bold">
               {props.auth.user.name?.charAt(0) || 'U'}
             </div>
           )}
@@ -153,7 +153,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
                 <div key={item.id}>
                   <div
                     className={`flex items-center gap-2.5 px-4 py-2.25 mx-2 rounded-md text-[12.5px] font-medium cursor-pointer transition-all relative ${
-                      activeItem === item.id ? 'bg-[#e8001e] text-white' : 'text-[#8b92a5] hover:bg-[#1c1f2e] hover:text-[#e0e0e0]'
+                      activeItem === item.id ? 'bg-[#263238] text-white' : 'text-[#8b92a5] hover:bg-[#1c1f2e] hover:text-[#e0e0e0]'
                     }`}
                     onClick={() => {
                       if (item.children) {
@@ -170,7 +170,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
                     <span className="flex-1">{t(item.label)}</span>
                     {item.badge && (
                       <span className={`text-[9.5px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${
-                        activeItem === item.id ? 'bg-white/30' : 'bg-[#e8001e] text-white'
+                        activeItem === item.id ? 'bg-white/30' : 'bg-[#263238] text-white'
                       }`}>{item.badge}</span>
                     )}
                     {item.children && (
@@ -183,7 +183,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
                         <div
                           key={sub.id}
                           className={`flex items-center gap-2 px-4 py-1.75 mx-2 rounded-md text-[12px] cursor-pointer transition-all ${
-                            activeItem === sub.id ? 'text-[#e8001e]' : 'text-[#8b92a5] hover:bg-[#1c1f2e] hover:text-[#ddd]'
+                            activeItem === sub.id ? 'text-[#263238]' : 'text-[#8b92a5] hover:bg-[#1c1f2e] hover:text-[#ddd]'
                           }`}
                           onClick={() => handleNav(sub.id)}
                         >

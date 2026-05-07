@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { Trophy, Plus, Edit3, Trash2, X, Save, Search, RefreshCw, Activity, Calendar, CheckCircle } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
@@ -80,12 +80,12 @@ export default function CricketManagement({ matches = [] }) {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1d2e] flex items-center gap-3">
-            <Trophy className="w-7 h-7 text-[#e8001e]" /> 
+            <Trophy className="w-7 h-7 text-[#263238]" /> 
             {lang === 'bn' ? 'ক্রিকেট স্কোর ব্যবস্থাপনা' : 'Cricket Score Management'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">{lang === 'bn' ? 'লাইভ ক্রিকেট স্কোর ও শিডিউল পরিচালনা করুন' : 'Manage live cricket scores and schedules'}</p>
         </div>
-        <button onClick={openAddModal} className="bg-[#e8001e] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#b8001a] transition-all shadow-lg active:scale-95">
+        <button onClick={openAddModal} className="bg-[#263238] text-white rounded-xl px-5 py-2.5 text-sm font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-all shadow-lg active:scale-95">
           <Plus size={18} /> {lang === 'bn' ? 'নতুন ম্যাচ' : 'Add Match'}
         </button>
       </div>
@@ -103,7 +103,7 @@ export default function CricketManagement({ matches = [] }) {
               </div>
               <div className="flex gap-1">
                  <button onClick={() => openEditModal(match)} className="p-2 rounded-xl hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-all"><Edit3 size={16} /></button>
-                 <button onClick={() => { if(confirm('Delete?')) router.delete(route('admin.cricket.destroy', match.id)) }} className="p-2 rounded-xl hover:bg-red-50 text-gray-400 hover:text-[#e8001e] transition-all"><Trash2 size={16} /></button>
+                 <button onClick={() => { if(confirm('Delete?')) router.delete(route('admin.cricket.destroy', match.id)) }} className="p-2 rounded-xl hover:bg-red-50 text-gray-400 hover:text-[#263238] transition-all"><Trash2 size={16} /></button>
               </div>
             </div>
 
@@ -135,7 +135,7 @@ export default function CricketManagement({ matches = [] }) {
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl my-8 animate-in zoom-in-95 duration-200 overflow-hidden">
             <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
                <h3 className="text-xl font-bold flex items-center gap-2">
-                 <Trophy className="text-[#e8001e]" size={22} />
+                 <Trophy className="text-[#263238]" size={22} />
                  {editingMatch ? 'Edit Match' : 'Add New Match'}
                </h3>
                <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={20} /></button>
@@ -144,18 +144,18 @@ export default function CricketManagement({ matches = [] }) {
                <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Series (BN)</label>
-                    <input type="text" value={form.series_bn} onChange={e => setForm({...form, series_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="text" value={form.series_bn} onChange={e => setForm({...form, series_bn: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Series (EN)</label>
-                    <input type="text" value={form.series_en} onChange={e => setForm({...form, series_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" />
+                    <input type="text" value={form.series_en} onChange={e => setForm({...form, series_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
                </div>
 
                <div className="grid grid-cols-3 gap-6">
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Status</label>
-                    <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]">
+                    <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]">
                        <option value="live">Live</option>
                        <option value="upcoming">Upcoming</option>
                        <option value="completed">Completed</option>
@@ -164,8 +164,8 @@ export default function CricketManagement({ matches = [] }) {
                   <div className="col-span-2">
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Status Text (e.g. Day 1, Stumps)</label>
                     <div className="grid grid-cols-2 gap-2">
-                       <input type="text" value={form.status_text_bn} onChange={e => setForm({...form, status_text_bn: e.target.value})} className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" placeholder="Bangla" />
-                       <input type="text" value={form.status_text_en} onChange={e => setForm({...form, status_text_en: e.target.value})} className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#e8001e]" placeholder="English" />
+                       <input type="text" value={form.status_text_bn} onChange={e => setForm({...form, status_text_bn: e.target.value})} className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" placeholder="Bangla" />
+                       <input type="text" value={form.status_text_en} onChange={e => setForm({...form, status_text_en: e.target.value})} className="border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" placeholder="English" />
                     </div>
                   </div>
                </div>
@@ -175,21 +175,21 @@ export default function CricketManagement({ matches = [] }) {
                   {form.teams.map((team, idx) => (
                     <div key={idx} className="p-4 bg-gray-50 rounded-2xl space-y-4">
                        <div className="grid grid-cols-2 gap-4">
-                          <input type="text" value={team.name_bn} onChange={e => updateTeam(idx, 'name_bn', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" placeholder={`Team ${idx+1} Name (BN)`} />
-                          <input type="text" value={team.name_en} onChange={e => updateTeam(idx, 'name_en', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" placeholder={`Team ${idx+1} Name (EN)`} />
+                          <input type="text" value={team.name_bn} onChange={e => updateTeam(idx, 'name_bn', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" placeholder={`Team ${idx+1} Name (BN)`} />
+                          <input type="text" value={team.name_en} onChange={e => updateTeam(idx, 'name_en', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" placeholder={`Team ${idx+1} Name (EN)`} />
                        </div>
                        {form.status !== 'upcoming' && (
                          <div className="grid grid-cols-3 gap-4">
-                            <input type="text" value={team.score} onChange={e => updateTeam(idx, 'score', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" placeholder="Score" />
-                            <input type="text" value={team.wickets} onChange={e => updateTeam(idx, 'wickets', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" placeholder="Wickets" />
-                            <input type="text" value={team.overs} onChange={e => updateTeam(idx, 'overs', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#e8001e]" placeholder="Overs" />
+                            <input type="text" value={team.score} onChange={e => updateTeam(idx, 'score', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" placeholder="Score" />
+                            <input type="text" value={team.wickets} onChange={e => updateTeam(idx, 'wickets', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" placeholder="Wickets" />
+                            <input type="text" value={team.overs} onChange={e => updateTeam(idx, 'overs', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#263238]" placeholder="Overs" />
                          </div>
                        )}
                     </div>
                   ))}
                </div>
 
-               <button onClick={handleSubmit} disabled={saving} className="w-full bg-[#e8001e] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#b8001a] active:scale-95 flex items-center justify-center gap-2">
+               <button onClick={handleSubmit} disabled={saving} className="w-full bg-[#263238] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#1a2428] active:scale-95 flex items-center justify-center gap-2">
                   {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save size={18} />}
                   Save Match Details
                </button>

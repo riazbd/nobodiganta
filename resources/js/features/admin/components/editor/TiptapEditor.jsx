@@ -1,4 +1,4 @@
-import { useEditor, EditorContent } from '@tiptap/react';
+﻿import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
@@ -21,7 +21,7 @@ const MenuButton = ({ onClick, isActive, children, title, disabled = false }) =>
     disabled={disabled}
     title={title}
     className={`p-1.5 rounded-md transition-colors ${
-      isActive ? 'bg-[#e8001e] text-white' : 'text-gray-600 hover:bg-gray-100'
+      isActive ? 'bg-[#263238] text-white' : 'text-gray-600 hover:bg-gray-100'
     } ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
   >
     {children}
@@ -53,7 +53,7 @@ export default function TiptapEditor({ value, onChange, placeholder, lang = 'bn'
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-[#e8001e] underline underline-offset-4 decoration-1 font-medium',
+          class: 'text-[#263238] underline underline-offset-4 decoration-1 font-medium',
         },
       }),
       Youtube.configure({
@@ -260,7 +260,7 @@ export default function TiptapEditor({ value, onChange, placeholder, lang = 'bn'
           height: 0;
         }
         .prose blockquote {
-          border-left: 4px solid #e8001e;
+          border-left: 4px solid #263238;
           background: #fffafa;
           padding: 1.5rem;
           font-style: italic;
@@ -274,7 +274,7 @@ export default function TiptapEditor({ value, onChange, placeholder, lang = 'bn'
           margin-right: auto;
         }
         .prose a {
-          color: #e8001e;
+          color: #263238;
           text-decoration: underline;
         }
       `}} />

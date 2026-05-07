@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { Head, router } from '@inertiajs/react';
 import {
   UserPlus, Edit3, Trash2, Search, X, Shield, Eye, EyeOff,
@@ -280,7 +280,7 @@ export default function Users({ initialUsers, roles, filters }) {
 
   const inputClass = (field) =>
     `w-full border rounded-lg px-3 py-2 text-sm outline-none transition-all bg-white ${
-      formErrors[field] ? 'border-red-500 focus:ring-2 focus:ring-red-200' : 'border-gray-300 focus:border-[#e8001e] focus:ring-2 focus:ring-[#e8001e]/20'
+      formErrors[field] ? 'border-red-500 focus:ring-2 focus:ring-red-200' : 'border-gray-300 focus:border-[#263238] focus:ring-2 focus:ring-[#263238]/20'
     }`;
 
   const currentSort = SORT_OPTIONS.find(s => s.value === sortFilter) || SORT_OPTIONS[0];
@@ -298,7 +298,7 @@ export default function Users({ initialUsers, roles, filters }) {
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">
             {meta?.total || 0} {t('usersCount')}
             {activeFilterCount > 0 && (
-              <span className="ml-2 text-[#e8001e] font-medium">
+              <span className="ml-2 text-[#263238] font-medium">
                 ({activeFilterCount} {t('activeFilters') || 'active filters'})
               </span>
             )}
@@ -313,7 +313,7 @@ export default function Users({ initialUsers, roles, filters }) {
           </button>
           <button
             onClick={openCreate}
-            className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors"
+            className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors"
           >
             <UserPlus className="w-4 h-4" /> {t('newUser')}
           </button>
@@ -324,7 +324,7 @@ export default function Users({ initialUsers, roles, filters }) {
       <div className="flex flex-wrap gap-2 mb-3 items-center">
         {/* Search Input */}
         <div className="flex-1 min-w-[250px] relative">
-          <div className="flex items-center bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 gap-2 focus-within:border-[#e8001e] focus-within:ring-2 focus-within:ring-[#e8001e]/10 transition-all">
+          <div className="flex items-center bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 gap-2 focus-within:border-[#263238] focus-within:ring-2 focus-within:ring-[#263238]/10 transition-all">
             <Search className="w-4 h-4 text-[var(--text-muted,#9ca3af)]" />
             <input
               ref={searchInputRef}
@@ -350,7 +350,7 @@ export default function Users({ initialUsers, roles, filters }) {
           <select
             value={sortFilter}
             onChange={(e) => handleSortChange(e.target.value)}
-            className="border border-[var(--card-border,#e8ebf4)] rounded-lg pl-3 pr-8 py-2 text-sm bg-white outline-none focus:border-[#e8001e] appearance-none cursor-pointer"
+            className="border border-[var(--card-border,#e8ebf4)] rounded-lg pl-3 pr-8 py-2 text-sm bg-white outline-none focus:border-[#263238] appearance-none cursor-pointer"
             style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.25rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em' }}
           >
             {SORT_OPTIONS.map(opt => (
@@ -364,14 +364,14 @@ export default function Users({ initialUsers, roles, filters }) {
           onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
           className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition-colors ${
             showAdvancedFilters || activeFilterCount > 0
-              ? 'bg-[#e8001e]/5 border-[#e8001e]/30 text-[#e8001e]'
+              ? 'bg-[#263238]/5 border-[#263238]/30 text-[#263238]'
               : 'bg-white border-[var(--card-border,#e8ebf4)] text-[var(--text-secondary,#6b7280)] hover:bg-gray-50'
           }`}
         >
           <SlidersHorizontal className="w-4 h-4" />
           {t('advancedFilters') || 'Filters'}
           {activeFilterCount > 0 && (
-            <span className="w-5 h-5 bg-[#e8001e] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+            <span className="w-5 h-5 bg-[#263238] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {activeFilterCount}
             </span>
           )}
@@ -440,7 +440,7 @@ export default function Users({ initialUsers, roles, filters }) {
               <select
                 value={roleFilter}
                 onChange={(e) => handleRoleChange(e.target.value)}
-                className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#e8001e]"
+                className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#263238]"
               >
                 <option value="">{t('allRoles')}</option>
                 {roles?.map((r) => (
@@ -457,7 +457,7 @@ export default function Users({ initialUsers, roles, filters }) {
               <select
                 value={statusFilter}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#e8001e]"
+                className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#263238]"
               >
                 {STATUS_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{t(opt.label)}</option>
@@ -475,7 +475,7 @@ export default function Users({ initialUsers, roles, filters }) {
                   type="date"
                   value={dateFrom}
                   onChange={(e) => handleDateFromChange(e.target.value)}
-                  className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#e8001e]"
+                  className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#263238]"
                 />
               </div>
             </div>
@@ -489,7 +489,7 @@ export default function Users({ initialUsers, roles, filters }) {
                 type="date"
                 value={dateTo}
                 onChange={(e) => handleDateToChange(e.target.value)}
-                className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#e8001e]"
+                className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#263238]"
               />
             </div>
 
@@ -501,7 +501,7 @@ export default function Users({ initialUsers, roles, filters }) {
               <select
                 value={lastLoginFilter}
                 onChange={(e) => { handleLastLoginChange(e.target.value); applyFilters({ last_login: e.target.value, page: 1 }); }}
-                className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#e8001e]"
+                className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#263238]"
               >
                 <option value="">{t('anyTime') || 'Any time'}</option>
                 <option value="today">{t('today')}</option>
@@ -516,7 +516,7 @@ export default function Users({ initialUsers, roles, filters }) {
             <div className="flex items-end gap-2">
               <button
                 onClick={() => applyFilters({ page: 1 })}
-                className="flex-1 bg-[#e8001e] text-white rounded-lg px-3 py-2 text-sm font-semibold hover:bg-[#b8001a] transition-colors flex items-center justify-center gap-1.5"
+                className="flex-1 bg-[#263238] text-white rounded-lg px-3 py-2 text-sm font-semibold hover:bg-[#1a2428] transition-colors flex items-center justify-center gap-1.5"
               >
                 <Filter className="w-3.5 h-3.5" /> {t('applyFilters') || 'Apply'}
               </button>
@@ -557,15 +557,15 @@ export default function Users({ initialUsers, roles, filters }) {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => loadSavedFilter(saved)}
-                      className="px-3 py-1.5 text-xs bg-[#e8001e] text-white rounded-md hover:bg-[#b8001a] transition-colors"
+                      className="px-3 py-1.5 text-xs bg-[#263238] text-white rounded-md hover:bg-[#1a2428] transition-colors"
                     >
                       {t('apply') || 'Apply'}
                     </button>
                     <button
                       onClick={() => deleteSavedFilter(saved.id)}
-                      className="p-1.5 rounded-md hover:bg-[#fff0f2] transition-colors"
+                      className="p-1.5 rounded-md hover:bg-[#eceff1] transition-colors"
                     >
-                      <Trash2 className="w-3.5 h-3.5 text-[#e8001e]" />
+                      <Trash2 className="w-3.5 h-3.5 text-[#263238]" />
                     </button>
                   </div>
                 </div>
@@ -604,13 +604,13 @@ export default function Users({ initialUsers, roles, filters }) {
                         {user.profile_photo_url ? (
                           <img src={user.profile_photo_url} alt={user.name} className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-[#e8001e] to-[#ff6b6b] flex items-center justify-center text-white text-sm font-bold">
+                          <div className="w-full h-full bg-gradient-to-br from-[#263238] to-[#ff6b6b] flex items-center justify-center text-white text-sm font-bold">
                             {(user.name ?? '?').charAt(0).toUpperCase()}
                           </div>
                         )}
                       </div>
                       <div>
-                        <div className="font-semibold text-[var(--text-primary,#1a1d2e)] hover:text-[#e8001e] transition-colors cursor-pointer">{user.name}</div>
+                        <div className="font-semibold text-[var(--text-primary,#1a1d2e)] hover:text-[#263238] transition-colors cursor-pointer">{user.name}</div>
                         <div className="text-[10.5px] text-[var(--text-muted,#9ca3af)]">{user.created_at}</div>
                       </div>
                     </div>
@@ -641,8 +641,8 @@ export default function Users({ initialUsers, roles, filters }) {
                       <button onClick={() => openEdit(user)} className="p-1.5 rounded-md hover:bg-gray-100 transition-colors" title={t('edit')}>
                         <Edit3 className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)]" />
                       </button>
-                      <button onClick={() => setShowDeleteConfirm(user)} className="p-1.5 rounded-md hover:bg-[#fff0f2] transition-colors" title={t('delete')}>
-                        <Trash2 className="w-3.5 h-3.5 text-[#e8001e]" />
+                      <button onClick={() => setShowDeleteConfirm(user)} className="p-1.5 rounded-md hover:bg-[#eceff1] transition-colors" title={t('delete')}>
+                        <Trash2 className="w-3.5 h-3.5 text-[#263238]" />
                       </button>
                     </div>
                   </td>
@@ -682,7 +682,7 @@ export default function Users({ initialUsers, roles, filters }) {
             <FormField label={t('confirmPassword')} error={formErrors.password_confirmation}><input type={showPassword ? 'text' : 'password'} value={formData.password_confirmation} onChange={(e) => setFormData({ ...formData, password_confirmation: e.target.value })} className={inputClass('password_confirmation')} required minLength={8} /></FormField>
             <div className="flex justify-end gap-2 pt-2">
               <button type="button" onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 transition-colors">{t('cancel')}</button>
-              <button type="submit" disabled={submitting} className="px-4 py-2 text-sm bg-[#e8001e] text-white rounded-lg hover:bg-[#b8001a] disabled:opacity-50 transition-colors">{submitting ? t('creating') : t('create')}</button>
+              <button type="submit" disabled={submitting} className="px-4 py-2 text-sm bg-[#263238] text-white rounded-lg hover:bg-[#1a2428] disabled:opacity-50 transition-colors">{submitting ? t('creating') : t('create')}</button>
             </div>
           </form>
         </Modal>
@@ -708,7 +708,7 @@ export default function Users({ initialUsers, roles, filters }) {
             <FormField label={t('confirmPassword')} error={formErrors.password_confirmation}><input type={showPassword ? 'text' : 'password'} value={formData.password_confirmation} onChange={(e) => setFormData({ ...formData, password_confirmation: e.target.value })} className={inputClass('password_confirmation')} minLength={8} /></FormField>
             <div className="flex justify-end gap-2 pt-2">
               <button type="button" onClick={() => setShowEditModal(false)} className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 transition-colors">{t('cancel')}</button>
-              <button type="submit" disabled={submitting} className="px-4 py-2 text-sm bg-[#e8001e] text-white rounded-lg hover:bg-[#b8001a] disabled:opacity-50 transition-colors">{submitting ? t('updating') : t('update')}</button>
+              <button type="submit" disabled={submitting} className="px-4 py-2 text-sm bg-[#263238] text-white rounded-lg hover:bg-[#1a2428] disabled:opacity-50 transition-colors">{submitting ? t('updating') : t('update')}</button>
             </div>
           </form>
         </Modal>
@@ -732,14 +732,14 @@ export default function Users({ initialUsers, roles, filters }) {
         <Modal title={t('saveFilter') || 'Save Filter'} onClose={() => setShowSaveFilterModal(false)}>
           <div className="space-y-4">
             <FormField label={t('filterName') || 'Filter Name'}>
-              <input type="text" value={savedFilterName} onChange={(e) => setSavedFilterName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#e8001e]" placeholder={t('filterNamePlaceholder') || 'e.g., Active Reporters'} autoFocus />
+              <input type="text" value={savedFilterName} onChange={(e) => setSavedFilterName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238]" placeholder={t('filterNamePlaceholder') || 'e.g., Active Reporters'} autoFocus />
             </FormField>
             <div className="text-[11.5px] text-[var(--text-muted,#9ca3af)]">
               {t('willSave') || 'This will save:'} {activeFilterCount} {t('activeFilters') || 'filters'}
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setShowSaveFilterModal(false)} className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50">{t('cancel')}</button>
-              <button onClick={saveCurrentFilters} disabled={!savedFilterName.trim()} className="px-4 py-2 text-sm bg-[#e8001e] text-white rounded-lg hover:bg-[#b8001a] disabled:opacity-50 flex items-center gap-1.5">
+              <button onClick={saveCurrentFilters} disabled={!savedFilterName.trim()} className="px-4 py-2 text-sm bg-[#263238] text-white rounded-lg hover:bg-[#1a2428] disabled:opacity-50 flex items-center gap-1.5">
                 <Save className="w-3.5 h-3.5" /> {t('save')}
               </button>
             </div>
@@ -754,9 +754,9 @@ export default function Users({ initialUsers, roles, filters }) {
 
 function FilterChip({ label, onRemove }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-medium bg-[#e8001e]/5 text-[#e8001e] border border-[#e8001e]/20">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-medium bg-[#263238]/5 text-[#263238] border border-[#263238]/20">
       {label}
-      <button onClick={onRemove} className="hover:bg-[#e8001e]/20 rounded-full p-0.5 transition-colors">
+      <button onClick={onRemove} className="hover:bg-[#263238]/20 rounded-full p-0.5 transition-colors">
         <X className="w-3 h-3" />
       </button>
     </span>

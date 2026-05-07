@@ -1,4 +1,4 @@
-import { PenLine, FileText, Clock, TrendingUp, Send, Edit3, ListChecks, CalendarDays, Calendar, Newspaper, MessageSquare, Award } from 'lucide-react';
+﻿import { PenLine, FileText, Clock, TrendingUp, Send, Edit3, ListChecks, CalendarDays, Calendar, Newspaper, MessageSquare, Award } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -24,7 +24,7 @@ export default function ReporterDashboard() {
           <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{lang === 'bn' ? 'আমার সংবাদ, অ্যাসাইনমেন্ট ও পারফরম্যান্স' : 'My [], assignments and performance'}</p>
         </div>
         <div className="flex items-center gap-2.5">
-          <button onClick={() => onNavigate?.('news-write')} className="bg-[#e8001e] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#b8001a] transition-colors">
+          <button onClick={() => onNavigate?.('news-write')} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
             <PenLine className="w-4 h-4" /> {lang === 'bn' ? 'নতুন লিখুন' : 'Write New'}
           </button>
           <div className="text-xs text-[var(--text-muted,#9ca3af)] bg-white border border-[var(--card-border,#e8ebf4)] px-3.5 py-1.75 rounded-lg flex items-center gap-2">
@@ -54,7 +54,7 @@ export default function ReporterDashboard() {
           <h3 className="text-sm font-bold">{lang === 'bn' ? '📰 আমার সংবাদ' : '📰 My Articles'}</h3>
           <div className="flex gap-2">
             <div className="flex border border-[var(--card-border,#e8ebf4)] rounded-md overflow-hidden">
-              <button className="px-3 py-1 text-[11.5px] font-semibold bg-[#e8001e] text-white">{lang === 'bn' ? 'সব' : 'All'}</button>
+              <button className="px-3 py-1 text-[11.5px] font-semibold bg-[#263238] text-white">{lang === 'bn' ? 'সব' : 'All'}</button>
               <button className="px-3 py-1 text-[11.5px] font-semibold text-[var(--text-muted,#9ca3af)]">{lang === 'bn' ? 'ড্রাফট' : 'Drafts'}</button>
               <button className="px-3 py-1 text-[11.5px] font-semibold text-[var(--text-muted,#9ca3af)]">{lang === 'bn' ? 'প্রকাশিত' : 'Published'}</button>
             </div>
