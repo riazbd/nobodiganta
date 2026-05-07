@@ -391,10 +391,12 @@ export default function WriteNews() {
     return map;
   }, [categories]);
 
-  const renderCategoryRow = (cat, isChild) => {
+  const renderCategoryRow = (cat, depth = 0) => {
     const isChecked = form.data.categories.includes(cat.id);
     const isPrimary = String(form.data.primaryCategory) === String(cat.id);
     const name = lang === 'bn' ? cat.nameBn : (cat.nameEn || cat.nameBn);
+    const children = (childrenByParentId[cat.id] || [])
+      .filter(c => c.edition === 'both' || c.edition === form.data.edition);
 
     const toggleCategory = () => {
       const newCategories = isChecked
@@ -409,8 +411,12 @@ export default function WriteNews() {
     };
 
     return (
-      <div key={cat.id} className={`flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors ${isChild ? 'ml-4' : ''}`}>
-        {isChild && <span className="text-gray-300 text-xs">↳</span>}
+      <div key={cat.id}>
+        <div
+          className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+          style={{ paddingLeft: `${8 + depth * 16}px` }}
+        >
+          {depth > 0 && <span className="text-gray-300 text-xs flex-shrink-0">↳</span>}
         <input
           type="checkbox"
           id={`cat-${cat.id}`}
@@ -430,6 +436,8 @@ export default function WriteNews() {
             {lang === 'bn' ? 'প্রধান' : 'Primary'}
           </button>
         )}
+        </div>
+        {children.map(child => renderCategoryRow(child, depth + 1))}
       </div>
     );
   };
@@ -760,14 +768,7 @@ export default function WriteNews() {
               <div className="bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 max-h-96 overflow-y-auto">
                 {categories
                   .filter(c => !c.parentId && (c.edition === 'both' || c.edition === form.data.edition))
-                  .map(parent => (
-                    <div key={parent.id}>
-                      {renderCategoryRow(parent, false)}
-                      {(childrenByParentId[parent.id] || [])
-                        .filter(c => c.edition === 'both' || c.edition === form.data.edition)
-                        .map(child => renderCategoryRow(child, true))}
-                    </div>
-                  ))}
+                  .map(parent => renderCategoryRow(parent, 0))}
               </div>
             </div>
 

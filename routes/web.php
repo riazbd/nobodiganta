@@ -96,30 +96,38 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/news', [ArticleController::class, 'store'])->name('news.store');
 
         // Drafts, Published, Pending (filtered views) - Fixed paths must come before dynamic segments
-        Route::get('/news/drafts', function (Illuminate\Http\Request $request) {
-            $articles = \App\Models\Article::with(['category', 'author'])
-                ->where('status', 'draft')
-                ->when($request->search, fn($q, $s) => $q->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%"))
-                ->latest()->paginate(20)->withQueryString()
-                ->through(fn($a) => ['id' => $a->id, 'title' => $a->title_bn, 'title_en' => $a->title_en, 'status' => $a->status, 'author' => $a->author?->name, 'category' => $a->category ? ['name' => $a->category->name_bn, 'name_en' => $a->category->name_en] : null, 'created_at' => $a->created_at]);
-            return Inertia::render('features/admin/pages/content/Drafts', ['articles' => $articles, 'filters' => $request->only('search')]);
-        })->name('news.drafts');
-        Route::get('/news/published', function (Illuminate\Http\Request $request) {
-            $articles = \App\Models\Article::with(['category', 'author'])
-                ->where('status', 'published')
-                ->when($request->search, fn($q, $s) => $q->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%"))
-                ->latest()->paginate(20)->withQueryString()
-                ->through(fn($a) => ['id' => $a->id, 'title' => $a->title_bn, 'title_en' => $a->title_en, 'status' => $a->status, 'author' => $a->author?->name, 'category' => $a->category ? ['name' => $a->category->name_bn, 'name_en' => $a->category->name_en] : null, 'created_at' => $a->created_at]);
-            return Inertia::render('features/admin/pages/content/Published', ['articles' => $articles, 'filters' => $request->only('search')]);
-        })->name('news.published');
-        Route::get('/news/pending', function (Illuminate\Http\Request $request) {
-            $articles = \App\Models\Article::with(['category', 'author'])
-                ->where('status', 'pending')
-                ->when($request->search, fn($q, $s) => $q->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%"))
-                ->latest()->paginate(20)->withQueryString()
-                ->through(fn($a) => ['id' => $a->id, 'title' => $a->title_bn, 'title_en' => $a->title_en, 'status' => $a->status, 'author' => $a->author?->name, 'category' => $a->category ? ['name' => $a->category->name_bn, 'name_en' => $a->category->name_en] : null, 'created_at' => $a->created_at]);
-            return Inertia::render('features/admin/pages/content/PendingApproval', ['articles' => $articles, 'filters' => $request->only('search')]);
-        })->name('news.pending');
+        $statusView = function (string $status, string $component) {
+            return function (Illuminate\Http\Request $request) use ($status, $component) {
+                $perPage  = in_array((int) $request->per_page, [10, 20, 50, 100]) ? (int) $request->per_page : 20;
+                $edition  = $request->input('edition');
+                $category = $request->input('category');
+
+                $articles = \App\Models\Article::with(['category', 'author'])
+                    ->where('status', $status)
+                    ->when($request->search, fn($q, $s) => $q->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%"))
+                    ->when($edition && $edition !== 'all', fn($q) => $q->where(fn($q2) => $q2->where('edition', 'both')->orWhere('edition', $edition)))
+                    ->when($category && $category !== 'all', fn($q) => $q->whereHas('category', fn($q2) => $q2->where('slug', $category)->orWhere('id', $category)))
+                    ->latest()->paginate($perPage)->withQueryString()
+                    ->through(fn($a) => [
+                        'id' => $a->id, 'title' => $a->title_bn, 'title_en' => $a->title_en,
+                        'status' => $a->status, 'edition' => $a->edition,
+                        'author' => $a->author?->name,
+                        'category' => $a->category ? ['name' => $a->category->name_bn, 'name_en' => $a->category->name_en, 'slug' => $a->category->slug, 'color_code' => $a->category->color_code] : null,
+                        'published_at' => $a->published_at?->toIso8601String(),
+                        'created_at' => $a->created_at->toIso8601String(),
+                    ]);
+
+                return Inertia::render("features/admin/pages/content/{$component}", [
+                    'articles'   => $articles,
+                    'categories' => \App\Models\Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
+                    'filters'    => $request->only(['search', 'edition', 'category', 'per_page']),
+                ]);
+            };
+        };
+
+        Route::get('/news/drafts',    $statusView('draft',     'Drafts'))->name('news.drafts');
+        Route::get('/news/published', $statusView('published', 'Published'))->name('news.published');
+        Route::get('/news/pending',   $statusView('pending',   'PendingApproval'))->name('news.pending');
 
         Route::get('/news/{article}/edit', [ArticleController::class, 'edit'])->name('news.edit')->whereNumber('article');
         Route::put('/news/{article}', [ArticleController::class, 'update'])->name('news.update')->whereNumber('article');

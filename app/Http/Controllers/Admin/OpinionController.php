@@ -20,17 +20,18 @@ class OpinionController extends Controller
             abort(403);
         }
 
-        $status = $request->input('status');
-        $edition = $request->input('edition', 'both');
-        $search = $request->input('search');
+        $status   = $request->input('status');
+        $edition  = $request->input('edition', 'all');
+        $search   = $request->input('search');
+        $authorId = $request->input('author');
+        $perPage  = in_array((int) $request->input('per_page'), [10, 20, 50, 100]) ? (int) $request->input('per_page') : 20;
 
         $query = Article::with(['author'])
             ->where(function ($q) {
                 $q->where('article_type', 'opinion')
                   ->orWhereHas('category', function ($cq) {
                       $cq->where('slug', 'opinion')
-                        ->orWhere('name_bn', 'মতামত')
-                        ->orWhereHas('parent', fn($pq) => $cq->where('slug', 'opinion'));
+                        ->orWhere('name_bn', 'মতামত');
                   });
             })
             ->latest();
@@ -39,11 +40,14 @@ class OpinionController extends Controller
             $query->where('status', $status);
         }
 
-        if ($edition && $edition !== 'all' && $edition !== 'both') {
+        if ($edition && $edition !== 'all') {
             $query->where(function ($q) use ($edition) {
-                $q->where('edition', 'both')
-                  ->orWhere('edition', $edition);
+                $q->where('edition', 'both')->orWhere('edition', $edition);
             });
+        }
+
+        if ($authorId && $authorId !== 'all') {
+            $query->where('author_id', $authorId);
         }
 
         if ($search) {
@@ -53,32 +57,34 @@ class OpinionController extends Controller
             });
         }
 
-        $opinions = $query->get()->map(function ($article) {
+        $opinions = $query->paginate($perPage)->withQueryString();
+
+        $opinions->getCollection()->transform(function ($article) {
             return [
-                'id' => $article->id,
-                'title' => $article->title_bn,
-                'title_en' => $article->title_en,
-                'excerpt' => $article->excerpt_bn,
-                'excerpt_en' => $article->excerpt_en,
-                'author' => $article->is_guest_author 
+                'id'           => $article->id,
+                'title'        => $article->title_bn,
+                'title_en'     => $article->title_en,
+                'author'       => $article->is_guest_author
                     ? ($article->guest_author_name_bn ?: $article->guest_author_name_en)
                     : $article->author?->name,
-                'is_guest' => (bool)$article->is_guest_author,
-                'status' => $article->status,
-                'edition' => $article->edition,
+                'author_id'    => $article->author_id,
+                'is_guest'     => (bool) $article->is_guest_author,
+                'is_exclusive' => (bool) $article->is_exclusive,
+                'status'       => $article->status,
+                'edition'      => $article->edition,
                 'published_at' => $article->published_at?->toIso8601String(),
-                'created_at' => $article->created_at->toIso8601String(),
-                'views' => $article->views,
+                'created_at'   => $article->created_at->toIso8601String(),
+                'views'        => $article->views,
             ];
         });
 
-        if ($request->expectsJson()) {
-            return response()->json(['opinions' => $opinions]);
-        }
+        $authors = User::whereIn('role', ['admin', 'editor', 'reporter'])
+            ->orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('features/admin/pages/opinion/OpinionList', [
             'opinions' => $opinions,
-            'filters' => $request->only(['status', 'edition', 'search']),
+            'authors'  => $authors,
+            'filters' => $request->only(['status', 'edition', 'search', 'author', 'per_page']),
         ]);
     }
 

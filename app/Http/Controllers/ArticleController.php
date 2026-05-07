@@ -24,89 +24,103 @@ class ArticleController extends Controller
             abort(403);
         }
 
-        $status = $request->input('status');
-        $edition = $request->input('edition', 'both');
-        $category = $request->input('category');
-        $search = $request->input('search');
+        $status      = $request->input('status');
+        $edition     = $request->input('edition', 'all');
+        $category    = $request->input('category');
+        $search      = $request->input('search');
         $articleType = $request->input('article_type');
+        $authorId    = $request->input('author');
+        $dateFrom    = $request->input('date_from');
+        $dateTo      = $request->input('date_to');
+        $sortBy      = in_array($request->input('sort_by'), ['created_at', 'published_at', 'views', 'title_bn']) ? $request->input('sort_by') : 'created_at';
+        $sortDir     = $request->input('sort_dir') === 'asc' ? 'asc' : 'desc';
+        $perPage     = in_array((int) $request->input('per_page'), [10, 20, 50, 100]) ? (int) $request->input('per_page') : 20;
 
         $query = Article::with(['category', 'author'])
-            ->latest();
+            ->orderBy($sortBy, $sortDir);
 
-        // Filter by status
         if ($status && $status !== 'all') {
             $query->where('status', $status);
         }
 
-        // Filter by article type
-        if ($articleType) {
+        if ($articleType && $articleType !== 'all') {
             $query->where('article_type', $articleType);
         }
 
-        // Filter by edition
-        if ($edition !== 'both' && $edition !== 'all') {
+        if ($edition && $edition !== 'all') {
             $query->where(function ($q) use ($edition) {
-                $q->where('edition', 'both')
-                  ->orWhere('edition', $edition);
+                $q->where('edition', 'both')->orWhere('edition', $edition);
             });
         }
 
-        // Filter by category
         if ($category && $category !== 'all') {
-            $query->whereHas('category', function($q) use ($category) {
+            $query->whereHas('category', function ($q) use ($category) {
                 $q->where('slug', $category)->orWhere('id', $category);
             });
         }
 
-        // Search
+        if ($authorId && $authorId !== 'all') {
+            $query->where('author_id', $authorId);
+        }
+
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('title_bn', 'like', "%{$search}%")
-                  ->orWhere('title_en', 'like', "%{$search}%");
+                  ->orWhere('title_en', 'like', "%{$search}%")
+                  ->orWhereHas('author', fn($q) => $q->where('name', 'like', "%{$search}%"));
             });
         }
 
-        $articles = $query->paginate(20)->withQueryString();
+        $articles = $query->paginate($perPage)->withQueryString();
 
-        // Transform for Inertia/API
         $articles->getCollection()->transform(function ($article) {
             return [
-                'id' => $article->id,
-                'title' => $article->title_bn,
-                'title_en' => $article->title_en,
-                'slug' => $article->slug_bn,
-                'slug_en' => $article->slug_en,
-                'status' => $article->status,
-                'edition' => $article->edition,
+                'id'           => $article->id,
+                'title'        => $article->title_bn,
+                'title_en'     => $article->title_en,
+                'slug'         => $article->slug_bn,
+                'slug_en'      => $article->slug_en,
+                'status'       => $article->status,
+                'edition'      => $article->edition,
                 'article_type' => $article->article_type,
-                'is_breaking' => $article->is_breaking,
-                'is_featured' => $article->is_featured,
-                'is_premium' => $article->is_premium,
-                'category' => $article->category ? [
-                    'id' => $article->category->id,
-                    'name' => $article->category->name_bn,
-                    'name_en' => $article->category->name_en,
-                    'slug' => $article->category->slug,
+                'is_breaking'  => $article->is_breaking,
+                'is_featured'  => $article->is_featured,
+                'is_premium'   => $article->is_premium,
+                'category'     => $article->category ? [
+                    'id'         => $article->category->id,
+                    'name'       => $article->category->name_bn,
+                    'name_en'    => $article->category->name_en,
+                    'slug'       => $article->category->slug,
                     'color_code' => $article->category->color_code,
                 ] : null,
-                'author' => $article->author?->name,
-                'views' => $article->views,
-                'published_at' => $article->published_at?->toIso8601String(),
-                'created_at' => $article->created_at->toIso8601String(),
+                'author'        => $article->author?->name,
+                'author_id'     => $article->author_id,
+                'views'         => $article->views,
+                'published_at'  => $article->published_at?->toIso8601String(),
+                'created_at'    => $article->created_at->toIso8601String(),
             ];
         });
 
+        $authors = User::whereIn('role', ['admin', 'editor', 'reporter'])
+            ->orderBy('name')->get(['id', 'name']);
+
         if ($request->wantsJson()) {
-            return response()->json([
-                'articles' => $articles,
-                'categories' => Category::active()->get(['id', 'name_bn', 'slug']),
-            ]);
+            return response()->json(['articles' => $articles]);
         }
 
         return Inertia::render('features/admin/pages/content/AllNews', [
-            'articles' => $articles,
+            'articles'   => $articles,
             'categories' => Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
-            'filters' => $request->only(['status', 'edition', 'category', 'search']),
+            'authors'    => $authors,
+            'filters'    => $request->only(['status', 'edition', 'category', 'search', 'article_type', 'author', 'date_from', 'date_to', 'sort_by', 'sort_dir', 'per_page']),
         ]);
     }
 

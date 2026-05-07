@@ -464,10 +464,15 @@ export default function CategoryList() {
                   >
                     <option value="">{lang === 'bn' ? 'কোনটিই নয় (প্রধান)' : 'None (Main Category)'}</option>
                     {categories
-                      .filter(c => !c.parentId && (!editingCat || c.id !== editingCat.id))
-                      .map(c => (
-                        <option key={c.id} value={c.id}>{lang === 'bn' ? c.nameBn : (c.nameEn || c.nameBn)}</option>
-                      ))
+                      .filter(c => !editingCat || c.id !== editingCat.id)
+                      .map(c => {
+                        const name = lang === 'bn' ? c.nameBn : (c.nameEn || c.nameBn);
+                        return (
+                          <option key={c.id} value={c.id}>
+                            {c.parentId ? `↳ ${name}` : name}
+                          </option>
+                        );
+                      })
                     }
                   </select>
                 </div>
