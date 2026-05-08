@@ -289,6 +289,22 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+        // Stories
+        Route::get('/stories', [\App\Http\Controllers\Admin\StoryController::class, 'index'])->name('stories');
+        Route::get('/stories/create', [\App\Http\Controllers\Admin\StoryController::class, 'create'])->name('stories.create');
+        Route::post('/stories', [\App\Http\Controllers\Admin\StoryController::class, 'store'])->name('stories.store');
+        Route::get('/stories/{story}/edit', [\App\Http\Controllers\Admin\StoryController::class, 'edit'])->name('stories.edit');
+        Route::put('/stories/{story}', [\App\Http\Controllers\Admin\StoryController::class, 'update'])->name('stories.update');
+        Route::delete('/stories/{story}', [\App\Http\Controllers\Admin\StoryController::class, 'destroy'])->name('stories.destroy');
+        Route::post('/stories/{story}/publish', [\App\Http\Controllers\Admin\StoryController::class, 'publish'])->name('stories.publish');
+        Route::post('/stories/{story}/restore', [\App\Http\Controllers\Admin\StoryController::class, 'restore'])->name('stories.restore');
+
+        // Story Slides
+        Route::post('/stories/{story}/slides', [\App\Http\Controllers\Admin\StorySlideController::class, 'store'])->name('stories.slides.store');
+        Route::put('/stories/{story}/slides/{slide}', [\App\Http\Controllers\Admin\StorySlideController::class, 'update'])->name('stories.slides.update');
+        Route::delete('/stories/{story}/slides/{slide}', [\App\Http\Controllers\Admin\StorySlideController::class, 'destroy'])->name('stories.slides.destroy');
+        Route::post('/stories/{story}/slides/reorder', [\App\Http\Controllers\Admin\StorySlideController::class, 'reorder'])->name('stories.slides.reorder');
+
         // Editorial
         Route::get('/pitch-board', function () {
             return Inertia::render('features/admin/pages/editorial/PitchBoard');
@@ -312,6 +328,8 @@ Route::get('/api/regional', [NewsController::class, 'apiRegional'])->name('api.r
 Route::get('/api/stocks', [NewsController::class, 'apiStocks'])->name('api.stocks');
 Route::get('/api/cricket', [NewsController::class, 'apiCricket'])->name('api.cricket');
 Route::get('/api/ads', [NewsController::class, 'apiAds'])->name('api.ads');
+Route::post('/api/ads/{id}/impression', [NewsController::class, 'adImpression'])->name('api.ads.impression');
+Route::post('/api/ads/{id}/click', [NewsController::class, 'adClick'])->name('api.ads.click');
 Route::get('/api/weather', [NewsController::class, 'apiWeather'])->name('api.weather');
 Route::get('/api/poll', [NewsController::class, 'apiPoll'])->name('api.poll');
 Route::get('/api/horoscope', [NewsController::class, 'apiHoroscope'])->name('api.horoscope');
@@ -322,6 +340,10 @@ Route::get('/api/epaper', [NewsController::class, 'apiEpaper'])->name('api.epape
 Route::get('/api/articles/{article}/comments', [CommentController::class, 'getArticleComments'])->name('api.comments.index')->whereNumber('article');
 Route::post('/api/articles/{article}/comments', [CommentController::class, 'store'])->name('api.comments.store')->whereNumber('article');
 Route::post('/api/comments/{comment}/flag', [CommentController::class, 'flag'])->name('api.comments.flag')->whereNumber('comment');
+
+// Stories (public)
+Route::get('/stories', [\App\Http\Controllers\StoriesController::class, 'index'])->name('stories');
+Route::get('/api/stories', [\App\Http\Controllers\StoriesController::class, 'apiIndex'])->name('api.stories');
 
 // Article route LAST — two dynamic segments, catches /{category}/{slug}
 Route::get('/{category}/{slug}', [NewsController::class, 'article'])->name('article');
@@ -350,6 +372,7 @@ Route::prefix('en')->group(function () {
     Route::get('/topic/{slug}', [NewsController::class, 'topic'])->name('en.topic');
     Route::get('/author/{slug}', [NewsController::class, 'author'])->name('en.author');
     Route::get('/live/{slug}', [NewsController::class, 'liveblog'])->name('en.liveblog');
+    Route::get('/stories', [\App\Http\Controllers\StoriesController::class, 'index'])->name('en.stories');
     Route::get('/{category}/{slug}', [NewsController::class, 'article'])->name('en.article');
 });
 
