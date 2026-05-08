@@ -36,7 +36,7 @@ class StoryController extends Controller
             'slides_count' => $s->slides_count,
             'expires_at' => $s->expires_at?->toIso8601String(),
             'published_at' => $s->published_at?->toIso8601String(),
-            'cover_thumbnail' => $s->coverMedia?->getThumbnailUrl(),
+            'cover_thumbnail' => $s->coverMedia?->thumbnail_url,
             'creator_name' => $s->creator?->name,
         ]);
 
