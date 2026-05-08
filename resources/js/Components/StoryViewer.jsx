@@ -75,7 +75,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     const totalSlides = currentStory.slides?.length ?? 0;
 
     return createPortal(
-        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+        <div className="fixed inset-0 bg-black flex items-center justify-center" style={{ zIndex: 9800 }}>
             {/* Story container — mobile-style portrait */}
             <div className="relative w-full max-w-sm h-full max-h-[90vh] bg-black overflow-hidden rounded-lg select-none">
 
