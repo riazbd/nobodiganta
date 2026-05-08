@@ -249,11 +249,8 @@ export default function WriteNews() {
       return;
     }
 
-    form.transform(data => ({
-      ...data,
-      status: newStatus || data.status,
-      _method: article ? 'put' : 'post'
-    })).post(getSubmitUrl(), {
+    const statusToSubmit = newStatus || form.data.status;
+    const submitOptions = {
       preserveScroll: true,
       onSuccess: () => {
         showToast(successMessage || (lang === 'bn' ? 'সংরক্ষণ করা হয়েছে' : 'Saved successfully'));
@@ -262,7 +259,15 @@ export default function WriteNews() {
         const firstError = Object.values(errors)[0];
         showToast(firstError || (lang === 'bn' ? 'সংরক্ষণ করতে ব্যর্থ' : 'Failed to save'), 'error');
       }
-    });
+    };
+
+    form.transform(data => ({ ...data, status: statusToSubmit }));
+
+    if (article) {
+      form.put(getSubmitUrl(), submitOptions);
+    } else {
+      form.post(getSubmitUrl(), submitOptions);
+    }
   };
 
   const handleSaveChanges = () => submitForm(null, lang === 'bn' ? 'পরিবর্তন সংরক্ষিত হয়েছে' : 'Changes saved successfully');

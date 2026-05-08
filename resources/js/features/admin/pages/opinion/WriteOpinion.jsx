@@ -577,9 +577,9 @@ export default function WriteOpinion() {
           <div className="bg-white p-5 rounded-xl border border-[var(--card-border,#e8ebf4)] shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider">{lang === 'bn' ? 'ফিচার্ড ছবি' : 'Featured Image'}</h3>
-              <button 
+              <button
                 type="button"
-                onClick={() => setShowMediaLibrary(true)}
+                onClick={() => openMediaLibrary('featured')}
                 className="text-[10px] font-bold text-[#263238] hover:underline flex items-center gap-1"
               >
                 <ImageIcon className="w-3 h-3" /> {lang === 'bn' ? 'লাইব্রেরি' : 'Library'}
@@ -589,7 +589,7 @@ export default function WriteOpinion() {
             {!form.data.featuredImage ? (
               <button
                 type="button"
-                onClick={() => setShowMediaLibrary(true)}
+                onClick={() => openMediaLibrary('featured')}
                 className="w-full border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center gap-2 hover:border-[#263238]/30 hover:bg-red-50/10 transition-all group"
               >
                 <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-red-50 transition-colors">
@@ -601,9 +601,9 @@ export default function WriteOpinion() {
               <div className="relative rounded-xl overflow-hidden border border-gray-200 group">
                 <img src={form.data.featuredImage} alt="Featured" className="w-full h-40 object-cover" />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                   <button 
+                   <button
                      type="button"
-                     onClick={() => setShowMediaLibrary(true)}
+                     onClick={() => openMediaLibrary('featured')}
                      className="p-2 bg-white rounded-full text-gray-700 hover:text-[#263238] transition-colors"
                    >
                      <ImageIcon className="w-4 h-4" />
