@@ -15,7 +15,7 @@ export default function StoryStrip({ stories = [], title = 'স্টোরি�
                         {title}
                     </p>
                 )}
-                <div className="flex gap-3 overflow-x-auto pb-2">
+                <div className="flex flex-nowrap gap-3 overflow-x-auto pb-2" style={{scrollbarWidth:'none',msOverflowStyle:'none'}}>
                     {stories.map((story, index) => (
                         <button
                             key={story.id}
