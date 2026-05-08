@@ -120,6 +120,18 @@ class AdSeeder extends Seeder
                 'clicks' => 5,
             ],
             [
+                'title_bn' => 'মিড হোম লিডারবোর্ড',
+                'title_en' => 'Mid Home Leaderboard',
+                'image' => 'https://placehold.co/728x90/263238/white?text=Mid+Home+Advertisement',
+                'link' => 'https://example.com/mid-home',
+                'position' => 'mid_home',
+                'type' => 'image',
+                'is_active' => true,
+                'sort_order' => 9,
+                'impressions' => 0,
+                'clicks' => 0,
+            ],
+            [
                 'title_bn' => 'সেকশন মধ্যবর্তী বিজ্ঞাপন ১',
                 'title_en' => 'Between Sections Ad 1',
                 'image' => 'https://placehold.co/728x90/4ade80/white?text=Between+Sections+1',

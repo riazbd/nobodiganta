@@ -60,6 +60,10 @@ export default function PageSidebar() {
           <div key={item.id} className="trending-item" onClick={() => onNavigate('article', { categorySlug: item.category?.slug || 'bangladesh', articleSlug: item.slug })}>
             <span className={`trending-num ${i === 0 ? 'hot' : ''}`}>{i + 1}</span>
             <span className="trending-text">{item.title || ''}</span>
+            {item.featured_image && (
+              <img src={item.featured_image} alt={item.title || ''} loading="lazy"
+                style={{ flexShrink: 0, width: 64, height: 48, objectFit: 'cover', display: 'block', borderRadius: 2 }} />
+            )}
           </div>
         ))}
       </div>

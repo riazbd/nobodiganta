@@ -1,0 +1,113 @@
+<h2>Admin Story Management</h2>
+<p class="subtitle">How editors and reporters manage stories in the admin panel</p>
+
+<div class="section">
+  <h3>1. Stories List (/admin/stories)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Admin → Stories</div>
+    <div class="mockup-body" style="background:#1a1a2e;padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="color:#fff;font-size:14px;font-weight:600;">স্টোরিজ ম্যানেজমেন্ট</div>
+        <div style="background:#6366f1;color:#fff;padding:6px 14px;border-radius:6px;font-size:11px;cursor:pointer;">+ নতুন স্টোরি</div>
+      </div>
+      <!-- Filter tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <div style="background:#6366f1;color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;">সব</div>
+        <div style="background:#2a2a4a;color:#aaa;padding:4px 10px;border-radius:20px;font-size:10px;">প্রকাশিত</div>
+        <div style="background:#2a2a4a;color:#aaa;padding:4px 10px;border-radius:20px;font-size:10px;">ড্রাফট</div>
+        <div style="background:#2a2a4a;color:#aaa;padding:4px 10px;border-radius:20px;font-size:10px;">মেয়াদোত্তীর্ণ</div>
+      </div>
+      <!-- Story rows -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#2a2a4a;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,#667eea,#764ba2);flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="color:#fff;font-size:11px;font-weight:600;">ঢাকার বন্যা ২০২৬</div>
+            <div style="color:#888;font-size:9px;margin-top:2px;">৪টি স্লাইড · riazbd · ২ ঘণ্টা আগে</div>
+          </div>
+          <div style="background:#22c55e22;color:#22c55e;padding:3px 8px;border-radius:20px;font-size:9px;">প্রকাশিত</div>
+          <div style="color:#888;font-size:14px;cursor:pointer;">⋮</div>
+        </div>
+        <div style="background:#2a2a4a;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,#11998e,#38ef7d);flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="color:#fff;font-size:11px;font-weight:600;">নির্বাচন ২০২৬ হাইলাইটস</div>
+            <div style="color:#888;font-size:9px;margin-top:2px;">৬টি স্লাইড · editor01 · ৫ ঘণ্টা আগে</div>
+          </div>
+          <div style="background:#f59e0b22;color:#f59e0b;padding:3px 8px;border-radius:20px;font-size:9px;">ড্রাফট</div>
+          <div style="color:#888;font-size:14px;cursor:pointer;">⋮</div>
+        </div>
+        <div style="background:#2a2a4a;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,#fc4a1a,#f7b733);flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="color:#fff;font-size:11px;font-weight:600;">ক্রিকেট বিশ্বকাপ মুহূর্ত</div>
+            <div style="color:#888;font-size:9px;margin-top:2px;">৩টি স্লাইড · reporter02 · ১ দিন আগে · মেয়াদ শেষ ৬ ঘণ্টা আগে</div>
+          </div>
+          <div style="background:#ef444422;color:#ef4444;padding:3px 8px;border-radius:20px;font-size:9px;">মেয়াদোত্তীর্ণ</div>
+          <div style="color:#888;font-size:14px;cursor:pointer;">⋮</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. Story Editor (/admin/stories/create or /{id}/edit)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Story Editor — Slide Builder</div>
+    <div class="mockup-body" style="background:#1a1a2e;padding:16px;display:flex;gap:12px;">
+      <!-- Left: story meta -->
+      <div style="width:180px;flex-shrink:0;">
+        <div style="color:#aaa;font-size:9px;text-transform:uppercase;margin-bottom:6px;">স্টোরি তথ্য</div>
+        <div style="background:#2a2a4a;border-radius:6px;padding:8px;margin-bottom:8px;">
+          <div style="color:#888;font-size:9px;margin-bottom:3px;">শিরোনাম (বাংলা)</div>
+          <div class="mock-input" style="font-size:10px;background:#1a1a2e;border:1px solid #444;color:#ddd;padding:4px 6px;border-radius:4px;width:100%;box-sizing:border-box;">ঢাকার বন্যা ২০২৬</div>
+        </div>
+        <div style="background:#2a2a4a;border-radius:6px;padding:8px;margin-bottom:8px;">
+          <div style="color:#888;font-size:9px;margin-bottom:3px;">কভার ছবি</div>
+          <div style="width:100%;aspect-ratio:1;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;cursor:pointer;">মিডিয়া বেছে নিন</div>
+        </div>
+        <div style="background:#2a2a4a;border-radius:6px;padding:8px;margin-bottom:8px;">
+          <div style="color:#888;font-size:9px;margin-bottom:3px;">মেয়াদ শেষ (ঐচ্ছিক)</div>
+          <div style="background:#1a1a2e;border:1px solid #444;color:#888;padding:4px 6px;border-radius:4px;font-size:9px;">তারিখ বেছে নিন</div>
+        </div>
+        <div style="background:#22c55e;color:#fff;text-align:center;padding:6px;border-radius:6px;font-size:10px;cursor:pointer;margin-top:4px;">প্রকাশ করুন</div>
+        <div style="background:#2a2a4a;color:#aaa;text-align:center;padding:6px;border-radius:6px;font-size:10px;cursor:pointer;margin-top:6px;">ড্রাফট সংরক্ষণ</div>
+      </div>
+      <!-- Right: slide builder -->
+      <div style="flex:1;">
+        <div style="color:#aaa;font-size:9px;text-transform:uppercase;margin-bottom:6px;">স্লাইডসমূহ (টেনে সাজান)</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <!-- Slide 1 -->
+          <div style="background:#2a2a4a;border-radius:6px;padding:8px;display:flex;gap:8px;align-items:center;border-left:3px solid #6366f1;">
+            <div style="color:#666;font-size:10px;cursor:grab;">⠿</div>
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:4px;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div style="color:#ddd;font-size:10px;">স্লাইড ১ · ছবি · ৫ সেকেন্ড</div>
+              <div style="color:#888;font-size:9px;">টেক্সট: "ঢাকার নিম্নাঞ্চলে..."</div>
+            </div>
+            <div style="color:#888;font-size:11px;cursor:pointer;">✎</div>
+            <div style="color:#ef4444;font-size:11px;cursor:pointer;">✕</div>
+          </div>
+          <!-- Slide 2 -->
+          <div style="background:#2a2a4a;border-radius:6px;padding:8px;display:flex;gap:8px;align-items:center;border-left:3px solid #f59e0b;">
+            <div style="color:#666;font-size:10px;cursor:grab;">⠿</div>
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,#fc4a1a,#f7b733);border-radius:4px;flex-shrink:0;position:relative;">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;">▶</div>
+            </div>
+            <div style="flex:1;">
+              <div style="color:#ddd;font-size:10px;">স্লাইড ২ · ভিডিও · স্বয়ংক্রিয়</div>
+              <div style="color:#888;font-size:9px;">কোনো টেক্সট নেই · নিবন্ধ লিঙ্ক আছে</div>
+            </div>
+            <div style="color:#888;font-size:11px;cursor:pointer;">✎</div>
+            <div style="color:#ef4444;font-size:11px;cursor:pointer;">✕</div>
+          </div>
+          <!-- Add slide -->
+          <div style="background:#2a2a4a;border:2px dashed #444;border-radius:6px;padding:10px;text-align:center;color:#666;font-size:10px;cursor:pointer;">
+            + স্লাইড যোগ করুন (ছবি বা ভিডিও)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

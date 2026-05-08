@@ -56,6 +56,26 @@ class HandleInertiaRequests extends Middleware
                 'category_slug' => $article->category->slug ?? 'news',
             ]);
 
+        // Load header ad globally
+        $headerAd = \App\Models\Ad::active()->position('header')->first();
+
+        // Load header articles globally (3 latest with images)
+        $headerArticles = Article::published()
+            ->forEdition($edition)
+            ->whereNotNull('featured_image')
+            ->with('category')
+            ->latest()
+            ->limit(3)
+            ->get()
+            ->map(fn($a) => [
+                'id'             => $a->id,
+                'title'          => $edition === 'en' ? ($a->title_en ?: $a->title_bn) : $a->title_bn,
+                'slug'           => $edition === 'en' ? ($a->slug_en ?: $a->slug_bn) : $a->slug_bn,
+                'featured_image' => $a->featured_image,
+                'published_at'   => $a->published_at,
+                'category'       => $a->category ? ['name' => $a->category->name, 'slug' => $a->category->slug] : null,
+            ]);
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -70,6 +90,15 @@ class HandleInertiaRequests extends Middleware
             ],
             'settings' => $publicSettings,
             'globalBreakingNews' => $globalBreakingNews,
+            'headerArticles' => $headerArticles,
+            'headerAd' => $headerAd ? [
+                'id'    => $headerAd->id,
+                'image' => $headerAd->image,
+                'link'  => $headerAd->link,
+                'title' => $headerAd->getTitle($edition),
+                'type'  => $headerAd->type,
+                'code'  => $headerAd->code ?? null,
+            ] : null,
             'edition' => $edition,
         ];
     }

@@ -1,0 +1,122 @@
+<h2>Frontend Components Layout</h2>
+<p class="subtitle">How the Stories feature looks across the site</p>
+
+<div class="section">
+  <h3>1. Story Strip (Homepage Section)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Homepage — Stories Section (between other sections)</div>
+    <div class="mockup-body" style="background:#111;padding:16px;">
+      <div style="color:#aaa;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">স্টোরিজ · Stories</div>
+      <div style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;">
+        <!-- Story bubbles -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0;">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);padding:2px;">
+            <div style="width:100%;height:100%;border-radius:50%;background:#222;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+              <div style="width:100%;height:100%;background:linear-gradient(135deg,#667eea,#764ba2);"></div>
+            </div>
+          </div>
+          <span style="color:#ddd;font-size:10px;max-width:70px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">ঢাকার বন্যা</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0;">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);padding:2px;">
+            <div style="width:100%;height:100%;border-radius:50%;background:#222;overflow:hidden;">
+              <div style="width:100%;height:100%;background:linear-gradient(135deg,#11998e,#38ef7d);"></div>
+            </div>
+          </div>
+          <span style="color:#ddd;font-size:10px;max-width:70px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">নির্বাচন ২০২৬</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0;">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);padding:2px;">
+            <div style="width:100%;height:100%;border-radius:50%;background:#222;overflow:hidden;">
+              <div style="width:100%;height:100%;background:linear-gradient(135deg,#fc4a1a,#f7b733);"></div>
+            </div>
+          </div>
+          <span style="color:#ddd;font-size:10px;max-width:70px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">ক্রিকেট বিশ্বকাপ</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0;">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);padding:2px;">
+            <div style="width:100%;height:100%;border-radius:50%;background:#222;overflow:hidden;">
+              <div style="width:100%;height:100%;background:linear-gradient(135deg,#2193b0,#6dd5ed);"></div>
+            </div>
+          </div>
+          <span style="color:#ddd;font-size:10px;max-width:70px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">রাজনীতি</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0;">
+          <div style="width:64px;height:64px;border-radius:50%;background:#333;padding:2px;border:2px dashed #555;">
+            <div style="width:100%;height:100%;border-radius:50%;background:#222;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+              <div style="width:100%;height:100%;background:linear-gradient(135deg,#834d9b,#d04ed6);"></div>
+            </div>
+          </div>
+          <span style="color:#888;font-size:10px;max-width:70px;text-align:center;">আরও দেখুন</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. Story Viewer (Full-Screen Overlay)</h3>
+  <div class="mockup">
+    <div class="mockup-header">When user clicks a story bubble</div>
+    <div class="mockup-body" style="background:#000;padding:0;border-radius:8px;overflow:hidden;position:relative;height:420px;max-width:240px;margin:0 auto;">
+      <!-- Progress bars -->
+      <div style="position:absolute;top:12px;left:12px;right:12px;z-index:10;display:flex;gap:3px;">
+        <div style="flex:1;height:2px;background:#fff;border-radius:2px;"></div>
+        <div style="flex:1;height:2px;background:rgba(255,255,255,0.35);border-radius:2px;"></div>
+        <div style="flex:1;height:2px;background:rgba(255,255,255,0.35);border-radius:2px;"></div>
+        <div style="flex:1;height:2px;background:rgba(255,255,255,0.35);border-radius:2px;"></div>
+      </div>
+      <!-- Close + Story title -->
+      <div style="position:absolute;top:22px;left:12px;right:12px;z-index:10;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);border:2px solid #fff;"></div>
+          <div>
+            <div style="color:#fff;font-size:11px;font-weight:600;">ঢাকার বন্যা</div>
+            <div style="color:rgba(255,255,255,0.7);font-size:9px;">২ ঘণ্টা আগে</div>
+          </div>
+        </div>
+        <div style="color:#fff;font-size:18px;cursor:pointer;">✕</div>
+      </div>
+      <!-- Slide image -->
+      <div style="width:100%;height:100%;background:linear-gradient(180deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);display:flex;align-items:flex-end;padding:20px;">
+        <!-- Text overlay -->
+        <div style="color:#fff;">
+          <div style="font-size:13px;font-weight:700;margin-bottom:6px;line-height:1.4;">ঢাকার নিম্নাঞ্চলে বন্যার পানি প্রবেশ</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.8);margin-bottom:10px;">হাজার হাজার পরিবার ক্ষতিগ্রস্ত</div>
+          <!-- Article link -->
+          <div style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:6px 14px;font-size:10px;color:#fff;display:inline-block;cursor:pointer;backdrop-filter:blur(4px);">
+            পুরো খবর পড়ুন →
+          </div>
+        </div>
+      </div>
+      <!-- Tap zones (left/right) -->
+      <div style="position:absolute;top:0;left:0;width:35%;height:100%;z-index:5;cursor:pointer;"></div>
+      <div style="position:absolute;top:0;right:0;width:35%;height:100%;z-index:5;cursor:pointer;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>3. Dedicated /stories Page</h3>
+  <div class="mockup">
+    <div class="mockup-header">/stories — All Published Stories</div>
+    <div class="mockup-body" style="background:#0f0f0f;padding:16px;">
+      <div style="color:#fff;font-size:16px;font-weight:700;margin-bottom:4px;">সকল স্টোরিজ</div>
+      <div style="color:#888;font-size:11px;margin-bottom:16px;">All Stories</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div style="aspect-ratio:9/16;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:8px;position:relative;overflow:hidden;">
+          <div style="position:absolute;bottom:8px;left:8px;right:8px;color:#fff;font-size:9px;font-weight:600;">ঢাকার বন্যা</div>
+          <div style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.2);border-radius:10px;padding:2px 6px;color:#fff;font-size:8px;">৪টি স্লাইড</div>
+        </div>
+        <div style="aspect-ratio:9/16;background:linear-gradient(135deg,#11998e,#38ef7d);border-radius:8px;position:relative;overflow:hidden;">
+          <div style="position:absolute;bottom:8px;left:8px;right:8px;color:#fff;font-size:9px;font-weight:600;">নির্বাচন ২০২৬</div>
+          <div style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.2);border-radius:10px;padding:2px 6px;color:#fff;font-size:8px;">৬টি স্লাইড</div>
+        </div>
+        <div style="aspect-ratio:9/16;background:linear-gradient(135deg,#fc4a1a,#f7b733);border-radius:8px;position:relative;overflow:hidden;">
+          <div style="position:absolute;bottom:8px;left:8px;right:8px;color:#fff;font-size:9px;font-weight:600;">ক্রিকেট বিশ্বকাপ</div>
+          <div style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.2);border-radius:10px;padding:2px 6px;color:#fff;font-size:8px;">৩টি স্লাইড</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

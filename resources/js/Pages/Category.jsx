@@ -10,7 +10,7 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { relativeTime, toBengaliNum } from '../lib/formatters';
 
-function ArticleCard({ item, lang, onNavigate, imgH = 185 }) {
+function ArticleCard({ item, lang, onNavigate, hero = false }) {
   if (!item) return null;
   return (
     <article
@@ -20,9 +20,11 @@ function ArticleCard({ item, lang, onNavigate, imgH = 185 }) {
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
     >
-      {item.featured_image
-        ? <img src={item.featured_image} alt={item.title} style={{ width: '100%', height: imgH, objectFit: 'cover', display: 'block' }} loading="lazy" />
-        : <div className="ph" style={{ height: imgH }}>📰</div>}
+      <div style={{ aspectRatio: hero ? '3/2' : '4/3', overflow: 'hidden' }}>
+        {item.featured_image
+          ? <img src={item.featured_image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} loading="lazy" />
+          : <div className="ph" style={{ width: '100%', height: '100%' }}>📰</div>}
+      </div>
       <div className="cb">
         <span className="tag">{item.category?.name}</span>
         <h3>{item.title}</h3>
@@ -47,9 +49,11 @@ function ArticleListItem({ item, lang, onNavigate }) {
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
     >
-      {item.featured_image
-        ? <img src={item.featured_image} alt={item.title} style={{ width: 100, height: 70, objectFit: 'cover', display: 'block', flexShrink: 0 }} loading="lazy" />
-        : <div className="ph" style={{ width: 100, height: 70, flexShrink: 0 }}>📰</div>}
+      <div style={{ flexShrink: 0, width: 120, aspectRatio: '4/3', overflow: 'hidden' }}>
+        {item.featured_image
+          ? <img src={item.featured_image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} loading="lazy" />
+          : <div className="ph" style={{ width: '100%', height: '100%' }}>📰</div>}
+      </div>
       <div>
         <span className="tag">{item.category?.name}</span>
         {(item.categories || []).filter(c => !c.is_primary).slice(0, 2).map(c => (
@@ -128,7 +132,7 @@ export default function Category({ category, articles }) {
               <>
                 {/* Hero card */}
                 <div style={{ marginBottom: 14 }}>
-                  <ArticleCard item={data[0]} lang={lang} onNavigate={onNavigate} imgH={260} />
+                  <ArticleCard item={data[0]} lang={lang} onNavigate={onNavigate} hero />
                 </div>
 
                 {/* 2-up grid */}

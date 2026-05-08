@@ -1,4 +1,4 @@
-﻿import { t } from '../translations';
+import { t } from '../translations';
 import Icon from '../Components/Icon';
 import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
@@ -25,10 +25,10 @@ export default function Contact() {
   };
 
   const contactInfo = lang === 'bn' ? [
-    ['building', 'à¦ªà§à¦°à¦§à¦¾à¦¨ à¦•à¦¾à¦°à§à¦¯à¦¾à¦²à¦¯à¦¼', 'à§§à§¨à§©, à¦®à¦¤à¦¿à¦à¦¿à¦² à¦¬à¦¾à¦£à¦¿à¦œà§à¦¯à¦¿à¦• à¦à¦²à¦¾à¦•à¦¾\nà¦¢à¦¾à¦•à¦¾-à§§à§¦à§¦à§¦, à¦¬à¦¾à¦‚à¦²à¦¾à¦¦à§‡à¦¶'],
-    ['phone', 'à¦«à§‹à¦¨', contactPhone],
-    ['mail', 'à¦‡à¦®à§‡à¦‡à¦²', contactEmail],
-    ['globe', 'à¦“à¦¯à¦¼à§‡à¦¬à¦¸à¦¾à¦‡à¦Ÿ', siteUrl],
+    ['building', 'প্রধান কার্যালয়', '১২৩, মতিঝিল বাণিজ্যিক এলাকা\nঢাকা-১০০০, বাংলাদেশ'],
+    ['phone', 'ফোন', contactPhone],
+    ['mail', 'ইমেইল', contactEmail],
+    ['globe', 'ওয়েবসাইট', siteUrl],
   ] : [
     ['building', 'Head Office', '123, Motijheel C/A\nDhaka-1000, Bangladesh'],
     ['phone', 'Phone', contactPhone],
@@ -37,7 +37,7 @@ export default function Contact() {
   ];
 
   const subjectOptions = lang === 'bn' ? [
-    'à¦¸à¦‚à¦¬à¦¾à¦¦ à¦ªà¦¾à¦ à¦¾à¦¨', 'à¦¬à¦¿à¦œà§à¦žà¦¾à¦ªà¦¨ à¦¸à¦‚à¦•à§à¦°à¦¾à¦¨à§à¦¤', 'à¦¸à¦¦à¦¸à§à¦¯à¦ªà¦¦ à¦¬à¦¿à¦·à¦¯à¦¼à§‡', 'à¦ªà§à¦°à¦¯à§à¦•à§à¦¤à¦¿à¦—à¦¤ à¦¸à¦¹à¦¾à¦¯à¦¼à¦¤à¦¾', 'à¦…à¦­à¦¿à¦¯à§‹à¦—', 'à¦…à¦¨à§à¦¯à¦¾à¦¨à§à¦¯'
+    'সংবাদ পাঠান', 'বিজ্ঞাপন সংক্রান্ত', 'সদস্যপদ বিষয়ে', 'প্রযুক্তিগত সহায়তা', 'অভিযোগ', 'অন্যান্য'
   ] : [
     'Submit News', 'Advertising', 'Subscription', 'Technical Support', 'Complaint', 'Other'
   ];
@@ -71,7 +71,7 @@ export default function Contact() {
               <label>{t('contact.message', lang)}</label>
               <textarea value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder={t('contact.msg_placeholder', lang)} />
             </div>
-            <button className="submit-btn" onClick={handleSubmit}><Icon name="send" size={14} /> {lang === 'bn' ? 'à¦ªà¦¾à¦ à¦¾à¦¨' : 'Send'}</button>
+            <button className="submit-btn" onClick={handleSubmit}><Icon name="send" size={14} /> {lang === 'bn' ? 'পাঠান' : 'Send'}</button>
           </div>
         </div>
         <div>
@@ -95,4 +95,3 @@ export default function Contact() {
     </div>
   );
 }
-

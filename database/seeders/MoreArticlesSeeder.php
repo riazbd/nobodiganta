@@ -444,6 +444,7 @@ class MoreArticlesSeeder extends Seeder
                 'views'           => $item['views'],
                 'allow_comments'  => true,
                 'published_at'    => $publishedAt,
+                'featured_image'  => 'https://picsum.photos/seed/more' . ($idx + 1) . '/800/500',
             ]);
 
             $a->categories()->syncWithoutDetaching([
