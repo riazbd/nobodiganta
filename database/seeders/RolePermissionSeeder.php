@@ -94,6 +94,10 @@ class RolePermissionSeeder extends Seeder
             'widgets.polls.manage', 'widgets.weather.manage', 'widgets.horoscope.manage',
             'widgets.prayer_times.manage',
         ],
+        'stories' => [
+            'stories.view_any', 'stories.create', 'stories.edit',
+            'stories.delete', 'stories.publish', 'stories.restore_expired',
+        ],
     ];
 
     private const ROLE_PERMS = [
@@ -127,6 +131,7 @@ class RolePermissionSeeder extends Seeder
             'widgets.stocks.manage', 'widgets.cricket.manage', 'widgets.prices.manage',
             'widgets.polls.manage', 'widgets.weather.manage', 'widgets.horoscope.manage',
             'widgets.prayer_times.manage',
+            'stories.view_any', 'stories.create', 'stories.edit', 'stories.delete', 'stories.publish', 'stories.restore_expired',
         ],
 
         'managing_editor' => [
@@ -156,6 +161,7 @@ class RolePermissionSeeder extends Seeder
             'widgets.stocks.manage', 'widgets.cricket.manage', 'widgets.prices.manage',
             'widgets.polls.manage', 'widgets.weather.manage', 'widgets.horoscope.manage',
             'widgets.prayer_times.manage',
+            'stories.view_any', 'stories.create', 'stories.edit', 'stories.delete', 'stories.publish', 'stories.restore_expired',
         ],
 
         'section_editor' => [
@@ -176,6 +182,7 @@ class RolePermissionSeeder extends Seeder
             'widgets.stocks.manage', 'widgets.cricket.manage', 'widgets.prices.manage',
             'widgets.polls.manage', 'widgets.weather.manage', 'widgets.horoscope.manage',
             'widgets.prayer_times.manage',
+            'stories.view_any', 'stories.create', 'stories.edit', 'stories.delete',
         ],
 
         'reporter' => [
@@ -186,6 +193,7 @@ class RolePermissionSeeder extends Seeder
             'media.view', 'media.upload',
             'comment.reply',
             'analytics.view.own',
+            'stories.view_any', 'stories.create',
         ],
 
         'photographer' => [
@@ -193,6 +201,7 @@ class RolePermissionSeeder extends Seeder
             'media.view', 'media.upload', 'media.delete', 'media.edit',
             'media.gallery.manage', 'media.bulk.upload', 'media.license.manage',
             'analytics.view.own',
+            'stories.view_any', 'stories.create',
         ],
 
         'seo_manager' => [
@@ -201,6 +210,7 @@ class RolePermissionSeeder extends Seeder
             'seo.view', 'seo.edit', 'seo.audit',
             'social.schedule', 'social.publish', 'social.analytics.view',
             'newsletter.create', 'newsletter.send',
+            'stories.view_any',
         ],
     ];
 
