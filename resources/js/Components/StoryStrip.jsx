@@ -15,29 +15,28 @@ export default function StoryStrip({ stories = [], title = 'স্টোরি�
                         {title}
                     </p>
                 )}
-                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-3 overflow-x-auto pb-2">
                     {stories.map((story, index) => (
                         <button
                             key={story.id}
                             onClick={() => setActiveIndex(index)}
-                            className="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer group"
+                            className="flex-shrink-0 cursor-pointer group w-24"
                         >
-                            <div className="w-16 h-16 rounded-full p-0.5 bg-gradient-to-br from-yellow-400 via-red-500 to-purple-600">
-                                <div className="w-full h-full rounded-full overflow-hidden border-2 border-gray-900">
-                                    {story.cover_thumbnail ? (
-                                        <img
-                                            src={story.cover_thumbnail}
-                                            alt={story.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600" />
-                                    )}
-                                </div>
+                            <div className="aspect-[9/16] rounded-xl overflow-hidden relative bg-gray-800 ring-2 ring-transparent group-hover:ring-indigo-500 transition-all duration-200">
+                                {story.cover_thumbnail ? (
+                                    <img
+                                        src={story.cover_thumbnail}
+                                        alt={story.title}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600" />
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
+                                <p className="absolute bottom-2 left-2 right-2 text-white text-[10px] font-semibold leading-tight line-clamp-2">
+                                    {story.title}
+                                </p>
                             </div>
-                            <span className="text-gray-300 text-[10px] max-w-[70px] text-center line-clamp-1">
-                                {story.title}
-                            </span>
                         </button>
                     ))}
                 </div>
