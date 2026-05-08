@@ -1,0 +1,135 @@
+// resources/js/features/admin/pages/stories/Index.jsx
+import { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+
+const STATUS_TABS = [
+    { key: '', label: 'সব' },
+    { key: 'published', label: 'প্রকাশিত' },
+    { key: 'draft', label: 'ড্রাফট' },
+    { key: 'expired', label: 'মেয়াদোত্তীর্ণ' },
+    { key: 'archived', label: 'আর্কাইভ' },
+];
+
+const STATUS_COLORS = {
+    published: 'bg-green-500/10 text-green-400',
+    draft: 'bg-yellow-500/10 text-yellow-400',
+    expired: 'bg-red-500/10 text-red-400',
+    archived: 'bg-gray-500/10 text-gray-400',
+};
+
+const STATUS_LABELS = {
+    published: 'প্রকাশিত',
+    draft: 'ড্রাফট',
+    expired: 'মেয়াদোত্তীর্ণ',
+    archived: 'আর্কাইভ',
+};
+
+export default function StoriesIndex({ stories, filters, can }) {
+    const [search, setSearch] = useState(filters.search ?? '');
+
+    const applyFilter = (params) => {
+        router.get(route('admin.stories'), { ...filters, ...params }, { preserveState: true });
+    };
+
+    const handlePublish = (story) => {
+        if (!confirm('এই স্টোরি প্রকাশ করবেন?')) return;
+        router.post(route('admin.stories.publish', story.id), {}, { preserveScroll: true });
+    };
+
+    const handleRestore = (story) => {
+        if (!confirm('এই স্টোরি পুনরায় প্রকাশ করবেন?')) return;
+        router.post(route('admin.stories.restore', story.id), {}, { preserveScroll: true });
+    };
+
+    const handleDelete = (story) => {
+        if (!confirm('এই স্টোরি মুছে ফেলবেন?')) return;
+        router.delete(route('admin.stories.destroy', story.id), { preserveScroll: true });
+    };
+
+    return (
+        <>
+            <Head title="স্টোরিজ ম্যানেজমেন্ট" />
+            <div className="p-6 max-w-5xl mx-auto">
+                <div className="flex items-center justify-between mb-6">
+                    <h1 className="text-xl font-bold text-white">স্টোরিজ ম্যানেজমেন্ট</h1>
+                    {can.create && (
+                        <Link href={route('admin.stories.create')}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg transition-colors">
+                            + নতুন স্টোরি
+                        </Link>
+                    )}
+                </div>
+
+                <div className="flex gap-2 mb-4 flex-wrap">
+                    {STATUS_TABS.map(tab => (
+                        <button key={tab.key}
+                            onClick={() => applyFilter({ status: tab.key, page: 1 })}
+                            className={`px-3 py-1.5 rounded-full text-xs transition-colors ${
+                                (filters.status ?? '') === tab.key
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-gray-800 text-gray-400 hover:text-white'
+                            }`}>
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                <input
+                    type="text"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && applyFilter({ search, page: 1 })}
+                    placeholder="স্টোরি খুঁজুন..."
+                    className="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-lg px-4 py-2 mb-4 outline-none focus:border-indigo-500"
+                />
+
+                <div className="space-y-3">
+                    {stories.data?.length === 0 && (
+                        <p className="text-gray-500 text-center py-12">কোনো স্টোরি নেই।</p>
+                    )}
+                    {stories.data?.map(story => (
+                        <div key={story.id} className="bg-gray-800 rounded-xl p-4 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-700">
+                                {story.cover_thumbnail
+                                    ? <img src={story.cover_thumbnail} alt="" className="w-full h-full object-cover" />
+                                    : <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-white text-sm font-semibold truncate">{story.title_bn}</p>
+                                <p className="text-gray-400 text-xs mt-0.5">
+                                    {story.slides_count}টি স্লাইড · {story.creator_name}
+                                    {story.expires_at && ` · মেয়াদ: ${new Date(story.expires_at).toLocaleDateString('bn-BD')}`}
+                                </p>
+                            </div>
+                            <span className={`text-xs px-2.5 py-1 rounded-full ${STATUS_COLORS[story.status]}`}>
+                                {STATUS_LABELS[story.status]}
+                            </span>
+                            <div className="flex gap-2">
+                                <Link href={route('admin.stories.edit', story.id)}
+                                    className="text-gray-400 hover:text-white text-xs px-3 py-1.5 bg-gray-700 rounded-lg transition-colors">
+                                    সম্পাদনা
+                                </Link>
+                                {can.publish && story.status === 'draft' && (
+                                    <button onClick={() => handlePublish(story)}
+                                        className="text-green-400 text-xs px-3 py-1.5 bg-green-500/10 rounded-lg hover:bg-green-500/20 transition-colors">
+                                        প্রকাশ
+                                    </button>
+                                )}
+                                {can.restore && story.status === 'expired' && (
+                                    <button onClick={() => handleRestore(story)}
+                                        className="text-blue-400 text-xs px-3 py-1.5 bg-blue-500/10 rounded-lg hover:bg-blue-500/20 transition-colors">
+                                        পুনরায় প্রকাশ
+                                    </button>
+                                )}
+                                <button onClick={() => handleDelete(story)}
+                                    className="text-red-400 text-xs px-3 py-1.5 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors">
+                                    মুছুন
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </>
+    );
+}
