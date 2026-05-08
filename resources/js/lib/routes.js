@@ -10,6 +10,7 @@ export const ROUTES = {
     home:        (ed = 'bn') => ed === 'en' ? '/en' : '/',
     gallery:     (ed = 'bn') => ed === 'en' ? '/en/gallery'      : '/gallery',
     video:       (ed = 'bn') => ed === 'en' ? '/en/video'        : '/video',
+    stories:     (ed = 'bn') => ed === 'en' ? '/en/stories'      : '/stories',
     epaper:      (ed = 'bn') => ed === 'en' ? '/en/epaper'       : '/epaper',
     about:       (ed = 'bn') => ed === 'en' ? '/en/about'        : '/about',
     contact:     (ed = 'bn') => ed === 'en' ? '/en/contact'      : '/contact',

@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 
 const MENU_ITEMS = [
+  { key: 'stories', page: 'stories', bn: 'স্টোরিজ', en: 'Stories' },
   { key: 'gallery', page: 'gallery', bn: 'গ্যালারি', en: 'Gallery' },
   { key: 'video',   page: 'video',   bn: 'ভিডিও',   en: 'Video'   },
 ];
