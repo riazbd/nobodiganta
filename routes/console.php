@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Schedule automatic publishing of scheduled articles
 Schedule::command('articles:publish-scheduled')->everyMinute();
+
+// Expire stories whose expires_at has passed
+Schedule::command('stories:expire')->hourly();
