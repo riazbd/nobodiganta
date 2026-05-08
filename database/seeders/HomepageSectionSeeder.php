@@ -57,6 +57,17 @@ class HomepageSectionSeeder extends Seeder
             ]);
         }
 
+        // Stories strip
+        HomepageSection::create([
+            'type'       => 'stories',
+            'title_bn'   => 'স্টোরিজ',
+            'title_en'   => 'Stories',
+            'item_count' => 10,
+            'sort_order' => $sort++,
+            'edition'    => 'both',
+            'is_active'  => true,
+        ]);
+
         // Video carousel
         HomepageSection::create([
             'type'       => 'videos',
