@@ -1307,6 +1307,53 @@ img{max-width:100%;display:block;}
 /* Responsive: hide header article strip on small screens */
 @media(max-width:860px){.hdr-art-strip{display:none;}}
 @media(max-width:860px){.hp-cat-strip-wrap{overflow-x:auto;}}
+
+/* ── MOBILE TOPBAR ─────────────────────────────────────────── */
+@media(max-width:640px){
+  #top-bar { font-size:12px; }
+  .tb-inner { height:32px; padding:0 12px; gap:8px; }
+  /* Hide non-essential topbar items */
+  .tb-links { display:none; }
+  .tb-socials { display:none; }
+  .tb-divider-v { display:none; }
+  .tb-left { display:none; }
+  /* Right side stays: user login + edition */
+  .tb-right { gap:8px; margin-left:auto; }
+  .tb-ed-btn { padding:2px 8px; font-size:11px; }
+}
+
+/* ── MOBILE HEADER ─────────────────────────────────────────── */
+@media(max-width:860px){
+  .hdr-ad { display:none; }
+  .hdr-logo-date,.hdr-logo-dategreg { display:none; }
+}
+
+@media(max-width:640px){
+  .hdr-wrap {
+    flex-direction:column;
+    align-items:stretch;
+    gap:8px;
+    padding:10px 14px;
+  }
+  /* Compact logo */
+  .hdr-logo { flex-direction:row; align-items:center; justify-content:space-between; gap:0; }
+  .hdr-logo-wordmark { gap:8px; }
+  .hdr-logo-accent { width:4px; height:28px; }
+  .hdr-logo-name { font-size:34px; letter-spacing:-1px; }
+  .hdr-logo-tag { font-size:8px; letter-spacing:2px; }
+  .hdr-logo-rule { margin:3px 0; }
+  /* Logo image version */
+  .hdr-logo-img { max-height:44px; }
+  /* Right section full width, single row */
+  .hdr-right { min-width:0; flex-direction:row; align-items:center; gap:8px; }
+  .hdr-top-row { display:none; }
+  .hdr-subscribe { display:none; }
+  .hdr-edition { display:none; }
+  /* Search takes full width */
+  .hdr-searchbar { flex:1; }
+  .hdr-search-btn { padding:9px 12px; font-size:13px; }
+  .hdr-searchbar input { font-size:13px; padding:9px 4px; }
+}
 @media(max-width:640px){
   .hp-center-col,.hp-r2,.hp-text-list{padding:8px;}
   .hp-tab-body{grid-template-columns:1fr;}
