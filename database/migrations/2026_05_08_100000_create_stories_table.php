@@ -24,10 +24,9 @@ return new class extends Migration
             $table->unsignedInteger('view_count')->default(0);
             $table->timestamps();
 
-            $table->index('status');
-            $table->index('edition');
-            $table->index('published_at');
-            $table->index('expires_at');
+            $table->index(['status', 'published_at']); // covers: WHERE status = 'published' ORDER BY published_at DESC (homepage/api queries)
+            $table->index(['status', 'expires_at']);   // covers: WHERE status = 'published' AND expires_at <= now() (expire cron)
+            $table->index('edition');                  // covers: forEdition() scope
         });
     }
 
