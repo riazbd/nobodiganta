@@ -1,55 +1,54 @@
-// resources/js/Pages/Stories.jsx
 import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import Header from '@/Components/Header';
-import Footer from '@/Components/Footer';
-import StoryViewer from '@/Components/StoryViewer';
+import { useApp } from '../contexts/AppContext';
+import PageSidebar from '../Components/PageSidebar';
+import StoryViewer from '../Components/StoryViewer';
 
-export default function Stories({ stories, edition = 'bn' }) {
+export default function Stories({ stories }) {
+    const { lang } = useApp();
     const [activeIndex, setActiveIndex] = useState(null);
-    const items = stories.data ?? stories;
+
+    const items = stories?.data ?? stories ?? [];
 
     return (
         <>
-            <Head title={edition === 'en' ? 'All Stories' : 'সকল স্টোরিজ'} />
-            <Header />
+            <Head title={lang === 'bn' ? 'স্টোরিজ' : 'Stories'} />
 
-            <main className="min-h-screen bg-gray-950 py-8 px-4">
-                <div className="max-w-5xl mx-auto">
-                    <h1 className="text-white text-2xl font-bold mb-1">
-                        {edition === 'en' ? 'All Stories' : 'সকল স্টোরিজ'}
-                    </h1>
-                    <p className="text-gray-400 text-sm mb-8">
-                        {edition === 'en' ? 'Stories' : 'স্টোরিজ'}
-                    </p>
+            <div className="g-side">
+                <div>
+                    <div className="sec-hdr">
+                        <div className="sec-ttl">{lang === 'bn' ? 'সকল স্টোরিজ' : 'All Stories'}</div>
+                    </div>
 
                     {items.length === 0 ? (
-                        <p className="text-gray-500 text-center py-20">
-                            {edition === 'en' ? 'No stories yet.' : 'এখনো কোনো স্টোরি নেই।'}
-                        </p>
+                        <div style={{ padding: '40px 0', textAlign: 'center', color: '#999' }}>
+                            {lang === 'bn' ? 'এখনো কোনো স্টোরি নেই।' : 'No stories yet.'}
+                        </div>
                     ) : (
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12 }}>
                             {items.map((story, index) => (
                                 <button
                                     key={story.id}
                                     onClick={() => setActiveIndex(index)}
-                                    className="group cursor-pointer text-left"
+                                    style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0, textAlign: 'left' }}
                                 >
-                                    <div className="aspect-[9/16] rounded-xl overflow-hidden relative bg-gray-800">
+                                    <div style={{ aspectRatio: '9/16', borderRadius: 10, overflow: 'hidden', position: 'relative', background: '#222' }}>
                                         {story.cover ? (
                                             <img
                                                 src={story.cover}
                                                 alt={story.title}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform .3s' }}
+                                                onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                                                onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
                                             />
                                         ) : (
-                                            <div className="w-full h-full bg-gradient-to-br from-blue-600 to-purple-700" />
+                                            <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#3b82f6,#7c3aed)' }} />
                                         )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent" />
-                                        <div className="absolute top-2 right-2 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded-full">
-                                            {story.slides_count}{edition === 'en' ? '' : 'টি'}
+                                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 50%)' }} />
+                                        <div style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,.5)', color: '#fff', fontSize: 9, padding: '2px 6px', borderRadius: 10 }}>
+                                            {story.slides_count}{lang === 'bn' ? 'টি' : ''}
                                         </div>
-                                        <p className="absolute bottom-2 left-2 right-2 text-white text-[10px] font-semibold leading-tight line-clamp-2">
+                                        <p style={{ position: 'absolute', bottom: 6, left: 6, right: 6, color: '#fff', fontSize: 10, fontWeight: 700, lineHeight: 1.3, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                             {story.title}
                                         </p>
                                     </div>
@@ -57,30 +56,34 @@ export default function Stories({ stories, edition = 'bn' }) {
                             ))}
                         </div>
                     )}
-                </div>
-                {/* Pagination */}
-                {stories.links && stories.links.length > 3 && (
-                    <div className="flex justify-center gap-2 mt-8">
-                        {stories.links.map((link, i) => (
-                            <Link
-                                key={i}
-                                href={link.url ?? '#'}
-                                className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                                    link.active
-                                        ? 'bg-indigo-600 text-white'
-                                        : link.url
-                                            ? 'bg-gray-800 text-gray-300 hover:text-white'
-                                            : 'bg-gray-800 text-gray-600 cursor-not-allowed'
-                                }`}
-                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                preserveScroll
-                            />
-                        ))}
-                    </div>
-                )}
-            </main>
 
-            <Footer />
+                    {stories?.links && stories.links.length > 3 && (
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 24 }}>
+                            {stories.links.map((link, i) => (
+                                <Link
+                                    key={i}
+                                    href={link.url ?? '#'}
+                                    style={{
+                                        padding: '4px 10px',
+                                        borderRadius: 6,
+                                        fontSize: 13,
+                                        fontWeight: 600,
+                                        background: link.active ? 'var(--red)' : '#f0f0f0',
+                                        color: link.active ? '#fff' : '#333',
+                                        textDecoration: 'none',
+                                        pointerEvents: link.url ? 'auto' : 'none',
+                                        opacity: link.url ? 1 : 0.4,
+                                    }}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                    preserveScroll
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <PageSidebar />
+            </div>
 
             {activeIndex !== null && (
                 <StoryViewer
