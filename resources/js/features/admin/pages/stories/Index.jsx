@@ -121,10 +121,12 @@ export default function StoriesIndex({ stories, filters, can }) {
                                         পুনরায় প্রকাশ
                                     </button>
                                 )}
-                                <button onClick={() => handleDelete(story)}
-                                    className="text-red-400 text-xs px-3 py-1.5 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors">
-                                    মুছুন
-                                </button>
+                                {can.delete && (
+                                    <button onClick={() => handleDelete(story)}
+                                        className="text-red-400 text-xs px-3 py-1.5 bg-red-500/10 rounded-lg hover:bg-red-500/20 transition-colors">
+                                        মুছুন
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}

@@ -45,6 +45,7 @@ class StoryController extends Controller
             'filters' => $request->only(['status', 'search']),
             'can' => [
                 'create' => auth()->user()->hasPermission('stories.create'),
+                'delete' => auth()->user()->hasPermission('stories.delete'),
                 'publish' => auth()->user()->hasPermission('stories.publish'),
                 'restore' => auth()->user()->hasPermission('stories.restore_expired'),
             ],
