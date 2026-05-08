@@ -48,4 +48,32 @@ class StoriesPublicTest extends TestCase
         $story = new Story(['expires_at' => null]);
         $this->assertFalse($story->isExpired());
     }
+
+    public function test_stories_page_returns_200(): void
+    {
+        $user = \App\Models\User::factory()->create();
+        \App\Models\Story::factory()->published()->create(['created_by' => $user->id]);
+
+        $this->get(route('stories'))
+            ->assertStatus(200);
+    }
+
+    public function test_api_stories_returns_json(): void
+    {
+        $user = \App\Models\User::factory()->create();
+        \App\Models\Story::factory()->published()->count(3)->create(['created_by' => $user->id]);
+
+        $this->getJson(route('api.stories'))
+            ->assertStatus(200)
+            ->assertJsonStructure(['stories']);
+    }
+
+    public function test_expired_stories_do_not_appear_publicly(): void
+    {
+        $user = \App\Models\User::factory()->create();
+        \App\Models\Story::factory()->expired()->create(['created_by' => $user->id]);
+
+        $response = $this->getJson(route('api.stories'));
+        $response->assertJsonCount(0, 'stories');
+    }
 }
