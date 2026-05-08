@@ -9,7 +9,7 @@ export default function StoryStrip({ stories = [], title = 'স্টোরি�
 
     return (
         <>
-            <div className="stories-strip bg-gray-900 px-4 py-3 rounded-lg">
+            <div className="stories-strip px-4 py-3">
                 {title && (
                     <p className="text-xs uppercase tracking-widest text-gray-400 mb-3 font-medium">
                         {title}
