@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
             NewsletterSeeder::class,
             MoreArticlesSeeder::class,
             HomepageSectionSeeder::class,
+            StoriesSeeder::class,
         ]);
     }
 }
