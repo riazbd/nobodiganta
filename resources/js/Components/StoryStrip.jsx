@@ -11,7 +11,7 @@ export default function StoryStrip({ stories = [], title = 'স্টোরি�
         <>
             <div className="stories-strip px-4 py-3">
                 {title && (
-                    <p className="text-xs uppercase tracking-widest text-gray-700 mb-3 font-bold">
+                    <p className="text-base font-bold text-gray-800 mb-3">
                         {title}
                     </p>
                 )}
