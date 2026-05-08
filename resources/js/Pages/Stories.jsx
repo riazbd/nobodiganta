@@ -1,6 +1,6 @@
 // resources/js/Pages/Stories.jsx
 import { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
 import StoryViewer from '@/Components/StoryViewer';
@@ -58,6 +58,26 @@ export default function Stories({ stories, edition = 'bn' }) {
                         </div>
                     )}
                 </div>
+                {/* Pagination */}
+                {stories.links && stories.links.length > 3 && (
+                    <div className="flex justify-center gap-2 mt-8">
+                        {stories.links.map((link, i) => (
+                            <Link
+                                key={i}
+                                href={link.url ?? '#'}
+                                className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                                    link.active
+                                        ? 'bg-indigo-600 text-white'
+                                        : link.url
+                                            ? 'bg-gray-800 text-gray-300 hover:text-white'
+                                            : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                                }`}
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                preserveScroll
+                            />
+                        ))}
+                    </div>
+                )}
             </main>
 
             <Footer />
