@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { useApp } from '../contexts/AppContext';
 import PageSidebar from '../Components/PageSidebar';
 import StoryViewer from '../Components/StoryViewer';
+import { toBengaliNum } from '../lib/formatters';
 
 export default function Stories({ stories }) {
     const { lang } = useApp();
@@ -46,7 +47,7 @@ export default function Stories({ stories }) {
                                         )}
                                         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 50%)' }} />
                                         <div style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,.5)', color: '#fff', fontSize: 9, padding: '2px 6px', borderRadius: 10 }}>
-                                            {story.slides_count}{lang === 'bn' ? 'টি' : ''}
+                                            {lang === 'bn' ? toBengaliNum(story.slides_count) + 'টি' : story.slides_count}
                                         </div>
                                         <p style={{ position: 'absolute', bottom: 6, left: 6, right: 6, color: '#fff', fontSize: 10, fontWeight: 700, lineHeight: 1.3, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                             {story.title}
