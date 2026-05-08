@@ -1,5 +1,6 @@
 // resources/js/Components/StoryViewer.jsx
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from '@inertiajs/react';
 
 export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
@@ -73,7 +74,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
     const totalSlides = currentStory.slides?.length ?? 0;
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
             {/* Story container — mobile-style portrait */}
             <div className="relative w-full max-w-sm h-full max-h-[90vh] bg-black overflow-hidden rounded-lg select-none">
@@ -174,5 +175,5 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
             {/* Click outside to close */}
             <div className="absolute inset-0 -z-10" onClick={onClose} />
         </div>
-    );
+    , document.body);
 }
