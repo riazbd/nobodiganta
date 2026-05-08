@@ -1335,22 +1335,24 @@ img{max-width:100%;display:block;}
     gap:8px;
     padding:10px 14px;
   }
-  /* Compact logo */
+  /* Row 1: logo left, edition right */
   .hdr-logo { flex-direction:row; align-items:center; justify-content:space-between; gap:0; }
   .hdr-logo-wordmark { gap:8px; }
   .hdr-logo-accent { width:4px; height:28px; }
   .hdr-logo-name { font-size:34px; letter-spacing:-1px; }
   .hdr-logo-tag { font-size:8px; letter-spacing:2px; }
   .hdr-logo-rule { margin:3px 0; }
-  /* Logo image version */
   .hdr-logo-img { max-height:44px; }
-  /* Right section full width, single row */
-  .hdr-right { min-width:0; flex-direction:row; align-items:center; gap:8px; }
-  .hdr-top-row { display:none; }
+  /* Right section: stack top-row + search vertically */
+  .hdr-right { min-width:0; flex-direction:column; gap:8px; }
+  .hdr-top-row { justify-content:flex-end; }
+  /* Hide subscribe button on mobile */
   .hdr-subscribe { display:none; }
-  .hdr-edition { display:none; }
-  /* Search takes full width */
-  .hdr-searchbar { flex:1; }
+  /* Keep edition switcher visible — move it inline with logo */
+  .hdr-edition { border-radius:6px; }
+  .hdr-ed-btn { padding:5px 12px; font-size:13px; }
+  /* Row 2: full-width search */
+  .hdr-searchbar { width:100%; }
   .hdr-search-btn { padding:9px 12px; font-size:13px; }
   .hdr-searchbar input { font-size:13px; padding:9px 4px; }
 }
