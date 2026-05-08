@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Newspaper, FolderTree, Image, Video, PenLine, Users, MessageSquare,
   Megaphone, CreditCard, BarChart3, TrendingUp, Search, Settings, FileText, Mail,
   LogOut, Globe, ChevronDown, Shield, Crown, UserCheck, Layers, Camera,
-  Calendar, Send, Monitor, Palette, Edit3, ListChecks, Target, Zap, Bell, User
+  Calendar, Send, Monitor, Palette, Edit3, ListChecks, Target, Zap, Bell, User, PlaySquare
 } from 'lucide-react';
 import { useState } from 'react';
 import { usePermission } from '../../hooks/usePermission';
@@ -14,7 +14,7 @@ const ICON_MAP = {
   LayoutDashboard, Newspaper, FolderTree, Image, Video, PenLine, Users, MessageSquare,
   Megaphone, CreditCard, BarChart3, TrendingUp, Search, Settings, FileText, Mail,
   LogOut, Bell, Globe, ChevronDown, Shield, Crown, UserCheck, Layers, Camera,
-  Calendar, Send, Monitor, Palette, User, Edit3, ListChecks, Target, Zap
+  Calendar, Send, Monitor, Palette, User, Edit3, ListChecks, Target, Zap, PlaySquare
 };
 
 export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
@@ -53,6 +53,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
         { id: 'categories', icon: 'FolderTree', label: 'categories', permission: PERMISSIONS.CATEGORY_VIEW },
         { id: 'media', icon: 'Image', label: 'mediaLibrary', permission: PERMISSIONS.MEDIA_VIEW },
         { id: 'videos', icon: 'Video', label: 'videos', permission: PERMISSIONS.MEDIA_VIEW },
+        { id: 'stories', icon: 'PlaySquare', label: 'stories', permission: PERMISSIONS.STORIES_VIEW_ANY },
         { id: 'opinions', icon: 'PenLine', label: 'opinionColumn', permission: PERMISSIONS.NEWS_VIEW },
       ]
     },

@@ -64,6 +64,7 @@ export const ROUTES = {
         categories:       '/admin/categories',
         media:            '/admin/media',
         videos:           '/admin/videos',
+        stories:          '/admin/stories',
         opinions:         '/admin/opinions',
         opinionsWrite:    '/admin/opinions/write',
         opinionsEdit:     '/admin/opinions/:id/edit',

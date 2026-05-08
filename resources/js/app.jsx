@@ -126,6 +126,7 @@ function urlToPageName(url) {
         'categories': 'categories',
         'media': 'media',
         'videos': 'videos',
+        'stories': 'stories',
         'opinions': 'opinions',
         'reporters': 'reporters',
         'comments': 'comments',

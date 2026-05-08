@@ -36,6 +36,10 @@ export const PERMISSIONS = {
   CATEGORY_DELETE: 'category.delete',
   CATEGORY_ASSIGN: 'category.assign',
 
+  STORIES_VIEW_ANY: 'stories.view_any',
+  STORIES_CREATE: 'stories.create',
+  STORIES_PUBLISH: 'stories.publish',
+
   MEDIA_VIEW: 'media.view',
   MEDIA_UPLOAD: 'media.upload',
   MEDIA_DELETE: 'media.delete',
