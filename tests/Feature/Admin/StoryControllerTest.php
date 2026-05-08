@@ -4,7 +4,6 @@ namespace Tests\Feature\Admin;
 use App\Models\Story;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
 
 class StoryControllerTest extends TestCase
@@ -104,5 +103,32 @@ class StoryControllerTest extends TestCase
             ->assertStatus(200);
 
         $this->assertEquals('published', $story->fresh()->status);
+    }
+
+    public function test_update_requires_create_permission_for_own_story(): void
+    {
+        $user = $this->makeUserWithPermission('stories.view_any');
+        $story = Story::factory()->create(['created_by' => $user->id]);
+
+        $this->actingAs($user)
+            ->putJson(route('admin.stories.update', $story), [
+                'title_bn' => 'আপডেট শিরোনাম',
+                'edition' => 'bn',
+            ])
+            ->assertStatus(403);
+    }
+
+    public function test_update_rejects_past_expires_at(): void
+    {
+        $user = $this->makeUserWithPermission('stories.edit');
+        $story = Story::factory()->create(['created_by' => $user->id]);
+
+        $this->actingAs($user)
+            ->putJson(route('admin.stories.update', $story), [
+                'title_bn' => 'আপডেট শিরোনাম',
+                'edition' => 'bn',
+                'expires_at' => now()->subDay()->toIso8601String(),
+            ])
+            ->assertStatus(422);
     }
 }

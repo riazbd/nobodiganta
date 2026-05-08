@@ -112,7 +112,7 @@ class StoryController extends Controller
     public function update(Request $request, Story $story)
     {
         if (!auth()->user()->hasPermission('stories.edit') &&
-            $story->created_by !== auth()->id()) {
+            !($story->created_by === auth()->id() && auth()->user()->hasPermission('stories.create'))) {
             abort(403);
         }
 
@@ -121,7 +121,7 @@ class StoryController extends Controller
             'title_en' => 'nullable|string|max:255',
             'cover_media_id' => 'nullable|exists:media,id',
             'edition' => 'required|in:bn,en,both',
-            'expires_at' => 'nullable|date',
+            'expires_at' => 'nullable|date|after:now',
         ]);
 
         $story->update($validated);
@@ -155,6 +155,9 @@ class StoryController extends Controller
         $base = preg_replace('/[^\p{L}\p{N}\s-]+/u', '', $title);
         $base = preg_replace('/\s+/', '-', trim($base));
         $base = strtolower($base);
+        if ($base === '') {
+            $base = 'story-' . \Illuminate\Support\Str::random(6);
+        }
         $slug = $base;
         $counter = 1;
 
