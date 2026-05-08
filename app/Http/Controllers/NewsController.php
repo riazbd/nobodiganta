@@ -68,12 +68,12 @@ class NewsController extends Controller
             ->map(fn($a) => $a->toAPIArray($edition))
             ->values();
 
-        // 2. Breaking strip — prefer breaking, fall back to latest
+        // 2. Latest strip — prefer breaking, fill with latest published
         $breakingNews = Article::published()->forEdition($edition)
             ->withRelations()
             ->orderByDesc('is_breaking')
             ->orderByDesc('published_at')
-            ->limit(8)
+            ->limit(12)
             ->get()
             ->map(fn($a) => $a->toAPIArray($edition))
             ->values();
@@ -146,6 +146,16 @@ class NewsController extends Controller
 
                 $data['items'] = $videoArticles
                     ->map(fn($a) => $a->toAPIArray($edition))
+                    ->values();
+            } elseif ($section->type === 'stories') {
+                $data['items'] = \App\Models\Story::published()
+                    ->forEdition($edition)
+                    ->with(['coverMedia'])
+                    ->withCount('slides')
+                    ->latest('published_at')
+                    ->limit($section->item_count ?? 10)
+                    ->get()
+                    ->map(fn($s) => $s->toAPIArray($edition))
                     ->values();
             }
 
@@ -645,6 +655,18 @@ class NewsController extends Controller
     /**
      * API: Get ads
      */
+    public function adImpression(Request $request, $id)
+    {
+        Ad::where('id', $id)->increment('impressions');
+        return response()->json(['ok' => true]);
+    }
+
+    public function adClick(Request $request, $id)
+    {
+        Ad::where('id', $id)->increment('clicks');
+        return response()->json(['ok' => true]);
+    }
+
     public function apiAds(Request $request)
     {
         $edition = $this->getEdition($request);
