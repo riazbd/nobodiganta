@@ -150,7 +150,7 @@ class NewsController extends Controller
             } elseif ($section->type === 'stories') {
                 $data['items'] = \App\Models\Story::published()
                     ->forEdition($edition)
-                    ->with(['coverMedia'])
+                    ->with(['coverMedia', 'slides.media', 'slides.linkedArticle.category'])
                     ->withCount('slides')
                     ->latest('published_at')
                     ->limit($section->item_count ?? 10)
