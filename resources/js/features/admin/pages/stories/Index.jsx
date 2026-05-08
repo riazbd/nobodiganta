@@ -131,6 +131,27 @@ export default function StoriesIndex({ stories, filters, can }) {
                         </div>
                     ))}
                 </div>
+
+                {/* Pagination */}
+                {stories.links && stories.links.length > 3 && (
+                    <div className="flex justify-center gap-2 mt-6">
+                        {stories.links.map((link, i) => (
+                            <Link
+                                key={i}
+                                href={link.url ?? '#'}
+                                className={`px-3 py-1.5 rounded-lg text-xs transition-colors ${
+                                    link.active
+                                        ? 'bg-indigo-600 text-white'
+                                        : link.url
+                                            ? 'bg-gray-800 text-gray-400 hover:text-white'
+                                            : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                                }`}
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                preserveScroll
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </>
     );
