@@ -1322,6 +1322,9 @@ img{max-width:100%;display:block;}
   .tb-ed-btn { padding:2px 8px; font-size:11px; }
 }
 
+/* ── MOBILE EDITION TOGGLE (header) — hidden on desktop ─── */
+.hdr-mob-edition { display:none; }
+
 /* ── MOBILE HEADER ─────────────────────────────────────────── */
 @media(max-width:860px){
   .hdr-ad { display:none; }
@@ -1329,6 +1332,34 @@ img{max-width:100%;display:block;}
 }
 
 @media(max-width:640px){
+  /* Show mobile edition toggle */
+  .hdr-mob-edition {
+    display:flex;
+    align-self:flex-end;
+    background:#f7f7f7;
+    border:1.5px solid #e0e0e0;
+    border-radius:7px;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  .hdr-mob-ed-btn {
+    padding:6px 14px;
+    font-size:13px;
+    font-weight:700;
+    border:none;
+    cursor:pointer;
+    background:transparent;
+    color:#666;
+    font-family:inherit;
+    transition:background .15s,color .15s;
+  }
+  .hdr-mob-ed-btn.active,.hdr-mob-ed-btn:disabled {
+    background:var(--red);
+    color:#fff;
+    cursor:default;
+    pointer-events:none;
+  }
+
   .hdr-wrap {
     flex-direction:column;
     align-items:stretch;

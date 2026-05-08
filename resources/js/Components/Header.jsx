@@ -7,6 +7,31 @@ import { useSearch } from '../contexts/SearchContext';
 import { toBanglaCalendar } from '../lib/dateUtils';
 import { relativeTime } from '../lib/formatters';
 
+function EditionToggle({ lang }) {
+  const handleEdition = (ed) => {
+    if (ed === lang) return;
+    const path = window.location.pathname;
+    const target = ed === 'en'
+      ? (path === '/' ? '/en' : `/en${path}`)
+      : (path.replace(/^\/en/, '') || '/');
+    window.location.href = target;
+  };
+  return (
+    <div className="hdr-mob-edition">
+      <button
+        className={`hdr-mob-ed-btn${lang === 'bn' ? ' active' : ''}`}
+        onClick={() => handleEdition('bn')}
+        disabled={lang === 'bn'}
+      >বাংলা</button>
+      <button
+        className={`hdr-mob-ed-btn${lang === 'en' ? ' active' : ''}`}
+        onClick={() => handleEdition('en')}
+        disabled={lang === 'en'}
+      >EN</button>
+    </div>
+  );
+}
+
 const SearchIcon = () => (
   <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="11" cy="11" r="8"/>
@@ -108,6 +133,9 @@ export default function Header() {
             ))}
           </div>
         )}
+
+        {/* Mobile edition toggle — hidden on desktop via CSS */}
+        <EditionToggle lang={lang} />
 
         {/* Search bar */}
         <div className="hdr-right">
