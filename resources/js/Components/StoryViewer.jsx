@@ -108,7 +108,11 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                             <p className="text-white/60 text-[10px] mt-0.5">{slideIndex + 1} / {totalSlides}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-white/80 hover:text-white text-xl leading-none p-1">✕</button>
+                    <button onClick={(e) => {
+                        e.stopPropagation();
+                        onClose();
+                        window.location.href = '/stories';
+                    }} className="text-white/80 hover:text-white text-xl leading-none p-1">✕</button>
                 </div>
 
                 {/* Slide media */}

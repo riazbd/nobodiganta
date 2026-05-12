@@ -236,14 +236,20 @@ export default function WriteNews() {
       showToast(lang === 'bn' ? 'ইংরেজি শিরোনাম প্রয়োজন!' : 'English title is required!', 'error');
       return;
     }
-    if (needsBn && !form.data.bodyBn?.trim()) {
+    
+    // Strip HTML to check if body is truly empty
+    const bodyBnText = form.data.bodyBn?.replace(/<[^>]*>?/gm, '').trim();
+    if (needsBn && !bodyBnText) {
       showToast(lang === 'bn' ? 'বাংলা বিষয়বস্তু প্রয়োজন!' : 'Bengali content is required!', 'error');
       return;
     }
-    if (needsEn && !form.data.bodyEn?.trim()) {
+    
+    const bodyEnText = form.data.bodyEn?.replace(/<[^>]*>?/gm, '').trim();
+    if (needsEn && !bodyEnText) {
       showToast(lang === 'bn' ? 'ইংরেজি বিষয়বস্তু প্রয়োজন!' : 'English content is required!', 'error');
       return;
     }
+
     if (!form.data.categories.length || !form.data.primaryCategory) {
       showToast(lang === 'bn' ? 'একটি বিভাগ নির্বাচন করুন!' : 'Category is required!', 'error');
       return;

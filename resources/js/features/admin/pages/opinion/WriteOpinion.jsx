@@ -126,6 +126,31 @@ export default function WriteOpinion() {
       form.setData('status', status);
     }
     
+    const needsBn = form.data.edition === 'bn' || form.data.edition === 'both';
+    const needsEn = form.data.edition === 'en' || form.data.edition === 'both';
+
+    if (needsBn && !form.data.titleBn?.trim()) {
+      showToast(lang === 'bn' ? 'বাংলা শিরোনাম প্রয়োজন!' : 'Bengali title is required!', 'error');
+      return;
+    }
+    if (needsEn && !form.data.titleEn?.trim()) {
+      showToast(lang === 'bn' ? 'ইংরেজি শিরোনাম প্রয়োজন!' : 'English title is required!', 'error');
+      return;
+    }
+    
+    // Strip HTML to check if body is truly empty
+    const bodyBnText = form.data.bodyBn?.replace(/<[^>]*>?/gm, '').trim();
+    if (needsBn && !bodyBnText) {
+      showToast(lang === 'bn' ? 'বাংলা বিষয়বস্তু প্রয়োজন!' : 'Bengali content is required!', 'error');
+      return;
+    }
+    
+    const bodyEnText = form.data.bodyEn?.replace(/<[^>]*>?/gm, '').trim();
+    if (needsEn && !bodyEnText) {
+      showToast(lang === 'bn' ? 'ইংরেজি বিষয়বস্তু প্রয়োজন!' : 'English content is required!', 'error');
+      return;
+    }
+
     // We must use form.transform or a manual object if we want to ensure status is included 
     // because setData is async. However, Inertia's transform is perfect here.
     form.transform(data => ({

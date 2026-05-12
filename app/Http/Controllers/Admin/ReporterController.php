@@ -83,7 +83,32 @@ class ReporterController extends Controller
             'isFeatured' => 'boolean',
             'sortOrder' => 'integer',
             'socialLinks' => 'nullable|array',
+            'createLogin' => 'boolean',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
+
+        $userId = null;
+
+        if (!empty($validated['createLogin']) && !empty($validated['email']) && !empty($validated['password'])) {
+            // Check if user already exists
+            $existingUser = User::where('email', $validated['email'])->first();
+            if ($existingUser) {
+                return back()->withErrors(['email' => __('A user with this email already exists.')])->withInput();
+            }
+
+            $reporterRole = \App\Models\Role::where('name', 'reporter')->first();
+
+            $user = User::create([
+                'name' => $validated['nameEn'],
+                'email' => $validated['email'],
+                'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+                'role' => 'reporter',
+                'role_id' => $reporterRole?->id,
+                'email_verified_at' => now(),
+            ]);
+
+            $userId = $user->id;
+        }
 
         $reporter = Reporter::create([
             'name_bn' => $validated['nameBn'],
@@ -100,6 +125,7 @@ class ReporterController extends Controller
             'sort_order' => $validated['sortOrder'] ?? 0,
             'social_links' => $validated['socialLinks'] ?? null,
             'is_active' => true,
+            'user_id' => $userId,
         ]);
 
         return back()->with('success', 'Reporter created successfully');
@@ -128,7 +154,44 @@ class ReporterController extends Controller
             'status' => 'string|in:active,inactive',
             'sortOrder' => 'integer',
             'socialLinks' => 'nullable|array',
+            'createLogin' => 'boolean',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
+
+        $userId = $reporter->user_id;
+
+        if (!empty($validated['createLogin']) && !empty($validated['email'])) {
+            if ($userId) {
+                // Update existing user password if provided
+                if (!empty($validated['password'])) {
+                    $user = User::find($userId);
+                    if ($user) {
+                        $user->update([
+                            'password' => \Illuminate\Support\Facades\Hash::make($validated['password'])
+                        ]);
+                    }
+                }
+            } else if (!empty($validated['password'])) {
+                // Check if user already exists
+                $existingUser = User::where('email', $validated['email'])->first();
+                if ($existingUser) {
+                    return back()->withErrors(['email' => __('A user with this email already exists.')])->withInput();
+                }
+
+                $reporterRole = \App\Models\Role::where('name', 'reporter')->first();
+
+                $user = User::create([
+                    'name' => $validated['nameEn'],
+                    'email' => $validated['email'],
+                    'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+                    'role' => 'reporter',
+                    'role_id' => $reporterRole?->id,
+                    'email_verified_at' => now(),
+                ]);
+
+                $userId = $user->id;
+            }
+        }
 
         $reporter->update([
             'name_bn' => $validated['nameBn'],
@@ -144,6 +207,7 @@ class ReporterController extends Controller
             'is_active' => ($validated['status'] ?? ($reporter->is_active ? 'active' : 'inactive')) === 'active',
             'sort_order' => $validated['sortOrder'] ?? $reporter->sort_order,
             'social_links' => $validated['socialLinks'] ?? $reporter->social_links,
+            'user_id' => $userId,
         ]);
 
         return back()->with('success', 'Reporter updated successfully');

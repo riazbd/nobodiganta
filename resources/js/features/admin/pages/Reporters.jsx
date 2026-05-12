@@ -36,6 +36,9 @@ export default function Reporters({ reporters = [], filters = {} }) {
     twitter: '',
     linkedin: '',
     status: 'active',
+    createLogin: false,
+    password: '',
+    password_confirmation: '',
   });
 
   const handleSearch = (e) => {
@@ -61,6 +64,9 @@ export default function Reporters({ reporters = [], filters = {} }) {
       twitter: '',
       linkedin: '',
       status: 'active',
+      createLogin: false,
+      password: '',
+      password_confirmation: '',
     });
     setShowModal(true);
   };
@@ -83,14 +89,34 @@ export default function Reporters({ reporters = [], filters = {} }) {
       twitter: reporter.social_links?.twitter || '',
       linkedin: reporter.social_links?.linkedin || '',
       status: reporter.status || 'active',
+      createLogin: false,
+      password: '',
+      password_confirmation: '',
     });
     setShowModal(true);
   };
 
   const handleSubmit = () => {
     if (!formData.nameBn || !formData.nameEn) {
-      showToast(lang === 'bn' ? 'নাম প্রয়োজন!' : 'Name required!');
+      showToast(lang === 'bn' ? 'নাম প্রয়োজন!' : 'Name required!', 'error');
       return;
+    }
+
+    if (formData.createLogin) {
+      if (!formData.email) {
+        showToast(lang === 'bn' ? 'লগইন অ্যাকাউন্টের জন্য ইমেইল প্রয়োজন!' : 'Email is required to create a login account!', 'error');
+        return;
+      }
+      if (!editingReporter || formData.password) {
+        if (formData.password.length < 8) {
+          showToast(lang === 'bn' ? 'পাসওয়ার্ড অন্তত ৮ অক্ষরের হতে হবে!' : 'Password must be at least 8 characters!', 'error');
+          return;
+        }
+        if (formData.password !== formData.password_confirmation) {
+          showToast(lang === 'bn' ? 'পাসওয়ার্ড মেলেনি!' : 'Passwords do not match!', 'error');
+          return;
+        }
+      }
     }
 
     const payload = {
@@ -107,6 +133,10 @@ export default function Reporters({ reporters = [], filters = {} }) {
         onSuccess: () => {
           setShowModal(false);
           showToast(lang === 'bn' ? 'সাংবাদিক হালনাগাদ হয়েছে' : 'Reporter updated');
+        },
+        onError: (errors) => {
+          const firstError = Object.values(errors)[0];
+          showToast(firstError, 'error');
         }
       });
     } else {
@@ -114,6 +144,10 @@ export default function Reporters({ reporters = [], filters = {} }) {
         onSuccess: () => {
           setShowModal(false);
           showToast(lang === 'bn' ? 'সাংবাদিক যোগ হয়েছে' : 'Reporter added');
+        },
+        onError: (errors) => {
+          const firstError = Object.values(errors)[0];
+          showToast(firstError, 'error');
         }
       });
     }
@@ -401,15 +435,37 @@ export default function Reporters({ reporters = [], filters = {} }) {
                   </div>
 
                   {/* Settings */}
-                  <div className="flex items-center gap-6 pt-2">
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                      <input type="checkbox" checked={formData.isFeatured} onChange={e => setFormData({...formData, isFeatured: e.target.checked})} className="w-4 h-4 text-[#263238] focus:ring-[#263238] border-gray-300 rounded" />
-                      <span className="text-sm font-bold text-gray-700 group-hover:text-[#263238] transition-colors">{lang === 'bn' ? 'সেরা সাংবাদিক' : 'Feature Reporter'}</span>
-                    </label>
-                    <div className="flex items-center gap-3">
-                       <label className="text-xs font-bold text-gray-500 uppercase">{lang === 'bn' ? 'ক্রম' : 'Order'}</label>
-                       <input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: e.target.value})} className="w-16 border border-gray-200 rounded-lg px-2 py-1 text-center text-xs outline-none focus:border-[#263238]" />
+                  <div className="flex flex-col gap-4 pt-4 border-t border-gray-100 mt-4">
+                    <div className="flex items-center gap-6">
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" checked={formData.isFeatured} onChange={e => setFormData({...formData, isFeatured: e.target.checked})} className="w-4 h-4 text-[#263238] focus:ring-[#263238] border-gray-300 rounded" />
+                        <span className="text-sm font-bold text-gray-700 group-hover:text-[#263238] transition-colors">{lang === 'bn' ? 'সেরা সাংবাদিক' : 'Feature Reporter'}</span>
+                      </label>
+                      <div className="flex items-center gap-3">
+                         <label className="text-xs font-bold text-gray-500 uppercase">{lang === 'bn' ? 'ক্রম' : 'Order'}</label>
+                         <input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: e.target.value})} className="w-16 border border-gray-200 rounded-lg px-2 py-1 text-center text-xs outline-none focus:border-[#263238]" />
+                      </div>
                     </div>
+
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                      <input type="checkbox" checked={formData.createLogin} onChange={e => setFormData({...formData, createLogin: e.target.checked})} className="w-4 h-4 text-blue-600 focus:ring-blue-600 border-gray-300 rounded" />
+                      <span className="text-sm font-bold text-gray-700 group-hover:text-blue-600 transition-colors">
+                        {editingReporter ? (lang === 'bn' ? 'লগইন পাসওয়ার্ড পরিবর্তন করুন' : 'Change Login Password') : (lang === 'bn' ? 'লগইন অ্যাকাউন্ট তৈরি করুন' : 'Create Login Account')}
+                      </span>
+                    </label>
+
+                    {formData.createLogin && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                        <div>
+                          <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1.5">{lang === 'bn' ? 'পাসওয়ার্ড' : 'Password'} *</label>
+                          <input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none" placeholder="••••••••" />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1.5">{lang === 'bn' ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm Password'} *</label>
+                          <input type="password" value={formData.password_confirmation} onChange={e => setFormData({...formData, password_confirmation: e.target.value})} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none" placeholder="••••••••" />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

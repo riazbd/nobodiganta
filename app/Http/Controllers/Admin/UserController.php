@@ -144,6 +144,7 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'role_id' => $role?->id,
+            'email_verified_at' => now(),
         ]);
 
         return back()->with('success', __('User created successfully.'));
