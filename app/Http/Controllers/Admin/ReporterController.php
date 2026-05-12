@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Reporter;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -87,46 +88,49 @@ class ReporterController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        $userId = null;
-
-        if (!empty($validated['createLogin']) && !empty($validated['email']) && !empty($validated['password'])) {
-            // Check if user already exists
+        if (!empty($validated['createLogin']) && !empty($validated['email'])) {
             $existingUser = User::where('email', $validated['email'])->first();
             if ($existingUser) {
                 return back()->withErrors(['email' => __('A user with this email already exists.')])->withInput();
             }
-
-            $reporterRole = \App\Models\Role::where('name', 'reporter')->first();
-
-            $user = User::create([
-                'name' => $validated['nameEn'],
-                'email' => $validated['email'],
-                'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
-                'role' => 'reporter',
-                'role_id' => $reporterRole?->id,
-                'email_verified_at' => now(),
-            ]);
-
-            $userId = $user->id;
         }
 
-        $reporter = Reporter::create([
-            'name_bn' => $validated['nameBn'],
-            'name_en' => $validated['nameEn'],
-            'slug' => $this->generateUniqueSlug($validated['nameEn']),
-            'email' => $validated['email'],
-            'designation_bn' => $validated['designationBn'],
-            'designation_en' => $validated['designationEn'],
-            'bio_bn' => $validated['bioBn'],
-            'bio_en' => $validated['bioEn'],
-            'phone' => $validated['phone'],
-            'image' => $validated['image'],
-            'is_featured' => $validated['isFeatured'] ?? false,
-            'sort_order' => $validated['sortOrder'] ?? 0,
-            'social_links' => $validated['socialLinks'] ?? null,
-            'is_active' => true,
-            'user_id' => $userId,
-        ]);
+        DB::transaction(function () use ($validated) {
+            $userId = null;
+
+            if (!empty($validated['createLogin']) && !empty($validated['email']) && !empty($validated['password'])) {
+                $reporterRole = \App\Models\Role::where('name', 'reporter')->first();
+
+                $user = User::create([
+                    'name' => $validated['nameEn'],
+                    'email' => $validated['email'],
+                    'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+                    'role' => 'reporter',
+                    'role_id' => $reporterRole?->id,
+                    'email_verified_at' => now(),
+                ]);
+
+                $userId = $user->id;
+            }
+
+            Reporter::create([
+                'name_bn' => $validated['nameBn'],
+                'name_en' => $validated['nameEn'],
+                'slug' => $this->generateUniqueSlug($validated['nameEn']),
+                'email' => $validated['email'] ?? null,
+                'designation_bn' => $validated['designationBn'] ?? null,
+                'designation_en' => $validated['designationEn'] ?? null,
+                'bio_bn' => $validated['bioBn'] ?? null,
+                'bio_en' => $validated['bioEn'] ?? null,
+                'phone' => $validated['phone'] ?? null,
+                'image' => $validated['image'] ?? null,
+                'is_featured' => $validated['isFeatured'] ?? false,
+                'sort_order' => $validated['sortOrder'] ?? 0,
+                'social_links' => $validated['socialLinks'] ?? null,
+                'is_active' => true,
+                'user_id' => $userId,
+            ]);
+        });
 
         return back()->with('success', 'Reporter created successfully');
     }
@@ -158,57 +162,54 @@ class ReporterController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        $userId = $reporter->user_id;
-
-        if (!empty($validated['createLogin']) && !empty($validated['email'])) {
-            if ($userId) {
-                // Update existing user password if provided
-                if (!empty($validated['password'])) {
-                    $user = User::find($userId);
-                    if ($user) {
-                        $user->update([
-                            'password' => \Illuminate\Support\Facades\Hash::make($validated['password'])
-                        ]);
-                    }
-                }
-            } else if (!empty($validated['password'])) {
-                // Check if user already exists
-                $existingUser = User::where('email', $validated['email'])->first();
-                if ($existingUser) {
-                    return back()->withErrors(['email' => __('A user with this email already exists.')])->withInput();
-                }
-
-                $reporterRole = \App\Models\Role::where('name', 'reporter')->first();
-
-                $user = User::create([
-                    'name' => $validated['nameEn'],
-                    'email' => $validated['email'],
-                    'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
-                    'role' => 'reporter',
-                    'role_id' => $reporterRole?->id,
-                    'email_verified_at' => now(),
-                ]);
-
-                $userId = $user->id;
+        // Check email conflicts before starting transaction
+        if (!empty($validated['createLogin']) && !empty($validated['email']) && !$reporter->user_id && !empty($validated['password'])) {
+            $existingUser = User::where('email', $validated['email'])->first();
+            if ($existingUser) {
+                return back()->withErrors(['email' => __('A user with this email already exists.')])->withInput();
             }
         }
 
-        $reporter->update([
-            'name_bn' => $validated['nameBn'],
-            'name_en' => $validated['nameEn'],
-            'email' => $validated['email'],
-            'designation_bn' => $validated['designationBn'],
-            'designation_en' => $validated['designationEn'],
-            'bio_bn' => $validated['bioBn'],
-            'bio_en' => $validated['bioEn'],
-            'phone' => $validated['phone'],
-            'image' => $validated['image'],
-            'is_featured' => $validated['isFeatured'] ?? $reporter->is_featured,
-            'is_active' => ($validated['status'] ?? ($reporter->is_active ? 'active' : 'inactive')) === 'active',
-            'sort_order' => $validated['sortOrder'] ?? $reporter->sort_order,
-            'social_links' => $validated['socialLinks'] ?? $reporter->social_links,
-            'user_id' => $userId,
-        ]);
+        DB::transaction(function () use ($validated, $reporter) {
+            $userId = $reporter->user_id;
+
+            if (!empty($validated['createLogin']) && !empty($validated['email'])) {
+                if ($userId) {
+                    if (!empty($validated['password'])) {
+                        $user = User::find($userId);
+                        $user?->update(['password' => \Illuminate\Support\Facades\Hash::make($validated['password'])]);
+                    }
+                } else if (!empty($validated['password'])) {
+                    $reporterRole = \App\Models\Role::where('name', 'reporter')->first();
+                    $user = User::create([
+                        'name' => $validated['nameEn'],
+                        'email' => $validated['email'],
+                        'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+                        'role' => 'reporter',
+                        'role_id' => $reporterRole?->id,
+                        'email_verified_at' => now(),
+                    ]);
+                    $userId = $user->id;
+                }
+            }
+
+            $reporter->update([
+                'name_bn' => $validated['nameBn'],
+                'name_en' => $validated['nameEn'],
+                'email' => $validated['email'] ?? null,
+                'designation_bn' => $validated['designationBn'] ?? null,
+                'designation_en' => $validated['designationEn'] ?? null,
+                'bio_bn' => $validated['bioBn'] ?? null,
+                'bio_en' => $validated['bioEn'] ?? null,
+                'phone' => $validated['phone'] ?? null,
+                'image' => $validated['image'] ?? null,
+                'is_featured' => $validated['isFeatured'] ?? $reporter->is_featured,
+                'is_active' => ($validated['status'] ?? ($reporter->is_active ? 'active' : 'inactive')) === 'active',
+                'sort_order' => $validated['sortOrder'] ?? $reporter->sort_order,
+                'social_links' => $validated['socialLinks'] ?? $reporter->social_links,
+                'user_id' => $userId,
+            ]);
+        });
 
         return back()->with('success', 'Reporter updated successfully');
     }
