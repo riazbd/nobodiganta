@@ -80,9 +80,9 @@ class RolePermissionSeeder extends Seeder
         'moderate' => [
             'moderate.comments', 'moderate.users',
         ],
-        'epaper' => [
-            'epaper.view', 'epaper.manage', 'epaper.publish',
-        ],
+        // 'epaper' => [
+        //     'epaper.view', 'epaper.manage', 'epaper.publish',
+        // ],
         'api' => [
             'api.keys.view', 'api.keys.manage', 'webhooks.manage',
         ],
@@ -127,7 +127,7 @@ class RolePermissionSeeder extends Seeder
             'email.send', 'email.templates', 'newsletter.create', 'newsletter.send',
             'push.send', 'push.schedule',
             'moderate.comments', 'moderate.users',
-            'epaper.view', 'epaper.manage', 'epaper.publish',
+            // 'epaper.view', 'epaper.manage', 'epaper.publish',
             'widgets.stocks.manage', 'widgets.cricket.manage', 'widgets.prices.manage',
             'widgets.polls.manage', 'widgets.weather.manage', 'widgets.horoscope.manage',
             'widgets.prayer_times.manage',
@@ -157,7 +157,7 @@ class RolePermissionSeeder extends Seeder
             'email.send', 'email.templates', 'newsletter.create', 'newsletter.send',
             'push.send', 'push.schedule',
             'moderate.comments', 'moderate.users',
-            'epaper.view', 'epaper.manage', 'epaper.publish',
+            // 'epaper.view', 'epaper.manage', 'epaper.publish',
             'widgets.stocks.manage', 'widgets.cricket.manage', 'widgets.prices.manage',
             'widgets.polls.manage', 'widgets.weather.manage', 'widgets.horoscope.manage',
             'widgets.prayer_times.manage',
