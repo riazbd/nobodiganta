@@ -505,7 +505,7 @@ img{max-width:100%;display:block;}
   letter-spacing:.01em;
 }
 .brk-link:hover{color:#fff;text-decoration:underline;}
-.brk-dot{color:#fff;font-size:6px;margin:0 10px;opacity:.5;vertical-align:middle;}
+.brk-dot{color:#fff;font-size:14px;margin:0 14px;opacity:.4;vertical-align:middle;line-height:1;}
 
 /* Add bottom padding to page so ticker doesn't overlap content */
 .page-container{padding-bottom:54px;}
