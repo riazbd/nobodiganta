@@ -21,7 +21,7 @@ export default function BreakingTicker() {
     <div className="brk-fixed" role="marquee" aria-label={lang === 'bn' ? 'সর্বশেষ সংবাদ' : 'Breaking news'}>
       {/* Label */}
       <div className="brk-label">
-        {lang === 'bn' ? 'সিরানাম' : 'BREAKING'}
+        {lang === 'bn' ? 'শিরোনাম' : 'BREAKING'}
       </div>
 
       {/* Scrolling track */}
