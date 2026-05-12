@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { router, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useSearch } from '../contexts/SearchContext';
@@ -116,20 +116,6 @@ export default function Header() {
             >EN</button>
           </div>
 
-          {auth?.user ? (
-            <button className="bbc-register" onClick={() => router.visit('/admin')}>
-              {auth.user.name?.split(' ')[0]}
-            </button>
-          ) : (
-            <>
-              <button className="bbc-register" onClick={() => router.visit('/register')}>
-                {lang === 'bn' ? 'নিবন্ধন' : 'Register'}
-              </button>
-              <button className="bbc-signin" onClick={() => router.visit('/login')}>
-                {lang === 'bn' ? 'সাইন ইন' : 'Sign In'}
-              </button>
-            </>
-          )}
         </div>
       </div>
 
