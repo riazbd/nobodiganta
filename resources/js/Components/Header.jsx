@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
@@ -35,6 +35,24 @@ export default function Header() {
   const siteName = settings.site_name    || (lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto');
   const tagline  = settings.site_tagline || (lang === 'bn' ? 'সঠিক সংবাদ সবার আগে' : 'Trusted News First');
   const logoUrl  = settings.site_logo    || null;
+
+  // Scroll-aware nav hide/show
+  const lastY = useRef(0);
+  useEffect(() => {
+    const nav = document.getElementById('nav');
+    if (!nav) return;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > lastY.current && y > 100) {
+        nav.classList.add('nav-scroll-hidden');
+      } else {
+        nav.classList.remove('nav-scroll-hidden');
+      }
+      lastY.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const handleEdition = (ed) => {
     if (ed === lang) return;
