@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import TopBar from '../Components/TopBar';
 import Header from '../Components/Header';
 import Navigation from '../Components/Navigation';
 import BreakingTicker from '../Components/BreakingTicker';
@@ -31,7 +30,6 @@ export default function PublicLayout({ children }) {
       <a href="#main-content" className="skip-nav-link">
         {lang === 'bn' ? 'মূল বিষয়বস্তুতে যান' : 'Skip to main content'}
       </a>
-      <TopBar />
       <Header />
       <Navigation />
       <BreakingTicker lang={lang} />
