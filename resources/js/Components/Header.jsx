@@ -157,8 +157,6 @@ export default function Header() {
 
       </div>
 
-      {/* Bottom border */}
-      <div className="hdr-border" aria-hidden="true" />
     </header>
   );
 }
