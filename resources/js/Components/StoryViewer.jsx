@@ -1,7 +1,7 @@
 // resources/js/Components/StoryViewer.jsx
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     const [storyIndex, setStoryIndex] = useState(initialIndex);
@@ -111,7 +111,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     <button onClick={(e) => {
                         e.stopPropagation();
                         onClose();
-                        window.location.href = '/stories';
+                        router.get('/stories');
                     }} className="text-white/80 hover:text-white text-xl leading-none p-1">✕</button>
                 </div>
 

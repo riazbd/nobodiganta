@@ -9,7 +9,7 @@ export function fetchUsers(params = {}) {
   router.visit(query ? `/admin/users?${query}` : '/admin/users', {
     preserveState: true,
     preserveScroll: true,
-    only: ['initialUsers'],
+    only: ['users'],
   });
 }
 
