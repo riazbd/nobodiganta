@@ -18,19 +18,20 @@ export function usePermission() {
     return auth?.user?.role || 'reporter';
   }, [auth]);
 
+  const isSuperAdmin = ['supreme_admin', 'super_admin'].includes(currentRole);
+
   const hasPermission = (permission) => {
-    // Super admin always has all permissions
-    if (currentRole === 'super_admin') return true;
+    if (isSuperAdmin) return true;
     return permissions.includes(permission);
   };
 
   const hasAnyPermission = (permissionList) => {
-    if (currentRole === 'super_admin') return true;
+    if (isSuperAdmin) return true;
     return permissionList.some(p => permissions.includes(p));
   };
 
   const hasAllPermissions = (permissionList) => {
-    if (currentRole === 'super_admin') return true;
+    if (isSuperAdmin) return true;
     return permissionList.every(p => permissions.includes(p));
   };
 

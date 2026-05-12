@@ -40,6 +40,17 @@ export const PERMISSIONS = {
   STORIES_CREATE: 'stories.create',
   STORIES_PUBLISH: 'stories.publish',
 
+  VIDEO_VIEW: 'video.view',
+  VIDEO_CREATE: 'video.create',
+  VIDEO_EDIT: 'video.edit',
+  VIDEO_DELETE: 'video.delete',
+
+  OPINION_VIEW: 'opinion.view',
+  OPINION_CREATE: 'opinion.create',
+  OPINION_EDIT: 'opinion.edit',
+  OPINION_DELETE: 'opinion.delete',
+  OPINION_PUBLISH: 'opinion.publish',
+
   MEDIA_VIEW: 'media.view',
   MEDIA_UPLOAD: 'media.upload',
   MEDIA_DELETE: 'media.delete',

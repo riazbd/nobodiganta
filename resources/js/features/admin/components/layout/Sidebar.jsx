@@ -43,47 +43,45 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
       items: [
         { id: 'news', icon: 'Newspaper', label: 'newsManagement', permission: PERMISSIONS.NEWS_VIEW,
           children: [
-            { id: 'news-all', label: 'allNews', permission: PERMISSIONS.NEWS_VIEW },
-            { id: 'news-write', label: 'writeNews', permission: PERMISSIONS.NEWS_CREATE },
-            { id: 'news-drafts', label: 'drafts', permission: PERMISSIONS.NEWS_VIEW },
-            { id: 'news-published', label: 'published', permission: PERMISSIONS.NEWS_VIEW },
-            { id: 'news-pending', label: 'pendingApproval', permission: PERMISSIONS.NEWS_REVIEW },
+            { id: 'news-all',       label: 'allNews',         permission: PERMISSIONS.NEWS_VIEW },
+            { id: 'news-write',     label: 'writeNews',       permission: PERMISSIONS.NEWS_CREATE },
+            { id: 'news-drafts',    label: 'drafts',          permission: PERMISSIONS.NEWS_VIEW },
+            { id: 'news-published', label: 'published',       permission: PERMISSIONS.NEWS_VIEW },
+            { id: 'news-pending',   label: 'pendingApproval', permission: PERMISSIONS.NEWS_REVIEW },
           ]
         },
-        { id: 'categories', icon: 'FolderTree', label: 'categories', permission: PERMISSIONS.CATEGORY_VIEW },
-        { id: 'media', icon: 'Image', label: 'mediaLibrary', permission: PERMISSIONS.MEDIA_VIEW },
-        { id: 'videos', icon: 'Video', label: 'videos', permission: PERMISSIONS.MEDIA_VIEW },
-        { id: 'stories', icon: 'PlaySquare', label: 'stories', permission: PERMISSIONS.STORIES_VIEW_ANY },
-        { id: 'opinions', icon: 'PenLine', label: 'opinionColumn', permission: PERMISSIONS.NEWS_VIEW },
+        { id: 'opinions', icon: 'PenLine',    label: 'opinionColumn', permission: PERMISSIONS.OPINION_VIEW },
+        { id: 'videos',   icon: 'Video',      label: 'videos',        permission: PERMISSIONS.VIDEO_VIEW },
+        { id: 'stories',  icon: 'PlaySquare', label: 'stories',       permission: PERMISSIONS.STORIES_VIEW_ANY },
+        { id: 'media',    icon: 'Image',      label: 'mediaLibrary',  permission: PERMISSIONS.MEDIA_VIEW },
+        { id: 'categories', icon: 'FolderTree', label: 'categories',  permission: PERMISSIONS.CATEGORY_VIEW },
       ]
     },
     {
       label: 'operations',
       items: [
-        { id: 'reporters', icon: 'Users', label: 'reporters', permission: PERMISSIONS.REPORTER_VIEW },
-        { id: 'comments', icon: 'MessageSquare', label: 'comments', permission: PERMISSIONS.COMMENT_VIEW },
-        { id: 'ads', icon: 'Megaphone', label: 'adsManagement', permission: PERMISSIONS.BUSINESS_ADS_VIEW },
-        // { id: 'subscriptions', icon: 'CreditCard', label: 'subscriptions', permission: PERMISSIONS.BUSINESS_SUBSCRIPTIONS_VIEW },
+        { id: 'reporters', icon: 'Users',         label: 'reporters',      permission: PERMISSIONS.REPORTER_VIEW },
+        { id: 'comments',  icon: 'MessageSquare', label: 'comments',       permission: PERMISSIONS.COMMENT_VIEW },
+        { id: 'ads',       icon: 'Megaphone',     label: 'adsManagement',  permission: PERMISSIONS.BUSINESS_ADS_VIEW },
+        { id: 'newsletter',icon: 'Mail',          label: 'newsletter',     permission: PERMISSIONS.NEWSLETTER_CREATE },
       ]
     },
     {
       label: 'analytics',
       items: [
-        { id: 'traffic', icon: 'BarChart3', label: 'trafficAnalytics', permission: PERMISSIONS.ANALYTICS_VIEW },
-        { id: 'revenue', icon: 'TrendingUp', label: 'revenueReport', permission: PERMISSIONS.BUSINESS_REVENUE_VIEW },
-        { id: 'seo', icon: 'Search', label: 'seoReport', permission: PERMISSIONS.SEO_VIEW },
+        { id: 'traffic',  icon: 'BarChart3',   label: 'trafficAnalytics', permission: PERMISSIONS.ANALYTICS_VIEW },
+        { id: 'revenue',  icon: 'TrendingUp',  label: 'revenueReport',    permission: PERMISSIONS.BUSINESS_REVENUE_VIEW },
+        { id: 'seo',      icon: 'Search',      label: 'seoReport',        permission: PERMISSIONS.SEO_VIEW },
       ]
     },
     {
       label: 'system',
       items: [
-        { id: 'settings', icon: 'Settings', label: 'settings', permission: PERMISSIONS.SYSTEM_SETTINGS },
-        { id: 'homepage-layout', icon: 'LayoutDashboard', label: 'homepageLayout', permission: PERMISSIONS.SYSTEM_SETTINGS },
-        { id: 'users', icon: 'Users', label: 'users', permission: PERMISSIONS.USER_VIEW },
-        { id: 'roles', icon: 'Shield', label: 'rolesPermissions', permission: PERMISSIONS.USER_VIEW },
-        { id: 'audit-log', icon: 'FileText', label: 'auditLog', permission: PERMISSIONS.SYSTEM_AUDIT_VIEW },
-        // { id: 'epaper', icon: 'FileText', label: 'epaper', permission: PERMISSIONS.EPAPER_VIEW },
-        { id: 'newsletter', icon: 'Mail', label: 'newsletter', permission: PERMISSIONS.NEWSLETTER_CREATE },
+        { id: 'homepage-layout', icon: 'LayoutDashboard', label: 'homepageLayout',   permission: PERMISSIONS.HOMEPAGE_EDIT },
+        { id: 'users',           icon: 'Users',           label: 'users',            permission: PERMISSIONS.USER_VIEW },
+        { id: 'roles',           icon: 'Shield',          label: 'rolesPermissions', permission: PERMISSIONS.USER_VIEW },
+        { id: 'settings',        icon: 'Settings',        label: 'settings',         permission: PERMISSIONS.SYSTEM_SETTINGS },
+        { id: 'audit-log',       icon: 'FileText',        label: 'auditLog',         permission: PERMISSIONS.SYSTEM_AUDIT_VIEW },
       ]
     },
   ];
