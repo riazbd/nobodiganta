@@ -271,6 +271,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy')->whereNumber('user');
         Route::patch('/users/{user}/role', [UserController::class, 'assignRole'])->name('users.assign-role')->whereNumber('user');
         Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status')->whereNumber('user');
+        Route::post('/users/{user}/photo', [UserController::class, 'uploadPhoto'])->name('users.photo')->whereNumber('user');
 
         // Role & Permission Management
         Route::get('/roles', [RoleController::class, 'index'])->name('roles');

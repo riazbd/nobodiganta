@@ -49,22 +49,22 @@ const DEFAULT_FILTERS = {
   per_page: 15,
 };
 
-export default function Users({ initialUsers, roles, filters }) {
+export default function Users({ users, roles, filters }) {
   const { lang, t } = useLanguage();
   const { showToast } = useToast();
   const searchTimeout = useRef(null);
   const searchInputRef = useRef(null);
 
   // Server-side state
-  const usersData = initialUsers?.data || [];
-  const links = initialUsers?.links || [];
+  const usersData = users?.data || [];
+  const links = users?.links || [];
   const meta = {
-    current_page: initialUsers?.current_page || 1,
-    last_page: initialUsers?.last_page || 1,
-    total: initialUsers?.total || 0,
-    per_page: initialUsers?.per_page || 15,
-    from: initialUsers?.from || 0,
-    to: initialUsers?.to || 0,
+    current_page: users?.current_page || 1,
+    last_page: users?.last_page || 1,
+    total: users?.total || 0,
+    per_page: users?.per_page || 15,
+    from: users?.from || 0,
+    to: users?.to || 0,
   };
 
   // Filter state — defensive parsing against any backend value
@@ -105,6 +105,7 @@ export default function Users({ initialUsers, roles, filters }) {
   const [formData, setFormData] = useState({
     name: '', email: '', password: '', password_confirmation: '', role: 'reporter',
   });
+  const [photoUploading, setPhotoUploading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -253,7 +254,7 @@ export default function Users({ initialUsers, roles, filters }) {
   };
   const openEdit = (user) => {
     setEditingUser(user);
-    setFormData({ name: user.name, email: user.email, password: '', password_confirmation: '', role: user.role });
+    setFormData({ name: user.name, email: user.email, password: '', password_confirmation: '', role: user.role, profile_photo_url: user.profile_photo_url });
     setFormErrors({}); setShowPassword(false); setShowEditModal(true);
   };
   const handleCreate = async (e) => {
@@ -276,6 +277,31 @@ export default function Users({ initialUsers, roles, filters }) {
   const handleToggleStatus = async (user) => {
     try { await toggleUserStatus(user.id); showToast(t('statusUpdated')); }
     catch { showToast(t('errorOccurred'), 'error'); }
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingUser) return;
+    setPhotoUploading(true);
+    const fd = new FormData();
+    fd.append('photo', file);
+    try {
+      const res = await window.axios.post(route('admin.users.photo', editingUser.id), fd);
+      setFormData(f => ({ ...f, profile_photo_url: res.data.url }));
+      showToast(lang === 'bn' ? 'ছবি আপলোড হয়েছে' : 'Photo uploaded');
+    } catch { showToast(lang === 'bn' ? 'আপলোড ব্যর্থ' : 'Upload failed', 'error'); }
+    finally { setPhotoUploading(false); }
+  };
+
+  const handlePhotoRemove = async () => {
+    if (!editingUser) return;
+    setPhotoUploading(true);
+    try {
+      await window.axios.post(route('admin.users.photo', editingUser.id), { remove: true });
+      setFormData(f => ({ ...f, profile_photo_url: null }));
+      showToast(lang === 'bn' ? 'ছবি সরানো হয়েছে' : 'Photo removed');
+    } catch { showToast(lang === 'bn' ? 'ব্যর্থ হয়েছে' : 'Failed', 'error'); }
+    finally { setPhotoUploading(false); }
   };
 
   const inputClass = (field) =>
@@ -692,6 +718,26 @@ export default function Users({ initialUsers, roles, filters }) {
       {showEditModal && editingUser && (
         <Modal title={t('editUser')} onClose={() => setShowEditModal(false)}>
           <form onSubmit={handleUpdate} className="space-y-4">
+            {/* Profile photo */}
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gradient-to-br from-[#263238] to-[#ff6b6b] flex items-center justify-center">
+                {formData.profile_photo_url
+                  ? <img src={formData.profile_photo_url} alt="" className="w-full h-full object-cover" />
+                  : <span className="text-white text-xl font-bold">{(formData.name || '?').charAt(0).toUpperCase()}</span>}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700">
+                  {photoUploading ? '...' : (lang === 'bn' ? 'ছবি আপলোড' : 'Upload Photo')}
+                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={photoUploading} />
+                </label>
+                {formData.profile_photo_url && (
+                  <button type="button" onClick={handlePhotoRemove} disabled={photoUploading}
+                    className="text-xs text-red-500 hover:text-red-700 transition-colors text-left">
+                    {lang === 'bn' ? 'ছবি সরান' : 'Remove photo'}
+                  </button>
+                )}
+              </div>
+            </div>
             <FormField label={t('name')} error={formErrors.name}><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className={inputClass('name')} required autoFocus /></FormField>
             <FormField label={t('email')} error={formErrors.email}><input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className={inputClass('email')} required /></FormField>
             <FormField label={t('role')} error={formErrors.role}>

@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 
@@ -102,7 +103,9 @@ class UserController extends Controller
             'status' => $user->email_verified_at ? 'active' : 'inactive',
             'last_login' => $user->last_login_at?->diffForHumans(),
             'created_at' => $user->created_at?->format('Y-m-d H:i'),
-            'profile_photo_url' => $user->reporter?->image ?: ($user->profile_photo_path ? $user->profile_photo_url : null),
+            'profile_photo_url' => $user->profile_photo_path
+                ? asset('storage/' . $user->profile_photo_path)
+                : ($user->reporter?->image ?: null),
         ]);
 
         $rolesQuery = Role::orderBy('level', 'desc');
@@ -260,5 +263,36 @@ class UserController extends Controller
         $user->save();
 
         return back()->with('success', __('User status updated.'));
+    }
+
+    /**
+     * Upload or remove a user's profile photo.
+     */
+    public function uploadPhoto(Request $request, User $user)
+    {
+        if (!auth()->user()->hasPermission('user.edit')) {
+            abort(403);
+        }
+
+        if ($request->has('remove')) {
+            if ($user->profile_photo_path) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+            $user->update(['profile_photo_path' => null]);
+            return response()->json(['url' => null]);
+        }
+
+        $request->validate([
+            'photo' => ['required', 'file', 'image', 'max:2048'],
+        ]);
+
+        if ($user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+        }
+
+        $path = $request->file('photo')->store('profile-photos', 'public');
+        $user->update(['profile_photo_path' => $path]);
+
+        return response()->json(['url' => asset('storage/' . $path)]);
     }
 }
