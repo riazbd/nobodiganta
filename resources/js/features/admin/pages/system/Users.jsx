@@ -106,6 +106,8 @@ export default function Users({ users, roles, filters }) {
     name: '', email: '', password: '', password_confirmation: '', role: 'reporter',
   });
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [createPhotoFile, setCreatePhotoFile] = useState(null);
+  const [createPhotoPreview, setCreatePhotoPreview] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -250,7 +252,7 @@ export default function Users({ users, roles, filters }) {
   // Modal helpers
   const openCreate = () => {
     setFormData({ name: '', email: '', password: '', password_confirmation: '', role: 'reporter' });
-    setFormErrors({}); setShowPassword(false); setShowCreateModal(true);
+    setFormErrors({}); setShowPassword(false); setCreatePhotoFile(null); setCreatePhotoPreview(null); setShowCreateModal(true);
   };
   const openEdit = (user) => {
     setEditingUser(user);
@@ -259,7 +261,13 @@ export default function Users({ users, roles, filters }) {
   };
   const handleCreate = async (e) => {
     e.preventDefault(); setSubmitting(true); setFormErrors({});
-    try { await createUser(formData); setShowCreateModal(false); showToast(t('userCreated')); }
+    try {
+      const fd = new FormData();
+      Object.entries(formData).forEach(([k, v]) => fd.append(k, v ?? ''));
+      if (createPhotoFile) fd.append('photo', createPhotoFile);
+      await createUser(fd);
+      setShowCreateModal(false); showToast(t('userCreated'));
+    }
     catch (errors) { setFormErrors(errors); } finally { setSubmitting(false); }
   };
   const handleUpdate = async (e) => {
@@ -277,6 +285,13 @@ export default function Users({ users, roles, filters }) {
   const handleToggleStatus = async (user) => {
     try { await toggleUserStatus(user.id); showToast(t('statusUpdated')); }
     catch { showToast(t('errorOccurred'), 'error'); }
+  };
+
+  const handleCreatePhotoSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCreatePhotoFile(file);
+    setCreatePhotoPreview(URL.createObjectURL(file));
   };
 
   const handlePhotoUpload = async (e) => {
@@ -692,6 +707,26 @@ export default function Users({ users, roles, filters }) {
       {showCreateModal && (
         <Modal title={t('createUser')} onClose={() => setShowCreateModal(false)}>
           <form onSubmit={handleCreate} className="space-y-4">
+            {/* Profile photo */}
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gradient-to-br from-[#263238] to-[#ff6b6b] flex items-center justify-center">
+                {createPhotoPreview
+                  ? <img src={createPhotoPreview} alt="" className="w-full h-full object-cover" />
+                  : <span className="text-white text-xl font-bold">{(formData.name || '?').charAt(0).toUpperCase()}</span>}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700">
+                  {lang === 'bn' ? 'ছবি নির্বাচন' : 'Choose Photo'}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleCreatePhotoSelect} />
+                </label>
+                {createPhotoPreview && (
+                  <button type="button" onClick={() => { setCreatePhotoFile(null); setCreatePhotoPreview(null); }}
+                    className="text-xs text-red-500 hover:text-red-700 transition-colors text-left">
+                    {lang === 'bn' ? 'ছবি সরান' : 'Remove'}
+                  </button>
+                )}
+              </div>
+            </div>
             <FormField label={t('name')} error={formErrors.name}><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className={inputClass('name')} required autoFocus /></FormField>
             <FormField label={t('email')} error={formErrors.email}><input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className={inputClass('email')} required /></FormField>
             <FormField label={t('role')} error={formErrors.role}>

@@ -134,6 +134,7 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'exists:roles,name'],
+            'photo' => ['nullable', 'file', 'image', 'max:2048'],
         ]);
 
         if (auth()->user()->role !== 'supreme_admin' && $validated['role'] === 'supreme_admin') {
@@ -142,6 +143,11 @@ class UserController extends Controller
 
         $role = Role::where('name', $validated['role'])->first();
 
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('profile-photos', 'public');
+        }
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -149,6 +155,7 @@ class UserController extends Controller
             'role' => $validated['role'],
             'role_id' => $role?->id,
             'email_verified_at' => now(),
+            'profile_photo_path' => $photoPath,
         ]);
 
         return back()->with('success', __('User created successfully.'));
