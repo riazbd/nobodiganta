@@ -271,7 +271,7 @@ export default function Roles({ roles, allPermissions, filters }) {
                      </div>
                    ) : (
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {Object.entries(allPermissions).map(([group, perms]) => (
+                        {Object.entries(allPermissions).filter(([group]) => group !== 'epaper').map(([group, perms]) => (
                           <div key={group} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
                              <div 
                                className="px-4 py-3 bg-gray-50/50 border-b border-gray-50 flex items-center justify-between cursor-pointer group"
