@@ -102,6 +102,7 @@ class UserController extends Controller
             'status' => $user->email_verified_at ? 'active' : 'inactive',
             'last_login' => $user->last_login_at?->diffForHumans(),
             'created_at' => $user->created_at?->format('Y-m-d H:i'),
+            'profile_photo_url' => $user->profile_photo_url,
         ]);
 
         $rolesQuery = Role::orderBy('level', 'desc');
