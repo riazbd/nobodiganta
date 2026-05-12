@@ -100,24 +100,14 @@ export default function Videos({ initialVideos = [], filters = {} }) {
     const method = editingVideo ? 'PUT' : 'POST';
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        showToast(lang === 'bn' ? 'সফল হয়েছে' : 'Success');
-        setShowModal(false);
-        router.reload();
+      if (editingVideo) {
+        await window.axios.put(url, formData);
       } else {
-        const errorData = await response.json();
-        showToast(errorData.message || 'Error', 'error');
+        await window.axios.post(url, formData);
       }
+      showToast(lang === 'bn' ? 'সফল হয়েছে' : 'Success');
+      setShowModal(false);
+      router.reload();
     } catch (err) {
       showToast('Error', 'error');
     } finally {

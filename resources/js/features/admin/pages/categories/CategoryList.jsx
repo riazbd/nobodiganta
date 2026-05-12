@@ -46,9 +46,8 @@ export default function CategoryList() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/admin/categories');
-      if (!res.ok) throw new Error('Failed to fetch categories');
-      const data = await res.json();
+      const res = await window.axios.get('/api/admin/categories');
+      const data = res.data;
       // Transform snake_case to camelCase
       const transformed = data.map(c => ({
         id: c.id,
@@ -141,30 +140,16 @@ export default function CategoryList() {
       const method = editingCat ? 'PUT' : 'POST';
       const url = editingCat ? `/admin/categories/${editingCat.id}` : '/admin/categories';
 
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          name_bn: catNameBn,
-          name_en: catNameEn,
-          slug: catSlug,
-          edition: catEdition,
-          parent_id: catParentId || null,
-          color: catColor,
-          description_bn: catDescBn,
-          description_en: catDescEn,
-          meta_description_bn: catMetaBn,
-          meta_description_en: catMetaEn,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: 'Server error' }));
-        throw new Error(err.message || 'Request failed');
+      const payload = {
+        name_bn: catNameBn, name_en: catNameEn, slug: catSlug,
+        edition: catEdition, parent_id: catParentId || null, color: catColor,
+        description_bn: catDescBn, description_en: catDescEn,
+        meta_description_bn: catMetaBn, meta_description_en: catMetaEn,
+      };
+      if (editingCat) {
+        await window.axios.put(url, payload);
+      } else {
+        await window.axios.post(url, payload);
       }
 
       showToast(editingCat
@@ -185,14 +170,7 @@ export default function CategoryList() {
 
   const handleToggleStatus = async (cat) => {
     try {
-      const res = await fetch(`/admin/categories/${cat.id}/toggle-status`, {
-        method: 'PATCH',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-          'Accept': 'application/json',
-        },
-      });
-      if (!res.ok) throw new Error('Failed to toggle status');
+      await window.axios.patch(`/admin/categories/${cat.id}/toggle-status`);
       await fetchCategories();
       showToast(cat.isActive
         ? (lang === 'bn' ? 'বিভাগ নিষ্ক্রিয় হয়েছে' : 'Category deactivated')
@@ -206,19 +184,7 @@ export default function CategoryList() {
 
   const handleDelete = async (cat) => {
     try {
-      const res = await fetch(`/admin/categories/${cat.id}`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-          'Accept': 'application/json',
-        },
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        if (err?.message) throw new Error(err.message);
-        if (cat.articleCount > 0) throw new Error(lang === 'bn' ? 'বিভাগে আর্টিকেল আছে, মুছে ফেলা যাবে না' : 'Cannot delete category with articles');
-        throw new Error('Delete failed');
-      }
+      await window.axios.delete(`/admin/categories/${cat.id}`);
       setDeleteConfirm(null);
       showToast(lang === 'bn' ? 'বিভাগ মুছে ফেলা হয়েছে' : 'Category deleted');
       await fetchCategories();

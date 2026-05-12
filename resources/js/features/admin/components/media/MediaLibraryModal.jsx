@@ -51,8 +51,8 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
         type: typeFilter,
         search: searchQuery
       });
-      const response = await fetch(`/admin/api/media?${params.toString()}`);
-      const data = await response.json();
+      const response = await window.axios.get(`/admin/api/media?${params.toString()}`);
+      const data = response.data;
       setMedia(data.data || []);
       setPagination(data);
     } catch (err) {
@@ -122,21 +122,8 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
         if (val !== '') formData.append(key, val);
       });
 
-      const res = await fetch('/admin/media', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-          'Accept': 'application/json',
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Upload failed');
-      }
-
-      const data = await res.json();
+      const res = await window.axios.post('/admin/media', formData);
+      const data = res.data;
 
       if (data.success) {
         showToast(lang === 'bn' ? 'মিডিয়া আপলোড সফল হয়েছে' : 'Media uploaded successfully');

@@ -74,8 +74,8 @@ export default function WriteNews() {
   const { article } = usePage().props;
 
   useEffect(() => {
-    fetch('/api/admin/categories')
-      .then((res) => res.json())
+    window.axios.get('/api/admin/categories')
+      .then((res) => res.data)
       .then((data) => {
         const transformed = data.map(c => ({
           id: c.id,
@@ -291,16 +291,9 @@ export default function WriteNews() {
       formData.append('file', file);
       formData.append('edition', edition);
       formData.append('license_type', 'internal');
-      const res = await fetch('/admin/media', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-          'Accept': 'application/json',
-        },
-      });
-      const data = await res.json();
-      if (res.ok && data.success && data.url) {
+      const res = await window.axios.post('/admin/media', formData);
+      const data = res.data;
+      if (data.success && data.url) {
         form.setData((prev) => ({
           ...prev,
           featuredImage: data.url,

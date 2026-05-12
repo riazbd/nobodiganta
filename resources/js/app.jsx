@@ -35,6 +35,20 @@ const publicLayout = (page) => (
     </AppProvider>
 );
 
+// Auto-reload on CSRF token expiry (419) or Inertia page-version mismatch
+router.on('invalid', (e) => {
+    e.preventDefault();
+    if (confirm('Session expired. Reload the page?')) {
+        window.location.reload();
+    }
+});
+
+// Refresh CSRF token on every Inertia response so it stays current
+router.on('finish', () => {
+    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (token) window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+});
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: async (name) => {
