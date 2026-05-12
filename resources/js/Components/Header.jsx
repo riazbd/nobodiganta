@@ -31,7 +31,6 @@ export default function Header() {
   const { searchQuery, setSearchQuery, onSearch } = useSearch();
   const { auth } = usePage().props;
   const [searchOpen, setSearchOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const siteName = settings.site_name    || (lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto');
   const tagline  = settings.site_tagline || (lang === 'bn' ? 'সঠিক সংবাদ সবার আগে' : 'Trusted News First');
@@ -59,7 +58,7 @@ export default function Header() {
 
         {/* Left: hamburger + search */}
         <div className="bbc-left">
-          <button className="bbc-icon-btn" onClick={() => setMobileMenuOpen(o => !o)} aria-label="Menu">
+          <button className="bbc-icon-btn" onClick={() => window.dispatchEvent(new Event('open-nav-drawer'))} aria-label="Menu">
             <MenuIcon />
           </button>
           <button className="bbc-icon-btn" onClick={() => setSearchOpen(o => !o)} aria-label="Search">
