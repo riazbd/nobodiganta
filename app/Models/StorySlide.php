@@ -50,10 +50,13 @@ class StorySlide extends Model
         return [
             'id' => $this->id,
             'sort_order' => $this->sort_order,
+            'media_id' => $this->media_id,
             'media_url' => $this->media?->url,
             'media_thumbnail' => $this->media?->thumbnail_url,
             'is_video' => $this->isVideo(),
             'text_overlay' => $this->getTextOverlay($edition),
+            'text_overlay_bn' => $this->text_overlay_bn,
+            'text_overlay_en' => $this->text_overlay_en,
             'duration' => $this->duration,
             'linked_article' => $this->linkedArticle ? [
                 'id' => $this->linkedArticle->id,

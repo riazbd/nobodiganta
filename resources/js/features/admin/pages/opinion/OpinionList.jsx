@@ -24,7 +24,7 @@ export default function OpinionList({ opinions, authors = [], filters }) {
 
   const [search,    setSearch]    = useState(filters?.search   || '');
   const [status,    setStatus]    = useState(filters?.status   || 'all');
-  const [edition,   setEdition]   = useState(filters?.edition  || lang);
+  const [edition,   setEdition]   = useState(filters?.edition  || 'all');
   const [author,    setAuthor]    = useState(filters?.author   || 'all');
   const [perPage,   setPerPage]   = useState(filters?.per_page || '20');
   const [selected,  setSelected]  = useState([]);
@@ -34,14 +34,6 @@ export default function OpinionList({ opinions, authors = [], filters }) {
   const l = (bn, en) => lang === 'bn' ? bn : en;
   const fmt = (d) => d ? new Date(d).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
 
-  // Sync edition with the sidebar language switcher
-  useEffect(() => {
-    if (filters?.edition) return;
-    setEdition(lang);
-    const params = { ...filters, edition: lang, page: 1 };
-    Object.keys(params).forEach(k => { if (!params[k] || params[k] === 'all') delete params[k]; });
-    router.get('/admin/opinions', params, { preserveState: true, preserveScroll: true });
-  }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const applyFilters = (overrides = {}) => {
     const p = { search, status, edition, author, per_page: perPage, page: 1, ...overrides };

@@ -20,6 +20,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
   const [editData, setEditData] = useState({});
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadPreview, setUploadPreview] = useState(null); // { url, name, isVideo }
 
   const [uploadData, setUploadData] = useState({
     edition: 'both', 
@@ -109,6 +110,23 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
     setIsEditing(true);
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (uploadPreview?.url) URL.revokeObjectURL(uploadPreview.url);
+    setUploadPreview({
+      url: URL.createObjectURL(file),
+      name: file.name,
+      isVideo: file.type.startsWith('video/'),
+    });
+  };
+
+  const closeUploadForm = () => {
+    if (uploadPreview?.url) URL.revokeObjectURL(uploadPreview.url);
+    setUploadPreview(null);
+    setShowUploadForm(false);
+  };
+
   const handleUpload = async (e) => {
     e.preventDefault();
     const file = e.target.file.files[0];
@@ -127,6 +145,8 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
 
       if (data.success) {
         showToast(lang === 'bn' ? 'মিডিয়া আপলোড সফল হয়েছে' : 'Media uploaded successfully');
+        if (uploadPreview?.url) URL.revokeObjectURL(uploadPreview.url);
+        setUploadPreview(null);
         setShowUploadForm(false);
         setUploadData({
           edition: 'both', alt_text_bn: '', alt_text_en: '',
@@ -241,32 +261,53 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
               ) : media.length > 0 ? (
                 viewMode === 'grid' ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {media.map(item => (
-                      <div 
-                        key={item.id} 
-                        className={`group relative rounded-xl overflow-hidden bg-white border cursor-pointer transition-all hover:shadow-md ${selectedItem?.id === item.id ? 'ring-2 ring-[#263238] border-transparent shadow-md' : 'border-gray-100'}`} 
-                        onClick={() => { setSelectedItem(item); setIsEditing(false); }}
-                      >
-                        <img src={item.thumbnail_url || item.url} className="w-full h-32 object-cover" />
-                        <div className="p-2 border-t border-gray-50">
-                          <div className="text-[11px] font-medium text-gray-700 truncate">{item.original_name}</div>
+                    {media.map(item => {
+                      const isVid = item.mime_type?.startsWith('video/');
+                      return (
+                        <div
+                          key={item.id}
+                          className={`group relative rounded-xl overflow-hidden bg-white border cursor-pointer transition-all hover:shadow-md ${selectedItem?.id === item.id ? 'ring-2 ring-[#263238] border-transparent shadow-md' : 'border-gray-100'}`}
+                          onClick={() => { setSelectedItem(item); setIsEditing(false); }}
+                        >
+                          {isVid ? (
+                            <div className="w-full h-32 bg-gray-900 flex flex-col items-center justify-center gap-1">
+                              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                                <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5 ml-0.5"><path d="M8 5v14l11-7z"/></svg>
+                              </div>
+                              <span className="text-white/60 text-[10px] uppercase font-bold">{item.mime_type?.split('/')[1]}</span>
+                            </div>
+                          ) : (
+                            <img src={item.thumbnail_url || item.url} className="w-full h-32 object-cover" />
+                          )}
+                          <div className="p-2 border-t border-gray-50">
+                            <div className="text-[11px] font-medium text-gray-700 truncate">{item.original_name}</div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    {media.map(item => (
-                      <div 
-                        key={item.id} 
-                        className={`flex items-center gap-4 p-2 rounded-lg cursor-pointer hover:bg-gray-50 ${selectedItem?.id === item.id ? 'bg-red-50' : ''}`}
-                        onClick={() => { setSelectedItem(item); setIsEditing(false); }}
-                      >
-                        <img src={item.thumbnail_url || item.url || asset('storage/' + item.file_path)} className="w-12 h-12 rounded object-cover" />
-                        <div className="text-sm font-medium text-gray-700 flex-1 truncate">{item.original_name}</div>
-                        {getEditionBadge(item.edition)}
-                      </div>
-                    ))}
+                    {media.map(item => {
+                      const isVid = item.mime_type?.startsWith('video/');
+                      return (
+                        <div
+                          key={item.id}
+                          className={`flex items-center gap-4 p-2 rounded-lg cursor-pointer hover:bg-gray-50 ${selectedItem?.id === item.id ? 'bg-red-50' : ''}`}
+                          onClick={() => { setSelectedItem(item); setIsEditing(false); }}
+                        >
+                          {isVid ? (
+                            <div className="w-12 h-12 rounded bg-gray-900 flex items-center justify-center flex-shrink-0">
+                              <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5 ml-0.5"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                          ) : (
+                            <img src={item.thumbnail_url || item.url} className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                          )}
+                          <div className="text-sm font-medium text-gray-700 flex-1 truncate">{item.original_name}</div>
+                          {getEditionBadge(item.edition)}
+                        </div>
+                      );
+                    })}
                   </div>
                 )
               ) : (
@@ -298,7 +339,11 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                  {!isEditing ? (
                    <div className="space-y-5">
                      <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
-                       <img src={selectedItem.url || asset('storage/' + selectedItem.file_path)} className="w-full h-auto max-h-48 object-contain bg-gray-50" />
+                       {selectedItem.mime_type?.startsWith('video/') ? (
+                         <video src={selectedItem.url} controls className="w-full max-h-48 bg-black" />
+                       ) : (
+                         <img src={selectedItem.url || asset('storage/' + selectedItem.file_path)} className="w-full h-auto max-h-48 object-contain bg-gray-50" />
+                       )}
                      </div>
                      
                      <div className="space-y-3 font-['Noto_Sans_Bengali']">
@@ -407,14 +452,34 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                    <div>
                      <h3 className="text-2xl font-bold text-gray-800 font-['Noto_Sans_Bengali']">{lang === 'bn' ? 'মিডিয়া আপলোড' : 'Upload New Media'}</h3>
                    </div>
-                   <button onClick={() => setShowUploadForm(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X className="w-6 h-6 text-gray-400" /></button>
+                   <button onClick={closeUploadForm} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X className="w-6 h-6 text-gray-400" /></button>
                 </div>
 
                 <form onSubmit={handleUpload} className="space-y-4">
-                  <div className="group relative border-2 border-dashed border-gray-200 rounded-2xl p-10 hover:border-[#263238]/30 hover:bg-red-50/10 transition-all text-center">
-                    <input type="file" name="file" accept="image/*,video/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
-                    <Upload className="w-10 h-10 text-[#263238] mx-auto mb-3" />
-                    <p className="text-sm font-bold text-gray-700">{lang === 'bn' ? 'ফাইল সিলেক্ট করুন' : 'Click to browse'}</p>
+                  <div className="relative rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 hover:border-[#263238]/40 transition-all">
+                    <input type="file" name="file" accept="image/*,video/*" onChange={handleFileChange}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required />
+                    {uploadPreview ? (
+                      <div className="relative">
+                        {uploadPreview.isVideo ? (
+                          <video src={uploadPreview.url} className="w-full max-h-52 object-contain bg-black" controls />
+                        ) : (
+                          <img src={uploadPreview.url} alt="preview" className="w-full max-h-52 object-contain bg-gray-50" />
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs px-3 py-1.5 truncate">
+                          {uploadPreview.name}
+                        </div>
+                        <div className="absolute top-2 right-2 bg-[#263238] text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-20 pointer-events-none">
+                          {lang === 'bn' ? 'পরিবর্তন করতে ক্লিক করুন' : 'Click to change'}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-10 text-center">
+                        <Upload className="w-10 h-10 text-[#263238] mx-auto mb-3" />
+                        <p className="text-sm font-bold text-gray-700">{lang === 'bn' ? 'ফাইল সিলেক্ট করুন' : 'Click to browse'}</p>
+                        <p className="text-xs text-gray-400 mt-1">Image or Video</p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -461,7 +526,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                   </div>
 
                   <div className="flex gap-4 pt-4">
-                    <button type="button" onClick={() => setShowUploadForm(false)} className="flex-1 py-3 border border-gray-200 rounded-2xl text-sm font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
+                    <button type="button" onClick={closeUploadForm} className="flex-1 py-3 border border-gray-200 rounded-2xl text-sm font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
                     <button type="submit" disabled={uploading} className="flex-[2] py-3 bg-[#263238] text-white rounded-2xl text-sm font-bold shadow-lg hover:bg-[#1a2428] disabled:opacity-50 flex items-center justify-center gap-2">
                       {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : (lang === 'bn' ? 'আপলোড শুরু করুন' : 'Start Upload')}
                     </button>

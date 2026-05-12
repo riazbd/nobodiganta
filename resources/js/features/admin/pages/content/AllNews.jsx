@@ -47,7 +47,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
   const [search,       setSearch]       = useState(filters.search       || '');
   const [status,       setStatus]       = useState(filters.status       || 'all');
   const [category,     setCategory]     = useState(filters.category     || 'all');
-  const [edition,      setEdition]      = useState(filters.edition      || lang);
+  const [edition,      setEdition]      = useState(filters.edition      || 'all');
   const [articleType,  setArticleType]  = useState(filters.article_type || 'all');
   const [author,       setAuthor]       = useState(filters.author       || 'all');
   const [dateFrom,     setDateFrom]     = useState(filters.date_from    || '');
@@ -60,15 +60,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [submitting,   setSubmitting]   = useState(false);
 
-  // Sync edition filter with the sidebar language switcher.
-  // Only fires when lang changes; respects an explicit edition choice in the URL.
-  useEffect(() => {
-    if (filters.edition) return; // user set an explicit edition — don't override
-    setEdition(lang);
-    const params = { ...filters, edition: lang, page: 1 };
-    Object.keys(params).forEach(k => { if (!params[k] || params[k] === 'all') delete params[k]; });
-    router.get(route('admin.news'), params, { preserveState: true, preserveScroll: true });
-  }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   const buildParams = (overrides = {}) => {
     const p = {

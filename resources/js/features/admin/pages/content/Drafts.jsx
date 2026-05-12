@@ -31,7 +31,7 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
 
   const [search,    setSearch]    = useState(filters?.search   || '');
   const [category,  setCategory]  = useState(filters?.category || 'all');
-  const [edition,   setEdition]   = useState(filters?.edition  || lang);
+  const [edition,   setEdition]   = useState(filters?.edition  || 'all');
   const [perPage,   setPerPage]   = useState(filters?.per_page || '20');
   const [selected,  setSelected]  = useState([]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -40,14 +40,6 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
   const l = (bn, en) => lang === 'bn' ? bn : en;
   const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
 
-  // Sync edition with the sidebar language switcher
-  useEffect(() => {
-    if (filters?.edition) return;
-    setEdition(lang);
-    const params = { ...filters, edition: lang, page: 1 };
-    Object.keys(params).forEach(k => { if (!params[k] || params[k] === 'all') delete params[k]; });
-    router.get(window.location.pathname, params, { preserveState: true, preserveScroll: true });
-  }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const applyFilters = (overrides = {}) => {
     const p = { search, category, edition, per_page: perPage, page: 1, ...overrides };

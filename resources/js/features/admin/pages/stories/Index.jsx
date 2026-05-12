@@ -42,6 +42,11 @@ export default function StoriesIndex({ stories, filters, can }) {
         router.post(route('admin.stories.restore', story.id), {}, { preserveScroll: true });
     };
 
+    const handleArchive = (story) => {
+        if (!confirm('এই স্টোরি আর্কাইভ করবেন?')) return;
+        router.post(route('admin.stories.archive', story.id), {}, { preserveScroll: true });
+    };
+
     const handleDelete = (story) => {
         if (!confirm('এই স্টোরি মুছে ফেলবেন?')) return;
         router.delete(route('admin.stories.destroy', story.id), { preserveScroll: true });
@@ -136,6 +141,12 @@ export default function StoriesIndex({ stories, filters, can }) {
                                     <button onClick={() => handleRestore(story)}
                                         className="text-blue-700 text-xs px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors font-medium">
                                         পুনরায় প্রকাশ
+                                    </button>
+                                )}
+                                {can.delete && story.status === 'published' && (
+                                    <button onClick={() => handleArchive(story)}
+                                        className="text-gray-600 text-xs px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors font-medium">
+                                        আর্কাইভ
                                     </button>
                                 )}
                                 {can.delete && (

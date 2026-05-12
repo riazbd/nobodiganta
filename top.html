@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>নিউজ পোর্টাল</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Hind Siliguri', system-ui, sans-serif;
+        }
+        
+        .tail-container {
+            max-width: 1240px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 16px;
+        }
+        
+        .news-hover:hover {
+            color: #cc0000;
+            transition: color 0.2s;
+        }
+        
+        .img-hover {
+            transition: transform 0.5s ease;
+        }
+        
+        .img-hover:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-white text-[#111]">
+    <div class="tail-container">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            
+            <!-- LEFT COLUMN -->
+            <div class="lg:col-span-7 xl:col-span-6 flex flex-col gap-4">
+                
+                <!-- Top Featured -->
+                <div class="border border-[#e2e2e2] p-3 flex flex-col sm:flex-row gap-5">
+                    <div class="w-full sm:w-[58%] shrink-0 overflow-hidden cursor-pointer group">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80" 
+                             alt="President" 
+                             class="w-full h-full object-cover img-hover">
+                    </div>
+                    <div class="w-full sm:w-[42%] flex flex-col pt-1">
+                        <h1 onclick="alert('Article opened!')" 
+                            class="text-[26px] font-bold leading-[34px] text-black mb-3 cursor-pointer news-hover tracking-tight">
+                            রাষ্ট্রপতির হার্টে ব্লক, রিং স্থাপন
+                        </h1>
+                        <p class="text-[14.5px] leading-[24px] text-[#444] text-justify">
+                            যুক্তরাজ্যে অবস্থানরত রাষ্ট্রপতি মো: সাহাবুদ্দিনের হৃদযন্ত্রে একটি ব্লক শনাক্ত হয়েছে। ফলে তার হার্টে জরুরিভিত্তিতে সফল এনজিওপ্লাস্টি ও স্টেন্ট (রিং) স্থাপন করা হয়েছে। বর্তমানে তার শারীরিক অবস্থা স্থিতিশীল ও সন্তোষজনক রয়েছে।
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Bottom Grid -->
+                <div class="border border-[#e2e2e2] p-3">
+                    <!-- Row 1 -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <!-- Card 1 -->
+                        <div onclick="alert('Article opened!')" class="cursor-pointer group">
+                            <div class="overflow-hidden mb-3">
+                                <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=600&q=80" 
+                                     alt="Cricket" 
+                                     class="w-full aspect-[16/10] object-cover img-hover">
+                            </div>
+                            <h3 class="text-[15.5px] font-bold leading-[21px] news-hover">পাকিস্তানকে হারিয়ে দারুণ সুখবর পেল বাংলাদেশ</h3>
+                        </div>
+                        
+                        <!-- Card 2 -->
+                        <div onclick="alert('Article opened!')" class="cursor-pointer group border-l border-[#e2e2e2] pl-4">
+                            <div class="overflow-hidden mb-3">
+                                <img src="https://images.unsplash.com/photo-1577495508048-b635879837f1?w=600&q=80" 
+                                     alt="Press Club" 
+                                     class="w-full aspect-[16/10] object-cover img-hover">
+                            </div>
+                            <h3 class="text-[15.5px] font-bold leading-[21px] news-hover">জাতীয় প্রেস ক্লাবের নতুন সদস্যপদ পেলেন ৪৪১ জন</h3>
+                        </div>
+                        
+                        <!-- Card 3 -->
+                        <div onclick="alert('Article opened!')" class="cursor-pointer group border-l border-[#e2e2e2] pl-4">
+                            <div class="overflow-hidden mb-3 relative bg-white flex items-center justify-center aspect-[16/10]">
+                                <img src="https://images.unsplash.com/photo-1621839673705-6617adf9e890?w=600&q=80" 
+                                     alt="Reserve" 
+                                     class="w-full h-full object-contain img-hover">
+                                <div class="absolute top-0 right-0 bg-[#cc0000] rounded-bl-md w-6 h-6 flex items-center justify-center text-white text-xs font-bold">ক</div>
+                            </div>
+                            <h3 class="text-[15.5px] font-bold leading-[21px] news-hover">দেশের রিজার্ভ বাড়ল</h3>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#e2e2e2] my-4"></div>
+
+                    <!-- Row 2 -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <!-- Card 4 -->
+                        <div onclick="alert('Article opened!')" class="cursor-pointer group">
+                            <div class="overflow-hidden mb-3">
+                                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80" 
+                                     alt="Shabnur" 
+                                     class="w-full aspect-[16/10] object-cover img-hover">
+                            </div>
+                            <h3 class="text-[15.5px] font-bold leading-[21px] news-hover">
+                                <span class="text-[#cc0000]">শাবনুরের পিতার হত্যা মামলা /</span> খালাস পেলেন ইলিয়াস আলিসহ বিএনপির ৩৮ নেতা
+                            </h3>
+                        </div>
+                        
+                        <!-- Card 5 -->
+                        <div onclick="alert('Article opened!')" class="cursor-pointer group border-l border-[#e2e2e2] pl-4">
+                            <div class="overflow-hidden mb-3">
+                                <img src="https://images.unsplash.com/photo-1544724569-5f546fd6f2b6?w=600&q=80" 
+                                     alt="Power" 
+                                     class="w-full aspect-[16/10] object-cover img-hover">
+                            </div>
+                            <h3 class="text-[15.5px] font-bold leading-[21px] news-hover">রাজধানীর যেসব এলাকায় ৮ ঘণ্টা বিদ্যুৎ থাকবে না বুধবার</h3>
+                        </div>
+                        
+                        <!-- Card 6 -->
+                        <div onclick="alert('Article opened!')" class="cursor-pointer group border-l border-[#e2e2e2] pl-4">
+                            <div class="overflow-hidden mb-3">
+                                <img src="https://images.unsplash.com/photo-1541888087405-d5c228de0369?w=600&q=80" 
+                                     alt="PM Office" 
+                                     class="w-full aspect-[16/10] object-cover img-hover">
+                            </div>
+                            <h3 class="text-[15.5px] font-bold leading-[21px] news-hover">প্রধানমন্ত্রীর কার্যালয়ে নতুন মহাপরিচালক নিয়োগ</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MIDDLE COLUMN -->
+            <div class="lg:col-span-5 xl:col-span-3 border border-[#e2e2e2] p-3">
+                <!-- Main Article -->
+                <div onclick="alert('Article opened!')" class="cursor-pointer group">
+                    <div class="overflow-hidden mb-3">
+                        <img src="https://images.unsplash.com/photo-1529156069898-49953eb1b5ce?w=700&q=80" 
+                             alt="Thalapathy" 
+                             class="w-full aspect-video object-cover img-hover">
+                    </div>
+                    <h2 class="text-[19px] font-bold leading-tight news-hover">‘নিয়োগকাণ্ডে’ বিতর্কের মুখে থালাপতি বিজয়</h2>
+                </div>
+
+                <div class="mt-6 space-y-4">
+                    <a href="#" onclick="alert('Article opened!')" class="flex gap-3 group cursor-pointer border-t border-[#e2e2e2] pt-4">
+                        <img src="https://images.unsplash.com/photo-1548680183-11a2f6fb388f?w=300&q=80" 
+                             class="w-24 h-14 object-cover img-hover" alt="">
+                        <div class="text-[15px] font-bold leading-tight news-hover">ঈদুল আজহার তারিখ ঘোষণা করল মধ্যপ্রাচ্যের এক দেশ</div>
+                    </a>
+                    
+                    <a href="#" onclick="alert('Article opened!')" class="flex gap-3 group cursor-pointer border-t border-[#e2e2e2] pt-4">
+                        <img src="https://images.unsplash.com/photo-1556157382-97eda2d62296?w=300&q=80" 
+                             class="w-24 h-14 object-cover img-hover" alt="">
+                        <div class="text-[15px] font-bold leading-tight news-hover">সেই জ্যোতিষীকে বিশেষ পদে নিয়োগ দিলেন থালাপতি বিজয়</div>
+                    </a>
+                    
+                    <a href="#" onclick="alert('Article opened!')" class="flex gap-3 group cursor-pointer border-t border-[#e2e2e2] pt-4">
+                        <img src="https://images.unsplash.com/photo-1564769625905-50e93615e769?w=300&q=80" 
+                             class="w-24 h-14 object-cover img-hover" alt="">
+                        <div class="text-[15px] font-bold leading-tight news-hover">মসজিদে নববিতে কাজের সুযোগ, আবেদনের নিয়ম জানুন</div>
+                    </a>
+                    
+                    <a href="#" onclick="alert('Article opened!')" class="flex gap-3 group cursor-pointer border-t border-[#e2e2e2] pt-4">
+                        <img src="https://images.unsplash.com/photo-1616004654929-ebd7b22bd25e?w=300&q=80" 
+                             class="w-24 h-14 object-cover img-hover" alt="">
+                        <div class="text-[15px] font-bold leading-tight news-hover">বিশ্বকাপে আর্জেন্টিনার ৫৫ সদস্যের তালিকায় মেসি</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="lg:col-span-12 xl:col-span-3 border border-[#e2e2e2] p-3">
+                <!-- Tabs -->
+                <div class="flex border-b border-[#e2e2e2] mb-4">
+                    <button onclick="switchTab(0)" id="tab1"
+                        class="flex-1 pb-3 border-b-4 border-[#cc0000] text-black font-bold flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>ভিডিও স্টোরি</span>
+                    </button>
+                    <button onclick="switchTab(1)" id="tab2"
+                        class="flex-1 pb-3 border-b-4 border-transparent text-[#444] font-bold flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-images"></i>
+                        <span>ফটো স্টোরি</span>
+                    </button>
+                </div>
+
+                <!-- Video Stories -->
+                <div id="video-stories" class="relative">
+                    <div class="flex gap-4 overflow-x-auto pb-4 snap-x">
+                        <!-- Story 1 -->
+                        <div onclick="alert('Video playing!')" 
+                             class="min-w-[220px] snap-start relative rounded-xl overflow-hidden aspect-[9/16] cursor-pointer group shadow-md">
+                            <img src="https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=600&q=80" 
+                                 class="w-full h-full object-cover img-hover" alt="">
+                            
+                            <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80"></div>
+                            
+                            <div class="absolute top-3 left-3 right-3">
+                                <div class="bg-[#cc0000] text-white text-xs px-2 py-1 rounded inline-block">প্রতিবন্ধী শিক্ষার্থী</div>
+                            </div>
+                            
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-14 h-14 rounded-full border-4 border-white flex items-center justify-center bg-white/20 backdrop-blur-md group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-play text-white ml-1"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="absolute bottom-3 left-3 right-3 text-white text-sm font-bold leading-tight">
+                                প্রতিবন্ধী শিক্ষার্থীর তৈরি বিশেষ স্মার্ট কারে উঠলেন প্রধানমন্ত্রী
+                            </div>
+                        </div>
+                        
+                        <!-- Story 2 -->
+                        <div onclick="alert('Video playing!')" 
+                             class="min-w-[220px] snap-start relative rounded-xl overflow-hidden aspect-[9/16] cursor-pointer group shadow-md">
+                            <img src="https://images.unsplash.com/photo-1510526051759-9f798e404b90?w=600&q=80" 
+                                 class="w-full h-full object-cover img-hover" alt="">
+                            
+                            <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80"></div>
+                            
+                            <div class="absolute top-3 left-3 right-3">
+                                <div class="bg-[#cc0000] text-white text-xs px-2 py-1 rounded inline-block">উদ্বোধন</div>
+                            </div>
+                            
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-14 h-14 rounded-full border-4 border-white flex items-center justify-center bg-white/20 backdrop-blur-md group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-play text-white ml-1"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="absolute bottom-3 left-3 right-3 text-white text-sm font-bold leading-tight text-center">
+                                বাঁশিয়া খাল উদ্বোধন
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Arrow -->
+                    <button class="absolute -right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50">
+                        <i class="fa-solid fa-chevron-right text-[#333]"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind script already loaded via CDN
+        
+        function switchTab(n) {
+            const tab1 = document.getElementById('tab1');
+            const tab2 = document.getElementById('tab2');
+            
+            if (n === 0) {
+                tab1.classList.add('border-[#cc0000]', 'text-black');
+                tab2.classList.remove('border-[#cc0000]', 'text-black');
+            } else {
+                tab2.classList.add('border-[#cc0000]', 'text-black');
+                tab1.classList.remove('border-[#cc0000]', 'text-black');
+            }
+        }
+        
+        // Initialize Tailwind
+        console.log('%c✅ Single HTML News Layout Ready!', 'color: #cc0000; font-size: 16px; font-weight: bold');
+    </script>
+</body>
+</html>

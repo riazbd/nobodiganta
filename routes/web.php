@@ -150,6 +150,7 @@ Route::middleware(['auth'])->group(function () {
         // Media
         Route::get('media', [MediaController::class, 'index'])->name('media');
         Route::get('api/media', [MediaController::class, 'apiIndex'])->name('media.api');
+        Route::get('api/articles', [\App\Http\Controllers\ArticleController::class, 'apiSearch'])->name('articles.api.search');
         Route::post('media', [MediaController::class, 'store'])->name('media.store');
         Route::put('/media/{media}', [MediaController::class, 'update'])->name('media.update')->whereNumber('media');
         Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy')->whereNumber('media');
@@ -299,6 +300,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/stories/{story}', [\App\Http\Controllers\Admin\StoryController::class, 'destroy'])->name('stories.destroy');
         Route::post('/stories/{story}/publish', [\App\Http\Controllers\Admin\StoryController::class, 'publish'])->name('stories.publish');
         Route::post('/stories/{story}/restore', [\App\Http\Controllers\Admin\StoryController::class, 'restore'])->name('stories.restore');
+        Route::post('/stories/{story}/archive', [\App\Http\Controllers\Admin\StoryController::class, 'archive'])->name('stories.archive');
 
         // Story Slides
         Route::post('/stories/{story}/slides', [\App\Http\Controllers\Admin\StorySlideController::class, 'store'])->name('stories.slides.store');

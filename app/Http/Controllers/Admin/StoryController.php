@@ -85,10 +85,6 @@ class StoryController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        if ($request->expectsJson()) {
-            return response()->json(['story' => $story->toAPIArray()], 201);
-        }
-
         return redirect()->route('admin.stories.edit', $story);
     }
 
@@ -127,28 +123,35 @@ class StoryController extends Controller
 
         $story->update($validated);
 
-        return response()->json(['story' => $story->fresh()->toAPIArray()]);
+        return redirect()->route('admin.stories.edit', $story)->with('success', 'স্টোরি আপডেট হয়েছে');
     }
 
     public function destroy(Story $story)
     {
         if (!auth()->user()->hasPermission('stories.delete')) abort(403);
         $story->delete();
-        return response()->json(['ok' => true]);
+        return redirect()->route('admin.stories')->with('success', 'স্টোরি মুছে ফেলা হয়েছে');
     }
 
     public function publish(Story $story)
     {
         if (!auth()->user()->hasPermission('stories.publish')) abort(403);
         $story->publish(auth()->user());
-        return response()->json(['story' => $story->toAPIArray()]);
+        return redirect()->back()->with('success', 'স্টোরি প্রকাশিত হয়েছে');
     }
 
     public function restore(Story $story)
     {
         if (!auth()->user()->hasPermission('stories.restore_expired')) abort(403);
         $story->restore(auth()->user());
-        return response()->json(['story' => $story->toAPIArray()]);
+        return redirect()->back()->with('success', 'স্টোরি পুনরায় প্রকাশিত হয়েছে');
+    }
+
+    public function archive(Story $story)
+    {
+        if (!auth()->user()->hasPermission('stories.delete')) abort(403);
+        $story->update(['status' => 'archived']);
+        return redirect()->back()->with('success', 'স্টোরি আর্কাইভ করা হয়েছে');
     }
 
     private function generateSlug(string $title, ?int $excludeId = null): string

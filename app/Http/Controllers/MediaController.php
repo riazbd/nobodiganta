@@ -101,7 +101,7 @@ class MediaController extends Controller
         }
 
         $request->validate([
-            'file' => 'required|file|max:10240', // 10MB max
+            'file' => 'required|file|mimes:jpeg,jpg,png,gif,webp,svg,mp4,mov,avi,mkv,webm,ogg|max:102400', // 100MB max
             'alt_text_bn' => 'nullable|string|max:255',
             'alt_text_en' => 'nullable|string|max:255',
             'caption_bn' => 'nullable|string|max:500',

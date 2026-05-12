@@ -679,4 +679,30 @@ class ArticleController extends Controller
             }, $transitions),
         ]);
     }
+
+    public function apiSearch(Request $request)
+    {
+        $search = $request->input('search', '');
+        $limit  = min((int) $request->input('limit', 8), 20);
+
+        $articles = Article::published()
+            ->when($search, fn($q) => $q->where(function ($q2) use ($search) {
+                $q2->where('title_bn', 'like', '%' . $search . '%')
+                   ->orWhere('title_en', 'like', '%' . $search . '%');
+            }))
+            ->with('category')
+            ->orderByDesc('published_at')
+            ->limit($limit)
+            ->get()
+            ->map(fn($a) => [
+                'id'       => $a->id,
+                'title_bn' => $a->title_bn,
+                'title_en' => $a->title_en,
+                'title'    => $a->title_bn,
+                'slug'     => $a->slug,
+                'category_slug' => $a->category?->slug,
+            ]);
+
+        return response()->json(['data' => $articles]);
+    }
 }

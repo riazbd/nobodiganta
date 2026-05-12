@@ -6,6 +6,7 @@ import { useNavigation } from '../contexts/NavigationContext';
 import { relativeTime, toBengaliNum } from '../lib/formatters';
 import Icon from '../Components/Icon';
 import StoryStrip from '@/Components/StoryStrip';
+import StoryViewer from '../Components/StoryViewer';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -52,143 +53,151 @@ function Img({ src, alt, h, w, isVideo, className = '', style = {} }) {
 const CatTag = ({ cat }) => cat ? <span className="p-cat-tag">{cat.name}</span> : null;
 const TimeTag = ({ dt, lang }) => <span className="p-time">{relativeTime(dt, lang)}</span>;
 
-// ─── LEFT COL: সর্বশেষ (Latest) ──────────────────────────────────────────────
-function LatestStrip({ items, lang, nav }) {
+// ─── HERO 3-COL BLOCK (top.html design) ──────────────────────────────────────
+function StoryCarousel({ label, items, isVideo, onClickItem, scrollRef }) {
+  const scrollRight = () => scrollRef.current?.scrollBy({ left: 160, behavior: 'smooth' });
   return (
-    <div className="p-latest">
-      <div className="p-latest-hdr">{lang === 'bn' ? 'সর্বশেষ' : 'Latest'}</div>
-      <div className="p-latest-body">
-        {items.slice(0, 12).map(a => (
-          <div key={a.id} className="p-latest-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-            {a.featured_image && (
-              <div className="p-latest-thumb">
-                <Img src={a.featured_image} alt={a.title} />
-              </div>
-            )}
-            <div className="p-latest-text">
-              <div className="p-latest-meta">
-                {a.category && <span className="p-cat-tag">{a.category.name}</span>}
-                <TimeTag dt={a.published_at} lang={lang} />
-              </div>
-              <h4 className="p-latest-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h4>
+    <div className="hp-h3-carousel-sec">
+      <div className="hp-h3-cs-hdr">
+        <span className="hp-h3-cs-ttl">{label}</span>
+      </div>
+      <div className="hp-h3-stories">
+        <div className="hp-h3-scroll" ref={scrollRef}>
+          {items.length > 0 ? items.slice(0, 8).map((item, idx) => (
+            <div
+              key={item.id}
+              className="hp-h3-scard"
+              onClick={() => onClickItem(item, idx)}
+              role="button"
+              tabIndex={0}
+              aria-label={item.title}
+            >
+              {(item.cover_thumbnail || item.cover || item.featured_image)
+                ? <img src={item.cover_thumbnail || item.cover || item.featured_image} alt={item.title} loading="lazy" />
+                : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#3b82f6,#7c3aed)' }} />}
+              <div className="hp-h3-scard-grad" />
+              {isVideo && <div className="hp-h3-scard-play"><Icon name="play" size={14} /></div>}
+              <div className="hp-h3-scard-title">{item.title}</div>
             </div>
-          </div>
-        ))}
+          )) : (
+            <div style={{ padding: '16px 12px', color: '#aaa', fontSize: 12, fontFamily: "'Kalpurush','SolaimanLipi',sans-serif" }}>
+              কোনো কন্টেন্ট নেই।
+            </div>
+          )}
+        </div>
+        {items.length > 2 && (
+          <button className="hp-h3-arr" onClick={scrollRight} aria-label="Scroll right">›</button>
+        )}
       </div>
     </div>
   );
 }
 
-// ─── CENTER COL: hero + mini-3 + rows ────────────────────────────────────────
-function CenterBlock({ hero, mini3, rows, lang, nav }) {
+function HeroBlock({ feat, grid6, midMain, midList, stories, lang, nav }) {
+  const [activeStory, setActiveStory] = useState(null);
+  const videoScrollRef = useRef(null);
+  const photoScrollRef = useRef(null);
+  const t = (a) => lang === 'bn' ? a.title : (a.title_en || a.title);
+
+  const videoStories = stories.filter(s => s.slides?.some(sl => sl.is_video));
+  const photoStories = stories.filter(s => !s.slides?.some(sl => sl.is_video));
+
   return (
-    <div className="p-center">
-      {/* Big hero */}
-      {hero && (
-        <div className="p-hero" onClick={() => go(hero, nav)} role="button" tabIndex={0}>
-          <div className="p-hero-img">
-            <Img src={hero.featured_image} alt={hero.title} isVideo={hero.article_type === 'video'} />
-          </div>
-          <div className="p-hero-body">
-            <CatTag cat={hero.category} />
-            <h2 className="p-hero-h">{lang === 'bn' ? hero.title : (hero.title_en || hero.title)}</h2>
-            {hero.excerpt && <p className="p-hero-p">{hero.excerpt}</p>}
-            <div className="p-meta">
-              {hero.author?.name && <span>{hero.author.name}</span>}
-              <TimeTag dt={hero.published_at} lang={lang} />
+    <div className="hp-hero3">
+      {/* ── LEFT: featured hero + 6-card grid ── */}
+      <div className="hp-h3-left">
+        {feat && (
+          <div className="hp-h3-feat" onClick={() => go(feat, nav)} role="button" tabIndex={0} aria-label={t(feat)} style={{ marginBottom: 0 }}>
+            <div className="hp-h3-feat-img">
+              {feat.featured_image
+                ? <img src={feat.featured_image} alt={t(feat)} loading="eager" />
+                : <div className="ph" style={{ width: '100%', height: '100%' }} />}
+            </div>
+            <div className="hp-h3-feat-body">
+              <CatTag cat={feat.category} />
+              <h1 className="hp-h3-feat-h">{t(feat)}</h1>
+              {feat.excerpt && <p className="hp-h3-feat-p">{feat.excerpt}</p>}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* 3-col mini grid */}
-      <div className="p-mini3">
-        {mini3.slice(0, 3).map(a => (
-          <div key={a.id} className="p-mini3-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-            <Img src={a.featured_image} alt={a.title} />
-            <div className="p-mini3-overlay">
-              <CatTag cat={a.category} />
-              <h5 className="p-mini3-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h5>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Extra text/thumb rows */}
-      <div className="p-center-rows">
-        {rows.slice(0, 6).map(a => (
-          <div key={a.id} className="p-center-row" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-            <div className="p-center-row-img">
-              <Img src={a.featured_image} alt={a.title} h={56} w={80} />
-            </div>
-            <div className="p-center-row-body">
-              <CatTag cat={a.category} />
-              <h5 className="p-center-row-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h5>
-              <TimeTag dt={a.published_at} lang={lang} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── RIGHT COL: horizontal thumb items ────────────────────────────────────────
-function RightBlock({ items, opinions, mostRead, lang, nav }) {
-  return (
-    <div className="p-right">
-      {/* Top: 2 horizontal items (text left + thumb right) */}
-      <div className="p-right-top">
-        {items.slice(0, 2).map((a, i) => (
-          <div key={a.id} className={`p-right-item${i > 0 ? ' p-right-sep' : ''}`} onClick={() => go(a, nav)} role="button" tabIndex={0}>
-            <div className="p-right-body">
-              <CatTag cat={a.category} />
-              <h4 className="p-right-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h4>
-              <TimeTag dt={a.published_at} lang={lang} />
-            </div>
-            <div className="p-right-img">
-              <Img src={a.featured_image} alt={a.title} h={80} w={108} />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Opinion widget */}
-      {opinions.length > 0 && (
-        <div className="p-widget">
-          <div className="p-wgt-hdr p-wgt-opinion">{lang === 'bn' ? 'মতামত' : 'Opinion'}</div>
-          <div className="p-wgt-body">
-            {opinions.slice(0, 4).map(op => (
-              <div key={op.id} className="p-op-item" onClick={() => nav('article', { categorySlug: op.category?.slug, articleSlug: op.slug })} role="button" tabIndex={0}>
-                <div className="p-op-av">
-                  {op.author?.image ? <img src={op.author.image} alt={op.author.name} /> : <div className="ph" style={{ width: '100%', height: '100%', fontSize: 14 }}>👤</div>}
-                </div>
-                <div>
-                  <div className="p-op-name">{op.author?.name}</div>
-                  <div className="p-op-title">{lang === 'bn' ? op.title : (op.title_en || op.title)}</div>
-                </div>
+        <div className="hp-h3-grid">
+          {[grid6.slice(0, 3), grid6.slice(3, 6)].map((row, ri) => (
+            <div key={ri}>
+              {ri > 0 && <div className="hp-h3-divider" />}
+              <div className="hp-h3-grid-row">
+                {row.map(a => (
+                  <div key={a.id} className="hp-h3-card" onClick={() => go(a, nav)} role="button" tabIndex={0}>
+                    <div className="hp-h3-card-img">
+                      {a.featured_image
+                        ? <img src={a.featured_image} alt={t(a)} loading="lazy" />
+                        : <div className="ph" style={{ width: '100%', height: '100%' }} />}
+                    </div>
+                    <h3 className="hp-h3-card-h">
+                      {a.category && <span style={{ color: 'var(--red)', fontWeight: 700 }}>{a.category.name} / </span>}
+                      {t(a)}
+                    </h3>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
 
-      {/* Most read widget */}
-      {mostRead.length > 0 && (
-        <div className="p-widget">
-          <div className="p-wgt-hdr p-wgt-mostread">{lang === 'bn' ? 'সর্বাধিক পঠিত' : 'Most Read'}</div>
-          <div className="p-wgt-body">
-            {mostRead.slice(0, 8).map((a, i) => (
-              <div key={a.id} className="p-tr-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-                <span className={`p-tr-n${i === 0 ? ' hot' : ''}`}>{lang === 'bn' ? toBengaliNum(i + 1) : i + 1}</span>
-                <div className="p-tr-body">
-                  <span className="p-tr-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</span>
-                </div>
-                {a.featured_image && <Img src={a.featured_image} alt={a.title} h={52} w={72} />}
-              </div>
-            ))}
+      {/* ── MIDDLE: main article + 4 list rows ── */}
+      <div className="hp-h3-mid">
+        {midMain && (
+          <div className="hp-h3-main" onClick={() => go(midMain, nav)} role="button" tabIndex={0}>
+            <div className="hp-h3-main-img">
+              {midMain.featured_image
+                ? <img src={midMain.featured_image} alt={t(midMain)} loading="lazy" />
+                : <div className="ph" style={{ width: '100%', height: '100%' }} />}
+            </div>
+            <div className="hp-h3-main-body">
+              <CatTag cat={midMain.category} />
+              <h2 className="hp-h3-main-h">{t(midMain)}</h2>
+            </div>
           </div>
+        )}
+        <div>
+          {midList.slice(0, 5).map(a => (
+            <div key={a.id} className="hp-h3-row" onClick={() => go(a, nav)} role="button" tabIndex={0}>
+              {a.featured_image && (
+                <div className="hp-h3-row-thumb">
+                  <img src={a.featured_image} alt={t(a)} loading="lazy" />
+                </div>
+              )}
+              <h4 className="hp-h3-row-h">{t(a)}</h4>
+            </div>
+          ))}
         </div>
+      </div>
+
+      {/* ── RIGHT: Video Story (top) + Photo Story (bottom) — two carousels ── */}
+      <div className="hp-h3-right">
+        <StoryCarousel
+          label={lang === 'bn' ? 'ভিডিও স্টোরি' : 'Video Story'}
+          items={videoStories}
+          isVideo={true}
+          onClickItem={(_, idx) => setActiveStory(stories.indexOf(videoStories[idx]))}
+          scrollRef={videoScrollRef}
+        />
+        <StoryCarousel
+          label={lang === 'bn' ? 'ফটো স্টোরি' : 'Photo Story'}
+          items={photoStories}
+          isVideo={false}
+          onClickItem={(_, idx) => setActiveStory(stories.indexOf(photoStories[idx]))}
+          scrollRef={photoScrollRef}
+        />
+      </div>
+
+      {activeStory !== null && (
+        <StoryViewer
+          stories={stories}
+          initialIndex={activeStory}
+          onClose={() => setActiveStory(null)}
+        />
       )}
     </div>
   );
@@ -615,12 +624,11 @@ export default function Home({
   const { lang }       = useApp();
   const { onNavigate } = useNavigation();
 
-  // Data distribution matching Prothom Alo layout
-  const hero        = leadArticles[0];
-  const mini3       = leadArticles.slice(1, 4);
-  const centerRows  = leadArticles.slice(4, 10);
-  const rightItems  = leadArticles.slice(8, 10);
-  const leftItems   = breakingNews.length > 0 ? breakingNews : leadArticles.slice(2);
+  // Data distribution — top.html hero layout
+  const heroFeat    = leadArticles[0];
+  const heroGrid6   = leadArticles.slice(1, 7);
+  const midMain     = leadArticles[7];
+  const midList     = leadArticles.slice(8, 13);
   const tabFeat     = mostRead[0] || leadArticles[0];
 
   const videoSec    = sections.find(s => s.type === 'videos');
@@ -628,42 +636,29 @@ export default function Home({
   const catSecs     = sections.filter(s => s.type === 'category' && s.items?.length > 0);
   const stripItems  = catSecs.map(s => ({ id: s.id, slug: s.slug, name: s.title }));
 
+  const heroStories   = storiesSec?.items ?? [];
+
   return (
     <div className="p-page">
       <Head title={lang === 'bn' ? 'নব দিগন্ত | বিশ্বস্ত সংবাদের উৎস' : 'Nobo Digonto | Trusted News'} />
 
       <div className="p-ad-top"><AdSlot size="leaderboard" position="home_top" /></div>
 
-      {/* ══ TOP 3-COLUMN BLOCK ══════════════════════════════════════════════ */}
+      {/* ══ TOP 3-COLUMN BLOCK (top.html design) ═══════════════════════════ */}
       <div className="p-top-wrap">
-      <div className="p-top3">
-        <div className="p-col-left">
-          <LatestStrip items={leftItems} lang={lang} nav={onNavigate} />
-        </div>
-        <div className="p-col-center">
-          <CenterBlock hero={hero} mini3={mini3} rows={centerRows} lang={lang} nav={onNavigate} />
-        </div>
-        <div className="p-col-right">
-          <RightBlock items={rightItems} opinions={opinions} mostRead={mostRead} lang={lang} nav={onNavigate} />
-        </div>
-      </div>
-
-      </div>{/* /p-top-wrap */}
-
-      {/* ══ CATEGORY SCROLL STRIP ═══════════════════════════════════════════ */}
-      <div className="p-top-wrap">
-      <CatStrip items={stripItems} lang={lang} nav={onNavigate} />
+        <HeroBlock
+          feat={heroFeat}
+          grid6={heroGrid6}
+          midMain={midMain}
+          midList={midList}
+          stories={heroStories}
+          lang={lang}
+          nav={onNavigate}
+        />
       </div>
 
       {/* ══ BODY ═══════════════════════════════════════════════════════════ */}
       <div className="p-body">
-
-        {/* Stories strip */}
-        {storiesSec && storiesSec.items?.length > 0 && (
-          <div className="my-6">
-            <StoryStrip stories={storiesSec.items} title={storiesSec.title} />
-          </div>
-        )}
 
         {/* Category sections */}
         {catSecs.map((section, idx) => (
