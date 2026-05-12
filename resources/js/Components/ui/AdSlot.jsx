@@ -62,16 +62,16 @@ export default function AdSlot({ size = 'mrec', position, slotId, className = ''
     minHeight: dims.height,
     maxWidth: dims.maxWidth,
     margin: '0 auto',
-    background: internalAd ? 'transparent' : '#f5f5f5',
+    background: 'transparent',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '#bbb',
-    fontSize: 11,
-    letterSpacing: 1,
     position: 'relative',
     overflow: 'hidden',
   };
+
+  // Hide completely when loading done, no ad found, and no Google AdSense slot
+  if (!loading && !internalAd && !slotId) return null;
 
   if (internalAd) {
     if (internalAd.type === 'image') {

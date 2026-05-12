@@ -374,9 +374,10 @@ img{max-width:100%;display:block;}
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    SECTION HEADERS
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:2.5px solid var(--red);padding-bottom:7px;margin-bottom:14px;}
-.sec-ttl{font-family:'Kalpurush','SolaimanLipi',sans-serif;font-size:22px;font-weight:800;color:var(--red);display:flex;align-items:center;gap:8px;}
-.sec-ttl::before{content:'';width:4px;height:22px;background:var(--red);display:inline-block;border-radius:1px;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #ebebeb;padding-bottom:10px;margin-bottom:16px;position:relative;}
+.sec-hdr::after{content:'';position:absolute;bottom:-2px;left:0;width:48px;height:2px;background:var(--red);border-radius:2px;}
+.sec-ttl{font-family:'Kalpurush','SolaimanLipi',sans-serif;font-size:21px;font-weight:900;color:var(--black);display:flex;align-items:center;gap:9px;letter-spacing:-.01em;}
+.sec-ttl::before{content:'';width:4px;height:21px;background:var(--red);display:inline-block;border-radius:2px;flex-shrink:0;}
 .sec-more{font-size:12px;color:var(--blue);border:1px solid var(--blue);padding:3px 9px;border-radius:2px;transition:all .15s;}
 .sec-more:hover{background:var(--blue);color:#fff;}
 
@@ -678,9 +679,10 @@ img{max-width:100%;display:block;}
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    CATEGORY PAGE
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-.cat-banner{background:var(--red);color:#fff;padding:14px 18px;margin-bottom:0;display:flex;align-items:center;gap:10px;}
-.cat-banner h1{font-family:'Kalpurush','SolaimanLipi',sans-serif;font-size:29px;font-weight:800;}
-.cat-banner .cnt{font-size:13px;opacity:.8;margin-left:auto;}
+.cat-banner{padding:16px 0 10px;margin-bottom:4px;display:flex;align-items:center;gap:12px;border-bottom:2.5px solid var(--red);}
+.cat-banner h1{font-family:'Kalpurush','SolaimanLipi',sans-serif;font-size:26px;font-weight:900;color:var(--black);display:flex;align-items:center;gap:8px;}
+.cat-banner h1::before{content:'';display:inline-block;width:5px;height:26px;background:var(--red);border-radius:2px;flex-shrink:0;}
+.cat-banner .cnt{font-size:12px;color:#888;margin-left:auto;border:1px solid #e0e0e0;padding:3px 10px;border-radius:20px;}
 
 /* Subcategory pill strip under category banner */
 .cat-subcats{background:#fff;border-bottom:2px solid var(--border);padding:10px 0;margin-bottom:18px;}
@@ -733,9 +735,10 @@ img{max-width:100%;display:block;}
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    ABOUT
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-.about-hero{background:linear-gradient(135deg,var(--red),var(--dark-red));color:#fff;padding:50px 30px;text-align:center;margin-bottom:24px;}
-.about-hero h1{font-family:'Kalpurush','SolaimanLipi',sans-serif;font-size:38px;font-weight:800;margin-bottom:10px;}
-.about-hero p{font-size:16px;opacity:.9;max-width:600px;margin:0 auto;}
+.about-hero{padding:28px 0 20px;margin-bottom:20px;border-bottom:2.5px solid var(--red);}
+.about-hero h1{font-family:'Kalpurush','SolaimanLipi',sans-serif;font-size:34px;font-weight:900;color:var(--black);margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.about-hero h1::before{content:'';display:inline-block;width:5px;height:34px;background:var(--red);border-radius:2px;flex-shrink:0;}
+.about-hero p{font-size:15px;color:#555;max-width:600px;line-height:1.7;}
 .milestone{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid #eee;align-items:flex-start;}
 .milestone .year{font-family:'Kalpurush','SolaimanLipi',sans-serif;font-size:24px;font-weight:800;color:var(--red);min-width:70px;}
 .milestone p{font-size:15px;color:var(--light-text);line-height:1.7;}
