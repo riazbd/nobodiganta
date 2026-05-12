@@ -212,7 +212,7 @@ img{max-width:100%;display:block;}
    NAV  (sticky category bar)
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 /* ── NAV BAR ──────────────────────────────────────────────── */
-#nav{background:#fff;position:sticky;top:0;z-index:500;border-bottom:1px solid #e8e8e8;border-top:3px solid var(--red);}
+#nav{background:#fff;position:sticky;top:0;z-index:500;border-bottom:1px solid #e8e8e8;}
 .nav-inner{max-width:1220px;margin:0 auto;padding:0 16px;display:flex;align-items:center;position:relative;}
 
 /* Nav items — dark text, red underline indicator on hover/active */
