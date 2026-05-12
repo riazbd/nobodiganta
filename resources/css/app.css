@@ -442,24 +442,71 @@ img{max-width:100%;display:block;}
    BREAKING NEWS
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-/* Bar wrapper */
-.brk-bar{max-width:1200px;margin:0 auto;display:flex;align-items:stretch;background:#fff;overflow:hidden;min-height:52px;}
+/* ── Fixed bottom breaking news ticker ─────────────────── */
+.brk-fixed{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  height:40px;
+  background:#111;
+  display:flex;
+  align-items:stretch;
+  z-index:600;
+  overflow:hidden;
+}
+/* "সিরানাম" red label */
+.brk-label{
+  background:var(--red);
+  color:#fff;
+  font-family:'Kalpurush','SolaimanLipi',sans-serif;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.5px;
+  padding:0 18px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  white-space:nowrap;
+  writing-mode:horizontal-tb;
+  border-right:2px solid rgba(255,255,255,.15);
+}
+/* Scrolling track wrapper */
+.brk-track-wrap{
+  flex:1;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+}
+/* The moving track */
+.brk-track{
+  display:flex;
+  align-items:center;
+  white-space:nowrap;
+  animation:brkScroll 60s linear infinite;
+  will-change:transform;
+}
+.brk-track:hover{animation-play-state:paused;}
+@keyframes brkScroll{
+  0%   { transform:translateX(0); }
+  100% { transform:translateX(-50%); }
+}
+/* Individual item */
+.brk-item{display:inline-flex;align-items:center;gap:0;}
+.brk-link{
+  display:inline;
+  background:none;border:none;
+  color:#e8e8e8;
+  font-family:'Kalpurush','SolaimanLipi',sans-serif;
+  font-size:14px;font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+  padding:0 8px;
+  transition:color .15s;
+  letter-spacing:.01em;
+}
+.brk-link:hover{color:#fff;text-decoration:underline;}
+.brk-dot{color:var(--red);font-size:8px;margin:0 4px;opacity:.8;}
 
-/* Red badge on the left */
-.brk-badge{background:var(--primary);color:#fff;font-size:13px;font-weight:900;letter-spacing:1px;text-transform:uppercase;padding:0 20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;white-space:nowrap;}
-
-/* Headline area */
-.brk-body{flex:1;overflow:hidden;display:flex;align-items:center;padding:0 16px;border-left:1px solid #eee;min-width:0;}
-.brk-text{font-size:16px;font-weight:700;color:#111;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;letter-spacing:-.01em;transition:opacity .18s,transform .18s;}
-.brk-text:hover{color:var(--primary);text-decoration:underline;}
-.brk-visible{opacity:1;transform:translateY(0);}
-.brk-hidden{opacity:0;transform:translateY(5px);}
-
-/* Navigation */
-.brk-nav{display:flex;align-items:center;flex-shrink:0;}
-.brk-btn{background:none;border:none;color:#bbb;font-size:24px;line-height:1;cursor:pointer;padding:0 13px;height:100%;transition:color .15s,background .15s;display:flex;align-items:center;}
-.brk-btn:hover{color:var(--primary);background:#f8f8f8;}
-.brk-count{font-size:12px;color:#bbb;padding:0 2px;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:36px;text-align:center;}
+/* Add bottom padding to page so ticker doesn't overlap content */
+.page-container{padding-bottom:54px;}
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    STOCKS
@@ -920,7 +967,7 @@ img{max-width:100%;display:block;}
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    BACK TO TOP
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-#btt{position:fixed;bottom:22px;left:22px;width:40px;height:40px;background:var(--red);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:20px;display:none;align-items:center;justify-content:center;z-index:500;transition:background .15s;}
+#btt{position:fixed;bottom:50px;left:22px;width:40px;height:40px;background:var(--red);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:20px;display:none;align-items:center;justify-content:center;z-index:500;transition:background .15s;}
 #btt:hover{background:var(--dark-red);}
 #btt.show{display:flex;}
 

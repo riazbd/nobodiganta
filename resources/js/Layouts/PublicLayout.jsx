@@ -32,13 +32,13 @@ export default function PublicLayout({ children }) {
       </a>
       <Header />
       <Navigation />
-      <BreakingTicker lang={lang} />
       <main id="main-content" className="page-container">
         <Suspense fallback={<PageFallback />}>
           {children}
         </Suspense>
       </main>
       <Footer />
+      <BreakingTicker />
       <Toast message={toast.message} visible={toast.visible} />
       <BackToTop />
       <InstallPrompt />

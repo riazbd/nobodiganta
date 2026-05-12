@@ -1,62 +1,46 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 
 export default function BreakingTicker() {
   const { lang, globalBreakingNews = [] } = useApp();
   const { onNavigate } = useNavigation();
-
-  const [idx, setIdx]   = useState(0);
-  const [show, setShow] = useState(true);
-  const [paused, setPaused] = useState(false);
   const total = globalBreakingNews.length;
-
-  const goTo = useCallback((next) => {
-    setShow(false);
-    setTimeout(() => {
-      setIdx((next + total) % total);
-      setShow(true);
-    }, 180);
-  }, [total]);
-
-  useEffect(() => {
-    if (paused || total <= 1) return;
-    const timer = setInterval(() => goTo(idx + 1), 5000);
-    return () => clearInterval(timer);
-  }, [idx, paused, total, goTo]);
 
   if (!total) return null;
 
-  const item = globalBreakingNews[idx];
+  const go = (item) => {
+    if (item?.category_slug && item?.slug)
+      onNavigate('article', { categorySlug: item.category_slug, articleSlug: item.slug });
+  };
+
+  // Duplicate items so the scroll loops seamlessly
+  const items = [...globalBreakingNews, ...globalBreakingNews];
 
   return (
-    <div
-      className="brk-bar"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      <span className="brk-badge">
-        {lang === 'bn' ? 'ব্রেকিং' : 'BREAKING'}
-      </span>
-
-      <div className="brk-body">
-        <a
-          className={`brk-text${show ? ' brk-visible' : ' brk-hidden'}`}
-          onClick={() => item && onNavigate('article', { categorySlug: item.category_slug, articleSlug: item.slug })}
-          role="button"
-          tabIndex={0}
-        >
-          {item?.title}
-        </a>
+    <div className="brk-fixed" role="marquee" aria-label={lang === 'bn' ? 'সর্বশেষ সংবাদ' : 'Breaking news'}>
+      {/* Label */}
+      <div className="brk-label">
+        {lang === 'bn' ? 'সিরানাম' : 'BREAKING'}
       </div>
 
-      {total > 1 && (
-        <div className="brk-nav">
-          <button className="brk-btn" onClick={() => goTo(idx - 1)} aria-label="Previous">‹</button>
-          <span className="brk-count">{idx + 1} / {total}</span>
-          <button className="brk-btn" onClick={() => goTo(idx + 1)} aria-label="Next">›</button>
+      {/* Scrolling track */}
+      <div className="brk-track-wrap">
+        <div className="brk-track">
+          {items.map((item, i) => (
+            <span key={i} className="brk-item">
+              <button
+                className="brk-link"
+                onClick={() => go(item)}
+                tabIndex={0}
+              >
+                {item?.title}
+              </button>
+              <span className="brk-dot" aria-hidden="true">●</span>
+            </span>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }
