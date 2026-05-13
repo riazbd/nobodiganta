@@ -43,10 +43,16 @@ router.on('invalid', (e) => {
     }
 });
 
-// Refresh CSRF token on every Inertia response so it stays current
-router.on('finish', () => {
-    const token = document.querySelector('meta[name="csrf-token"]')?.content;
-    if (token) window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+// Sync CSRF token after every navigation — session()->regenerate() on login
+// changes the token, so we must pull the fresh value from shared props rather
+// than the stale meta tag that was rendered before login.
+router.on('navigate', (event) => {
+    const token = event.detail?.page?.props?.csrf_token;
+    if (token) {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        if (meta) meta.setAttribute('content', token);
+        window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+    }
 });
 
 createInertiaApp({
