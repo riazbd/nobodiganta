@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useCallback, useRef } from 'react';
-import { useForm, router } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { Upload, Image as ImageIcon, Trash2, Grid, List, Search, X, Plus, Copy, ExternalLink, Loader2, FileText, CheckCircle, Image } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -71,29 +71,30 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
     }
   }, [isOpen, fetchMedia]);
 
-  const handleDelete = (id) => {
-    if (confirm(lang === 'bn' ? 'এই মিডিয়া মুছে ফেলতে চান?' : 'Delete this media?')) {
-      router.delete(route('admin.media.destroy', { media: id }), {
-        onSuccess: () => {
-          showToast(lang === 'bn' ? 'মিডিয়া মুছে ফেলা হয়েছে' : 'Media deleted');
-          setSelectedItem(null);
-          fetchMedia(pagination.current_page || 1);
-        },
-        onError: () => showToast(lang === 'bn' ? 'মুছতে সমস্যা হয়েছে' : 'Failed to delete', 'error'),
-      });
+  const handleDelete = async (id) => {
+    if (!confirm(lang === 'bn' ? 'এই মিডিয়া মুছে ফেলতে চান?' : 'Delete this media?')) return;
+    try {
+      await window.axios.delete(route('admin.media.destroy', { media: id }));
+      showToast(lang === 'bn' ? 'মিডিয়া মুছে ফেলা হয়েছে' : 'Media deleted');
+      setSelectedItem(null);
+      fetchMedia(pagination.current_page || 1);
+    } catch {
+      showToast(lang === 'bn' ? 'মুছতে সমস্যা হয়েছে' : 'Failed to delete', 'error');
     }
   };
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
-    router.put(route('admin.media.update', { media: selectedItem.id }), editData, {
-      onSuccess: () => {
-        showToast(lang === 'bn' ? 'মিডিয়া তথ্য আপডেট করা হয়েছে' : 'Media updated successfully');
-        setIsEditing(false);
-        fetchMedia(pagination.current_page || 1);
-      },
-      onError: () => showToast(lang === 'bn' ? 'আপডেট ব্যর্থ হয়েছে' : 'Update failed', 'error'),
-    });
+    try {
+      const res = await window.axios.put(route('admin.media.update', { media: selectedItem.id }), editData);
+      // Merge updated fields into selectedItem so the detail view reflects changes immediately
+      setSelectedItem(prev => ({ ...prev, ...editData, ...(res.data?.media || {}) }));
+      setIsEditing(false);
+      showToast(lang === 'bn' ? 'মিডিয়া তথ্য আপডেট করা হয়েছে' : 'Media updated successfully');
+      fetchMedia(pagination.current_page || 1);
+    } catch {
+      showToast(lang === 'bn' ? 'আপডেট ব্যর্থ হয়েছে' : 'Update failed', 'error');
+    }
   };
 
   const startEditing = (item) => {
@@ -465,8 +466,8 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
 
         {/* Upload Overlay */}
         {showUploadForm && (
-           <div className="absolute inset-0 bg-white/95 z-[20] flex items-center justify-center p-6 animate-in fade-in zoom-in duration-200">
-              <div className="max-w-xl w-full">
+           <div className="absolute inset-0 bg-white/95 z-[20] overflow-y-auto p-6 animate-in fade-in zoom-in duration-200">
+              <div className="max-w-xl w-full mx-auto">
                 <div className="flex items-center justify-between mb-8">
                    <div>
                      <h3 className="text-2xl font-bold text-gray-800 font-['Noto_Sans_Bengali']">{lang === 'bn' ? 'মিডিয়া আপলোড' : 'Upload New Media'}</h3>

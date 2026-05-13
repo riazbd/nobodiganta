@@ -303,6 +303,8 @@ export default function WriteNews() {
           featuredImage: data.url,
           featuredImageAltBn: data.media?.alt_text_bn || prev.featuredImageAltBn,
           featuredImageAltEn: data.media?.alt_text_en || prev.featuredImageAltEn,
+          featuredImageCaptionBn: data.media?.caption_bn || prev.featuredImageCaptionBn,
+          featuredImageCaptionEn: data.media?.caption_en || prev.featuredImageCaptionEn,
         }));
         setMediaFiles([]);
         showToast(lang === 'bn' ? 'ছবি আপলোড সফল হয়েছে' : 'Image uploaded successfully');
@@ -327,6 +329,8 @@ export default function WriteNews() {
         featuredImage: media.url,
         featuredImageAltBn: media.alt_text_bn || '',
         featuredImageAltEn: media.alt_text_en || '',
+        featuredImageCaptionBn: media.caption_bn || '',
+        featuredImageCaptionEn: media.caption_en || '',
       });
       setMediaFiles([]);
     } else {
