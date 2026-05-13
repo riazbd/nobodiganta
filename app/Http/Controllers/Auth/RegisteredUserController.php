@@ -55,6 +55,9 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('admin.dashboard', absolute: false));
+        // Auth::login() regenerates the session, changing the CSRF token.
+        // Force a full browser redirect so the fresh token is rendered into
+        // the meta tag — same reason as the login controller.
+        return Inertia::location(route('admin.dashboard', absolute: false));
     }
 }

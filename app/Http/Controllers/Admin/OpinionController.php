@@ -148,7 +148,7 @@ class OpinionController extends Controller
             'published_at' => ($validated['status'] ?? 'draft') === 'published' ? now() : null,
         ]);
 
-        return redirect()->route('admin.opinions')
+        return redirect()->route('admin.opinions.edit', $article)
             ->with('success', 'Opinion created successfully');
     }
 
