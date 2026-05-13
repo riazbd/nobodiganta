@@ -35,12 +35,10 @@ const publicLayout = (page) => (
     </AppProvider>
 );
 
-// Auto-reload on CSRF token expiry (419) or Inertia page-version mismatch
+// Auto-reload on Inertia page-version mismatch (e.g. after a deploy)
 router.on('invalid', (e) => {
     e.preventDefault();
-    if (confirm('Session expired. Reload the page?')) {
-        window.location.reload();
-    }
+    window.location.reload();
 });
 
 // Sync CSRF token after every navigation — session()->regenerate() on login

@@ -27,7 +27,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
         $request->authenticate();
 
@@ -36,7 +36,10 @@ class AuthenticatedSessionController extends Controller
         // Update last login timestamp
         $request->user()->update(['last_login_at' => now()]);
 
-        return redirect()->intended(route('admin.dashboard', absolute: false));
+        // Force a full browser redirect so the new session's CSRF token is
+        // rendered into the meta tag. A standard redirect() would be followed
+        // by Inertia as an SPA navigation, leaving the old token in the DOM.
+        return Inertia::location(route('admin.dashboard', absolute: false));
     }
 
     /**

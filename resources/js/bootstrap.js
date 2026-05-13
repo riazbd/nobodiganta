@@ -10,14 +10,12 @@ if (csrfToken) {
     window.axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
 }
 
-// Intercept 419 responses and reload so the user gets a fresh CSRF token
+// Intercept 419 responses (CSRF mismatch) and silently reload to get a fresh token
 window.axios.interceptors.response.use(
     response => response,
     error => {
         if (error.response?.status === 419) {
-            if (confirm('Session expired. Reload the page?')) {
-                window.location.reload();
-            }
+            window.location.reload();
         }
         return Promise.reject(error);
     }
