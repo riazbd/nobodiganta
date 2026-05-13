@@ -55,14 +55,27 @@ const TimeTag = ({ dt, lang }) => <span className="p-time">{relativeTime(dt, lan
 
 // ─── HERO 3-COL BLOCK (top.html design) ──────────────────────────────────────
 function StoryCarousel({ label, items, isVideo, onClickItem, scrollRef }) {
-  const scrollRight = () => scrollRef.current?.scrollBy({ left: 160, behavior: 'smooth' });
+  const [canScrollLeft,  setCanScrollLeft]  = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const scrollAmount = () => (scrollRef.current?.offsetWidth ?? 200) * 0.8;
+  const scrollLeft  = () => scrollRef.current?.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
+  const scrollRight = () => scrollRef.current?.scrollBy({ left:  scrollAmount(), behavior: 'smooth' });
+
+  const onScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+
   return (
     <div className="hp-h3-carousel-sec">
       <div className="hp-h3-cs-hdr">
         <span className="hp-h3-cs-ttl">{label}</span>
       </div>
       <div className="hp-h3-stories">
-        <div className="hp-h3-scroll" ref={scrollRef}>
+        <div className="hp-h3-scroll" ref={scrollRef} onScroll={onScroll}>
           {items.length > 0 ? items.slice(0, 8).map((item, idx) => (
             <div
               key={item.id}
@@ -85,8 +98,11 @@ function StoryCarousel({ label, items, isVideo, onClickItem, scrollRef }) {
             </div>
           )}
         </div>
-        {items.length > 2 && (
-          <button className="hp-h3-arr" onClick={scrollRight} aria-label="Scroll right">›</button>
+        {items.length > 1 && canScrollLeft && (
+          <button className="hp-h3-arr hp-h3-arr-left" onClick={scrollLeft} aria-label="Scroll left">‹</button>
+        )}
+        {items.length > 1 && canScrollRight && (
+          <button className="hp-h3-arr hp-h3-arr-right" onClick={scrollRight} aria-label="Scroll right">›</button>
         )}
       </div>
     </div>
