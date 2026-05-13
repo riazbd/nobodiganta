@@ -32,7 +32,7 @@ export default function Footer() {
     { page: 'archive', bn: 'আর্কাইভ',       en: 'Archive'       },
     { page: 'gallery', bn: 'ফটো গ্যালারি',  en: 'Photo Gallery' },
     { page: 'video',   bn: 'ভিডিও',          en: 'Video'         },
-    { page: 'epaper',  bn: 'ই-পেপার',         en: 'E-Paper'       },
+    // { page: 'epaper',  bn: 'ই-পেপার',         en: 'E-Paper'       },
     { page: 'jobs',    bn: 'চাকরি',           en: 'Jobs'          },
   ];
 
