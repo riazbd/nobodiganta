@@ -76,7 +76,7 @@ function StoryCarousel({ label, items, isVideo, onClickItem, scrollRef }) {
                 ? <img src={item.cover_thumbnail || item.cover || item.featured_image} alt={item.title} loading="lazy" />
                 : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#3b82f6,#7c3aed)' }} />}
               <div className="hp-h3-scard-grad" />
-              {isVideo && <div className="hp-h3-scard-play"><Icon name="play" size={14} /></div>}
+              {isVideo && <div className="hp-h3-scard-play"><Icon name="play" size={16} /></div>}
               <div className="hp-h3-scard-title">{item.title}</div>
             </div>
           )) : (
@@ -114,7 +114,7 @@ function HeroBlock({ feat, grid6, midMain, midList, stories, lang, nav }) {
                 : <div className="ph" style={{ width: '100%', height: '100%' }} />}
             </div>
             <div className="hp-h3-feat-body">
-              <CatTag cat={feat.category} />
+              {/* <CatTag cat={feat.category} /> */}
               <h1 className="hp-h3-feat-h">{t(feat)}</h1>
               {feat.excerpt && <p className="hp-h3-feat-p">{feat.excerpt}</p>}
             </div>
@@ -155,7 +155,7 @@ function HeroBlock({ feat, grid6, midMain, midList, stories, lang, nav }) {
                 : <div className="ph" style={{ width: '100%', height: '100%' }} />}
             </div>
             <div className="hp-h3-main-body">
-              <CatTag cat={midMain.category} />
+              {/* <CatTag cat={midMain.category} /> */}
               <h2 className="hp-h3-main-h">{t(midMain)}</h2>
             </div>
           </div>
