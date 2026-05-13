@@ -20,7 +20,9 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
   const [editData, setEditData] = useState({});
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadPreview, setUploadPreview] = useState(null); // { url, name, isVideo }
+  const uploadFileInputRef = useRef(null);
 
   const [uploadData, setUploadData] = useState({
     edition: 'both', 
@@ -132,7 +134,14 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
     const file = e.target.file.files[0];
     if (!file) return;
 
+    // Validate size client-side before sending
+    if (file.size > 100 * 1024 * 1024) {
+      showToast(lang === 'bn' ? 'ফাইলের সাইজ ১০০MB এর বেশি হতে পারবে না' : 'File size must not exceed 100MB', 'error');
+      return;
+    }
+
     setUploading(true);
+    setUploadProgress(0);
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -140,7 +149,12 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
         if (val !== '') formData.append(key, val);
       });
 
-      const res = await window.axios.post('/admin/media', formData);
+      const res = await window.axios.post('/admin/media', formData, {
+        timeout: 0, // no timeout for large video uploads
+        onUploadProgress: (e) => {
+          if (e.total) setUploadProgress(Math.round((e.loaded * 100) / e.total));
+        },
+      });
       const data = res.data;
 
       if (data.success) {
@@ -162,9 +176,14 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
         showToast(errMsg, 'error');
       }
     } catch (err) {
-      showToast(err.message || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed'), 'error');
+      const msg = err.response?.data?.errors?.file?.[0]
+        || err.response?.data?.message
+        || err.message
+        || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed');
+      showToast(msg, 'error');
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -457,8 +476,9 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
 
                 <form onSubmit={handleUpload} className="space-y-4">
                   <div className="relative rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 hover:border-[#263238]/40 transition-all">
-                    <input type="file" name="file" accept="image/*,video/*" onChange={handleFileChange}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required />
+                    {/* When a video is previewing, move the input off-screen so it doesn't block video controls */}
+                    <input ref={uploadFileInputRef} type="file" name="file" accept="image/*,video/*" onChange={handleFileChange}
+                      className={uploadPreview?.isVideo ? 'sr-only' : 'absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10'} required />
                     {uploadPreview ? (
                       <div className="relative">
                         {uploadPreview.isVideo ? (
@@ -469,9 +489,16 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                         <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs px-3 py-1.5 truncate">
                           {uploadPreview.name}
                         </div>
-                        <div className="absolute top-2 right-2 bg-[#263238] text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-20 pointer-events-none">
-                          {lang === 'bn' ? 'পরিবর্তন করতে ক্লিক করুন' : 'Click to change'}
-                        </div>
+                        {uploadPreview.isVideo ? (
+                          <button type="button" onClick={() => uploadFileInputRef.current?.click()}
+                            className="absolute top-2 right-2 bg-[#263238] text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-20 cursor-pointer">
+                            {lang === 'bn' ? 'পরিবর্তন করতে ক্লিক করুন' : 'Click to change'}
+                          </button>
+                        ) : (
+                          <div className="absolute top-2 right-2 bg-[#263238] text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-20 pointer-events-none">
+                            {lang === 'bn' ? 'পরিবর্তন করতে ক্লিক করুন' : 'Click to change'}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="p-10 text-center">
@@ -525,8 +552,22 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                     </div>
                   </div>
 
+                  {uploading && (
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>{lang === 'bn' ? 'আপলোড হচ্ছে...' : 'Uploading...'}</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="h-2 rounded-full bg-[#263238] transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                   <div className="flex gap-4 pt-4">
-                    <button type="button" onClick={closeUploadForm} className="flex-1 py-3 border border-gray-200 rounded-2xl text-sm font-bold text-gray-600 hover:bg-gray-50">Cancel</button>
+                    <button type="button" onClick={closeUploadForm} disabled={uploading} className="flex-1 py-3 border border-gray-200 rounded-2xl text-sm font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50">Cancel</button>
                     <button type="submit" disabled={uploading} className="flex-[2] py-3 bg-[#263238] text-white rounded-2xl text-sm font-bold shadow-lg hover:bg-[#1a2428] disabled:opacity-50 flex items-center justify-center gap-2">
                       {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : (lang === 'bn' ? 'আপলোড শুরু করুন' : 'Start Upload')}
                     </button>
