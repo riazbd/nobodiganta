@@ -129,6 +129,8 @@ export default function WriteNews() {
     featuredImage: '',
     featuredImageAltBn: '',
     featuredImageAltEn: '',
+    featuredImageCaptionBn: '',
+    featuredImageCaptionEn: '',
     metaTitleBn: '',
     metaTitleEn: '',
     metaDescBn: '',
@@ -176,6 +178,8 @@ export default function WriteNews() {
         featuredImage: article.featuredImage || '',
         featuredImageAltBn: article.featuredImageAltBn || '',
         featuredImageAltEn: article.featuredImageAltEn || '',
+        featuredImageCaptionBn: article.featuredImageCaptionBn || '',
+        featuredImageCaptionEn: article.featuredImageCaptionEn || '',
         metaTitleBn: article.metaTitleBn || '',
         metaTitleEn: article.metaTitleEn || '',
         metaDescBn: article.metaDescBn || '',
@@ -764,6 +768,31 @@ export default function WriteNews() {
                 <Search className="w-3 h-3" /> {lang === 'bn' ? 'লাইব্রেরি থেকে নির্বাচন করুন' : 'Choose from Library'}
               </button>
             </div>
+
+            {form.data.featuredImage && (
+              <div className="mt-3 space-y-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-wider">{lang === 'bn' ? 'ক্যাপশন (বাংলা)' : 'Caption (BN)'}</label>
+                  <input
+                    type="text"
+                    value={form.data.featuredImageCaptionBn}
+                    onChange={e => form.setData('featuredImageCaptionBn', e.target.value)}
+                    placeholder={lang === 'bn' ? 'ছবির বিবরণ...' : 'Image caption in Bangla...'}
+                    className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-2.5 py-1.5 text-xs outline-none focus:bg-white focus:border-[#263238] transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-wider">{lang === 'bn' ? 'ক্যাপশন (ইংরেজি)' : 'Caption (EN)'}</label>
+                  <input
+                    type="text"
+                    value={form.data.featuredImageCaptionEn}
+                    onChange={e => form.setData('featuredImageCaptionEn', e.target.value)}
+                    placeholder="Image caption in English..."
+                    className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-2.5 py-1.5 text-xs outline-none focus:bg-white focus:border-[#263238] transition-colors"
+                  />
+                </div>
+              </div>
+            )}
           </SidebarSection>
 
           <SidebarSection title={lang === 'bn' ? 'বিভাগ ও ট্যাগ' : 'Organization'} icon={FolderTree} defaultOpen={true}>

@@ -81,7 +81,7 @@ html[lang="en"] h4,
 html[lang="en"] h5,
 html[lang="en"] h6{font-family:'Playfair Display','Georgia',serif;font-weight:700;letter-spacing:-0.01em;}
 html[lang="en"] .art-body{font-family:'Merriweather','Georgia',serif;font-size:23.4px;line-height:1.9;font-weight:300;}
-html[lang="en"] .art-h1{font-family:'Playfair Display','Georgia',serif;font-weight:900;font-size:45.5px;letter-spacing:-0.02em;line-height:1.3;}
+html[lang="en"] .art-h1{font-family:'Playfair Display','Georgia',serif;font-weight:700;font-size:34px;letter-spacing:-0.02em;line-height:42px; color: var(--black);}
 html[lang="en"] .art-body h2{font-family:'Playfair Display','Georgia',serif;font-weight:700;}
 html[lang="en"] .art-body h3{font-family:'Playfair Display','Georgia',serif;font-weight:700;}
 html[lang="en"] .card h3{font-family:'Playfair Display','Georgia',serif;font-weight:700;}
@@ -795,7 +795,7 @@ img{max-width:100%;display:block;border-radius:5px;}
 .article-layout{display:grid;grid-template-columns:1fr 295px;gap:22px;}
 .article-main{}
 .art-category{color:var(--red);font-size:16.9px;font-weight:700;margin-bottom:8px;display:block;}
-.art-h1{font-family:'SolaimanLipi',sans-serif;font-size:45.5px;font-weight:900;line-height:1.32;color:#0d0d0d;letter-spacing:-0.02em;margin-bottom:12px;}
+.art-h1{font-family:'SolaimanLipi',sans-serif;font-size:34px;font-weight:700;line-height:42px;color:var(--black);letter-spacing:-0.02em;margin-bottom:12px;}
 .art-sub{font-family:'SolaimanLipi',sans-serif;font-size:22.1px;color:#444;line-height:1.6;margin-bottom:14px;border-left:3px solid var(--red);padding-left:12px;}
 .art-meta{display:flex;align-items:center;gap:15px;padding:12px 0;border-top:1px solid #eee;border-bottom:1px solid #eee;margin-bottom:18px;flex-wrap:wrap;}
 .art-meta .author{font-weight:700;font-size:18.2px;color:var(--dark);}
@@ -808,7 +808,7 @@ img{max-width:100%;display:block;border-radius:5px;}
 .share-wa{background:#25d366;}
 .art-img-wrap{margin-bottom:16px;position:relative;}
 .art-img-wrap .ph{width:100%;height:420px;font-size:57.2px;}
-.art-img-cap{font-size:16.9px;color:var(--lighter-text);padding:6px 0;border-bottom:1px solid #f0f0f0;margin-bottom:16px;}
+.art-img-cap{font-size:13px;color:var(--lighter-text);padding:5px 8px;background:#fafafa;border-top:2px solid var(--red);line-height:1.5;}
 .art-body{font-family:'SolaimanLipi',sans-serif;font-size:23.4px;line-height:1.9;color:#2a2a2a;}
 .art-body p{margin-bottom:18px;}
 .art-body h3{font-size:27.3px;font-weight:800;margin:24px 0 10px;color:var(--black);}
@@ -1727,8 +1727,8 @@ html[data-font-size="small"]  body { font-size: 13px; }
 html[data-font-size="normal"] body { font-size: 14px; }
 html[data-font-size="large"]  body { font-size: 16px; }
 html[data-font-size="small"]  .art-body { font-size: 15px; line-height: 1.8; }
-html[data-font-size="normal"] .art-body { font-size: 17px; line-height: 1.85; }
-html[data-font-size="large"]  .art-body { font-size: 20px; line-height: 1.9; }
+html[data-font-size="normal"] .art-body { font-size: 20px; line-height: 1.85;font-weight:500;}
+html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    PAGINATION

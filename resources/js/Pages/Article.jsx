@@ -180,9 +180,9 @@ export default function Article({
 
           {article.article_type === 'video' && article.video_url ? (
             <div className="art-video-wrap" style={{ marginBottom: 20 }}>
-              <VideoPlayer 
-                src={article.video_url} 
-                provider={article.video_provider} 
+              <VideoPlayer
+                src={article.video_url}
+                provider={article.video_provider}
                 title={article.title}
                 poster={article.featured_image}
               />
@@ -191,13 +191,15 @@ export default function Article({
             <div className="art-img-wrap">
               <img
                 src={article.featured_image}
-                alt={article.title}
+                alt={article.featured_image_alt || article.title}
                 style={{ width: '100%', height: 420, objectFit: 'cover', display: 'block' }}
                 loading="eager"
               />
+              {article.featured_image_caption && (
+                <div className="art-img-cap">{article.featured_image_caption}</div>
+              )}
             </div>
           )}
-          <div className="art-img-cap">{article.featured_image_caption}</div>
           <div className="art-body" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
 
           <div style={{ margin: '30px 0' }}>
