@@ -99,9 +99,16 @@ export default function SlideModal({ storyId, slide = null, onClose, onSaved }) 
                         <label className={labelCls}>মিডিয়া (ছবি / ভিডিও) *</label>
                         {mediaPreview ? (
                             <div className="relative rounded-xl overflow-hidden border border-gray-200 mb-2 bg-black">
-                                {isVideo
-                                    ? <div className="w-full h-36 flex items-center justify-center text-white text-4xl">▶</div>
-                                    : <img src={mediaPreview} alt="slide" className="w-full h-36 object-cover" />}
+                                {isVideo ? (
+                                    <div className="w-full h-36 flex flex-col items-center justify-center gap-2 bg-gray-900">
+                                        <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                                            <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6 ml-0.5"><path d="M8 5v14l11-7z"/></svg>
+                                        </div>
+                                        <span className="text-white/50 text-xs font-bold uppercase tracking-wider">Video</span>
+                                    </div>
+                                ) : (
+                                    <img src={mediaPreview} alt="slide" className="w-full h-36 object-cover" />
+                                )}
                                 <button
                                     type="button"
                                     onClick={() => setShowMediaPicker(true)}

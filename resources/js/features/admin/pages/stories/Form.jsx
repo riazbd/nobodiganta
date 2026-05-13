@@ -213,12 +213,16 @@ export default function StoryForm({ story, can }) {
                                 {slides.map((slide, i) => (
                                     <div key={slide.id} className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex items-center gap-3">
                                         <span className="text-gray-400 text-xs font-bold w-5 flex-shrink-0">{i + 1}</span>
-                                        <div className="w-10 h-16 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
-                                            {slide.media_thumbnail || slide.media_url
-                                                ? <img src={slide.media_thumbnail || slide.media_url} alt="" className="w-full h-full object-cover" />
-                                                : <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-                                                    {slide.is_video ? '▶' : '🖼'}
-                                                  </div>}
+                                        <div className="w-10 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
+                                            {slide.is_video ? (
+                                                <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                                                    <svg viewBox="0 0 24 24" fill="white" className="w-4 h-4 ml-0.5 opacity-80"><path d="M8 5v14l11-7z"/></svg>
+                                                </div>
+                                            ) : (slide.media_thumbnail || slide.media_url) ? (
+                                                <img src={slide.media_thumbnail || slide.media_url} alt="" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-gray-300 text-lg">🖼</div>
+                                            )}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-[#1a1d2e] text-xs font-semibold">
