@@ -283,7 +283,7 @@ class ArticleController extends Controller
             return response()->json(['success' => true, 'article' => $article], 201);
         }
 
-        return redirect()->route('admin.news')->with('success', 'Article created successfully');
+        return redirect()->route('admin.news.edit', $article)->with('success', 'Article created successfully');
     }
 
     /**

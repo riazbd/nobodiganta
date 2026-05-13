@@ -35,23 +35,34 @@ const publicLayout = (page) => (
     </AppProvider>
 );
 
-// Auto-reload on Inertia page-version mismatch (e.g. after a deploy)
+// Handle invalid Inertia responses (CSRF mismatch or version mismatch).
+// For 419s: soft-reload so the CSRF token is refreshed WITHOUT unmounting
+// the page component — form state (all typed content) is preserved and the
+// user can simply retry the submit.
+// For anything else (e.g. post-deploy asset version mismatch): hard reload.
 router.on('invalid', (e) => {
     e.preventDefault();
-    window.location.reload();
-});
-
-// Sync CSRF token after every navigation — session()->regenerate() on login
-// changes the token, so we must pull the fresh value from shared props rather
-// than the stale meta tag that was rendered before login.
-router.on('navigate', (event) => {
-    const token = event.detail?.page?.props?.csrf_token;
-    if (token) {
-        const meta = document.querySelector('meta[name="csrf-token"]');
-        if (meta) meta.setAttribute('content', token);
-        window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+    if (e.detail?.response?.status === 419) {
+        router.reload({ preserveState: true });
+    } else {
+        window.location.reload();
     }
 });
+
+// Keep the meta[name="csrf-token"] tag fresh so Inertia's own HTTP client
+// (which reads that tag per-request) always sends the correct X-CSRF-TOKEN.
+// We sync from shared props on BOTH events:
+//   navigate — fires when the visible page changes (link clicks, redirects)
+//   success  — fires for every successful Inertia response, including form
+//              submissions that redirect back to the same page
+const syncCsrf = (page) => {
+    const token = page?.props?.csrf_token;
+    if (!token) return;
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    if (meta) meta.setAttribute('content', token);
+};
+router.on('navigate', (e) => syncCsrf(e.detail?.page));
+router.on('success',  (e) => syncCsrf(e.detail?.page));
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
