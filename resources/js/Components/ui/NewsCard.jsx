@@ -1,6 +1,5 @@
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
-import { relativeTime, formatViews } from '../../lib/formatters';
 import Icon from '../Icon';
 
 /**
@@ -20,10 +19,7 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
 
   const imgSrc = article.featured_image;
   const title  = article.title || '';
-  const catName = article.category?.name || '';
   const excerpt = article.excerpt || '';
-  const timeStr = relativeTime(article.published_at, lang);
-  const viewStr = article.views ? formatViews(article.views, lang) : '';
 
   function Img({ h, style = {} }) {
     return imgSrc
@@ -41,10 +37,8 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
       >
         <Img h={imgH || 70} style={{ width: 100, height: imgH || 70, flexShrink: 0 }} />
         <div>
-          {catName && <span className="tag">{catName}</span>}
           <h4>{title}</h4>
           {excerpt && <p>{excerpt}</p>}
-          <div className="meta"><span>{timeStr}</span></div>
         </div>
       </div>
     );
@@ -63,7 +57,6 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
         </div>
         <div className="sc-text">
           <h4>{title}</h4>
-          <div className="sc-time">{timeStr}</div>
         </div>
       </div>
     );
@@ -91,25 +84,8 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
     >
       <Img h={imgH || 185} />
       <div className="cb">
-        {catName && <span className="tag">{catName}</span>}
         <h3>{title}</h3>
         {excerpt && <p>{excerpt}</p>}
-        <div className="meta" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {article.author?.image ? (
-              <img src={article.author.image} alt={article.author.name} style={{ width: 18, height: 24, borderRadius: '50%', objectFit: 'cover' }} />
-            ) : (
-              <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 'bold' }}>
-                {article.author?.name?.charAt(0)}
-              </div>
-            )}
-            <span style={{ fontSize: 11, fontWeight: 600, color: '#555' }}>{article.author?.name}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span>{timeStr}</span>
-            {viewStr && <span className="views">👁 {viewStr}</span>}
-          </div>
-        </div>
       </div>
     </article>
   );

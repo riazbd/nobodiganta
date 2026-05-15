@@ -47,6 +47,8 @@ Route::get('/video', [NewsController::class, 'video'])->name('video');
 Route::get('/epaper', [NewsController::class, 'epaper'])->name('epaper');
 Route::get('/about', [NewsController::class, 'about'])->name('about');
 Route::get('/contact', [NewsController::class, 'contact'])->name('contact');
+Route::get('/privacy', [NewsController::class, 'privacy'])->name('privacy');
+Route::get('/terms', [NewsController::class, 'terms'])->name('terms');
 Route::get('/archive', [NewsController::class, 'archive'])->name('archive');
 Route::get('/regional', [NewsController::class, 'regional'])->name('regional');
 Route::get('/prayer-times', [NewsController::class, 'prayerTimes'])->name('prayer-times');
@@ -326,6 +328,7 @@ Route::get('/api/trending', [NewsController::class, 'apiTrending'])->name('api.t
 Route::get('/api/opinions', [NewsController::class, 'apiOpinions'])->name('api.opinions');
 Route::get('/api/most-read', [NewsController::class, 'apiMostRead'])->name('api.most-read');
 Route::get('/api/most-commented', [NewsController::class, 'apiMostCommented'])->name('api.most-commented');
+Route::get('/api/latest', [NewsController::class, 'apiLatest'])->name('api.latest');
 Route::get('/api/liveblog/{article}/updates', [NewsController::class, 'apiLiveblogUpdates'])->name('api.liveblog.updates')->whereNumber('article');
 Route::get('/api/regional', [NewsController::class, 'apiRegional'])->name('api.regional');
 Route::get('/api/stocks', [NewsController::class, 'apiStocks'])->name('api.stocks');
@@ -362,6 +365,8 @@ Route::prefix('en')->group(function () {
     Route::get('/epaper', [NewsController::class, 'epaper'])->name('en.epaper');
     Route::get('/about', [NewsController::class, 'about'])->name('en.about');
     Route::get('/contact', [NewsController::class, 'contact'])->name('en.contact');
+    Route::get('/privacy', [NewsController::class, 'privacy'])->name('en.privacy');
+    Route::get('/terms', [NewsController::class, 'terms'])->name('en.terms');
     Route::get('/archive', [NewsController::class, 'archive'])->name('en.archive');
     Route::get('/regional', [NewsController::class, 'regional'])->name('en.regional');
     Route::get('/prayer-times', [NewsController::class, 'prayerTimes'])->name('en.prayer-times');

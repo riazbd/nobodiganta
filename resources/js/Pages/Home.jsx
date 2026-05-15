@@ -150,7 +150,6 @@ function HeroBlock({ feat, grid6, midMain, midList, stories, lang, nav }) {
                         : <div className="ph" style={{ width: '100%', height: '100%' }} />}
                     </div>
                     <h3 className="hp-h3-card-h">
-                      {a.category && <span style={{ color: 'var(--red)', fontWeight: 700 }}>{a.category.name} / </span>}
                       {t(a)}
                     </h3>
                   </div>
@@ -299,11 +298,10 @@ function VideoSection({ items, lang, nav }) {
 function TabbedSection({ mostRead, breakingNews, latest, featured, lang, nav }) {
   const [tab, setTab] = useState(0);
   const tabs = [
-    { bn: 'পড়া',    en: 'Most Read'  },
-    { bn: 'আলোচিত', en: 'Discussed'  },
-    { bn: 'মুখর',   en: 'Trending'   },
+    { bn: 'সর্বাধিক পঠিত', en: 'Most Read'    },
+    { bn: 'জনপ্রিয়',      en: 'Most Popular' },
   ];
-  const leftList  = tab === 0 ? mostRead : tab === 1 ? breakingNews : [...mostRead].reverse();
+  const leftList  = tab === 0 ? mostRead : breakingNews;
   const rightList = latest;
 
   return (
@@ -320,9 +318,7 @@ function TabbedSection({ mostRead, breakingNews, latest, featured, lang, nav }) 
         <div className="p-tab-list">
           {leftList.slice(0, 8).map((a, i) => (
             <div key={a.id} className="p-tab-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-              <span className={`p-tab-n${i === 0 ? ' hot' : ''}`}>{lang === 'bn' ? toBengaliNum(i + 1) : i + 1}</span>
               <div className="p-tab-item-body">
-                <CatTag cat={a.category} />
                 <h5 className="p-tab-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h5>
               </div>
               {a.featured_image && <Img src={a.featured_image} alt={a.title} h={58} w={80} />}
@@ -339,12 +335,7 @@ function TabbedSection({ mostRead, breakingNews, latest, featured, lang, nav }) 
                   <Img src={featured.featured_image} alt={featured.title} isVideo={featured.article_type === 'video'} />
                 </div>
                 <div className="p-tab-main-body">
-                  <CatTag cat={featured.category} />
                   <h3 className="p-tab-main-h">{lang === 'bn' ? featured.title : (featured.title_en || featured.title)}</h3>
-                  <div className="p-meta">
-                    {featured.author?.name && <span>{featured.author.name}</span>}
-                    <TimeTag dt={featured.published_at} lang={lang} />
-                  </div>
                 </div>
               </div>
               <div className="p-tab-mini2">
@@ -354,7 +345,6 @@ function TabbedSection({ mostRead, breakingNews, latest, featured, lang, nav }) 
                       <Img src={a.featured_image} alt={a.title} />
                     </div>
                     <h5 className="p-tab-mini2-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h5>
-                    <TimeTag dt={a.published_at} lang={lang} />
                   </div>
                 ))}
               </div>
@@ -367,9 +357,7 @@ function TabbedSection({ mostRead, breakingNews, latest, featured, lang, nav }) 
           {rightList.slice(0, 6).map(a => (
             <div key={a.id} className="p-tab-right-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
               <div>
-                <CatTag cat={a.category} />
                 <h5 className="p-tab-right-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h5>
-                <TimeTag dt={a.published_at} lang={lang} />
               </div>
               <Img src={a.featured_image} alt={a.title} h={62} w={85} />
             </div>
@@ -446,13 +434,13 @@ function CategorySection({ section, lang, nav }) {
               <Img src={hero.featured_image} alt={t(hero)} />
             </div>
             <div className="cs-hero-body">
-              <CatTag cat={hero.category} />
+              {/* <CatTag cat={hero.category} /> */}
               <h3 className="cs-hero-h">{t(hero)}</h3>
               {hero.excerpt && <p className="cs-hero-p">{hero.excerpt}</p>}
-              <div className="p-meta">
+              {/* <div className="p-meta">
                 {hero.author?.name && <span className="cs-author">{hero.author.name}</span>}
                 <TimeTag dt={hero.published_at} lang={lang} />
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -468,12 +456,12 @@ function CategorySection({ section, lang, nav }) {
                   <Img src={a.featured_image} alt={t(a)} />
                 </div>
                 <div className="cs-mid-body">
-                  <CatTag cat={a.category} />
+                  {/* <CatTag cat={a.category} /> */}
                   <h4 className="cs-mid-h">{t(a)}</h4>
-                  <div className="p-meta">
+                  {/* <div className="p-meta">
                     {a.author?.name && <span>{a.author.name}</span>}
                     <TimeTag dt={a.published_at} lang={lang} />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             ))}
@@ -484,9 +472,9 @@ function CategorySection({ section, lang, nav }) {
             {side.map(a => (
               <div key={a.id} className="cs-side-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
                 <div className="cs-side-body">
-                  <CatTag cat={a.category} />
+                  {/* <CatTag cat={a.category} /> */}
                   <h5 className="cs-side-h">{t(a)}</h5>
-                  <TimeTag dt={a.published_at} lang={lang} />
+                  {/* <TimeTag dt={a.published_at} lang={lang} /> */}
                 </div>
                 <div className="cs-side-img">
                   <Img src={a.featured_image} alt={t(a)} h={62} w={84} />
@@ -507,9 +495,9 @@ function CategorySection({ section, lang, nav }) {
                   </div>
                 )}
                 <div className="cs-strip-body">
-                  <CatTag cat={a.category} />
+                  {/* <CatTag cat={a.category} /> */}
                   <h5 className="cs-strip-h">{t(a)}</h5>
-                  <TimeTag dt={a.published_at} lang={lang} />
+                  {/* <TimeTag dt={a.published_at} lang={lang} /> */}
                 </div>
               </div>
             ))}
@@ -535,12 +523,12 @@ function CategorySection({ section, lang, nav }) {
                 <Img src={a.featured_image} alt={t(a)} />
               </div>
               <div className="cs-grid-body">
-                <CatTag cat={a.category} />
+                {/* <CatTag cat={a.category} /> */}
                 <h4 className="cs-grid-h">{t(a)}</h4>
-                <div className="p-meta">
+                {/* <div className="p-meta">
                   {a.author?.name && <span>{a.author.name}</span>}
                   <TimeTag dt={a.published_at} lang={lang} />
-                </div>
+                </div> */}
               </div>
             </div>
           ))}
@@ -564,13 +552,13 @@ function CategorySection({ section, lang, nav }) {
               <Img src={a.featured_image} alt={t(a)} h={78} w={116} isVideo={layout === 'video_grid'} />
             </div>
             <div className="cs-list-body">
-              <CatTag cat={a.category} />
+              {/* <CatTag cat={a.category} /> */}
               <h4 className="cs-list-h">{t(a)}</h4>
               {a.excerpt && <p className="cs-list-p">{a.excerpt}</p>}
-              <div className="p-meta">
+              {/* <div className="p-meta">
                 {a.author?.name && <span>{a.author.name}</span>}
                 <TimeTag dt={a.published_at} lang={lang} />
-              </div>
+              </div> */}
             </div>
           </div>
         ))}
@@ -673,31 +661,13 @@ export default function Home({
         />
       </div>
 
+      {/* ══ VIDEO (always after hero) ══════════════════════════════════════ */}
+      {videoSec && <div className="p-body"><VideoSection items={videoSec.items} lang={lang} nav={onNavigate} /></div>}
+
       {/* ══ BODY ═══════════════════════════════════════════════════════════ */}
       <div className="p-body">
 
-        {/* Category sections */}
-        {catSecs.map((section, idx) => (
-          <div key={section.id}>
-            <CategorySection section={section} lang={lang} nav={onNavigate} />
-            {idx === 1 && opinions.length > 0 && <OpinionRow opinions={opinions} lang={lang} nav={onNavigate} />}
-            {(idx + 1) % 3 === 0 && (
-              <div className="p-ad-between"><AdSlot size="leaderboard" position="between_sections" /></div>
-            )}
-          </div>
-        ))}
-
-        {catSecs.length <= 1 && opinions.length > 0 && (
-          <OpinionRow opinions={opinions} lang={lang} nav={onNavigate} />
-        )}
-
-        {/* Video carousel */}
-        {videoSec && <VideoSection items={videoSec.items} lang={lang} nav={onNavigate} />}
-
-        {/* Ad strip */}
-        <div className="p-ad-between"><AdSlot size="leaderboard" position="mid_home" /></div>
-
-        {/* Tabbed most-read */}
+        {/* Tabbed most-read / popular */}
         {mostRead.length > 0 && (
           <TabbedSection
             mostRead={mostRead}
@@ -708,6 +678,24 @@ export default function Home({
             nav={onNavigate}
           />
         )}
+
+        {/* Category sections */}
+        {catSecs.map((section, idx) => (
+          <div key={section.id}>
+            <CategorySection section={section} lang={lang} nav={onNavigate} />
+            {/* {idx === 1 && opinions.length > 0 && <OpinionRow opinions={opinions} lang={lang} nav={onNavigate} />} */}
+            {(idx + 1) % 3 === 0 && (
+              <div className="p-ad-between"><AdSlot size="leaderboard" position="between_sections" /></div>
+            )}
+          </div>
+        ))}
+
+        {/* {catSecs.length <= 1 && opinions.length > 0 && (
+          <OpinionRow opinions={opinions} lang={lang} nav={onNavigate} />
+        )} */}
+
+        {/* Ad strip */}
+        <div className="p-ad-between"><AdSlot size="leaderboard" position="mid_home" /></div>
 
         <TagsCloud tags={popularTags} lang={lang} nav={onNavigate} />
 

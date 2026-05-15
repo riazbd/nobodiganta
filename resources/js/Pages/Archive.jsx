@@ -145,10 +145,8 @@ export default function Archive({ year: initialYear, month: initialMonth, day: i
                   alt={item.title}
                 />
                 <div>
-                  <span className="tag">{item.category?.name}</span>
                   <h4>{item.title}</h4>
                   <p>{item.excerpt}</p>
-                  <div className="meta"><span>{item.published_at ? new Date(item.published_at).toLocaleDateString() : ''}</span></div>
                 </div>
               </div>
             ))

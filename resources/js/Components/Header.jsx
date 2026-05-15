@@ -32,24 +32,53 @@ export default function Header() {
   const { auth } = usePage().props;
   const [searchOpen, setSearchOpen] = useState(false);
 
-  const siteName = settings.site_name    || (lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto');
+  const siteName = lang === 'bn'
+    ? (settings.site_name    || 'নব দিগন্ত')
+    : (settings.site_name_en || settings.site_name || 'Nobo Digonto');
   const tagline  = settings.site_tagline || (lang === 'bn' ? 'সঠিক সংবাদ সবার আগে' : 'Trusted News First');
   const logoUrl  = settings.site_logo    || null;
 
-  // Scroll-aware nav hide/show
+  // Scroll-aware header shrink + nav hide/show
   const lastY = useRef(0);
+  const ticking = useRef(false);
   useEffect(() => {
+    const header = document.getElementById('header');
     const nav = document.getElementById('nav');
-    if (!nav) return;
-    const onScroll = () => {
+    if (!nav || !header) return;
+
+    const update = () => {
       const y = window.scrollY;
-      if (y > lastY.current && y > 100) {
-        nav.classList.add('nav-scroll-hidden');
-      } else {
-        nav.classList.remove('nav-scroll-hidden');
+
+      // Shrink header — hysteresis, also drives --header-h via body class
+      if (y > 80) {
+        header.classList.add('header-scrolled');
+        document.body.classList.add('is-scrolled');
+      } else if (y < 20) {
+        header.classList.remove('header-scrolled');
+        document.body.classList.remove('is-scrolled');
       }
-      lastY.current = y;
+
+      // Nav hide/show — asymmetric thresholds prevent flicker:
+      // show easily on any upward intent (-5px), hide only on sustained downward (+15px)
+      const delta = y - lastY.current;
+      if (delta <= -5) {
+        nav.classList.remove('nav-scroll-hidden');
+        lastY.current = y;
+      } else if (delta >= 15 && y > 150) {
+        nav.classList.add('nav-scroll-hidden');
+        lastY.current = y;
+      }
+
+      ticking.current = false;
     };
+
+    const onScroll = () => {
+      if (!ticking.current) {
+        requestAnimationFrame(update);
+        ticking.current = true;
+      }
+    };
+
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);

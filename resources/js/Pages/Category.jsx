@@ -8,7 +8,7 @@ import Pagination from '../Components/ui/Pagination';
 import EmptyState from '../Components/ui/EmptyState';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
-import { relativeTime, toBengaliNum } from '../lib/formatters';
+import { toBengaliNum } from '../lib/formatters';
 
 function ArticleCard({ item, lang, onNavigate, hero = false }) {
   if (!item) return null;
@@ -26,14 +26,8 @@ function ArticleCard({ item, lang, onNavigate, hero = false }) {
           : <div className="ph" style={{ width: '100%', height: '100%' }}>📰</div>}
       </div>
       <div className="cb">
-        <span className="tag">{item.category?.name}</span>
         <h3>{item.title}</h3>
         {item.excerpt && <p>{item.excerpt}</p>}
-        <div className="meta">
-          {item.author?.name && <span style={{ fontWeight: 600 }}>{item.author.name}</span>}
-          <span>{relativeTime(item.published_at, lang)}</span>
-          <span className="views"><Icon name="eye" size={12} /> {lang === 'bn' ? toBengaliNum(String(item.views || 0)) : (item.views || 0)}</span>
-        </div>
       </div>
     </article>
   );
@@ -55,15 +49,7 @@ function ArticleListItem({ item, lang, onNavigate }) {
           : <div className="ph" style={{ width: '100%', height: '100%' }}>📰</div>}
       </div>
       <div>
-        <span className="tag">{item.category?.name}</span>
-        {(item.categories || []).filter(c => !c.is_primary).slice(0, 2).map(c => (
-          <span key={c.id} className="tag" style={{ marginLeft: 4, color: '#666', background: '#f5f5f5' }}>› {c.name}</span>
-        ))}
         <h4>{item.title}</h4>
-        <div className="meta">
-          {item.author?.name && <span style={{ fontWeight: 600 }}>{item.author.name}</span>}
-          <span>{relativeTime(item.published_at, lang)}</span>
-        </div>
       </div>
     </div>
   );

@@ -41,6 +41,19 @@ export async function getMostCommentedArticles(limit = 5, edition = 'bn') {
   return { data: [] };
 }
 
+export async function getLatestArticles(limit = 5, edition = 'bn') {
+  try {
+    const res = await fetch(`/api/latest?limit=${limit}&edition=${edition}`);
+    if (res.ok) {
+      const json = await res.json();
+      return { data: json.data || [] };
+    }
+  } catch (err) {
+    console.error('Error fetching latest articles', err);
+  }
+  return { data: [] };
+}
+
 export async function getLiveblogUpdates(articleId, afterId = null) {
   try {
     const url = `/api/liveblog/${articleId}/updates` + (afterId ? `?after_id=${afterId}` : '');

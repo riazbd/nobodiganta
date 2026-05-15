@@ -75,6 +75,15 @@ export default function Navigation() {
   const closeDrawer = () => setDrawerOpen(false);
   const go = (page, sub) => { closeDrawer(); if (sub) onNavigate(page, sub); else onNavigate(page); };
 
+  const handleEdition = (ed) => {
+    if (ed === lang) return;
+    const path = window.location.pathname;
+    const target = ed === 'en'
+      ? (path === '/' ? '/en' : `/en${path}`)
+      : (path.replace(/^\/en/, '') || '/');
+    window.location.href = target;
+  };
+
   // Desktop hover dropdown
   const [visibleCount, setVisibleCount] = useState(99);
   const calculateVisible = useCallback(() => {
@@ -284,6 +293,21 @@ export default function Navigation() {
               {lang === 'bn' ? item.bn : item.en}
             </button>
           ))}
+
+          {/* Edition toggle */}
+          <div className="drw-divider" />
+          <div className="drw-edition">
+            <button
+              className={`drw-ed-btn${lang === 'bn' ? ' on' : ''}`}
+              onClick={() => handleEdition('bn')}
+              disabled={lang === 'bn'}
+            >বাংলা</button>
+            <button
+              className={`drw-ed-btn${lang === 'en' ? ' on' : ''}`}
+              onClick={() => handleEdition('en')}
+              disabled={lang === 'en'}
+            >English</button>
+          </div>
         </div>
       </div>
     </>

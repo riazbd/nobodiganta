@@ -5,7 +5,7 @@ import EmptyState from '../Components/ui/EmptyState';
 import Icon from '../Components/Icon';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
-import { relativeTime, toBengaliNum } from '../lib/formatters';
+import { toBengaliNum } from '../lib/formatters';
 
 function ArticleCard({ item, lang, onNavigate }) {
   if (!item) return null;
@@ -21,12 +21,8 @@ function ArticleCard({ item, lang, onNavigate }) {
         ? <img src={item.featured_image} alt={item.title} style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block' }} loading="lazy" />
         : <div className="ph" style={{ height: 180 }}>📰</div>}
       <div className="cb">
-        <span className="tag">{item.category?.name}</span>
         <h3>{item.title}</h3>
         {item.excerpt && <p>{item.excerpt}</p>}
-        <div className="meta">
-          <span>{relativeTime(item.published_at, lang)}</span>
-        </div>
       </div>
     </article>
   );

@@ -9,7 +9,7 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useSearch } from '../contexts/SearchContext';
 import { validateSearchQuery } from '../lib/validators';
-import { toBengaliNum, relativeTime } from '../lib/formatters';
+import { toBengaliNum } from '../lib/formatters';
 
 export default function Search({ query: initialQuery, articles }) {
   const { lang } = useApp();
@@ -79,13 +79,8 @@ export default function Search({ query: initialQuery, articles }) {
                   ? <img src={item.featured_image} style={{ width: 120, height: 82, objectFit: 'cover', flexShrink: 0 }} loading="lazy" alt={item.title} />
                   : <div className="ph" style={{ width: 120, height: 82, flexShrink: 0 }}>📰</div>}
                 <div>
-                  <span className="tag">{item.category?.name}</span>
                   <h3>{item.title}</h3>
                   <p>{item.excerpt}</p>
-                  <div className="meta">
-                    <span>{relativeTime(item.published_at, lang)}</span>
-                    <span className="views"><Icon name="eye" size={12} /> {item.views || 0}</span>
-                  </div>
                 </div>
               </div>
             ))

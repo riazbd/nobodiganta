@@ -14,7 +14,7 @@ import { useToast } from '../contexts/ToastContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useReadingProgress } from '../hooks/useReadingProgress';
 import { calculateReadingTime } from '../lib/readingTime';
-import { relativeTime } from '../lib/formatters';
+import { relativeTime, toBengaliNum } from '../lib/formatters';
 
 export default function Article({ 
   article,
@@ -57,7 +57,6 @@ export default function Article({
       <article className="card" onClick={() => onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })} key={item.id} role="button" tabIndex={0}>
         {ni(item, '100%', imgH)}
         <div className="cb">
-          <span className="tag">{item.category?.name}</span>
           <h3>{item.title}</h3>
           <p>{item.excerpt}</p>
         </div>
@@ -71,10 +70,8 @@ export default function Article({
       <div className="li" onClick={() => onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })} key={item.id} role="button" tabIndex={0}>
         {ni(item, '100px', 70)}
         <div>
-          <span className="tag">{item.category?.name}</span>
           <h4>{item.title}</h4>
           <p>{item.excerpt}</p>
-          <div className="meta"><span>{relativeTime(item.published_at, lang)}</span></div>
         </div>
       </div>
     );
@@ -130,46 +127,51 @@ export default function Article({
 
       <div className="article-layout">
         <article className="article-main" ref={articleRef}>
-          <span
-            className="art-category"
-            style={{ cursor: 'pointer' }}
-            onClick={() => onNavigate('cat', article.category?.slug)}
-            role="link"
-            tabIndex={0}
-          >
-            {article.category?.name}
-          </span>
-          {(article.categories || []).filter(c => !c.is_primary).map(c => (
-            <span
-              key={c.id}
-              className="art-category"
-              style={{ cursor: 'pointer', fontSize: 11, color: '#666', marginLeft: 6, opacity: 0.8 }}
-              onClick={() => onNavigate('cat', c.slug)}
-              role="link"
-              tabIndex={0}
-            >
-              {c.name}
-            </span>
-          ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+            {[article.category, ...(article.categories || []).filter(c => !c.is_primary && c.id !== article.category?.id)]
+              .filter(Boolean)
+              .map((c, i) => (
+                <span key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {i > 0 && <span style={{ color: '#bbb', fontSize: 12 }}>»</span>}
+                  <span
+                    className="art-category"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => onNavigate('cat', c.slug)}
+                    role="link"
+                    tabIndex={0}
+                  >
+                    {c.name}
+                  </span>
+                </span>
+              ))
+            }
+          </div>
           <h1 className="art-h1">{article.title}</h1>
           <div className="art-sub">{article.subtitle}</div>
           <div className="art-meta">
-            <span className="author" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span
+              className="author"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: article.author?.slug ? 'pointer' : 'default' }}
+              onClick={() => article.author?.slug && onNavigate('author', article.author.slug)}
+              role={article.author?.slug ? 'link' : undefined}
+              tabIndex={article.author?.slug ? 0 : undefined}
+              onKeyDown={e => e.key === 'Enter' && article.author?.slug && onNavigate('author', article.author.slug)}
+            >
               {article.author?.image ? (
-                <img 
-                  src={article.author.image} 
-                  alt={article.author.name} 
-                  style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} 
+                <img
+                  src={article.author.image}
+                  alt={article.author.name}
+                  style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }}
                 />
               ) : (
-                <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyCenter: 'center', fontSize: 10, fontWeight: 'bold' }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 'bold' }}>
                   {article.author?.name?.charAt(0)}
                 </div>
               )}
               {article.author?.name}
             </span>
             <span className="time"><Icon name="clock" size={14} /> {relativeTime(article.published_at, lang)}</span>
-            <span className="time"><Icon name="eye" size={12} /> {article.views || 0} {t('article.readers', lang)}</span>
+            <span className="time"><Icon name="eye" size={12} /> {lang === 'bn' ? toBengaliNum(String(article.views || 0)) : (article.views || 0)} {t('article.readers', lang)}</span>
             <span style={{ fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 4 }}>
               <Icon name="book" size={14} /> {readingTimeLabel}
             </span>

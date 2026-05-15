@@ -45,7 +45,8 @@ export function NavigationProvider({ children }) {
     } else if (typeof ROUTES[page] === 'string') {
       router.visit(ROUTES[page]);
     } else if (typeof ROUTES[page] === 'function') {
-      router.visit(ROUTES[page](sub));
+      // Static page routes take (edition) only; dynamic routes take (sub, edition)
+      router.visit(sub !== undefined ? ROUTES[page](sub, edition) : ROUTES[page](edition));
     }
   }, [edition]);
 

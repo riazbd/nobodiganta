@@ -13,6 +13,9 @@ export default function Contact() {
 
   const contactEmail = settings.contact_email || 'info@provati.com';
   const contactPhone = settings.contact_phone || '+880 1234 567890';
+  const contactPhone2 = settings.contact_phone_2 || '';
+  const bdAddress = lang === 'bn' ? (settings.office_address_bn || '') : (settings.office_address_en || '');
+  const ukAddress = lang === 'bn' ? (settings.office_address_uk_bn || '') : (settings.office_address_uk_en || '');
   const siteUrl = window.location.origin.replace(/^https?:\/\//, '');
 
   const handleSubmit = (e) => {
@@ -24,16 +27,12 @@ export default function Contact() {
     setForm({ subject: '', name: '', email: '', phone: '', message: '' });
   };
 
-  const contactInfo = lang === 'bn' ? [
-    ['building', 'প্রধান কার্যালয়', '১২৩, মতিঝিল বাণিজ্যিক এলাকা\nঢাকা-১০০০, বাংলাদেশ'],
-    ['phone', 'ফোন', contactPhone],
-    ['mail', 'ইমেইল', contactEmail],
-    ['globe', 'ওয়েবসাইট', siteUrl],
-  ] : [
-    ['building', 'Head Office', '123, Motijheel C/A\nDhaka-1000, Bangladesh'],
-    ['phone', 'Phone', contactPhone],
-    ['mail', 'Email', contactEmail],
-    ['globe', 'Website', siteUrl],
+  const contactInfo = [
+    ['building', lang === 'bn' ? 'বাংলাদেশ অফিস' : 'Bangladesh Office', bdAddress],
+    ...(ukAddress ? [['building', lang === 'bn' ? 'যুক্তরাজ্য অফিস' : 'UK Office', ukAddress]] : []),
+    ['phone', lang === 'bn' ? 'ফোন' : 'Phone', contactPhone + (contactPhone2 ? `\n${contactPhone2}` : '')],
+    ['mail', lang === 'bn' ? 'ইমেইল' : 'Email', contactEmail],
+    ['globe', lang === 'bn' ? 'ওয়েবসাইট' : 'Website', siteUrl],
   ];
 
   const subjectOptions = lang === 'bn' ? [
@@ -87,6 +86,7 @@ export default function Contact() {
             <p style={{ fontSize: '12.5px', color: 'var(--light-text)', lineHeight: 1.7 }}>
               {t('contact.ad_desc', lang)}<br />
               <Icon name="phone" size={14} /> {contactPhone}<br />
+              {contactPhone2 && <><Icon name="phone" size={14} /> {contactPhone2}<br /></>}
               <Icon name="mail" size={14} /> {contactEmail}
             </p>
           </div>

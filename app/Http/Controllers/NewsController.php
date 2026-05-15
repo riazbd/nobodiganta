@@ -880,6 +880,21 @@ class NewsController extends Controller
         return response()->json(['data' => $articles]);
     }
 
+    public function apiLatest(Request $request)
+    {
+        $edition = $this->getEdition($request);
+        $limit = $request->input('limit', 6);
+
+        $articles = Article::published()
+            ->forEdition($edition)
+            ->orderBy('published_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->map(fn($article) => $article->toAPIArray($edition));
+
+        return response()->json(['data' => $articles]);
+    }
+
     /**
      * API: Get opinions
      */
@@ -963,6 +978,16 @@ class NewsController extends Controller
     public function about()
     {
         return Inertia::render('About');
+    }
+
+    public function privacy()
+    {
+        return Inertia::render('Privacy');
+    }
+
+    public function terms()
+    {
+        return Inertia::render('Terms');
     }
 
     public function contact()

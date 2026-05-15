@@ -14,6 +14,8 @@ export const ROUTES = {
     epaper:      (ed = 'bn') => ed === 'en' ? '/en/epaper'       : '/epaper',
     about:       (ed = 'bn') => ed === 'en' ? '/en/about'        : '/about',
     contact:     (ed = 'bn') => ed === 'en' ? '/en/contact'      : '/contact',
+    privacy:     (ed = 'bn') => ed === 'en' ? '/en/privacy'      : '/privacy',
+    terms:       (ed = 'bn') => ed === 'en' ? '/en/terms'        : '/terms',
     archive:     (ed = 'bn') => ed === 'en' ? '/en/archive'      : '/archive',
     search:      (ed = 'bn') => ed === 'en' ? '/en/search'       : '/search',
     regional:    (ed = 'bn') => ed === 'en' ? '/en/regional'     : '/regional',

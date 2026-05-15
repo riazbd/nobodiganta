@@ -1,48 +1,116 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
-import { getMostReadArticles, getMostCommentedArticles } from '../../services/newsService';
-import { toBengaliNum } from '../../lib/formatters';
-import Icon from '../Icon';
+import { getLatestArticles, getMostReadArticles } from '../../services/newsService';
 
 export default function TrendingWidget() {
   const { lang } = useApp();
   const { onNavigate } = useNavigation();
-  const [tab, setTab] = useState('read');
-  const [mostRead, setMostRead] = useState([]);
-  const [mostCommented, setMostCommented] = useState([]);
+  const [tab, setTab] = useState('recent');
+  const [latest, setLatest] = useState([]);
+  const [popular, setPopular] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getMostReadArticles(5), getMostCommentedArticles(5)]).then(([rRes, cRes]) => {
-      setMostRead(rRes.data || []);
-      setMostCommented(cRes.data || []);
+    setLoading(true);
+    Promise.all([getLatestArticles(7, lang), getMostReadArticles(7, lang)]).then(([lRes, pRes]) => {
+      setLatest(lRes.data || []);
+      setPopular(pRes.data || []);
+      setLoading(false);
     });
-  }, []);
+  }, [lang]);
 
-  const items = tab === 'read' ? mostRead : mostCommented;
-  const f = (item, field) => lang === 'en' ? (item[field + 'En'] || item[field] || '') : (item[field] || '');
+  const items = tab === 'recent' ? latest : popular;
+  const go = (item) => onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug });
 
   return (
-    <div className="trending-widget widget-block">
-      <div className="widget-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Icon name="flame" size={16} /> {lang === 'bn' ? 'সর্বাধিক পঠিত' : 'Trending'}
+    <div style={{ background: '#fff', border: '1px solid var(--border)', marginBottom: 20 }}>
+
+      {/* Tabs */}
+      <div style={{ display: 'flex' }}>
+        {[
+          { key: 'recent',  labelBn: 'সর্বশেষ',  labelEn: 'Most Recent'  },
+          { key: 'popular', labelBn: 'জনপ্রিয়', labelEn: 'Most Popular' },
+        ].map(({ key, labelBn, labelEn }) => {
+          const active = tab === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              style={{
+                flex: 1,
+                padding: '10px 0',
+                border: 'none',
+                borderBottom: active ? '3px solid var(--primary)' : '3px solid var(--border)',
+                background: active ? 'var(--primary-light)' : '#f5f5f5',
+                color: active ? 'var(--primary)' : '#888',
+                fontFamily: 'SolaimanLipi, sans-serif',
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all .15s',
+              }}
+            >
+              {lang === 'bn' ? labelBn : labelEn}
+            </button>
+          );
+        })}
       </div>
-      <div className="tabs" style={{ marginBottom: 10 }}>
-        <button className={`tbtn ${tab === 'read' ? 'on' : ''}`} onClick={() => setTab('read')}>
-          {lang === 'bn' ? 'পঠিত' : 'Most Read'}
-        </button>
-        <button className={`tbtn ${tab === 'commented' ? 'on' : ''}`} onClick={() => setTab('commented')}>
-          {lang === 'bn' ? 'মন্তব্যিত' : 'Most Commented'}
-        </button>
+
+      {/* List */}
+      <div>
+        {loading
+          ? Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 12px', borderBottom: '1px solid #f5f5f5' }}>
+                <div style={{ flex: 1, height: 13, background: '#f0f0f0', borderRadius: 2 }} />
+                <div style={{ width: 68, height: 50, background: '#f0f0f0', borderRadius: 2, flexShrink: 0 }} />
+              </div>
+            ))
+          : items.map((item, i) => (
+              <div
+                key={item.id}
+                onClick={() => go(item)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && go(item)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '10px 12px',
+                  borderBottom: i < items.length - 1 ? '1px solid #f5f5f5' : 'none',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--primary-light)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontFamily: 'SolaimanLipi, sans-serif',
+                    fontSize: 15,
+                    fontWeight: 600,
+                    lineHeight: 1.45,
+                    color: '#111',
+                    marginBottom: 4,
+                  }}>
+                    {item.title || ''}
+                  </div>
+                </div>
+
+                {item.featured_image ? (
+                  <img
+                    src={item.featured_image}
+                    alt={item.title || ''}
+                    loading="lazy"
+                    style={{ flexShrink: 0, width: 68, height: 50, objectFit: 'cover', borderRadius: 2 }}
+                  />
+                ) : (
+                  <div style={{ flexShrink: 0, width: 68, height: 50, background: '#f0f0f0', borderRadius: 2 }} />
+                )}
+              </div>
+            ))
+        }
       </div>
-      {items.map((item, i) => (
-        <div key={item.id} className="trending-item" onClick={() => onNavigate('article', item.id)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onNavigate('article', item.id)}>
-          <span className={`trending-num ${i === 0 ? 'hot' : ''}`}>
-            {lang === 'bn' ? toBengaliNum(String(i + 1)) : i + 1}
-          </span>
-          <span className="trending-text">{f(item, 'title')}</span>
-        </div>
-      ))}
     </div>
   );
 }
