@@ -94,7 +94,9 @@ export default function Article({
   const bodyHtml = lang === 'en' ? (article.body_en || article.body) : (article.body_bn || article.body);
   const { label: readingTimeLabel } = calculateReadingTime(bodyHtml, lang);
   const tags = Array.isArray(article.tags) ? article.tags : [];
-  const articleUrl = window.location.href;
+  const articleUrl = article?.category?.slug && article?.slug
+    ? `${window.location.origin}${lang === 'en' ? '/en' : ''}/${article.category.slug}/${article.slug}`
+    : window.location.href;
   const articleId = article?.id;
 
   // ── Share state (lifted to avoid duplicate API calls from 2 ArticleShare instances) ──
