@@ -5,6 +5,55 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        @php
+            // Server-side OG tags for social crawlers (Facebook, Twitter, WhatsApp etc.)
+            // These must be in the raw HTML before JS loads.
+            $edition    = $htmlEdition ?? 'bn';
+            $siteName   = \App\Models\Setting::where('key', $edition === 'en' ? 'site_name_en' : 'site_name')->value('value') ?: 'নবদিগন্ত';
+            $siteDesc   = \App\Models\Setting::where('key', $edition === 'en' ? 'meta_description_en' : 'meta_description')->value('value') ?: '';
+            $ogDefaultImage = \App\Models\Setting::where('key', 'og_default_image')->value('value');
+            $ogTitle    = $siteName;
+            $ogDesc     = $siteDesc;
+            $ogImage    = $ogDefaultImage ? (str_starts_with($ogDefaultImage, 'http') ? $ogDefaultImage : url($ogDefaultImage)) : url('/og-default.jpg');
+            $ogUrl      = url()->current();
+            $ogType     = 'website';
+
+            // Detect article pages by route parameter pattern: /{category}/{slug}
+            $route = request()->route();
+            if ($route) {
+                $catSlug = $route->parameter('categorySlug');
+                $artSlug = $route->parameter('articleSlug') ?? $route->parameter('slug');
+                if ($catSlug && $artSlug) {
+                    $article = \App\Models\Article::with('category')
+                        ->where($edition === 'en' ? 'slug_en' : 'slug_bn', $artSlug)
+                        ->first();
+                    if ($article) {
+                        $ogTitle   = $edition === 'en'
+                            ? ($article->title_en ?: $article->title_bn)
+                            : $article->title_bn;
+                        $ogDesc    = $edition === 'en'
+                            ? ($article->meta_description_en ?: $article->excerpt_en ?: $article->excerpt_bn)
+                            : ($article->meta_description_bn ?: $article->excerpt_bn);
+                        $ogImage   = $article->featured_image ?: $ogImage;
+                        $ogType    = 'article';
+                    }
+                }
+            }
+        @endphp
+
+        <meta property="og:site_name"   content="{{ $siteName }}">
+        <meta property="og:type"        content="{{ $ogType }}">
+        <meta property="og:url"         content="{{ $ogUrl }}">
+        <meta property="og:title"       content="{{ $ogTitle }}">
+        <meta property="og:description" content="{{ $ogDesc }}">
+        <meta property="og:image"       content="{{ $ogImage }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card"        content="summary_large_image">
+        <meta name="twitter:title"       content="{{ $ogTitle }}">
+        <meta name="twitter:description" content="{{ $ogDesc }}">
+        <meta name="twitter:image"       content="{{ $ogImage }}">
+
         <title inertia>{{ config('app.name', 'নবদিগন্ত') }}</title>
 
         {{-- Favicon — dynamic from settings, falls back to /favicon.ico --}}

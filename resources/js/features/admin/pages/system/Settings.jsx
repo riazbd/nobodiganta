@@ -48,7 +48,7 @@ export default function Settings({ settings = {}, groups = [] }) {
         handleChange(key, res.data.url);
         showToast(lang === 'bn' ? 'ছবি আপলোড হয়েছে' : 'Image uploaded');
         applyImageLive(key, res.data.url);
-        router.reload({ only: [] }); // Refresh shared data
+        router.reload(); // Refresh shared data (settings)
       }
     } catch (err) {
       console.error('Upload error:', err);
@@ -68,7 +68,7 @@ export default function Settings({ settings = {}, groups = [] }) {
       handleChange(key, null);
       showToast(lang === 'bn' ? 'ছবি মুছে ফেলা হয়েছে' : 'Image removed');
       applyImageLive(key, null);
-      router.reload({ only: [] });
+      router.reload();
     } catch (err) {
       showToast(lang === 'bn' ? 'ব্যর্থ হয়েছে' : 'Action failed', 'error');
     } finally {
@@ -85,7 +85,7 @@ export default function Settings({ settings = {}, groups = [] }) {
       link.type = url && url.endsWith('.png') ? 'image/png' : 'image/x-icon';
     }
     if (key === 'site_logo') {
-      const logoImg = document.querySelector('.hdr-logo-img');
+      const logoImg = document.querySelector('.bbc-logo-img');
       if (logoImg) {
         logoImg.src = url ? (url + '?t=' + Date.now()) : '';
       }

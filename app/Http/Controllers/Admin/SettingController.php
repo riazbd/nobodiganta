@@ -69,12 +69,16 @@ class SettingController extends Controller
 
         // Delete old file if it was stored locally
         $existing = Setting::where('key', $key)->value('value');
-        if ($existing && str_starts_with($existing, '/storage/')) {
-            Storage::disk('public')->delete(str_replace('/storage/', '', $existing));
+        if ($existing) {
+            $storagePath = preg_replace('#^https?://[^/]+/storage/#', '', $existing);
+            $storagePath = ltrim(str_replace('/storage/', '', $storagePath), '/');
+            if ($storagePath && Storage::disk('public')->exists($storagePath)) {
+                Storage::disk('public')->delete($storagePath);
+            }
         }
 
         $path = $request->file('file')->store("settings", 'public');
-        $url  = asset('storage/' . $path);
+        $url  = '/storage/' . $path;
 
         Setting::where('key', $key)->update(['value' => $url]);
 
@@ -97,8 +101,13 @@ class SettingController extends Controller
         $key      = $request->input('key');
         $existing = Setting::where('key', $key)->value('value');
 
-        if ($existing && str_starts_with($existing, '/storage/')) {
-            Storage::disk('public')->delete(str_replace('/storage/', '', $existing));
+        if ($existing) {
+            // Handle both /storage/... and http(s)://domain/storage/...
+            $storagePath = preg_replace('#^https?://[^/]+/storage/#', '', $existing);
+            $storagePath = ltrim(str_replace('/storage/', '', $storagePath), '/');
+            if ($storagePath && Storage::disk('public')->exists($storagePath)) {
+                Storage::disk('public')->delete($storagePath);
+            }
         }
 
         Setting::where('key', $key)->update(['value' => null]);

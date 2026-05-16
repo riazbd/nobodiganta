@@ -53,6 +53,17 @@ class SettingSeeder extends Seeder
                 'is_public' => true,
             ],
             [
+                'key' => 'og_default_image',
+                'value' => null,
+                'group' => 'seo',
+                'type' => 'image',
+                'label_bn' => 'ডিফল্ট OG ছবি (১২০০×৬৩০ পিক্সেল)',
+                'label_en' => 'Default OG Image (1200×630 px)',
+                'description_bn' => 'ফেসবুক, টুইটার শেয়ারে দেখানো ডিফল্ট ছবি। নির্দিষ্ট ছবি না থাকলে এটি ব্যবহার হবে।',
+                'description_en' => 'Default image shown when sharing on Facebook, Twitter etc. Used when no featured image is available.',
+                'is_public' => true,
+            ],
+            [
                 'key' => 'site_favicon',
                 'value' => null,
                 'group' => 'general',
