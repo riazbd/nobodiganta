@@ -159,6 +159,7 @@ img{max-width:100%;display:block;border-radius:5px;}
 #header.header-scrolled .bbc-bar { padding: 6px 16px; }
 #header.header-scrolled .bbc-block { width: 42px; height: 42px; font-size: 24px; }
 #header.header-scrolled .bbc-tagline { opacity: 0; }
+#header.header-scrolled .bbc-site-name { font-size: 26px; }
 #header.header-scrolled .bbc-logo-img { max-height: 38px; }
 
 /* 3-column BBC bar: [left icons] [centred logo] [right actions] */
@@ -190,7 +191,8 @@ img{max-width:100%;display:block;border-radius:5px;}
 .bbc-logo-img { max-width: 150px; width: auto; height: auto; display: block; object-fit: contain; }
 
 /* BBC-style letter blocks */
-.bbc-wordmark { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.bbc-wordmark { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.bbc-site-name { font-family: 'SolaimanLipi',sans-serif; font-size: 32px; font-weight: 900; color: #111; line-height: 1; letter-spacing: -0.5px; white-space: nowrap; transition: font-size .2s ease-out; }
 .bbc-blocks { display: flex; gap: 2px; }
 .bbc-block {
   width: 50px; height: 50px;
@@ -202,7 +204,7 @@ img{max-width:100%;display:block;border-radius:5px;}
   letter-spacing: 0;
 }
 .bbc-tagline {
-  font-size: 10px; color: #666;
+  font-size: 12px; color: #666;
   letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
 }
 

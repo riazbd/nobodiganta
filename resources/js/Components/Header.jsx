@@ -32,9 +32,12 @@ export default function Header() {
   const { auth } = usePage().props;
   const [searchOpen, setSearchOpen] = useState(false);
 
+  // const siteName = lang === 'bn'
+  //   ? (settings.site_name    || 'নব দিগন্ত')
+  //   : (settings.site_name_en || settings.site_name || 'Nobo Digonto');
   const siteName = lang === 'bn'
-    ? (settings.site_name    || 'নব দিগন্ত')
-    : (settings.site_name_en || settings.site_name || 'Nobo Digonto');
+    ? 'নবদিগন্ত'
+    : 'NOBODIGONTO';
   const tagline  = settings.site_tagline || (lang === 'bn' ? 'সঠিক সংবাদ সবার আগে' : 'Trusted News First');
   const logoUrl  = settings.site_logo    || null;
 
@@ -136,11 +139,7 @@ export default function Header() {
             <img src={logoUrl} alt={siteName} className="bbc-logo-img" />
           ) : (
             <div className="bbc-wordmark">
-              <div className="bbc-blocks">
-                {siteName.split('').slice(0, 3).map((ch, i) => (
-                  <div key={i} className="bbc-block">{ch}</div>
-                ))}
-              </div>
+              <span className="bbc-site-name">{siteName}</span>
               <span className="bbc-tagline">{tagline}</span>
             </div>
           )}
