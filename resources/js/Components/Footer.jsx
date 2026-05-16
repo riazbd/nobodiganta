@@ -108,39 +108,11 @@ export default function Footer() {
       <div className="ftr-bottom-body">
         <div className="ftr-inner ftr-bottom-grid">
 
-          {/* Office / Contact */}
+          {/* Publisher & Editors (left) */}
           <div className="ftr-info-col">
-            <h4 className="ftr-info-hd">{lang === 'bn' ? 'অফিস:' : 'Office:'}</h4>
-            {bdAddress && (
-              <p className="ftr-info-text">
-                <span className="ftr-info-lbl">{lang === 'bn' ? 'বাংলাদেশ:' : 'Bangladesh:'}</span> {bdAddress}
-              </p>
+            {(settings.editor_name_bn || settings.editor_name_en || settings.executive_editor_name_bn || settings.executive_editor_name_en || settings.ceo_name_bn || settings.ceo_name_en || settings.publisher_name_bn || settings.publisher_name_en || settings.reg_number_bn || settings.reg_number_en) && (
+              <h4 className="ftr-info-hd">{lang === 'bn' ? 'প্রকাশক ও সম্পাদক' : 'Publisher & Editors'}</h4>
             )}
-            {ukAddress && (
-              <p className="ftr-info-text">
-                <span className="ftr-info-lbl">{lang === 'bn' ? 'যুক্তরাজ্য:' : 'UK:'}</span> {ukAddress}
-              </p>
-            )}
-            {settings.contact_email && (
-              <p className="ftr-info-text">
-                {lang === 'bn' ? 'ইমেইল:' : 'Email:'} {settings.contact_email}
-              </p>
-            )}
-            {settings.contact_phone && (
-              <p className="ftr-info-text">
-                {lang === 'bn' ? 'ফোন:' : 'Phone:'} {settings.contact_phone}
-              </p>
-            )}
-            {settings.contact_phone_2 && (
-              <p className="ftr-info-text">
-                {lang === 'bn' ? 'বার্তা ও বিজ্ঞাপন:' : 'News & Ads:'} {settings.contact_phone_2}
-              </p>
-            )}
-          </div>
-
-          {/* Editor / Legal */}
-          <div className="ftr-info-col">
-            <h4 className="ftr-info-hd">{lang === 'bn' ? 'সম্পাদক:' : 'Editor:'}</h4>
             {(settings.editor_name_bn || settings.editor_name_en) && (
               <p className="ftr-info-text">
                 <span className="ftr-info-lbl">{lang === 'bn' ? 'সম্পাদক:' : 'Editor:'}</span>{' '}
@@ -173,6 +145,38 @@ export default function Footer() {
             )}
           </div>
 
+          {/* Contact (middle) */}
+          <div className="ftr-info-col">
+            {(bdAddress || ukAddress || settings.contact_email || settings.contact_phone || settings.contact_phone_2) && (
+              <h4 className="ftr-info-hd">{lang === 'bn' ? 'যোগাযোগ' : 'Contact'}</h4>
+            )}
+            {bdAddress && (
+              <p className="ftr-info-text">
+                <span className="ftr-info-lbl">{lang === 'bn' ? 'বাংলাদেশ:' : 'Bangladesh:'}</span> {bdAddress}
+              </p>
+            )}
+            {ukAddress && (
+              <p className="ftr-info-text">
+                <span className="ftr-info-lbl">{lang === 'bn' ? 'যুক্তরাজ্য:' : 'UK:'}</span> {ukAddress}
+              </p>
+            )}
+            {settings.contact_email && (
+              <p className="ftr-info-text">
+                <span className="ftr-info-lbl">{lang === 'bn' ? 'ইমেইল:' : 'Email:'}</span> {settings.contact_email}
+              </p>
+            )}
+            {settings.contact_phone && (
+              <p className="ftr-info-text">
+                <span className="ftr-info-lbl">{lang === 'bn' ? 'ফোন:' : 'Phone:'}</span> {settings.contact_phone}
+              </p>
+            )}
+            {settings.contact_phone_2 && (
+              <p className="ftr-info-text">
+                <span className="ftr-info-lbl">{lang === 'bn' ? 'বার্তা ও বিজ্ঞাপন:' : 'News & Ads:'}</span> {settings.contact_phone_2}
+              </p>
+            )}
+          </div>
+
           {/* Logo + Follow + Socials */}
           <div className="ftr-info-col ftr-logo-col">
             <div className="ftr-logo" onClick={nav('home')} role="link" tabIndex={0} onKeyDown={e => e.key === 'Enter' && onNavigate('home')}>
@@ -188,6 +192,8 @@ export default function Footer() {
               {settings.twitter_url   && <SocialLink href={settings.twitter_url}   label="X/Twitter" icon="twitter"   color="#14171a" />}
               {settings.youtube_url   && <SocialLink href={settings.youtube_url}   label="YouTube"   icon="youtube"   color="#ff0000" />}
               {settings.instagram_url && <SocialLink href={settings.instagram_url} label="Instagram" icon="instagram" color="#e1306c" />}
+              {settings.linkedin_url  && <SocialLink href={settings.linkedin_url}  label="LinkedIn"  icon="linkedin"  color="#0a66c2" />}
+              {settings.tiktok_url    && <SocialLink href={settings.tiktok_url}    label="TikTok"    icon="tiktok"    color="#010101" />}
             </div>
           </div>
 

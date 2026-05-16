@@ -2011,6 +2011,11 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 .hp-h3-left{min-width:0;display:flex;flex-direction:column;border:1px solid #e2e2e2;background:#fff;border-radius:5px;}
 .hp-h3-mid{min-width:0;display:flex;flex-direction:column;border:1px solid #e2e2e2;background:#fff;border-radius:5px;padding:8px;}
 .hp-h3-right{min-width:0;display:flex;flex-direction:column;border:1px solid #e2e2e2;background:#fff;border-radius:5px;padding:8px;}
+.hp-social-follow{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;}
+.hp-social-hd{font-family:'SolaimanLipi',sans-serif;font-size:14px;font-weight:800;color:#333;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;}
+.hp-social-btns{display:flex;flex-wrap:wrap;gap:7px;}
+.hp-social-btn{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;flex-shrink:0;transition:opacity .18s,transform .15s;}
+.hp-social-btn:hover{opacity:.82;transform:translateY(-2px);}
 
 /* Left — top featured */
 .hp-h3-feat{display:flex;cursor:pointer;margin-bottom:12px;padding:8px}
