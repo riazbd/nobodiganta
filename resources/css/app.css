@@ -142,11 +142,20 @@ img{max-width:100%;display:block;border-radius:5px;}
    HEADER  — BBC-style compact single bar
 ══════════════════════════════════════════════════════ */
 :root { --header-h: 72px; }
-#header { background: #fff; border-bottom: 1px solid #e8e8e8; position: sticky; top: 0; z-index: 510; }
-.bbc-bar { transition: padding .3s ease; }
-.bbc-block { transition: width .3s ease, height .3s ease, font-size .3s ease; }
-.bbc-tagline { transition: opacity .25s ease; }
-.bbc-logo-img { transition: max-height .3s ease; }
+#header {
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  position: sticky;
+  top: 0;
+  z-index: 510;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+.bbc-bar { transition: padding .2s ease-out; will-change: padding; }
+.bbc-block { transition: width .2s ease-out, height .2s ease-out, font-size .2s ease-out; will-change: width, height; }
+.bbc-tagline { transition: opacity .15s ease-out; }
+.bbc-logo-img { transition: max-height .2s ease-out; }
 #header.header-scrolled .bbc-bar { padding: 6px 16px; }
 #header.header-scrolled .bbc-block { width: 42px; height: 42px; font-size: 24px; }
 #header.header-scrolled .bbc-tagline { opacity: 0; }
@@ -272,7 +281,7 @@ body.is-scrolled { --header-h: 52px; }
 }
 
 /* ── NAV BAR ──────────────────────────────────────────────── */
-#nav{background:#fff;position:sticky;top:var(--header-h);z-index:500;border-bottom:1px solid #e8e8e8;max-height:80px;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1),opacity .25s ease,top .3s ease;}
+#nav{background:#fff;position:sticky;top:var(--header-h);z-index:500;border-bottom:1px solid #e8e8e8;max-height:80px;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1),opacity .25s ease,top .2s ease-out;will-change:max-height;}
 #nav:hover,#nav:focus-within{overflow:visible;}
 #nav.nav-scroll-hidden{max-height:0;opacity:0;pointer-events:none;border-bottom-color:transparent;overflow:hidden;}
 .nav-inner{max-width:1220px;margin:0 auto;padding:0 16px;display:flex;align-items:center;justify-content:center;position:relative;}

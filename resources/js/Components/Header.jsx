@@ -46,26 +46,34 @@ export default function Header() {
     const nav = document.getElementById('nav');
     if (!nav || !header) return;
 
+    let isShrunk = false;
+    let isHidden = false;
+
     const update = () => {
       const y = window.scrollY;
 
-      // Shrink header — hysteresis, also drives --header-h via body class
-      if (y > 80) {
+      // Shrink header — wider hysteresis, only write when state actually changes
+      if (!isShrunk && y > 100) {
         header.classList.add('header-scrolled');
         document.body.classList.add('is-scrolled');
-      } else if (y < 20) {
+        isShrunk = true;
+      } else if (isShrunk && y < 15) {
         header.classList.remove('header-scrolled');
         document.body.classList.remove('is-scrolled');
+        isShrunk = false;
       }
 
-      // Nav hide/show — asymmetric thresholds prevent flicker:
-      // show easily on any upward intent (-5px), hide only on sustained downward (+15px)
+      // Nav hide/show — asymmetric thresholds, idempotent writes
       const delta = y - lastY.current;
-      if (delta <= -5) {
+      if (delta <= -5 && isHidden) {
         nav.classList.remove('nav-scroll-hidden');
+        isHidden = false;
         lastY.current = y;
-      } else if (delta >= 15 && y > 150) {
+      } else if (delta >= 15 && y > 150 && !isHidden) {
         nav.classList.add('nav-scroll-hidden');
+        isHidden = true;
+        lastY.current = y;
+      } else if (Math.abs(delta) >= 5) {
         lastY.current = y;
       }
 
