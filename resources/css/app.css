@@ -160,7 +160,6 @@ img{max-width:100%;display:block;border-radius:5px;}
 #header.header-scrolled .bbc-block { width: 42px; height: 42px; font-size: 24px; }
 #header.header-scrolled .bbc-tagline { opacity: 0; }
 #header.header-scrolled .bbc-logo-img { max-height: 38px; }
-body.is-scrolled { --header-h: 52px; }
 
 /* 3-column BBC bar: [left icons] [centred logo] [right actions] */
 .bbc-bar {
@@ -281,7 +280,7 @@ body.is-scrolled { --header-h: 52px; }
 }
 
 /* ── NAV BAR ──────────────────────────────────────────────── */
-#nav{background:#fff;position:sticky;top:var(--header-h);z-index:500;border-bottom:1px solid #e8e8e8;max-height:80px;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1),opacity .25s ease,top .2s ease-out;will-change:max-height;}
+#nav{background:#fff;position:sticky;top:var(--header-h);z-index:500;border-bottom:1px solid #e8e8e8;max-height:80px;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1),opacity .25s ease;will-change:max-height;transform:translateZ(0);}
 #nav:hover,#nav:focus-within{overflow:visible;}
 #nav.nav-scroll-hidden{max-height:0;opacity:0;pointer-events:none;border-bottom-color:transparent;overflow:hidden;}
 .nav-inner{max-width:1220px;margin:0 auto;padding:0 16px;display:flex;align-items:center;justify-content:center;position:relative;}

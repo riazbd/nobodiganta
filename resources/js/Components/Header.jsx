@@ -46,6 +46,14 @@ export default function Header() {
     const nav = document.getElementById('nav');
     if (!nav || !header) return;
 
+    // Keep --header-h synced to header's real height during its transition
+    // so the sticky nav follows smoothly. ResizeObserver fires off the main thread.
+    const ro = new ResizeObserver(entries => {
+      const h = entries[0]?.contentRect.height;
+      if (h) document.documentElement.style.setProperty('--header-h', h + 'px');
+    });
+    ro.observe(header);
+
     let isShrunk = false;
     let isHidden = false;
 
@@ -55,11 +63,9 @@ export default function Header() {
       // Shrink header — wider hysteresis, only write when state actually changes
       if (!isShrunk && y > 100) {
         header.classList.add('header-scrolled');
-        document.body.classList.add('is-scrolled');
         isShrunk = true;
       } else if (isShrunk && y < 15) {
         header.classList.remove('header-scrolled');
-        document.body.classList.remove('is-scrolled');
         isShrunk = false;
       }
 
@@ -88,7 +94,10 @@ export default function Header() {
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      ro.disconnect();
+    };
   }, []);
 
   const handleEdition = (ed) => {
