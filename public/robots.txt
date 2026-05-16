@@ -34,4 +34,4 @@ Disallow: /
 User-agent: CCBot
 Disallow: /
 
-Sitemap: https://nobodiganta.com/sitemap.xml
+Sitemap: https://nobodigonto.com/sitemap.xml
