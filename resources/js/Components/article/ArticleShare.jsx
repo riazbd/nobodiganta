@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useToast } from '../../contexts/ToastContext';
 import { copyToClipboard } from '../../lib/sharing';
@@ -33,18 +33,6 @@ function fmtCount(n, lang) {
   return lang === 'bn' ? toBengaliNum(String(n)) : String(n);
 }
 
-async function postShare(articleId, platform) {
-  try {
-    const res = await fetch(`/api/articles/${articleId}/share`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-      body: JSON.stringify({ platform }),
-    });
-    if (res.ok) return await res.json();
-  } catch {}
-  return null;
-}
-
 function openShare(url, title, platform) {
   const enc  = encodeURIComponent(url);
   const txt  = encodeURIComponent(title);
@@ -61,51 +49,19 @@ function openShare(url, title, platform) {
   if (urls[platform]) pop(urls[platform]);
 }
 
-export default function ArticleShare({ url, title, articleId }) {
+export default function ArticleShare({ url, title, total, platforms = {}, sharing, onShare }) {
   const { lang } = useApp();
   const { showToast } = useToast();
 
   const shareUrl = url || window.location.href;
   const hasNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
 
-  const [total,     setTotal]     = useState(0);
-  const [platforms, setPlatforms] = useState({});
-  const [copied,    setCopied]    = useState(false);
-  const [sharing,   setSharing]   = useState(null); // platform key being shared
+  const [copied, setCopied] = useState(false);
 
-  // Load share counts on mount
-  useEffect(() => {
-    if (!articleId) return;
-    fetch(`/api/articles/${articleId}/shares`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data) {
-          setTotal(data.total || 0);
-          setPlatforms(data.platforms || {});
-        }
-      })
-      .catch(() => {});
-  }, [articleId]);
-
-  const handleShare = useCallback(async (platform) => {
-    if (sharing) return;
-    setSharing(platform);
-
-    // Optimistic update
-    setTotal(t => t + 1);
-    setPlatforms(p => ({ ...p, [platform]: (p[platform] || 0) + 1 }));
-
-    // Open share window
+  const handleShare = useCallback((platform) => {
     openShare(shareUrl, title, platform);
-
-    // Record in backend
-    const result = await postShare(articleId, platform);
-    if (result?.shares_count !== undefined) {
-      setTotal(result.shares_count);
-    }
-
-    setSharing(null);
-  }, [sharing, shareUrl, title, articleId]);
+    onShare?.(platform);
+  }, [shareUrl, title, onShare]);
 
   const handleCopy = useCallback(async () => {
     const ok = await copyToClipboard(shareUrl);
@@ -113,21 +69,18 @@ export default function ArticleShare({ url, title, articleId }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
       showToast(lang === 'bn' ? 'লিঙ্ক কপি হয়েছে!' : 'Link copied!');
-      // Record copy share
-      setTotal(t => t + 1);
-      await postShare(articleId, 'copy');
+      onShare?.('copy');
     } else {
       showToast(lang === 'bn' ? 'কপি করা যায়নি' : 'Copy failed');
     }
-  }, [shareUrl, articleId, lang, showToast]);
+  }, [shareUrl, lang, showToast, onShare]);
 
   const handleNative = useCallback(async () => {
     try {
       await navigator.share({ title, url: shareUrl });
-      setTotal(t => t + 1);
-      await postShare(articleId, 'native');
+      onShare?.('native');
     } catch {}
-  }, [title, shareUrl, articleId]);
+  }, [title, shareUrl, onShare]);
 
   return (
     <div className="art-share-wrap">

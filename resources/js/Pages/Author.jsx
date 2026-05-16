@@ -6,6 +6,8 @@ import Icon from '../Components/Icon';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { toBengaliNum } from '../lib/formatters';
+import MetaTags from '../Components/seo/MetaTags';
+import { buildAuthorSeo } from '../lib/seo';
 
 function ArticleCard({ item, lang, onNavigate }) {
   if (!item) return null;
@@ -37,10 +39,17 @@ export default function Author({ author, articles }) {
   const bio = author?.bio || '';
   const count = articles?.total || 0;
   const data = articles?.data || [];
+  const currentPage = articles?.current_page || 1;
+  const seoData = buildAuthorSeo(author, lang);
 
   return (
     <>
-      <Head title={`${name} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
+      <MetaTags seo={seoData} />
+      {currentPage > 1 && (
+        <Head>
+          <meta name="robots" content="noindex,follow" />
+        </Head>
+      )}
 
       <div>
         {/* Author profile header */}

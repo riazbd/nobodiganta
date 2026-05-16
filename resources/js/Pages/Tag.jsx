@@ -5,6 +5,8 @@ import PageSidebar from '../Components/PageSidebar';
 import Pagination from '../Components/ui/Pagination';
 import EmptyState from '../Components/ui/EmptyState';
 import NewsCard from '../Components/ui/NewsCard';
+import MetaTags from '../Components/seo/MetaTags';
+import { buildTagSeo } from '../lib/seo';
 
 export default function Tag({ tag, articles }) {
   const { lang } = useApp();
@@ -12,10 +14,17 @@ export default function Tag({ tag, articles }) {
 
   const tagName = tag?.name || '';
   const results = articles?.data || [];
+  const currentPage = articles?.current_page || 1;
+  const seoData = buildTagSeo(tagName, lang);
 
   return (
     <>
-      <Head title={`#${tagName} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
+      <MetaTags seo={seoData} />
+      {currentPage > 1 && (
+        <Head>
+          <meta name="robots" content="noindex,follow" />
+        </Head>
+      )}
       <div className="article-layout">
         <div className="article-main">
           <div className="sec-hdr" style={{ marginBottom: 20 }}>

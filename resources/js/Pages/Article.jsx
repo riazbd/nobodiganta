@@ -1,10 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Head } from '@inertiajs/react';
 import { t } from '../translations';
 import Icon from '../Components/Icon';
 import PageSidebar from '../Components/PageSidebar';
 import AdSlot from '../Components/ui/AdSlot';
 import ArticleShare from '../Components/article/ArticleShare';
+import MetaTags from '../Components/seo/MetaTags';
+import { NewsArticleJsonLd } from '../Components/seo/JsonLd';
+import { buildArticleSeo } from '../lib/seo';
 import ArticleComments from '../Components/article/ArticleComments';
 import AuthorBio from '../Components/article/AuthorBio';
 import VideoPlayer from '../Components/media/VideoPlayer';
@@ -92,19 +95,65 @@ export default function Article({
   const { label: readingTimeLabel } = calculateReadingTime(bodyHtml, lang);
   const tags = Array.isArray(article.tags) ? article.tags : [];
   const articleUrl = window.location.href;
+  const articleId = article?.id;
+
+  // ── Share state (lifted to avoid duplicate API calls from 2 ArticleShare instances) ──
+  const [shareTotal, setShareTotal] = useState(0);
+  const [sharePlatforms, setSharePlatforms] = useState({});
+  const [shareSharing, setShareSharing] = useState(null);
+
+  useEffect(() => {
+    if (!articleId) return;
+    fetch(`/api/articles/${articleId}/shares`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          setShareTotal(data.total || 0);
+          setSharePlatforms(data.platforms || {});
+        }
+      })
+      .catch(e => console.error('Share fetch error:', e));
+  }, [articleId]);
+
+  const handleShare = useCallback(async (platform) => {
+    if (shareSharing || !articleId) return;
+    setShareSharing(platform);
+    setShareTotal(t => t + 1);
+    setSharePlatforms(p => ({ ...p, [platform]: (p[platform] || 0) + 1 }));
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    try {
+      const res = await fetch(`/api/articles/${articleId}/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-TOKEN': csrfToken || '',
+        },
+        body: JSON.stringify({ platform }),
+      });
+      if (res.ok) {
+        const result = await res.json();
+        if (result?.shares_count !== undefined) setShareTotal(result.shares_count);
+      } else {
+        console.error('Share API error:', res.status, await res.text().catch(() => ''));
+      }
+    } catch (e) {
+      console.error('Share API network error:', e);
+    }
+
+    setShareSharing(null);
+  }, [shareSharing, articleId]);
+
+  const shareProps = { total: shareTotal, platforms: sharePlatforms, sharing: shareSharing, onShare: handleShare };
+
+  const seoData = buildArticleSeo(article, lang);
 
   return (
     <>
-      <Head>
-        <title>{`${article.title} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`}</title>
-        <meta name="description" content={article.meta_description} />
-        <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.meta_description} />
-        {article.featured_image && <meta property="og:image" content={article.featured_image} />}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={article.title} />
-        <meta name="twitter:description" content={article.meta_description} />
-      </Head>
+      <MetaTags seo={seoData} />
+      <NewsArticleJsonLd article={article} edition={lang} />
 
       {/* Reading progress bar */}
       <div
@@ -178,7 +227,7 @@ export default function Article({
           </div>
 
           {/* Share buttons */}
-          <ArticleShare url={articleUrl} title={article.title} articleId={article.id} />
+          <ArticleShare url={articleUrl} title={article.title} {...shareProps} />
 
           {article.article_type === 'video' && article.video_url ? (
             <div className="art-video-wrap" style={{ marginBottom: 20 }}>
@@ -194,7 +243,7 @@ export default function Article({
               <img
                 src={article.featured_image}
                 alt={article.featured_image_alt || article.title}
-                style={{ width: '100%', height: 420, objectFit: 'cover', display: 'block' }}
+                style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block', maxHeight: 420 }}
                 loading="eager"
               />
               {article.featured_image_caption && (
@@ -231,7 +280,7 @@ export default function Article({
           )}
 
           {/* Bottom share row */}
-          <ArticleShare url={articleUrl} title={article.title} articleId={article.id} />
+          <ArticleShare url={articleUrl} title={article.title} {...shareProps} />
 
           {/* Related articles */}
           {relatedArticles.length > 0 && (

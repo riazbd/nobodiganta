@@ -10,6 +10,8 @@ import { useNavigation } from '../contexts/NavigationContext';
 import { useSearch } from '../contexts/SearchContext';
 import { validateSearchQuery } from '../lib/validators';
 import { toBengaliNum } from '../lib/formatters';
+import MetaTags from '../Components/seo/MetaTags';
+import { buildSearchSeo } from '../lib/seo';
 
 export default function Search({ query: initialQuery, articles }) {
   const { lang } = useApp();
@@ -34,9 +36,14 @@ export default function Search({ query: initialQuery, articles }) {
         : `"${initialQuery}" — ${articles?.total || 0} result${articles?.total !== 1 ? 's' : ''}`)
     : '';
 
+  const seoData = initialQuery ? buildSearchSeo(initialQuery, lang) : null;
+
   return (
     <>
-      <Head title={`${lang === 'bn' ? 'অনুসন্ধান' : 'Search'}: ${initialQuery} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
+      {seoData && <MetaTags seo={seoData} />}
+      <Head>
+        <meta name="robots" content="noindex,follow" />
+      </Head>
       <div className="article-layout">
         <div>
           <div className="srch-bar">

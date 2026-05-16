@@ -7,6 +7,9 @@ import { relativeTime, toBengaliNum } from '../lib/formatters';
 import Icon from '../Components/Icon';
 import StoryStrip from '@/Components/StoryStrip';
 import StoryViewer from '../Components/StoryViewer';
+import MetaTags from '../Components/seo/MetaTags';
+import { OrganizationJsonLd, WebSiteJsonLd } from '../Components/seo/JsonLd';
+import { buildDefaultSeo } from '../lib/seo';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -642,9 +645,13 @@ export default function Home({
 
   const heroStories   = storiesSec?.items ?? [];
 
+  const seoData = buildDefaultSeo(lang);
+
   return (
     <div className="p-page">
-      <Head title={lang === 'bn' ? 'নব দিগন্ত | বিশ্বস্ত সংবাদের উৎস' : 'Nobo Digonto | Trusted News'} />
+      <MetaTags seo={seoData} />
+      <OrganizationJsonLd />
+      <WebSiteJsonLd />
 
       <div className="p-ad-top"><AdSlot size="leaderboard" position="home_top" /></div>
 

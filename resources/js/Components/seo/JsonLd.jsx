@@ -57,8 +57,8 @@ export function NewsArticleJsonLd({ article, edition = 'bn' }) {
     description: description || title,
     image: images,
     thumbnailUrl: images[0],
-    datePublished: article.published_at || new Date().toISOString(),
-    dateModified: article.updated_at || article.published_at || new Date().toISOString(),
+    datePublished: article.published_at,
+    dateModified: article.updated_at || article.published_at,
     author: {
       '@type': 'Person',
       name: authorName || (edition === 'en' ? 'Provati Desk' : 'প্রভাতী ডেস্ক'),

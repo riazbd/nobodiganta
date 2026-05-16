@@ -9,6 +9,9 @@ import EmptyState from '../Components/ui/EmptyState';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { toBengaliNum } from '../lib/formatters';
+import MetaTags from '../Components/seo/MetaTags';
+import { BreadcrumbJsonLd } from '../Components/seo/JsonLd';
+import { buildCategorySeo } from '../lib/seo';
 
 function ArticleCard({ item, lang, onNavigate, hero = false }) {
   if (!item) return null;
@@ -63,10 +66,22 @@ export default function Category({ category, articles }) {
   const subcategories = category?.subcategories || [];
   const count = articles?.total || 0;
   const data = articles?.data || [];
+  const currentPage = articles?.current_page || 1;
+  const seoData = buildCategorySeo(category, lang);
+  const breadcrumbItems = [
+    { label: lang === 'bn' ? 'হোম' : 'Home', url: `${lang === 'en' ? '/en' : '/'}` },
+    { label: catName, url: `${lang === 'en' ? '/en' : '/'}category/${category?.slug}` },
+  ];
 
   return (
     <>
-      <Head title={`${catName} | ${lang === 'bn' ? 'নব দিগন্ত' : 'Nobo Digonto'}`} />
+      <MetaTags seo={seoData} />
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+      {currentPage > 1 && (
+        <Head>
+          <meta name="robots" content="noindex,follow" />
+        </Head>
+      )}
 
       <div>
         {/* Category banner */}

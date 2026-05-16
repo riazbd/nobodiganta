@@ -5,5 +5,17 @@ Disallow: /admin/
 Disallow: /dashboard/
 Disallow: /api/admin/
 
+# AI crawler management - allow indexing, block training
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
 Sitemap: https://nobodiganta.com/sitemap.xml
-Sitemap: https://nobodiganta.com/sitemap-news.xml
