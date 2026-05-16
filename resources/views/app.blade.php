@@ -27,8 +27,10 @@
                             'id','title_bn','title_en','excerpt_bn','excerpt_en',
                             'meta_description_bn','meta_description_en','featured_image'
                         )
-                        ->where($edition === 'en' ? 'slug_en' : 'slug_bn', $artSlug)
                         ->where('status', 'published')
+                        ->where(function($q) use ($artSlug) {
+                            $q->where('slug_bn', $artSlug)->orWhere('slug_en', $artSlug);
+                        })
                         ->first();
                     if ($article) {
                         $ogTitle = $edition === 'en'
