@@ -18,24 +18,31 @@
             $ogUrl      = url()->current();
             $ogType     = 'website';
 
-            // Detect article pages by route parameter pattern: /{category}/{slug}
+            // Detect article pages — route is /{category}/{slug}
             $route = request()->route();
             if ($route) {
-                $catSlug = $route->parameter('categorySlug');
-                $artSlug = $route->parameter('articleSlug') ?? $route->parameter('slug');
-                if ($catSlug && $artSlug) {
-                    $article = \App\Models\Article::with('category')
+                $artSlug = $route->parameter('slug');
+                if ($artSlug) {
+                    $article = \App\Models\Article::select(
+                            'id','title_bn','title_en','excerpt_bn','excerpt_en',
+                            'meta_description_bn','meta_description_en','featured_image'
+                        )
                         ->where($edition === 'en' ? 'slug_en' : 'slug_bn', $artSlug)
+                        ->where('status', 'published')
                         ->first();
                     if ($article) {
-                        $ogTitle   = $edition === 'en'
+                        $ogTitle = $edition === 'en'
                             ? ($article->title_en ?: $article->title_bn)
                             : $article->title_bn;
-                        $ogDesc    = $edition === 'en'
+                        $ogDesc  = $edition === 'en'
                             ? ($article->meta_description_en ?: $article->excerpt_en ?: $article->excerpt_bn)
                             : ($article->meta_description_bn ?: $article->excerpt_bn);
-                        $ogImage   = $article->featured_image ?: $ogImage;
-                        $ogType    = 'article';
+                        if ($article->featured_image) {
+                            $ogImage = str_starts_with($article->featured_image, 'http')
+                                ? $article->featured_image
+                                : url($article->featured_image);
+                        }
+                        $ogType = 'article';
                     }
                 }
             }
