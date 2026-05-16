@@ -880,6 +880,30 @@ class NewsController extends Controller
         return response()->json(['data' => $articles]);
     }
 
+    public function recordShare(Request $request, Article $article)
+    {
+        $platform = $request->input('platform', 'unknown');
+        $allowed  = ['facebook', 'whatsapp', 'telegram', 'twitter', 'linkedin', 'copy', 'native'];
+
+        if (!in_array($platform, $allowed)) {
+            return response()->json(['error' => 'Invalid platform'], 422);
+        }
+
+        $article->recordShare($platform);
+
+        return response()->json([
+            'shares_count' => $article->fresh()->shares_count,
+        ]);
+    }
+
+    public function getShareCounts(Article $article)
+    {
+        return response()->json([
+            'total'     => $article->shares_count ?? 0,
+            'platforms' => $article->sharesByPlatform(),
+        ]);
+    }
+
     public function apiLatest(Request $request)
     {
         $edition = $this->getEdition($request);

@@ -29,7 +29,7 @@ class Article extends Model
         'featured_image',
         'featured_image_alt_bn', 'featured_image_alt_en',
         'featured_image_caption_bn', 'featured_image_caption_en',
-        'views', 'read_time_bn', 'read_time_en',
+        'views', 'shares_count', 'read_time_bn', 'read_time_en',
         'meta_title_bn', 'meta_title_en',
         'meta_description_bn', 'meta_description_en',
         'division', 'district',
@@ -43,6 +43,7 @@ class Article extends Model
         'is_premium' => 'boolean',
         'allow_comments' => 'boolean',
         'views' => 'integer',
+        'shares_count' => 'integer',
         'read_time_bn' => 'integer',
         'read_time_en' => 'integer',
         'published_at' => 'datetime',
@@ -192,6 +193,32 @@ class Article extends Model
     }
 
     /**
+     * Record a share and increment cached count
+     */
+    public function recordShare(string $platform): void
+    {
+        \DB::table('article_shares')->insert([
+            'article_id'  => $this->id,
+            'platform'    => $platform,
+            'created_at'  => now(),
+        ]);
+        $this->increment('shares_count');
+    }
+
+    /**
+     * Get per-platform share counts
+     */
+    public function sharesByPlatform(): array
+    {
+        return \DB::table('article_shares')
+            ->where('article_id', $this->id)
+            ->selectRaw('platform, count(*) as total')
+            ->groupBy('platform')
+            ->pluck('total', 'platform')
+            ->toArray();
+    }
+
+    /**
      * Scope: Only published articles
      */
     public function scopePublished($query)
@@ -337,6 +364,7 @@ class Article extends Model
                 ? $this->featured_image_caption_en 
                 : $this->featured_image_caption_bn,
             'views' => $this->views,
+            'shares_count' => $this->shares_count ?? 0,
             'read_time' => $edition === 'en' ? $this->read_time_en : $this->read_time_bn,
             'meta_title' => $this->getMetaTitle($edition),
             'meta_description' => $this->getMetaDescription($edition),

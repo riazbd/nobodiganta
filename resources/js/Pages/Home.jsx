@@ -625,7 +625,7 @@ export default function Home({
   mostRead     = [],
   popularTags  = [],
 }) {
-  const { lang }       = useApp();
+  const { lang, settings } = useApp();
   const { onNavigate } = useNavigation();
 
   // Data distribution — top.html hero layout
@@ -647,6 +647,27 @@ export default function Home({
       <Head title={lang === 'bn' ? 'নব দিগন্ত | বিশ্বস্ত সংবাদের উৎস' : 'Nobo Digonto | Trusted News'} />
 
       <div className="p-ad-top"><AdSlot size="leaderboard" position="home_top" /></div>
+
+      {/* ══ NOTICE BANNER ═══════════════════════════════════════════════════ */}
+      {settings.notice_enabled === 'true' && (
+        <div className="home-notice-wrapper">
+          <div className="home-notice">
+            <div className="home-notice-inner">
+              <span className="home-notice-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </span>
+              <span className="home-notice-text">
+                {lang === 'bn'
+                  ? (settings.notice_text_bn || '')
+                  : (settings.notice_text_en || '')}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ══ TOP 3-COLUMN BLOCK (top.html design) ═══════════════════════════ */}
       <div className="p-top-wrap">

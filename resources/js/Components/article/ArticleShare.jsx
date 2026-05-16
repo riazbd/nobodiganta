@@ -1,103 +1,199 @@
+import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useToast } from '../../contexts/ToastContext';
-import { shareOnFacebook, shareOnWhatsApp, shareOnTelegram, shareOnTwitter, shareOnLinkedIn, copyToClipboard } from '../../lib/sharing';
+import { copyToClipboard } from '../../lib/sharing';
+import { toBengaliNum } from '../../lib/formatters';
 
-const FacebookIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-  </svg>
-);
+// ── Icons ──────────────────────────────────────────────────────────────────
+const FacebookIcon  = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>;
+const WhatsAppIcon  = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>;
+const TelegramIcon  = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>;
+const TwitterXIcon  = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>;
+const LinkedInIcon  = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>;
+const CopyIcon      = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>;
+const ShareIcon     = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>;
+const ShareTotalIcon = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>;
 
-const WhatsAppIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-  </svg>
-);
-
-const TelegramIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-  </svg>
-);
-
-const TwitterXIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-  </svg>
-);
-
-const LinkedInIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-  </svg>
-);
-
-const CopyLinkIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
-    <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
-  </svg>
-);
-
-const SHARE_BUTTONS = [
-  { key: 'facebook', label: 'Facebook', color: '#1877f2', Icon: FacebookIcon },
-  { key: 'whatsapp', label: 'WhatsApp', color: '#25d366', Icon: WhatsAppIcon },
-  { key: 'telegram', label: 'Telegram', color: '#0088cc', Icon: TelegramIcon },
-  { key: 'twitter',  label: 'X',        color: '#000',    Icon: TwitterXIcon },
-  { key: 'linkedin', label: 'LinkedIn', color: '#0a66c2', Icon: LinkedInIcon },
-  { key: 'copy',     label: null,       color: '#555',    Icon: CopyLinkIcon },
+const PLATFORMS = [
+  { key: 'facebook', label: 'Facebook',  labelBn: 'ফেসবুক',   color: '#1877f2', Icon: FacebookIcon },
+  { key: 'whatsapp', label: 'WhatsApp',  labelBn: 'হোয়াটসঅ্যাপ', color: '#25d366', Icon: WhatsAppIcon },
+  { key: 'telegram', label: 'Telegram',  labelBn: 'টেলিগ্রাম', color: '#0088cc', Icon: TelegramIcon },
+  { key: 'twitter',  label: 'X',         labelBn: 'এক্স',     color: '#000',    Icon: TwitterXIcon },
+  { key: 'linkedin', label: 'LinkedIn',  labelBn: 'লিংকডইন',  color: '#0a66c2', Icon: LinkedInIcon },
 ];
 
-export default function ArticleShare({ url, title }) {
+const VALID_PLATFORMS = ['facebook', 'whatsapp', 'telegram', 'twitter', 'linkedin'];
+
+function fmtCount(n, lang) {
+  if (!n) return lang === 'bn' ? '০' : '0';
+  if (n >= 1000) {
+    const k = (n / 1000).toFixed(1).replace(/\.0$/, '');
+    return lang === 'bn' ? toBengaliNum(k) + 'ক' : k + 'k';
+  }
+  return lang === 'bn' ? toBengaliNum(String(n)) : String(n);
+}
+
+async function postShare(articleId, platform) {
+  try {
+    const res = await fetch(`/api/articles/${articleId}/share`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ platform }),
+    });
+    if (res.ok) return await res.json();
+  } catch {}
+  return null;
+}
+
+function openShare(url, title, platform) {
+  const enc  = encodeURIComponent(url);
+  const txt  = encodeURIComponent(title);
+  const pop  = (u) => window.open(u, '_blank', 'width=620,height=440,noopener,noreferrer');
+  const urls = {
+    facebook:  `https://www.facebook.com/sharer/sharer.php?u=${enc}`,
+    whatsapp:  /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+                 ? `whatsapp://send?text=${txt}%20${enc}`
+                 : `https://web.whatsapp.com/send?text=${txt}%20${enc}`,
+    telegram:  `https://t.me/share/url?url=${enc}&text=${txt}`,
+    twitter:   `https://twitter.com/intent/tweet?url=${enc}&text=${txt}`,
+    linkedin:  `https://www.linkedin.com/sharing/share-offsite/?url=${enc}`,
+  };
+  if (urls[platform]) pop(urls[platform]);
+}
+
+export default function ArticleShare({ url, title, articleId }) {
   const { lang } = useApp();
   const { showToast } = useToast();
 
   const shareUrl = url || window.location.href;
+  const hasNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
 
-  const handle = (key) => {
-    switch (key) {
-      case 'facebook':  shareOnFacebook(shareUrl, title); break;
-      case 'whatsapp':  shareOnWhatsApp(shareUrl, title); break;
-      case 'telegram':  shareOnTelegram(shareUrl, title); break;
-      case 'twitter':   shareOnTwitter(shareUrl, title); break;
-      case 'linkedin':  shareOnLinkedIn(shareUrl, title); break;
-      case 'copy':
-        copyToClipboard(shareUrl).then((ok) =>
-          showToast(ok
-            ? (lang === 'bn' ? 'লিঙ্ক কপি হয়েছে!' : 'Link copied!')
-            : (lang === 'bn' ? 'কপি করা যায়নি' : 'Copy failed'))
-        );
-        break;
+  const [total,     setTotal]     = useState(0);
+  const [platforms, setPlatforms] = useState({});
+  const [copied,    setCopied]    = useState(false);
+  const [sharing,   setSharing]   = useState(null); // platform key being shared
+
+  // Load share counts on mount
+  useEffect(() => {
+    if (!articleId) return;
+    fetch(`/api/articles/${articleId}/shares`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          setTotal(data.total || 0);
+          setPlatforms(data.platforms || {});
+        }
+      })
+      .catch(() => {});
+  }, [articleId]);
+
+  const handleShare = useCallback(async (platform) => {
+    if (sharing) return;
+    setSharing(platform);
+
+    // Optimistic update
+    setTotal(t => t + 1);
+    setPlatforms(p => ({ ...p, [platform]: (p[platform] || 0) + 1 }));
+
+    // Open share window
+    openShare(shareUrl, title, platform);
+
+    // Record in backend
+    const result = await postShare(articleId, platform);
+    if (result?.shares_count !== undefined) {
+      setTotal(result.shares_count);
     }
-  };
 
-  const copyLabel = lang === 'bn' ? 'লিঙ্ক কপি' : 'Copy link';
+    setSharing(null);
+  }, [sharing, shareUrl, title, articleId]);
+
+  const handleCopy = useCallback(async () => {
+    const ok = await copyToClipboard(shareUrl);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+      showToast(lang === 'bn' ? 'লিঙ্ক কপি হয়েছে!' : 'Link copied!');
+      // Record copy share
+      setTotal(t => t + 1);
+      await postShare(articleId, 'copy');
+    } else {
+      showToast(lang === 'bn' ? 'কপি করা যায়নি' : 'Copy failed');
+    }
+  }, [shareUrl, articleId, lang, showToast]);
+
+  const handleNative = useCallback(async () => {
+    try {
+      await navigator.share({ title, url: shareUrl });
+      setTotal(t => t + 1);
+      await postShare(articleId, 'native');
+    } catch {}
+  }, [title, shareUrl, articleId]);
 
   return (
-    <div className="art-share-row" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, margin: '16px 0' }}>
-      {SHARE_BUTTONS.map(({ key, label, color, Icon }) => (
+    <div className="art-share-wrap">
+      {/* Total count */}
+      <div className="art-share-header">
+        <div className="art-share-total">
+          <ShareTotalIcon />
+          <span>
+            {lang === 'bn'
+              ? `${fmtCount(total, lang)} বার শেয়ার হয়েছে`
+              : `${fmtCount(total, lang)} shares`}
+          </span>
+        </div>
+        <span className="art-share-label">
+          {lang === 'bn' ? 'শেয়ার করুন:' : 'Share:'}
+        </span>
+      </div>
+
+      {/* Platform buttons */}
+      <div className="art-share-btns">
+        {PLATFORMS.map(({ key, label, labelBn, color, Icon }) => (
+          <button
+            key={key}
+            className={`art-share-btn${sharing === key ? ' art-share-btn--active' : ''}`}
+            style={{ '--share-color': color }}
+            onClick={() => handleShare(key)}
+            disabled={!!sharing}
+            aria-label={lang === 'bn' ? labelBn : label}
+            title={lang === 'bn' ? labelBn : label}
+          >
+            <Icon />
+            <span className="art-share-btn-label">{lang === 'bn' ? labelBn : label}</span>
+            {platforms[key] > 0 && (
+              <span className="art-share-btn-count">{fmtCount(platforms[key], lang)}</span>
+            )}
+          </button>
+        ))}
+
+        {/* Native share (mobile) */}
+        {hasNativeShare && (
+          <button
+            className="art-share-btn art-share-btn--native"
+            style={{ '--share-color': '#555' }}
+            onClick={handleNative}
+            aria-label={lang === 'bn' ? 'শেয়ার' : 'Share'}
+          >
+            <ShareIcon />
+            <span className="art-share-btn-label">{lang === 'bn' ? 'শেয়ার' : 'Share'}</span>
+          </button>
+        )}
+
+        {/* Copy link */}
         <button
-          key={key}
-          onClick={() => handle(key)}
-          aria-label={label || copyLabel}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '7px 14px',
-            background: color,
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-            fontSize: 13,
-            fontWeight: 600,
-          }}
+          className={`art-share-btn art-share-btn--copy${copied ? ' art-share-btn--copied' : ''}`}
+          style={{ '--share-color': copied ? '#2e7d32' : '#607d8b' }}
+          onClick={handleCopy}
+          aria-label={lang === 'bn' ? 'লিঙ্ক কপি' : 'Copy link'}
         >
-          <Icon />
-          <span>{label || copyLabel}</span>
+          <CopyIcon />
+          <span className="art-share-btn-label">
+            {copied
+              ? (lang === 'bn' ? 'কপি হয়েছে!' : 'Copied!')
+              : (lang === 'bn' ? 'লিঙ্ক কপি' : 'Copy link')}
+          </span>
         </button>
-      ))}
+      </div>
     </div>
   );
 }

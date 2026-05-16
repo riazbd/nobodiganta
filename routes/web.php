@@ -345,6 +345,8 @@ Route::get('/api/epaper', [NewsController::class, 'apiEpaper'])->name('api.epape
 // Public Comment Routes
 Route::get('/api/articles/{article}/comments', [CommentController::class, 'getArticleComments'])->name('api.comments.index')->whereNumber('article');
 Route::post('/api/articles/{article}/comments', [CommentController::class, 'store'])->name('api.comments.store')->whereNumber('article');
+Route::post('/api/articles/{article}/share', [NewsController::class, 'recordShare'])->name('api.articles.share')->whereNumber('article');
+Route::get('/api/articles/{article}/shares', [NewsController::class, 'getShareCounts'])->name('api.articles.shares')->whereNumber('article');
 Route::post('/api/comments/{comment}/flag', [CommentController::class, 'flag'])->name('api.comments.flag')->whereNumber('comment');
 
 // Stories (public)

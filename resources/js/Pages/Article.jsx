@@ -178,7 +178,7 @@ export default function Article({
           </div>
 
           {/* Share buttons */}
-          <ArticleShare url={articleUrl} title={article.title} />
+          <ArticleShare url={articleUrl} title={article.title} articleId={article.id} />
 
           {article.article_type === 'video' && article.video_url ? (
             <div className="art-video-wrap" style={{ marginBottom: 20 }}>
@@ -231,7 +231,7 @@ export default function Article({
           )}
 
           {/* Bottom share row */}
-          <ArticleShare url={articleUrl} title={article.title} />
+          <ArticleShare url={articleUrl} title={article.title} articleId={article.id} />
 
           {/* Related articles */}
           {relatedArticles.length > 0 && (

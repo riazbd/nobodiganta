@@ -830,6 +830,18 @@ img{max-width:100%;display:block;border-radius:5px;}
 .art-share button{border:none;cursor:pointer;padding:5px 12px;border-radius:3px;font-size:16.9px;font-weight:600;color:#fff;transition:opacity .15s;}
 .art-share button:hover{opacity:.85;}
 .share-fb{background:#1877f2;}
+/* ── Robust Article Share ─────────────────────── */
+.art-share-wrap{margin:20px 0;background:#f8f9fa;border:1px solid #e8e8e8;border-radius:6px;padding:14px 16px;}
+.art-share-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.art-share-total{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--primary);}
+.art-share-label{font-family:'SolaimanLipi',sans-serif;font-size:16px;font-weight:700;color:#444;}
+.art-share-btns{display:flex;flex-wrap:wrap;gap:8px;}
+.art-share-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--share-color,#555);color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600;font-family:'SolaimanLipi',sans-serif;transition:opacity .15s,transform .1s;white-space:nowrap;}
+.art-share-btn:hover:not(:disabled){opacity:.88;transform:translateY(-1px);}
+.art-share-btn:disabled{opacity:.6;cursor:default;}
+.art-share-btn--active{opacity:.7;}
+.art-share-btn-count{background:rgba(255,255,255,.25);border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:2px;}
+@media(max-width:640px){.art-share-btn-label{display:none;}.art-share-btn{padding:10px 13px;}.art-share-btn-count{display:none;}}
 .share-tw{background:#1da1f2;}
 .share-wa{background:#25d366;}
 .art-img-wrap{margin-bottom:20px;position:relative;}
@@ -1976,6 +1988,11 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 /* ── PAGE ── */
 .p-page{background:#fff;min-height:100vh;}
 .p-ad-top{text-align:center;padding:6px 0;background:#fff;}
+.home-notice-wrapper{margin-bottom: 20px;padding:0 10px;}
+.home-notice{background:#c0392b;color:#fff;}
+.home-notice-inner{max-width:1220px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px;}
+.home-notice-icon{flex-shrink:0;margin-top:1px;opacity:.9;}
+.home-notice-text{font-family:'SolaimanLipi',sans-serif;font-size:17px;font-weight:600;line-height:1.7;}
 .p-ad-between{text-align:center;padding:10px 0;}
 .p-ad-bottom{text-align:center;padding:10px 0;}
 
