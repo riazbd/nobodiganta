@@ -27,9 +27,11 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PrayerPageController;
 use App\Http\Controllers\PushController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\WeatherApiController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -75,6 +77,11 @@ Route::get('/api/gallery', [GalleryController::class, 'index'])->name('api.galle
 Route::get('/api/gallery/categories', [GalleryController::class, 'categories'])->name('api.gallery.categories');
 Route::get('/api/videos', [GalleryController::class, 'videos'])->name('api.videos');
 Route::get('/api/media/{id}', [GalleryController::class, 'show'])->name('api.media.show')->whereNumber('id');
+
+// Prayer & Weather API
+Route::get('/api/prayer', [PrayerPageController::class, 'api'])->name('api.prayer');
+Route::get('/api/prayer-monthly', [PrayerPageController::class, 'monthly'])->name('api.prayer.monthly');
+Route::get('/api/weather', [WeatherApiController::class, 'api'])->name('api.weather');
 
 // ══════════════════════════════════════
 // PROTECTED ADMIN ROUTES
