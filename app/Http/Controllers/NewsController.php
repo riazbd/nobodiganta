@@ -975,6 +975,7 @@ class NewsController extends Controller
                     'id' => $data['id'],
                     'title' => $data['title'],
                     'slug' => $data['slug'],
+                    'excerpt' => $data['excerpt'] ?? null,
                     'name' => $data['author']['name'] ?? 'Unknown',
                     'desg' => $data['author']['designation'] ?? 'Columnist',
                     'avatar' => $data['author']['image'] ?? null,

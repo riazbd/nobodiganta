@@ -75,15 +75,18 @@ function OpinionColumn({ lang, nav }) {
               onKeyDown={e => e.key === 'Enter' && goTo(op)}
             >
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <div className="htcs-op-av">
-                  {op.avatar
-                    ? <img src={op.avatar} alt={op.name} />
-                    : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#f0d0c0,#e0a090)', display:'flex',alignItems:'center',justifyContent:'center',fontSize:22 }}>👤</div>}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="htcs-op-left">
+                  <div className="htcs-op-av">
+                    {op.avatar
+                      ? <img src={op.avatar} alt={op.name} />
+                      : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#f0d0c0,#e0a090)', display:'flex',alignItems:'center',justifyContent:'center',fontSize:22 }}>👤</div>}
+                  </div>
                   <div className="htcs-op-name">{op.name}</div>
                   <div className="htcs-op-desg">{op.desg}</div>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="htcs-op-title">{op.title}</div>
+                  {op.excerpt && <div className="htcs-op-excerpt">{op.excerpt}</div>}
                 </div>
               </div>
             </div>
