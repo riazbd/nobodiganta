@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useRef } from 'react';
 import { Head } from '@inertiajs/react';
+import PrayerWeatherSection from '../Components/home/PrayerWeatherSection';
 import AdSlot from '../Components/ui/AdSlot';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
@@ -511,6 +512,8 @@ export default function Home({
   opinions     = [],
   mostRead     = [],
   popularTags  = [],
+  weather      = null,
+  prayerTimes  = null,
 }) {
   const { lang, settings } = useApp();
   const { onNavigate } = useNavigation();
@@ -599,6 +602,9 @@ export default function Home({
         <div className="p-ad-between"><AdSlot size="leaderboard" position="mid_home" /></div>
 
         <TagsCloud tags={popularTags} lang={lang} nav={onNavigate} />
+
+        {/* Prayer times & weather section */}
+        <PrayerWeatherSection initialPrayer={prayerTimes} initialWeather={weather} />
 
         <div className="p-ad-bottom"><AdSlot size="billboard" position="home_bottom" /></div>
       </div>
