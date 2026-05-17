@@ -132,7 +132,7 @@ export default function PollWidget() {
       {poll.options.map(opt => {
         const pct   = totalVotes ? Math.round((counts[opt.id] / totalVotes) * 100) : 0;
         const isSelected = voted === opt.id;
-        const isWinner   = opt.id === winningOptionId && voted !== null;
+        const isWinner   = opt.id === winningOptionId;
         return (
           <div key={opt.id}>
             <div
@@ -145,20 +145,16 @@ export default function PollWidget() {
             >
               <span className={`poll-radio-circle${isSelected ? ' checked' : ''}`} />
               <span className="poll-opt-lbl">{opt.option}</span>
-              {voted !== null && (
-                <span className="poll-opt-pct">
-                  {lang === 'bn' ? toBengaliNum(String(pct)) : pct}%
-                </span>
-              )}
+              <span className="poll-opt-pct">
+                {lang === 'bn' ? toBengaliNum(String(pct)) : pct}%
+              </span>
             </div>
-            {voted !== null && (
-              <div className="poll-bar-wrap">
-                <div
-                  className={`poll-bar-fill ${isWinner ? 'winner' : 'normal'}`}
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-            )}
+            <div className="poll-bar-wrap">
+              <div
+                className={`poll-bar-fill ${isWinner ? 'winner' : 'normal'}`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
           </div>
         );
       })}
