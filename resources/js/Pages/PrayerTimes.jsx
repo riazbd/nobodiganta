@@ -50,20 +50,30 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
   const isRamadan                     = today?.is_ramadan;
 
   const fetchCity = async (key) => {
-    const res  = await fetch(`/api/prayer?city=${key}`);
-    const json = await res.json();
-    setToday(json.data);
+    try {
+      const res  = await fetch(`/api/prayer?city=${key}`);
+      const json = await res.json();
+      setToday(json.data);
+    } catch (e) {
+      console.error('Failed to fetch prayer times', e);
+    }
   };
 
   const fetchCalendar = async (key, month, year) => {
-    const res  = await fetch(`/api/prayer-monthly?city=${key}&month=${month}&year=${year}`);
-    const json = await res.json();
-    setCalendar(json.data || []);
+    try {
+      const res  = await fetch(`/api/prayer-monthly?city=${key}&month=${month}&year=${year}`);
+      const json = await res.json();
+      setCalendar(json.data || []);
+    } catch (e) {
+      console.error('Failed to fetch calendar', e);
+    }
   };
 
   const handleCityChange = (key) => {
     setCityKey(key);
     localStorage.setItem('pws_city', key);
+    localStorage.removeItem('pws_lat');
+    localStorage.removeItem('pws_lng');
     fetchCity(key);
     fetchCalendar(key, calMonth, calYear);
   };
@@ -75,10 +85,15 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
       const { latitude: lat, longitude: lng } = pos.coords;
       localStorage.setItem('pws_lat', lat);
       localStorage.setItem('pws_lng', lng);
-      const res  = await fetch(`/api/prayer?lat=${lat}&lng=${lng}`);
-      const json = await res.json();
-      if (json.data) { setToday({ ...json.data, is_location: true }); setCityKey('__location__'); }
-      setLocating(false);
+      try {
+        const res  = await fetch(`/api/prayer?lat=${lat}&lng=${lng}`);
+        const json = await res.json();
+        if (json.data) { setToday({ ...json.data, is_location: true }); setCityKey('__location__'); }
+      } catch (e) {
+        console.error('Failed to fetch prayer by coords', e);
+      } finally {
+        setLocating(false);
+      }
     }, () => setLocating(false));
   };
 

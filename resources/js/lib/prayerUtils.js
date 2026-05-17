@@ -54,7 +54,7 @@ export function formatCountdown(epochMs) {
 }
 
 export function toBn(str) {
-  return String(str).replace(/[0-9]/g, d => '০१२३४५६७८९'[d]);
+  return String(str).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
 }
 
 export { PRAYER_ORDER };

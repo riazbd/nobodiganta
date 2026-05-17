@@ -132,18 +132,25 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
 
   const fetchCity = async (key) => {
     setLoading(true);
-    const [pRes, wRes] = await Promise.all([
-      fetch(`/api/prayer?city=${key}`).then(r => r.json()),
-      fetch(`/api/weather?city=${key}`).then(r => r.json()),
-    ]);
-    setPrayer(pRes.data);
-    setWeather(wRes.data);
-    setLoading(false);
+    try {
+      const [pRes, wRes] = await Promise.all([
+        fetch(`/api/prayer?city=${key}`).then(r => r.json()),
+        fetch(`/api/weather?city=${key}`).then(r => r.json()),
+      ]);
+      setPrayer(pRes.data);
+      setWeather(wRes.data);
+    } catch (e) {
+      console.error('Failed to fetch city data', e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCityChange = (key) => {
     setCityKey(key);
     localStorage.setItem('pws_city', key);
+    localStorage.removeItem('pws_lat');
+    localStorage.removeItem('pws_lng');
     if (key !== 'dhaka' || !initialPrayer) fetchCity(key);
     else { setPrayer(initialPrayer); setWeather(initialWeather); }
   };
