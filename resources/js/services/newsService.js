@@ -66,3 +66,26 @@ export async function getLiveblogUpdates(articleId, afterId = null) {
   }
   return { data: [] };
 }
+
+export async function getActivePoll(edition = 'bn') {
+  try {
+    const res = await fetch(`/api/poll?edition=${edition}`);
+    if (res.ok) {
+      const json = await res.json();
+      return json.data || null;
+    }
+  } catch (err) {
+    console.error('Error fetching poll', err);
+  }
+  return null;
+}
+
+export async function submitPollVote(pollId, optionId) {
+  try {
+    const res = await window.axios.post(`/api/poll/${pollId}/vote`, { option_id: optionId });
+    return res.data;
+  } catch (err) {
+    console.error('Error submitting vote', err);
+  }
+  return null;
+}
