@@ -10,7 +10,6 @@ function OpinionColumn({ lang, nav }) {
   const [opinions, setOpinions] = useState([]);
   const [page, setPage]         = useState(0);
   const [loading, setLoading]   = useState(true);
-  const timerRef = useRef(null);
   const PER_PAGE = 3;
 
   useEffect(() => {
@@ -21,20 +20,6 @@ function OpinionColumn({ lang, nav }) {
   }, [lang]);
 
   const totalPages = Math.ceil(opinions.length / PER_PAGE);
-
-  useEffect(() => {
-    if (totalPages <= 1) return;
-    timerRef.current = setInterval(() => {
-      setPage(p => (p + 1) % totalPages);
-    }, 5000);
-    return () => clearInterval(timerRef.current);
-  }, [totalPages]);
-
-  const pause = () => clearInterval(timerRef.current);
-  const resume = () => {
-    if (totalPages <= 1) return;
-    timerRef.current = setInterval(() => setPage(p => (p + 1) % totalPages), 5000);
-  };
 
   const visible = opinions.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
 
@@ -64,7 +49,7 @@ function OpinionColumn({ lang, nav }) {
           ))}
         </div>
       ) : (
-        <div onMouseEnter={pause} onMouseLeave={resume}>
+        <div>
           {visible.map(op => (
             <div
               key={op.id}
@@ -74,7 +59,7 @@ function OpinionColumn({ lang, nav }) {
               tabIndex={0}
               onKeyDown={e => e.key === 'Enter' && goTo(op)}
             >
-              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
                 <div className="htcs-op-left">
                   <div className="htcs-op-av">
                     {op.avatar
