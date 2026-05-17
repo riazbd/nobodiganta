@@ -11,12 +11,12 @@ use App\Models\Stock;
 use App\Models\Price;
 use App\Models\Ad;
 use App\Models\CricketMatch;
-use App\Models\Weather;
 use App\Models\Poll;
 use App\Models\PollOption;
 use App\Models\Horoscope;
-use App\Models\PrayerTime;
 use App\Models\Epaper;
+use App\Services\PrayerTimeService;
+use App\Services\WeatherService;
 use App\Services\ArticleMeter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -204,29 +204,13 @@ class NewsController extends Controller
             ])
             ->values();
 
-        // 7. Weather
-        $weatherRow = Weather::latest('date')->first();
-        $weather = $weatherRow ? [
-            'city'       => $weatherRow->getCity($edition),
-            'temp_c'     => $weatherRow->temp_c,
-            'condition'  => $weatherRow->getCondition($edition),
-            'humidity'   => $weatherRow->humidity,
-            'wind_kph'   => $weatherRow->wind_kph,
-            'max_temp_c' => $weatherRow->max_temp_c,
-            'min_temp_c' => $weatherRow->min_temp_c,
-            'icon'       => $weatherRow->icon,
-        ] : null;
+        // 7. Weather (real-time, cached 30min)
+        $weatherService = new WeatherService();
+        $weather = $weatherService->getCurrentAndForecast('dhaka');
 
-        // 8. Prayer times
-        $prayerRow = PrayerTime::latest('date')->first();
-        $prayerTimes = $prayerRow ? [
-            'fajr'    => $prayerRow->fajr,
-            'sunrise' => $prayerRow->sunrise,
-            'dhuhr'   => $prayerRow->dhuhr,
-            'asr'     => $prayerRow->asr,
-            'maghrib' => $prayerRow->maghrib,
-            'isha'    => $prayerRow->isha,
-        ] : null;
+        // 8. Prayer times (real-time, cached 24h)
+        $prayerService = new PrayerTimeService();
+        $prayerTimes = $prayerService->getTimingsForCity('dhaka');
 
         // 9. Active poll
         $pollRow = Poll::where('is_active', true)->with('options')->latest('start_date')->first();
@@ -692,27 +676,6 @@ class NewsController extends Controller
     }
 
     /**
-     * API: Get Weather
-     */
-    public function apiWeather(Request $request)
-    {
-        $edition = $this->getEdition($request);
-        $weather = Weather::latest('date')->first();
-        if (!$weather) return response()->json(['data' => null]);
-
-        return response()->json(['data' => [
-            'city' => $weather->getCity($edition),
-            'temp_c' => $weather->temp_c,
-            'condition' => $weather->getCondition($edition),
-            'humidity' => $weather->humidity,
-            'wind_kph' => $weather->wind_kph,
-            'max_temp_c' => $weather->max_temp_c,
-            'min_temp_c' => $weather->min_temp_c,
-            'icon' => $weather->icon,
-        ]]);
-    }
-
-    /**
      * API: Get Active Poll
      */
     public function apiPoll(Request $request)
@@ -785,27 +748,6 @@ class NewsController extends Controller
         });
 
         return response()->json(['data' => $horoscopes]);
-    }
-
-    /**
-     * API: Get Prayer Times
-     */
-    public function apiPrayerTimes(Request $request)
-    {
-        // Get today's prayer times or latest
-        $times = PrayerTime::latest('date')->first();
-        if (!$times) return response()->json(['data' => null]);
-
-        return response()->json(['data' => [
-            'fajr' => $times->fajr,
-            'sunrise' => $times->sunrise,
-            'dhuhr' => $times->dhuhr,
-            'asr' => $times->asr,
-            'maghrib' => $times->maghrib,
-            'sunset' => $times->sunset,
-            'isha' => $times->isha,
-            'isha_end' => $times->isha_end,
-        ]]);
     }
 
     /**
@@ -1079,9 +1021,20 @@ class NewsController extends Controller
         ]);
     }
 
-    public function prayerTimes()
+    public function prayerTimes(Request $request)
     {
-        return Inertia::render('PrayerTimes');
+        $service  = new PrayerTimeService();
+        $cityKey  = $request->query('city', config('bangladesh_cities.default', 'dhaka'));
+        $today    = $service->getTimingsForCity($cityKey);
+        $calendar = $service->getMonthlyCalendar($cityKey, now()->month, now()->year);
+        $cities   = $service->getCities();
+
+        return Inertia::render('PrayerTimes', [
+            'today'    => $today,
+            'calendar' => $calendar,
+            'cities'   => $cities,
+            'cityKey'  => $cityKey,
+        ]);
     }
 
     public function cricket()
