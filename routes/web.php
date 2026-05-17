@@ -15,9 +15,7 @@ use App\Http\Controllers\Admin\StockController;
 use App\Http\Controllers\Admin\CricketMatchController;
 use App\Http\Controllers\Admin\PriceController;
 use App\Http\Controllers\Admin\PollController;
-use App\Http\Controllers\Admin\WeatherController;
 use App\Http\Controllers\Admin\HoroscopeController;
-use App\Http\Controllers\Admin\PrayerTimeController;
 use App\Http\Controllers\Admin\EpaperController;
 use App\Http\Controllers\Admin\NewsletterController;
 use App\Http\Controllers\Admin\HomepageController;
@@ -239,17 +237,9 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/polls/{poll}/toggle', [PollController::class, 'toggle'])->name('polls.toggle')->whereNumber('poll');
         Route::delete('/polls/{poll}', [PollController::class, 'destroy'])->name('polls.destroy')->whereNumber('poll');
 
-        Route::get('/weather', [WeatherController::class, 'index'])->name('weather');
-        Route::post('/weather', [WeatherController::class, 'store'])->name('weather.store');
-        Route::delete('/weather/{weather}', [WeatherController::class, 'destroy'])->name('weather.destroy')->whereNumber('weather');
-
         Route::get('/horoscope', [HoroscopeController::class, 'index'])->name('horoscope');
         Route::post('/horoscope', [HoroscopeController::class, 'store'])->name('horoscope.store');
         Route::delete('/horoscope/{horoscope}', [HoroscopeController::class, 'destroy'])->name('horoscope.destroy')->whereNumber('horoscope');
-
-        Route::get('/prayer-times', [PrayerTimeController::class, 'index'])->name('prayer-times');
-        Route::post('/prayer-times', [PrayerTimeController::class, 'store'])->name('prayer-times.store');
-        Route::delete('/prayer-times/{prayerTime}', [PrayerTimeController::class, 'destroy'])->name('prayer-times.destroy')->whereNumber('prayerTime');
 
         Route::get('/epaper-manager', [EpaperController::class, 'index'])->name('epaper-manager');
         Route::post('/epaper-manager', [EpaperController::class, 'store'])->name('epaper-manager.store');
@@ -337,13 +327,11 @@ Route::get('/api/cricket', [NewsController::class, 'apiCricket'])->name('api.cri
 Route::get('/api/ads', [NewsController::class, 'apiAds'])->name('api.ads');
 Route::post('/api/ads/{id}/impression', [NewsController::class, 'adImpression'])->name('api.ads.impression');
 Route::post('/api/ads/{id}/click', [NewsController::class, 'adClick'])->name('api.ads.click');
-Route::get('/api/weather', [NewsController::class, 'apiWeather'])->name('api.weather');
 Route::get('/api/poll', [NewsController::class, 'apiPoll'])->name('api.poll');
 Route::post('/api/poll/{poll}/vote', [NewsController::class, 'apiPollVote'])
     ->name('api.poll.vote')
     ->whereNumber('poll');
 Route::get('/api/horoscope', [NewsController::class, 'apiHoroscope'])->name('api.horoscope');
-Route::get('/api/prayer-times', [NewsController::class, 'apiPrayerTimes'])->name('api.prayer-times');
 Route::get('/api/epaper', [NewsController::class, 'apiEpaper'])->name('api.epaper');
 
 // Public Comment Routes
