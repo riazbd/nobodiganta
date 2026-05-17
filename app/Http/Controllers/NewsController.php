@@ -722,14 +722,17 @@ class NewsController extends Controller
         if (!$poll) return response()->json(['data' => null]);
 
         return response()->json(['data' => [
-            'id' => $poll->id,
-            'question' => $poll->getQuestion($edition),
-            'total_votes' => $poll->total_votes,
-            'options' => $poll->options->map(fn($opt) => [
-                'id' => $opt->id,
+            'id'             => $poll->id,
+            'question'       => $poll->getQuestion($edition),
+            'total_votes'    => $poll->total_votes,
+            'featured_image' => $poll->featured_image,
+            'created_at'     => $poll->created_at?->toISOString(),
+            'end_date'       => $poll->end_date?->toDateString(),
+            'options'        => $poll->options->map(fn($opt) => [
+                'id'     => $opt->id,
                 'option' => $opt->getOption($edition),
-                'votes' => $opt->votes,
-            ])
+                'votes'  => $opt->votes,
+            ]),
         ]]);
     }
 

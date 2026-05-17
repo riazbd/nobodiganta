@@ -16,6 +16,7 @@ class Poll extends Model
         'start_date',
         'end_date',
         'total_votes',
+        'featured_image',
     ];
 
     protected $casts = [
