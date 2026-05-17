@@ -2416,7 +2416,7 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 }
 
 /* ══ THREE-COLUMN SECTION (htcs-) ══════════════════════════════════════════ */
-.htcs-wrap{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:0;border-top:3px solid var(--primary);padding-top:18px;margin-bottom:20px;}
+.htcs-wrap{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:0;padding-top:18px;margin-bottom:20px;}
 .htcs-col{padding:0 16px;border-right:1px solid var(--border);}
 .htcs-col:first-child{padding-left:0;}
 .htcs-col:last-child{border-right:none;padding-right:0;}
