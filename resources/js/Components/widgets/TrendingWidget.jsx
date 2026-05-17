@@ -24,7 +24,7 @@ export default function TrendingWidget() {
   const go = (item) => onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug });
 
   return (
-    <div style={{ background: '#fff', border: '1px solid var(--border)', marginBottom: 20 }}>
+    <div style={{ background: '#fff', border: '1px solid var(--border)', marginBottom: 20, borderRadius: 5 }}>
 
       {/* Tabs */}
       <div style={{ display: 'flex' }}>

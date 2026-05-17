@@ -110,7 +110,10 @@ export default function PollWidget() {
       </div>
 
       {poll.featured_image && (
-        <img src={poll.featured_image} alt="" className="poll-img" />
+        <div className="poll-featured-img-wrap">
+          <img src={poll.featured_image} alt="" className="poll-img" />
+        </div>
+        
       )}
 
       <div className="poll-meta">

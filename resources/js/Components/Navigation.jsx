@@ -202,12 +202,12 @@ export default function Navigation() {
                 {hasChildren && isHovered && (
                   <div className="nav-sub-dropdown" role="menu"
                     onMouseEnter={handleDropEnter} onMouseLeave={handleDropLeave}>
-                    <a className="nav-sub-parent"
+                    {/* <a className="nav-sub-parent"
                       onClick={() => { setHoveredCat(null); onNavigate('cat', cat.slug); }}
                       role="menuitem" tabIndex={0}>
                       {lang === 'bn' ? `সব ${cat.name_bn}` : `All ${cat.name_en || cat.name_bn}`}
                     </a>
-                    <div className="nav-sub-divider" />
+                    <div className="nav-sub-divider" /> */}
                     {renderDropdownItems(cat.children, 0)}
                   </div>
                 )}
