@@ -742,6 +742,10 @@ class NewsController extends Controller
      */
     public function apiPollVote(Request $request, Poll $poll)
     {
+        if (!$poll->is_active || ($poll->end_date && $poll->end_date->isPast())) {
+            return response()->json(['error' => 'Poll is closed'], 422);
+        }
+
         $validated = $request->validate([
             'option_id' => 'required|integer',
         ]);

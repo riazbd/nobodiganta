@@ -255,80 +255,6 @@ function VideoSection({ items, lang, nav }) {
   );
 }
 
-// ─── TABBED SECTION ───────────────────────────────────────────────────────────
-function TabbedSection({ mostRead, breakingNews, latest, featured, lang, nav }) {
-  const [tab, setTab] = useState(0);
-  const tabs = [
-    { bn: 'সর্বাধিক পঠিত', en: 'Most Read'    },
-    { bn: 'জনপ্রিয়',      en: 'Most Popular' },
-  ];
-  const leftList  = tab === 0 ? mostRead : breakingNews;
-  const rightList = latest;
-
-  return (
-    <div className="p-section p-tab-section">
-      <div className="p-tabs">
-        {tabs.map((t, i) => (
-          <button key={i} className={`p-tab-btn${tab === i ? ' on' : ''}`} onClick={() => setTab(i)}>
-            {lang === 'bn' ? t.bn : t.en}
-          </button>
-        ))}
-      </div>
-      <div className="p-tab-body">
-        {/* Left: numbered list */}
-        <div className="p-tab-list">
-          {leftList.slice(0, 8).map((a, i) => (
-            <div key={a.id} className="p-tab-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-              <div className="p-tab-item-body">
-                <h5 className="p-tab-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h5>
-              </div>
-              {a.featured_image && <Img src={a.featured_image} alt={a.title} h={58} w={80} />}
-            </div>
-          ))}
-        </div>
-
-        {/* Center: featured + 2-col mini */}
-        <div className="p-tab-feat">
-          {featured && (
-            <>
-              <div className="p-tab-main" onClick={() => go(featured, nav)} role="button" tabIndex={0}>
-                <div className="p-tab-main-img">
-                  <Img src={featured.featured_image} alt={featured.title} isVideo={featured.article_type === 'video'} />
-                </div>
-                <div className="p-tab-main-body">
-                  <h3 className="p-tab-main-h">{lang === 'bn' ? featured.title : (featured.title_en || featured.title)}</h3>
-                </div>
-              </div>
-              <div className="p-tab-mini2">
-                {leftList.slice(8, 10).map(a => (
-                  <div key={a.id} className="p-tab-mini2-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-                    <div className="p-tab-mini2-img">
-                      <Img src={a.featured_image} alt={a.title} />
-                    </div>
-                    <h5 className="p-tab-mini2-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h5>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Right: thumbnail list */}
-        <div className="p-tab-right">
-          {rightList.slice(0, 6).map(a => (
-            <div key={a.id} className="p-tab-right-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-              <div>
-                <h5 className="p-tab-right-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h5>
-              </div>
-              <Img src={a.featured_image} alt={a.title} h={62} w={85} />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── SECTION HEADER ───────────────────────────────────────────────────────────
 function SecHdr({ title, slug, subcats, lang, nav, activeSub, onSub }) {
   return (
@@ -594,8 +520,6 @@ export default function Home({
   const heroGrid6   = leadArticles.slice(1, 7);
   const midMain     = leadArticles[7];
   const midList     = leadArticles.slice(8, 13);
-  const tabFeat     = mostRead[0] || leadArticles[0];
-
   const videoSec    = sections.find(s => s.type === 'videos');
   const storiesSec  = sections.find(s => s.type === 'stories');
   const catSecs     = sections.filter(s => s.type === 'category' && s.items?.length > 0);

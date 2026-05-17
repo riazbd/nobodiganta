@@ -79,10 +79,13 @@ export default function PollWidget() {
     }
   };
 
-  const winningOptionId = Object.entries(counts).reduce(
-    (best, [id, v]) => v > (counts[best] || 0) ? Number(id) : best,
-    null
-  );
+  const winningOptionId = (() => {
+    let best = null, bestV = -1;
+    Object.entries(counts).forEach(([id, v]) => {
+      if (v > bestV) { bestV = v; best = Number(id); }
+    });
+    return best;
+  })();
 
   if (loading) {
     return (

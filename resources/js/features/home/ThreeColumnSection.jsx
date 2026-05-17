@@ -155,7 +155,7 @@ export default function ThreeColumnSection({ stories = [] }) {
     <div className="p-section htcs-wrap">
       <OpinionColumn lang={lang} nav={onNavigate} />
       <div className="htcs-col htcs-col-poll">
-        <div className="htcs-sec-hdr" style={{ visibility: 'hidden', marginBottom: 0, height: 0 }}>
+        <div className="htcs-sec-hdr" style={{ display: 'none' }}>
           <span className="htcs-sec-ttl">Poll</span>
         </div>
         <PollWidget />
