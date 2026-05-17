@@ -13,6 +13,7 @@ use App\Models\Ad;
 use App\Models\CricketMatch;
 use App\Models\Weather;
 use App\Models\Poll;
+use App\Models\PollOption;
 use App\Models\Horoscope;
 use App\Models\PrayerTime;
 use App\Models\Epaper;
@@ -718,7 +719,7 @@ class NewsController extends Controller
     {
         $edition = $this->getEdition($request);
         $poll = Poll::where('is_active', true)->with('options')->latest('start_date')->first();
-        
+
         if (!$poll) return response()->json(['data' => null]);
 
         return response()->json(['data' => [
@@ -734,6 +735,32 @@ class NewsController extends Controller
                 'votes'  => $opt->votes,
             ]),
         ]]);
+    }
+
+    /**
+     * API: Submit a vote for a poll option
+     */
+    public function apiPollVote(Request $request, Poll $poll)
+    {
+        $validated = $request->validate([
+            'option_id' => 'required|integer',
+        ]);
+
+        $option = PollOption::where('id', $validated['option_id'])
+            ->where('poll_id', $poll->id)
+            ->firstOrFail();
+
+        $option->increment('votes');
+        $poll->increment('total_votes');
+
+        $poll->load('options');
+
+        return response()->json([
+            'options' => $poll->options->map(fn($opt) => [
+                'id'    => $opt->id,
+                'votes' => $opt->votes,
+            ]),
+        ]);
     }
 
     /**

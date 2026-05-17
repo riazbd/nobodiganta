@@ -338,6 +338,9 @@ Route::post('/api/ads/{id}/impression', [NewsController::class, 'adImpression'])
 Route::post('/api/ads/{id}/click', [NewsController::class, 'adClick'])->name('api.ads.click');
 Route::get('/api/weather', [NewsController::class, 'apiWeather'])->name('api.weather');
 Route::get('/api/poll', [NewsController::class, 'apiPoll'])->name('api.poll');
+Route::post('/api/poll/{poll}/vote', [NewsController::class, 'apiPollVote'])
+    ->name('api.poll.vote')
+    ->whereNumber('poll');
 Route::get('/api/horoscope', [NewsController::class, 'apiHoroscope'])->name('api.horoscope');
 Route::get('/api/prayer-times', [NewsController::class, 'apiPrayerTimes'])->name('api.prayer-times');
 Route::get('/api/epaper', [NewsController::class, 'apiEpaper'])->name('api.epaper');
