@@ -113,6 +113,7 @@ function OpinionColumn({ lang, nav }) {
 // ─── Stories Panel ─────────────────────────────────────────────────────────────
 function StoriesPanel({ stories, lang }) {
   const [activeStory, setActiveStory] = useState(null);
+  const [tab, setTab]                 = useState('video');
   const videoScrollRef = useRef(null);
   const photoScrollRef = useRef(null);
 
@@ -121,23 +122,38 @@ function StoriesPanel({ stories, lang }) {
 
   return (
     <div className="htcs-col">
-      <div className="htcs-sec-hdr">
-        <span className="htcs-sec-ttl">{lang === 'bn' ? 'স্টোরি' : 'Stories'}</span>
+      <div className="htcs-story-tabs">
+        <button
+          className={`htcs-story-tab${tab === 'video' ? ' on' : ''}`}
+          onClick={() => setTab('video')}
+        >
+          {lang === 'bn' ? 'ভিডিও স্টোরি' : 'Video Story'}
+        </button>
+        <button
+          className={`htcs-story-tab${tab === 'photo' ? ' on' : ''}`}
+          onClick={() => setTab('photo')}
+        >
+          {lang === 'bn' ? 'ফটো স্টোরি' : 'Photo Story'}
+        </button>
       </div>
-      <StoryCarousel
-        label={lang === 'bn' ? 'ভিডিও স্টোরি' : 'Video Story'}
-        items={videoStories}
-        isVideo={true}
-        onClickItem={(_, idx) => setActiveStory(stories.indexOf(videoStories[idx]))}
-        scrollRef={videoScrollRef}
-      />
-      <StoryCarousel
-        label={lang === 'bn' ? 'ফটো স্টোরি' : 'Photo Story'}
-        items={photoStories}
-        isVideo={false}
-        onClickItem={(_, idx) => setActiveStory(stories.indexOf(photoStories[idx]))}
-        scrollRef={photoScrollRef}
-      />
+
+      {tab === 'video' && (
+        <StoryCarousel
+          items={videoStories}
+          isVideo={true}
+          onClickItem={(_, idx) => setActiveStory(stories.indexOf(videoStories[idx]))}
+          scrollRef={videoScrollRef}
+        />
+      )}
+      {tab === 'photo' && (
+        <StoryCarousel
+          items={photoStories}
+          isVideo={false}
+          onClickItem={(_, idx) => setActiveStory(stories.indexOf(photoStories[idx]))}
+          scrollRef={photoScrollRef}
+        />
+      )}
+
       {activeStory !== null && (
         <StoryViewer
           stories={stories}

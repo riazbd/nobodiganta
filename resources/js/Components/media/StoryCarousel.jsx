@@ -18,9 +18,11 @@ export default function StoryCarousel({ label, items, isVideo, onClickItem, scro
 
   return (
     <div className="hp-h3-carousel-sec">
-      <div className="hp-h3-cs-hdr">
-        <span className="hp-h3-cs-ttl">{label}</span>
-      </div>
+      {label && (
+        <div className="hp-h3-cs-hdr">
+          <span className="hp-h3-cs-ttl">{label}</span>
+        </div>
+      )}
       <div className="hp-h3-stories">
         <div className="hp-h3-scroll" ref={scrollRef} onScroll={onScroll}>
           {items.length > 0 ? items.slice(0, 8).map((item, idx) => (
