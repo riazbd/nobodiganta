@@ -106,7 +106,7 @@ export default function PollWidget() {
     <div className="poll-widget htcs-poll-wrap">
       <div className="poll-hdr">
         <BarIcon />
-        {lang === 'bn' ? 'অনলাইন জিরপ' : 'Online Poll'}
+        {lang === 'bn' ? 'অনলাইন জরিপ' : 'Online Poll'}
       </div>
 
       {poll.featured_image && (
