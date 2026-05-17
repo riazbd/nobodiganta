@@ -21,7 +21,7 @@ class PollSeeder extends Seeder
                     'start_date'     => now()->subDays(3),
                     'end_date'       => now()->addDays(7),
                     'total_votes'    => 4256,
-                    'featured_image' => 'https://images.prothomalo.com/prothomalo-bangla%2F2024-01%2Fautorickshaw.jpg',
+                    'featured_image' => 'https://picsum.photos/seed/dhaka-poll/800/400',
                 ],
                 'options' => [
                     ['option_bn' => 'হ্যাঁ',        'option_en' => 'Yes',        'votes' => 1840],
