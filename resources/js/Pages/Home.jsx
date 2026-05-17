@@ -6,7 +6,7 @@ import { useNavigation } from '../contexts/NavigationContext';
 import { relativeTime, toBengaliNum } from '../lib/formatters';
 import Icon from '../Components/Icon';
 import StoryStrip from '@/Components/StoryStrip';
-import StoryViewer from '../Components/StoryViewer';
+import TrendingWidget from '../Components/widgets/TrendingWidget';
 import MetaTags from '../Components/seo/MetaTags';
 import { OrganizationJsonLd, WebSiteJsonLd } from '../Components/seo/JsonLd';
 import { buildDefaultSeo } from '../lib/seo';
@@ -95,14 +95,8 @@ function SocialFollow({ settings, lang }) {
   );
 }
 
-function HeroBlock({ feat, grid6, midMain, midList, stories, lang, nav, settings }) {
-  const [activeStory, setActiveStory] = useState(null);
-  const videoScrollRef = useRef(null);
-  const photoScrollRef = useRef(null);
+function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings }) {
   const t = (a) => lang === 'bn' ? a.title : (a.title_en || a.title);
-
-  const videoStories = stories.filter(s => s.slides?.some(sl => sl.is_video));
-  const photoStories = stories.filter(s => !s.slides?.some(sl => sl.is_video));
 
   return (
     <div className="hp-hero3">
@@ -175,32 +169,11 @@ function HeroBlock({ feat, grid6, midMain, midList, stories, lang, nav, settings
         </div>
       </div>
 
-      {/* ── RIGHT: Social follow + Video Story + Photo Story ── */}
+      {/* ── RIGHT: Social follow + Trending ── */}
       <div className="hp-h3-right">
         <SocialFollow settings={settings} lang={lang} />
-        <StoryCarousel
-          label={lang === 'bn' ? 'ভিডিও স্টোরি' : 'Video Story'}
-          items={videoStories}
-          isVideo={true}
-          onClickItem={(_, idx) => setActiveStory(stories.indexOf(videoStories[idx]))}
-          scrollRef={videoScrollRef}
-        />
-        <StoryCarousel
-          label={lang === 'bn' ? 'ফটো স্টোরি' : 'Photo Story'}
-          items={photoStories}
-          isVideo={false}
-          onClickItem={(_, idx) => setActiveStory(stories.indexOf(photoStories[idx]))}
-          scrollRef={photoScrollRef}
-        />
+        <TrendingWidget />
       </div>
-
-      {activeStory !== null && (
-        <StoryViewer
-          stories={stories}
-          initialIndex={activeStory}
-          onClose={() => setActiveStory(null)}
-        />
-      )}
     </div>
   );
 }
