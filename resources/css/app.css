@@ -2025,7 +2025,7 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 .hp-h3-feat:hover .hp-h3-feat-img img{transform:scale(1.03);}
 .hp-h3-feat-body{flex:1;padding:16px 14px;display:flex;flex-direction:column;justify-content:start;}
 .hp-h3-feat-h{font-family:'SolaimanLipi',sans-serif;font-size:28px;font-weight:600;line-height:36px;color:var(--black);margin-bottom:10px;transition:color .15s;}
-.hp-h3-feat-p{font-size:16px;color:var(--light-text);line-height:22px;text-align:justify;font-weight: 400;}
+.hp-h3-feat-p{font-size:16px;color:var(--light-text);line-height:22px;font-weight: 400;}
 
 /* Left — 6-card bottom grid (separated from feat by border) */
 .hp-h3-grid{margin-top:8px;border-top:1px solid #e2e2e2;}
@@ -2474,4 +2474,115 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
   .htcs-wrap{grid-template-columns:1fr;}
   .htcs-col{padding:14px 0;border-right:none;border-bottom:1px solid var(--border);}
   .htcs-col:last-child{border-bottom:none;}
+}
+
+/* ══ PRAYER WEATHER SECTION (pws-) ════════════════════════════════════════ */
+.pws-section{background:linear-gradient(135deg,#1a2632 0%,#0f3460 60%,#1a2632 100%);padding:28px 0;margin-top:24px;border-top:3px solid var(--primary);}
+.pws-section.pws-ramadan{background:linear-gradient(135deg,#1a1200 0%,#3d2800 60%,#1a1200 100%);border-top-color:#c9a227;}
+.pws-inner{max-width:1200px;margin:0 auto;padding:0 16px;}
+.pws-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.pws-city-wrap{display:flex;gap:8px;align-items:center;}
+.pws-city-select{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 12px;font-family:'SolaimanLipi',sans-serif;font-size:16px;cursor:pointer;outline:none;}
+.pws-city-select option{background:#1a2632;color:#fff;}
+.pws-locate-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;transition:background .15s;}
+.pws-locate-btn:hover{background:rgba(255,255,255,.25);}
+.pws-more-btn{background:transparent;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.8);border-radius:8px;padding:6px 14px;font-family:'SolaimanLipi',sans-serif;font-size:15px;cursor:pointer;transition:all .15s;}
+.pws-more-btn:hover{border-color:#fff;color:#fff;}
+.pws-panels{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.pws-panel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:18px;}
+.pws-panel-hdr{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.12);}
+.pws-panel-icon{font-size:20px;}
+.pws-panel-title{font-family:'SolaimanLipi',sans-serif;font-size:18px;font-weight:700;color:#fff;flex:1;}
+.pws-date{font-size:13px;color:rgba(255,255,255,.6);}
+.pws-ramadan-badge{background:#c9a227;color:#1a0d00;font-family:'SolaimanLipi',sans-serif;font-size:14px;font-weight:700;padding:4px 12px;border-radius:20px;text-align:center;margin-bottom:10px;}
+.pws-prayer-rows{display:flex;flex-direction:column;gap:2px;}
+.pws-prayer-row{display:flex;align-items:center;padding:7px 10px;border-radius:7px;transition:background .12s;}
+.pws-prayer-row.next{background:rgba(232,0,30,.2);border:1px solid rgba(232,0,30,.4);}
+.pws-prayer-row.passed{opacity:.45;}
+.pws-prayer-row.iftar{background:rgba(201,162,39,.2);border:1px solid rgba(201,162,39,.4);}
+.pws-prayer-name{flex:1;font-family:'SolaimanLipi',sans-serif;font-size:16px;color:#fff;}
+.pws-prayer-time{font-size:15px;font-weight:700;color:#fff;}
+.pws-pulse{width:8px;height:8px;border-radius:50%;background:#e8001e;margin-left:8px;animation:pws-pulse 1.2s ease-in-out infinite;}
+@keyframes pws-pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
+.pws-countdown{margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.12);display:flex;justify-content:space-between;align-items:center;}
+.pws-countdown-label{font-family:'SolaimanLipi',sans-serif;font-size:14px;color:rgba(255,255,255,.7);}
+.pws-countdown-time{font-size:22px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.02em;}
+.pws-weather-main{display:flex;gap:16px;align-items:flex-start;margin-bottom:14px;}
+.pws-temp{font-size:52px;font-weight:800;color:#fff;line-height:1;}
+.pws-temp-unit{font-size:24px;font-weight:400;vertical-align:top;margin-top:8px;display:inline-block;}
+.pws-condition{font-family:'SolaimanLipi',sans-serif;font-size:17px;color:#fff;margin-bottom:4px;}
+.pws-weather-meta{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:2px;}
+.pws-forecast{display:flex;gap:6px;margin-top:8px;}
+.pws-forecast-day{flex:1;text-align:center;background:rgba(255,255,255,.06);border-radius:8px;padding:8px 4px;}
+.pws-forecast-label{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px;}
+.pws-forecast-emoji{font-size:20px;margin-bottom:4px;}
+.pws-forecast-temp{font-size:13px;font-weight:700;color:#fff;}
+.pws-forecast-min{font-weight:400;color:rgba(255,255,255,.6);}
+.pws-empty{color:rgba(255,255,255,.5);font-size:15px;text-align:center;padding:20px 0;}
+
+/* ══ PRAYER TIMES PAGE (pp-) ════════════════════════════════════════════ */
+.pp-wrap{max-width:1100px;margin:0 auto;padding:0 16px 40px;}
+.pp-hero{background:linear-gradient(135deg,#1a2632,#0f3460);border-radius:12px;padding:24px;margin:16px 0 24px;}
+.pp-hero-ramadan{background:linear-gradient(135deg,#2d1a00,#4a2800);}
+.pp-ramadan-banner{background:#c9a227;color:#1a0d00;font-family:'SolaimanLipi',sans-serif;font-size:16px;font-weight:700;padding:8px 16px;border-radius:8px;text-align:center;margin-bottom:16px;}
+.pp-hero-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;}
+.pp-clock{font-size:42px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;line-height:1;}
+.pp-hero-date{font-size:15px;color:rgba(255,255,255,.7);margin-top:4px;}
+.pp-hero-hijri{font-family:'SolaimanLipi',sans-serif;font-size:15px;color:rgba(255,255,255,.6);}
+.pp-city-row{display:flex;gap:8px;margin-bottom:12px;}
+.pp-city-select{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 14px;font-family:'SolaimanLipi',sans-serif;font-size:16px;cursor:pointer;outline:none;}
+.pp-city-select option{background:#1a2632;color:#fff;}
+.pp-locate-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:16px;}
+.pp-next-prayer{text-align:right;}
+.pp-next-label{font-family:'SolaimanLipi',sans-serif;font-size:15px;color:rgba(255,255,255,.7);margin-bottom:4px;}
+.pp-next-countdown{font-size:36px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;}
+.pp-body{margin-top:8px;}
+.pp-section{margin-bottom:32px;}
+.pp-section-title{font-family:'SolaimanLipi',sans-serif;font-size:22px;font-weight:700;color:var(--black);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--primary);}
+.pp-today-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.pp-prayer-card{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:16px;text-align:center;position:relative;transition:box-shadow .15s;}
+.pp-prayer-card.pp-next{border-color:var(--primary);box-shadow:0 2px 12px rgba(232,0,30,.15);}
+.pp-prayer-card.pp-passed{opacity:.5;}
+.pp-prayer-card.pp-iftar{border-color:#c9a227;background:#fffbf0;}
+.pp-prayer-card.pp-sehri{border-color:#6b8cba;background:#f0f5ff;}
+.pp-iftar-badge,.pp-sehri-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:6px;display:inline-block;}
+.pp-iftar-badge{background:#c9a227;color:#fff;}
+.pp-sehri-badge{background:#6b8cba;color:#fff;}
+.pp-prayer-name{font-family:'SolaimanLipi',sans-serif;font-size:16px;color:#555;margin-bottom:6px;}
+.pp-prayer-time{font-size:22px;font-weight:800;color:#222;}
+.pp-next-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);margin:6px auto 0;animation:pws-pulse 1.2s ease-in-out infinite;}
+.pp-weekly-wrap{overflow-x:auto;}
+.pp-weekly-table{width:100%;border-collapse:collapse;font-size:15px;}
+.pp-weekly-table th,.pp-weekly-table td{border:1px solid #e8e8e8;padding:8px 12px;text-align:center;}
+.pp-weekly-table th{background:#f8f8f8;font-family:'SolaimanLipi',sans-serif;font-size:15px;}
+.pp-today-col{background:#fff5f5;font-weight:700;}
+.pp-week-day{font-size:11px;color:#888;}
+.pp-row-label{text-align:left;font-family:'SolaimanLipi',sans-serif;font-weight:600;}
+.pp-iftar-row td{background:#fffbf0;}
+.pp-cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.pp-cal-nav{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 14px;font-size:20px;cursor:pointer;}
+.pp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.pp-cal-cell{border:1px solid #e8e8e8;border-radius:6px;padding:6px;cursor:pointer;min-height:64px;transition:background .12s;}
+.pp-cal-cell:hover,.pp-cal-cell.pp-cal-expanded{background:#fff5f5;border-color:var(--primary);}
+.pp-cal-today{background:#fff0f0;border-color:var(--primary);}
+.pp-cal-day{font-size:15px;font-weight:700;color:#222;}
+.pp-cal-hijri{font-size:10px;color:#aaa;margin-bottom:3px;}
+.pp-cal-fajr{font-size:11px;color:#555;}
+.pp-cal-maghrib{font-size:11px;color:#555;}
+.pp-cal-iftar{color:#c9a227;font-weight:700;}
+.pp-cal-expand{margin-top:8px;border-top:1px solid #f0f0f0;padding-top:6px;}
+.pp-cal-expand-row{display:flex;justify-content:space-between;font-size:11px;padding:1px 0;}
+.pp-cities-note{font-size:14px;color:#888;margin:-10px 0 12px;}
+.pp-cities-strip{display:flex;flex-wrap:wrap;gap:8px;}
+.pp-city-chip{border:1px solid #e8e8e8;background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;text-align:left;transition:all .15s;}
+.pp-city-chip.active,.pp-city-chip:hover{border-color:var(--primary);background:#fff5f5;}
+.pp-city-chip-name{font-family:'SolaimanLipi',sans-serif;font-size:15px;font-weight:700;color:#222;}
+.pp-city-chip-label{font-size:11px;color:#999;}
+.pp-method{font-size:12px;color:#aaa;text-align:center;margin-top:16px;}
+@media(max-width:767px){
+  .pws-panels{grid-template-columns:1fr;}
+  .pp-hero-inner{flex-direction:column;}
+  .pp-next-prayer{text-align:left;}
+  .pp-today-grid{grid-template-columns:repeat(3,1fr);}
+  .pp-cal-grid{grid-template-columns:repeat(4,1fr);}
 }
