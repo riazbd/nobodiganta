@@ -27,6 +27,7 @@ class PollController extends Controller
             'is_active' => 'boolean',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'featured_image' => 'nullable|string|max:500',
             'options' => 'required|array|min:2',
             'options.*.option_bn' => 'required|string',
             'options.*.option_en' => 'required|string',
@@ -42,6 +43,7 @@ class PollController extends Controller
             'is_active' => $validated['is_active'] ?? false,
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
+            'featured_image' => $validated['featured_image'] ?? null,
         ]);
 
         foreach ($validated['options'] as $opt) {

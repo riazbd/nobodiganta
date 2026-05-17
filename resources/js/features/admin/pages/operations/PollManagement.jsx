@@ -17,6 +17,7 @@ export default function PollManagement({ polls = [] }) {
     is_active: true,
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
+    featured_image: '',
     options: [
       { option_bn: '', option_en: '' },
       { option_bn: '', option_en: '' }
@@ -25,8 +26,9 @@ export default function PollManagement({ polls = [] }) {
 
   const openAddModal = () => {
     setForm({
-      question_bn: '', question_en: '', is_active: true, 
+      question_bn: '', question_en: '', is_active: true,
       start_date: new Date().toISOString().split('T')[0], end_date: '',
+      featured_image: '',
       options: [{ option_bn: '', option_en: '' }, { option_bn: '', option_en: '' }]
     });
     setShowModal(true);
@@ -130,6 +132,17 @@ export default function PollManagement({ polls = [] }) {
                     <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Question (EN)</label>
                     <input type="text" value={form.question_en} onChange={e => setForm({...form, question_en: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" />
                   </div>
+               </div>
+
+               <div>
+                 <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Featured Image URL (Optional)</label>
+                 <input
+                   type="url"
+                   value={form.featured_image}
+                   onChange={e => setForm({...form, featured_image: e.target.value})}
+                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]"
+                   placeholder="https://..."
+                 />
                </div>
 
                <div className="grid grid-cols-2 gap-6">
