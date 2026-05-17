@@ -236,6 +236,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/polls', [PollController::class, 'index'])->name('polls');
         Route::post('/polls', [PollController::class, 'store'])->name('polls.store');
+        Route::patch('/polls/{poll}/toggle', [PollController::class, 'toggle'])->name('polls.toggle')->whereNumber('poll');
         Route::delete('/polls/{poll}', [PollController::class, 'destroy'])->name('polls.destroy')->whereNumber('poll');
 
         Route::get('/weather', [WeatherController::class, 'index'])->name('weather');
