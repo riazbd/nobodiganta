@@ -50,7 +50,10 @@
 
 ## File Map
 
-**Create:**
+**Delete then Create (fresh file, same path):**
+- `resources/js/Pages/PrayerTimes.jsx` — old stub is useless, write from scratch
+
+**Create (new files):**
 - `config/bangladesh_cities.php`
 - `app/Services/PrayerTimeService.php`
 - `app/Services/WeatherService.php`
@@ -61,15 +64,14 @@
 - `resources/js/lib/wmo.js`
 - `resources/js/lib/prayerUtils.js`
 
-**Modify:**
-- `routes/web.php`
-- `app/Http/Controllers/NewsController.php`
-- `resources/js/Pages/Home.jsx`
-- `resources/js/Pages/PrayerTimes.jsx` (full rewrite)
-- `resources/js/features/admin/components/layout/Sidebar.jsx`
-- `resources/css/app.css`
+**Modify (surgical changes only — large shared files with other responsibilities):**
+- `routes/web.php` — remove old routes, add new ones
+- `app/Http/Controllers/NewsController.php` — replace weather/prayer DB queries with service calls, update `prayerTimes()` method, delete `apiPrayerTimes()` and `apiWeather()` methods
+- `resources/js/Pages/Home.jsx` — accept new props, render PrayerWeatherSection
+- `resources/js/features/admin/components/layout/Sidebar.jsx` — remove prayer/weather links if present
+- `resources/css/app.css` — append new CSS blocks
 
-**Delete:**
+**Delete entirely:**
 - `app/Http/Controllers/Admin/PrayerTimeController.php`
 - `app/Http/Controllers/Admin/WeatherController.php`
 - `app/Models/PrayerTime.php`
@@ -1169,9 +1171,15 @@ git commit -m "feat: add PrayerWeatherSection to homepage with city switching an
 ## Task 10: Prayer Times Full Page Rebuild
 
 **Files:**
-- Modify: `resources/js/Pages/PrayerTimes.jsx` (full rewrite)
+- Delete then Create: `resources/js/Pages/PrayerTimes.jsx`
 
-- [ ] **Step 1: Rewrite PrayerTimes.jsx**
+- [ ] **Step 1: Delete the old file, then create it fresh**
+
+```bash
+rm resources/js/Pages/PrayerTimes.jsx
+```
+
+Then create `resources/js/Pages/PrayerTimes.jsx` with the content below.
 
 Replace entire file content:
 
