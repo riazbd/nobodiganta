@@ -7,6 +7,7 @@ import { relativeTime, toBengaliNum } from '../lib/formatters';
 import Icon from '../Components/Icon';
 import StoryStrip from '@/Components/StoryStrip';
 import TrendingWidget from '../Components/widgets/TrendingWidget';
+import ThreeColumnSection from '../features/home/ThreeColumnSection';
 import MetaTags from '../Components/seo/MetaTags';
 import { OrganizationJsonLd, WebSiteJsonLd } from '../Components/seo/JsonLd';
 import { buildDefaultSeo } from '../lib/seo';
@@ -640,7 +641,6 @@ export default function Home({
           grid6={heroGrid6}
           midMain={midMain}
           midList={midList}
-          stories={heroStories}
           lang={lang}
           nav={onNavigate}
           settings={settings}
@@ -653,17 +653,8 @@ export default function Home({
       {/* ══ BODY ═══════════════════════════════════════════════════════════ */}
       <div className="p-body">
 
-        {/* Tabbed most-read / popular */}
-        {mostRead.length > 0 && (
-          <TabbedSection
-            mostRead={mostRead}
-            breakingNews={breakingNews}
-            latest={leadArticles}
-            featured={tabFeat}
-            lang={lang}
-            nav={onNavigate}
-          />
-        )}
+        {/* Three-column: Opinion | Poll | Stories */}
+        <ThreeColumnSection stories={heroStories} />
 
         {/* Category sections */}
         {catSecs.map((section, idx) => (
