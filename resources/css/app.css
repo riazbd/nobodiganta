@@ -2547,10 +2547,20 @@ select.almnc-city-select{padding:0;}
 .almnc-wx-day svg{color:#6b6863;}
 .almnc-wx-day-temp{font-family:'Playfair Display','Georgia',serif;font-size:12px;font-weight:700;color:#1a1a1a;font-variant-numeric:tabular-nums;}
 
+/* ─── Responsive: Prayer & Weather (all breakpoints consolidated) ─── */
+@media(max-width:960px){
+  .almnc-page-mast{padding:20px 20px 16px;}
+}
+
 @media(max-width:880px){
+  /* Homepage widget */
   .almnc-body{grid-template-columns:1fr;}
   .almnc-col{border-right:none;border-bottom:1px solid #e5e0d8;}
   .almnc-col:last-child{border-bottom:none;}
+  /* Prayer page */
+  .almnc-twin{grid-template-columns:1fr;}
+  .almnc-block{padding:16px 18px;}
+  .almnc-twin-col{padding:16px 18px;}
 }
 
 /* ─── Prayer page ─── */
@@ -2563,10 +2573,12 @@ html[lang="en"] .almnc-pm-title{font-family:'Playfair Display','Georgia',serif;}
 .almnc-pm-city{display:inline-flex;align-items:center;gap:4px;color:#3a3833;font-weight:700;}
 .almnc-pm-controls{position:absolute;top:24px;right:26px;display:flex;gap:8px;align-items:center;}
 
-@media(max-width:680px){
-  .almnc-page-mast{padding:18px 18px 14px;}
+@media(max-width:760px){
+  .almnc-page-mast{padding:16px 16px 14px;}
   .almnc-pm-title{font-size:26px;}
   .almnc-pm-controls{position:static;margin-top:12px;}
+  .almnc-cd-time{font-size:58px;}
+  .almnc-cd-hero{padding:24px 16px;}
 }
 
 .almnc-ramadan{background:#fbf6e9;border-left:3px solid #a87f3c;border-right:3px solid #a87f3c;color:#7a5a1f;font-family:'SolaimanLipi',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;text-align:center;letter-spacing:0.01em;margin-bottom:10px;border-radius:2px;}
@@ -2579,17 +2591,12 @@ html[lang="en"] .almnc-pm-title{font-family:'Playfair Display','Georgia',serif;}
 .almnc-cd-time{font-family:'Playfair Display','Georgia',serif;font-size:78px;font-weight:800;color:#1a1a1a;font-variant-numeric:tabular-nums;line-height:0.95;letter-spacing:-0.04em;margin:6px 0;}
 .almnc-cd-meta{font-family:'SolaimanLipi',sans-serif;font-size:13px;color:#6b6863;margin-top:6px;}
 
-@media(max-width:680px){
-  .almnc-cd-time{font-size:54px;}
-  .almnc-cd-hero{padding:22px 14px;}
-}
 
 .almnc-twin{display:grid;grid-template-columns:1.3fr 1fr;gap:10px;margin-bottom:10px;}
 .almnc-twin-col{background:#fdfcf8;border:1px solid #d8d3cc;border-radius:4px;padding:18px 22px;}
 .almnc-twin-wx{background:#f6f3eb;}
 .almnc-h2{font-family:'Playfair Display','Georgia',serif;font-size:11px;font-weight:700;color:#a89e8e;text-transform:uppercase;letter-spacing:0.24em;margin:0 0 14px;padding-bottom:6px;border-bottom:1px solid #d8d3cc;}
 
-@media(max-width:880px){.almnc-twin{grid-template-columns:1fr;}}
 
 .almnc-list-lg .almnc-li{padding:11px 0;}
 .almnc-list-lg .almnc-li-name{font-size:17px;}
@@ -2660,11 +2667,75 @@ html[lang="en"] .almnc-pm-title{font-family:'Playfair Display','Georgia',serif;}
 .almnc-cal-times .is-iftar span,
 .almnc-cal-times .is-iftar strong{color:#a87f3c;}
 
-@media(max-width:680px){
-  .almnc-cal{grid-template-columns:repeat(4,1fr);}
-  .almnc-cal-cell{min-height:68px;padding:6px;}
+@media(max-width:600px){
+  .almnc-page-mast{padding:14px 14px 12px;}
+  .almnc-pm-title{font-size:22px;}
+  .almnc-pm-controls{flex-wrap:wrap;gap:6px;}
+
+  .almnc-cd-time{font-size:48px;}
+  .almnc-cd-hero{padding:18px 14px;}
+
+  .almnc-block{padding:14px 14px;}
+  .almnc-twin-col{padding:14px 14px;}
+
+  .almnc-list-lg .almnc-li{padding:9px 0;}
+  .almnc-list-lg .almnc-li-name{font-size:15px;}
+  .almnc-list-lg .almnc-li-time{font-size:16px;}
+
+  .almnc-wx-temp-lg{font-size:38px;}
+  .almnc-wx-dl dd{font-size:15px;}
+
+  .almnc-week-tbl th,
+  .almnc-week-tbl td{padding:7px 4px;font-size:11.5px;}
+  .almnc-wk-day{font-size:9.5px;}
+  .almnc-wk-num{font-size:13px;}
+  .almnc-wk-label{font-size:11.5px;}
+
+  .almnc-cal-hdr{flex-direction:column;align-items:flex-start;gap:8px;}
+  .almnc-cal{grid-template-columns:repeat(5,1fr);}
+  .almnc-cal-cell{min-height:66px;padding:6px;}
   .almnc-cal-d{font-size:15px;}
   .almnc-cal-h{font-size:10px;}
+}
+
+@media(max-width:480px){
+  .almnc-pm-title{font-size:20px;}
+  .almnc-cd-time{font-size:40px;}
+
+  .almnc-block{padding:12px 12px;}
+  .almnc-twin-col{padding:12px 12px;}
+
+  .almnc-list-lg .almnc-li-name{font-size:14px;}
+  .almnc-list-lg .almnc-li-time{font-size:15px;}
+
+  .almnc-wx-main-lg{flex-direction:column;align-items:flex-start;gap:6px;}
+  .almnc-wx-days{flex-wrap:wrap;}
+  .almnc-wx-day-lg{min-width:calc(20% - 5px);}
+
+  .almnc-week-tbl th,
+  .almnc-week-tbl td{padding:5px 3px;font-size:10px;}
+  .almnc-wk-day{font-size:8px;letter-spacing:0;}
+  .almnc-wk-num{font-size:12px;}
+  .almnc-wk-label{font-size:10px;}
+
+  .almnc-cal{grid-template-columns:repeat(4,1fr);}
+  .almnc-cal-cell{min-height:58px;padding:5px;}
+  .almnc-cal-d{font-size:13px;}
+  .almnc-cal-times > div{font-size:9px;}
+  .almnc-cal-times span{font-size:8px;}
+
+  .almnc-cal-detail{padding:12px 12px;}
+  .almnc-cal-detail-date{font-size:13px;}
+  .almnc-list-detail .almnc-li-name{font-size:13px;}
+  .almnc-list-detail .almnc-li-time{font-size:14px;}
+}
+
+@media(max-width:360px){
+  .almnc-cd-time{font-size:34px;}
+  .almnc-cal{grid-template-columns:repeat(3,1fr);}
+  .almnc-cal-times{display:none;}
+  .almnc-cal-cell{min-height:50px;}
+  .almnc-city-chip{padding:5px 8px;font-size:12px;}
 }
 
 .almnc-cities{display:flex;flex-wrap:wrap;gap:5px;}

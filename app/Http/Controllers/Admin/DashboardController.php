@@ -13,9 +13,7 @@ use App\Models\Stock;
 use App\Models\CricketMatch;
 use App\Models\Price;
 use App\Models\Poll;
-use App\Models\Weather;
 use App\Models\Horoscope;
-use App\Models\PrayerTime;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -121,9 +119,7 @@ class DashboardController extends Controller
         $cricketMatches = CricketMatch::where('status', 'live')->orWhere('status', 'upcoming')->orderBy('sort_order')->limit(3)->get();
         $prices = Price::orderBy('sort_order')->limit(5)->get();
         $activePoll = Poll::with('options')->where('is_active', true)->first();
-        $weather = Weather::today()->first();
         $horoscopes = Horoscope::today()->limit(3)->get();
-        $prayerTime = PrayerTime::today()->first();
 
         return Inertia::render('features/admin/pages/dashboard/Dashboard', [
             'stats' => [
@@ -149,9 +145,7 @@ class DashboardController extends Controller
                 'cricket' => $cricketMatches,
                 'prices' => $prices,
                 'poll' => $activePoll,
-                'weather' => $weather,
                 'horoscope' => $horoscopes,
-                'prayerTime' => $prayerTime,
             ],
             'schedule' => [
                 ['time' => '10:00 AM', 'title' => 'Editorial Meeting', 'type' => 'meeting'],
