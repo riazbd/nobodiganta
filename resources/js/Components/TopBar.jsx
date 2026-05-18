@@ -1,6 +1,9 @@
+import { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { router, usePage } from '@inertiajs/react';
+import { findNextPrayer, formatCountdown, toBn, prayerLabel } from '../lib/prayerUtils';
+
 import Icon from './Icon';
 
 const FbIcon = () => (
@@ -24,10 +27,53 @@ const IgIcon = () => (
   </svg>
 );
 
+function useLiveClock() {
+  const [time, setTime] = useState('');
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      setTime(now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true }));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
+
+function useCountdown(epochMs) {
+  const [display, setDisplay] = useState('--:--:--');
+  useEffect(() => {
+    if (!epochMs) return;
+    const tick = () => setDisplay(formatCountdown(epochMs));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [epochMs]);
+  return display;
+}
+
 export default function TopBar() {
   const { lang, settings } = useApp();
   const { onNavigate } = useNavigation();
   const { auth } = usePage().props;
+  const clock = useLiveClock();
+  const [prayer, setPrayer] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/prayer?city=dhaka')
+      .then(r => r.json())
+      .then(json => setPrayer(json.data))
+      .catch(() => {});
+  }, []);
+
+  const next = prayer ? findNextPrayer(prayer.timings) : null;
+  const countdown = useCountdown(next?.epochMs);
+
+  const now = new Date();
+  const gregDate = now.toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', {
+    weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+  });
 
   const handleEdition = (ed) => {
     if (ed === lang) return;
@@ -49,65 +95,88 @@ export default function TopBar() {
     <div id="top-bar">
       <div className="tb-inner">
 
-        <nav className="tb-links" aria-label="Quick links">
-          <a onClick={() => onNavigate('about')}>{lang === 'bn' ? 'পরিচিতি' : 'About'}</a>
-          <a onClick={() => onNavigate('contact')}>{lang === 'bn' ? 'যোগাযোগ' : 'Contact'}</a>
-          <a onClick={() => onNavigate('archive')}>{lang === 'bn' ? 'আর্কাইভ' : 'Archive'}</a>
-        </nav>
-
-        <div className="tb-divider-v" />
-
-        <div className="tb-socials" role="list" aria-label="Social media">
-          {socials.map(({ key, url, Icon, label }) => (
-            <a key={key} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="tb-soc" role="listitem">
-              <Icon />
-            </a>
-          ))}
+        <div className="tb-left">
+          <span className="tb-clock">{lang === 'bn' ? toBn(clock) : clock}</span>
+          <span className="tb-sep" />
+          <span className="tb-date">{gregDate}</span>
+          {prayer?.date?.hijri && (
+            <>
+              <span className="tb-sep tb-sep-md" />
+              <span className="tb-hijri">{prayer.date.hijri}</span>
+            </>
+          )}
+          {next && (
+            <>
+              <span className="tb-sep tb-sep-lg" />
+              <span className="tb-prayer">
+                <span className="tb-pulse" />
+                {lang === 'bn' ? 'পরবর্তী:' : 'Next:'} {prayerLabel(next.name, lang)} {lang === 'bn' ? toBn(countdown) : countdown}
+              </span>
+            </>
+          )}
         </div>
 
-        <div className="tb-user" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-          {auth.user ? (
-            <div 
-              className="tb-auth-user" 
-              onClick={() => router.visit('/admin')}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
-            >
-              <div className="tb-user-av" style={{ width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-                {auth.user.profile_photo_url ? (
-                  <img src={auth.user.profile_photo_url} alt={auth.user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ width: '100%', height: '100%', background: '#e8001e', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 'bold' }}>
-                    {auth.user.name?.charAt(0)}
-                  </div>
-                )}
+        <div className="tb-right">
+          <nav className="tb-links" aria-label="Quick links">
+            <a onClick={() => onNavigate('about')}>{lang === 'bn' ? 'পরিচিতি' : 'About'}</a>
+            <a onClick={() => onNavigate('contact')}>{lang === 'bn' ? 'যোগাযোগ' : 'Contact'}</a>
+            <a onClick={() => onNavigate('archive')}>{lang === 'bn' ? 'আর্কাইভ' : 'Archive'}</a>
+          </nav>
+
+          <div className="tb-divider-v" />
+
+          <div className="tb-socials" role="list" aria-label="Social media">
+            {socials.map(({ key, url, Icon, label }) => (
+              <a key={key} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="tb-soc" role="listitem">
+                <Icon />
+              </a>
+            ))}
+          </div>
+
+          <div className="tb-user" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+            {auth.user ? (
+              <div 
+                className="tb-auth-user" 
+                onClick={() => router.visit('/admin')}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+              >
+                <div className="tb-user-av" style={{ width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  {auth.user.profile_photo_url ? (
+                    <img src={auth.user.profile_photo_url} alt={auth.user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', background: '#e8001e', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 'bold' }}>
+                      {auth.user.name?.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <span className="tb-user-name" style={{ fontSize: 11, color: '#ddd', fontWeight: 600 }}>{auth.user.name}</span>
               </div>
-              <span className="tb-user-name" style={{ fontSize: 11, color: '#ddd', fontWeight: 600 }}>{auth.user.name}</span>
+            ) : (
+              <a 
+                onClick={() => router.visit('/login')}
+                style={{ fontSize: 11, color: '#bbb', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+              >
+                <Icon name="user" size={12} />
+                {lang === 'bn' ? 'লগইন' : 'Login'}
+              </a>
+            )}
+
+            <div className="tb-divider-v" style={{ height: 12, opacity: 0.2 }} />
+
+            <div className="tb-edition" role="group" aria-label="Edition">
+              <button
+                className={`tb-ed-btn${lang === 'bn' ? ' active' : ''}`}
+                onClick={() => handleEdition('bn')}
+                disabled={lang === 'bn'}
+                aria-pressed={lang === 'bn'}
+              >বাংলা</button>
+              <button
+                className={`tb-ed-btn${lang === 'en' ? ' active' : ''}`}
+                onClick={() => handleEdition('en')}
+                disabled={lang === 'en'}
+                aria-pressed={lang === 'en'}
+              >EN</button>
             </div>
-          ) : (
-            <a 
-              onClick={() => router.visit('/login')}
-              style={{ fontSize: 11, color: '#bbb', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
-            >
-              <Icon name="user" size={12} />
-              {lang === 'bn' ? 'লগইন' : 'Login'}
-            </a>
-          )}
-
-          <div className="tb-divider-v" style={{ height: 12, opacity: 0.2 }} />
-
-          <div className="tb-edition" role="group" aria-label="Edition">
-            <button
-              className={`tb-ed-btn${lang === 'bn' ? ' active' : ''}`}
-              onClick={() => handleEdition('bn')}
-              disabled={lang === 'bn'}
-              aria-pressed={lang === 'bn'}
-            >বাংলা</button>
-            <button
-              className={`tb-ed-btn${lang === 'en' ? ' active' : ''}`}
-              onClick={() => handleEdition('en')}
-              disabled={lang === 'en'}
-              aria-pressed={lang === 'en'}
-            >EN</button>
           </div>
         </div>
 

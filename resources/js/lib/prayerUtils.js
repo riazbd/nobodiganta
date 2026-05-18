@@ -57,4 +57,34 @@ export function toBn(str) {
   return String(str).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
 }
 
+export function to12h(time24) {
+  if (!time24) return time24;
+  const [h, m] = time24.split(':').map(Number);
+  if (isNaN(h) || isNaN(m)) return time24;
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2, '0')} ${period}`;
+}
+
+export function formatTime12h(time24, lang) {
+  if (!time24) return '';
+  const t = to12h(time24);
+  return lang === 'bn' ? toBn(t) : t;
+}
+
+const BN_MONTHS = ['','জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+export function formatGregorian(dateStr, lang) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  if (lang === 'bn') {
+    const day = toBn(String(d.getDate()));
+    const month = BN_MONTHS[d.getMonth() + 1];
+    const year = toBn(String(d.getFullYear()));
+    return `${day} ${month} ${year}`;
+  }
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 export { PRAYER_ORDER };
+

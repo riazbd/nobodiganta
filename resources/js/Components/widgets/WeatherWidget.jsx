@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { getWeather } from '../../services/weatherService';
 import { toBengaliNum } from '../../lib/formatters';
 import Icon from '../Icon';
 
@@ -9,7 +8,10 @@ export default function WeatherWidget() {
   const [weather, setWeather] = useState(null);
 
   useEffect(() => {
-    getWeather('dhaka').then((res) => setWeather(res.data));
+    fetch('/api/weather?city=dhaka')
+      .then(r => r.json())
+      .then(json => setWeather(json.data))
+      .catch(() => {});
   }, []);
 
   const fmt = (n) => lang === 'bn' ? toBengaliNum(String(n)) : String(n);
@@ -23,21 +25,29 @@ export default function WeatherWidget() {
     );
   }
 
+  const cur = weather.current;
+  const todayFc = weather.forecast?.[0];
+  const cityName = lang === 'bn' ? (weather.city_bn || 'ঢাকা') : (weather.city || 'Dhaka');
+
   return (
     <div className="weather widget-block">
-      <div className="w-city"><Icon name="mapPin" size={14} /> {lang === 'bn' ? 'ঢাকা' : 'Dhaka'}</div>
+      <div className="w-city"><Icon name="mapPin" size={14} /> {cityName}</div>
       <div className="w-main">
         <div>
-          <div className="w-temp">{fmt(weather.temp)}°C</div>
-          <div className="w-desc">{lang === 'bn' ? weather.conditionBn : weather.condition}</div>
+          <div className="w-temp">{fmt(Math.round(cur.temp_c))}°C</div>
+          <div className="w-desc">{lang === 'bn' ? cur.condition_bn : cur.condition_en}</div>
         </div>
         <div className="w-icon"><Icon name="sun" size={44} /></div>
       </div>
       <div className="w-grid">
-        <div>{lang === 'bn' ? 'আর্দ্রতা' : 'Humidity'}: {fmt(weather.humidity)}%</div>
-        <div>{lang === 'bn' ? 'বায়ু' : 'Wind'}: {fmt(weather.wind)} km/h</div>
-        <div>{lang === 'bn' ? 'সর্বোচ্চ' : 'Max'}: {fmt(weather.maxTemp)}°</div>
-        <div>{lang === 'bn' ? 'সর্বনিম্ন' : 'Min'}: {fmt(weather.minTemp)}°</div>
+        <div>{lang === 'bn' ? 'আর্দ্রতা' : 'Humidity'}: {fmt(cur.humidity)}%</div>
+        <div>{lang === 'bn' ? 'বায়ু' : 'Wind'}: {fmt(Math.round(cur.wind_kph))} km/h</div>
+        {todayFc && (
+          <>
+            <div>{lang === 'bn' ? 'সর্বোচ্চ' : 'Max'}: {fmt(Math.round(todayFc.max_c))}°</div>
+            <div>{lang === 'bn' ? 'সর্বনিম্ন' : 'Min'}: {fmt(Math.round(todayFc.min_c))}°</div>
+          </>
+        )}
       </div>
     </div>
   );
