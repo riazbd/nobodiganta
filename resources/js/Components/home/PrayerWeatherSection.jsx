@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
-import { wmoEmoji } from '../../lib/wmo';
+import { wmoLabel } from '../../lib/wmo';
 import { prayerLabel, findNextPrayer, isPassed, formatCountdown, toBn } from '../../lib/prayerUtils';
 
 function useCountdown(epochMs) {
@@ -29,13 +29,12 @@ function PrayerPanel({ prayer, lang }) {
   return (
     <div className="pws-panel pws-prayer-panel">
       <div className="pws-panel-hdr">
-        <span className="pws-panel-icon">🕌</span>
         <span className="pws-panel-title">{lang === 'bn' ? 'নামাজের সময়' : 'Prayer Times'}</span>
         {prayer && <span className="pws-date">{prayer.date.hijri_bn}</span>}
       </div>
 
       {isRamadan && (
-        <div className="pws-ramadan-badge">🌙 {lang === 'bn' ? 'রমজান মোবারক' : 'Ramadan Mubarak'}</div>
+        <div className="pws-ramadan-badge">{lang === 'bn' ? 'রমজান মোবারক' : 'Ramadan Mubarak'}</div>
       )}
 
       {prayer ? (
@@ -79,7 +78,6 @@ function WeatherPanel({ weather, lang }) {
   return (
     <div className="pws-panel pws-weather-panel">
       <div className="pws-panel-hdr">
-        <span className="pws-panel-icon">🌤</span>
         <span className="pws-panel-title">{lang === 'bn' ? 'আবহাওয়া' : 'Weather'}</span>
         <span className="pws-date">{lang === 'bn' ? w.city_bn : w.city}</span>
       </div>
@@ -89,11 +87,11 @@ function WeatherPanel({ weather, lang }) {
           {lang === 'bn' ? toBn(String(Math.round(w.current.temp_c))) : Math.round(w.current.temp_c)}°<span className="pws-temp-unit">C</span>
         </div>
         <div>
-          <div className="pws-condition">{wmoEmoji(w.current.weather_code)} {lang === 'bn' ? w.current.condition_bn : w.current.condition_en}</div>
+          <div className="pws-condition">{lang === 'bn' ? w.current.condition_bn : w.current.condition_en}</div>
           <div className="pws-weather-meta">
-            💧 {lang === 'bn' ? toBn(String(w.current.humidity)) : w.current.humidity}%
+            {lang === 'bn' ? 'আর্দ্রতা' : 'Humidity'}: {lang === 'bn' ? toBn(String(w.current.humidity)) : w.current.humidity}%
             &nbsp;·&nbsp;
-            💨 {lang === 'bn' ? toBn(String(w.current.wind_kph)) : w.current.wind_kph} km/h
+            {lang === 'bn' ? 'বায়ু' : 'Wind'}: {lang === 'bn' ? toBn(String(w.current.wind_kph)) : w.current.wind_kph} km/h
           </div>
           <div className="pws-weather-meta">
             {lang === 'bn' ? 'অনুভূতি' : 'Feels like'} {lang === 'bn' ? toBn(String(Math.round(w.current.feels_like_c))) : Math.round(w.current.feels_like_c)}°C
@@ -109,7 +107,6 @@ function WeatherPanel({ weather, lang }) {
           return (
             <div key={d.date} className="pws-forecast-day">
               <div className="pws-forecast-label">{dayLabel}</div>
-              <div className="pws-forecast-emoji">{wmoEmoji(d.weather_code)}</div>
               <div className="pws-forecast-temp">
                 {lang === 'bn' ? toBn(String(Math.round(d.max_c))) : Math.round(d.max_c)}°
                 <span className="pws-forecast-min">/{lang === 'bn' ? toBn(String(Math.round(d.min_c))) : Math.round(d.min_c)}°</span>
@@ -195,7 +192,7 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
               onChange={e => handleCityChange(e.target.value)}
               disabled={loading}
             >
-              {cityKey === '__location__' && <option value="__location__">📍 {lang === 'bn' ? 'আপনার অবস্থান' : 'Your location'}</option>}
+              {cityKey === '__location__' && <option value="__location__">{lang === 'bn' ? 'আপনার অবস্থান' : 'Your location'}</option>}
               <option value="dhaka">{lang === 'bn' ? 'ঢাকা' : 'Dhaka'}</option>
               <option value="chittagong">{lang === 'bn' ? 'চট্টগ্রাম' : 'Chittagong'}</option>
               <option value="sylhet">{lang === 'bn' ? 'সিলেট' : 'Sylhet'}</option>
@@ -214,9 +211,8 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
             <button
               className="pws-locate-btn"
               onClick={handleLocate}
-              title={lang === 'bn' ? 'আমার অবস্থান ব্যবহার করুন' : 'Use my location'}
             >
-              📍
+              {lang === 'bn' ? 'অবস্থান' : 'Locate'}
             </button>
           </div>
           <button className="pws-more-btn" onClick={() => onNavigate('prayer-times')}>

@@ -14,7 +14,7 @@ const NAMES = {
 
 const RAMADAN_LABELS = {
   Fajr:    { bn: 'ফজর / সেহরি শেষ',  en: 'Fajr / Suhoor ends' },
-  Maghrib: { bn: 'মাগরিব / ইফতার 🌙', en: 'Maghrib / Iftar 🌙' },
+  Maghrib: { bn: 'মাগরিব / ইফতার', en: 'Maghrib / Iftar' },
 };
 
 export function prayerLabel(key, lang, isRamadan) {

@@ -121,7 +121,7 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
         <div className={`pp-hero${isRamadan ? ' pp-hero-ramadan' : ''}`}>
           {isRamadan && today && (
             <div className="pp-ramadan-banner">
-              🌙 {lang === 'bn' ? 'রমজান মোবারক — ' + today.date.hijri_bn : 'Ramadan Mubarak — ' + today.date.hijri_bn}
+              {lang === 'bn' ? 'রমজান মোবারক — ' + today.date.hijri_bn : 'Ramadan Mubarak — ' + today.date.hijri_bn}
             </div>
           )}
           <div className="pp-hero-inner">
@@ -134,14 +134,14 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
               <div className="pp-city-row">
                 <select className="pp-city-select" value={cityKey} onChange={e => handleCityChange(e.target.value)}>
                   {cityKey === '__location__' && (
-                    <option value="__location__">📍 {lang === 'bn' ? 'আপনার অবস্থান' : 'Your location'}</option>
+                    <option value="__location__">{lang === 'bn' ? 'আপনার অবস্থান' : 'Your location'}</option>
                   )}
                   {Object.entries(cities || {}).map(([k, c]) => (
                     <option key={k} value={k}>{lang === 'bn' ? c.name_bn : c.name_en}</option>
                   ))}
                 </select>
                 <button className="pp-locate-btn" onClick={handleLocate} disabled={locating}>
-                  {locating ? '⏳' : '📍'}
+                  {locating ? (lang === 'bn' ? 'খুঁজছি...' : 'Locating...') : (lang === 'bn' ? 'অবস্থান' : 'Locate')}
                 </button>
               </div>
               {next && (
@@ -175,7 +175,7 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                 const isSehri = isRamadan && key === 'Imsak';
                 return (
                   <div key={key} className={`pp-prayer-card${isNext ? ' pp-next' : ''}${passed ? ' pp-passed' : ''}${isIftar ? ' pp-iftar' : ''}${isSehri ? ' pp-sehri' : ''}`}>
-                    {isIftar && <div className="pp-iftar-badge">🌙 ইফতার</div>}
+                    {isIftar && <div className="pp-iftar-badge">{lang === 'bn' ? 'ইফতার' : 'Iftar'}</div>}
                     {isSehri && <div className="pp-sehri-badge">সেহরি</div>}
                     <div className="pp-prayer-name">{prayerLabel(key, lang, isRamadan)}</div>
                     <div className="pp-prayer-time">{lang === 'bn' ? toBn(time) : time}</div>
