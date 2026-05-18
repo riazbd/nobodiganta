@@ -42,6 +42,7 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
   const [weather, setWeather]   = useState(null);
   const [calMonth, setCalMonth] = useState(new Date().getMonth() + 1);
   const [calYear, setCalYear]   = useState(new Date().getFullYear());
+  const [selectedDay, setSelectedDay] = useState(null);
   const [locating, setLocating] = useState(false);
   const next      = today ? findNextPrayer(today.timings) : null;
   const countdown = useCountdown(next?.epochMs);
@@ -304,8 +305,15 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                   const [dd, mm, yyyy] = d.date_gregorian.split('-');
                   const dt = new Date(+yyyy, +mm - 1, +dd);
                   const isToday = dt.toDateString() === new Date().toDateString();
+                  const isSelected = selectedDay === d.day;
                   return (
-                    <div key={d.day} className={`almnc-cal-cell${isToday ? ' is-today' : ''}`}>
+                    <button
+                      type="button"
+                      key={d.day}
+                      className={`almnc-cal-cell${isToday ? ' is-today' : ''}${isSelected ? ' is-selected' : ''}`}
+                      onClick={() => setSelectedDay(selectedDay === d.day ? null : d.day)}
+                      aria-pressed={isSelected}
+                    >
                       <div className="almnc-cal-num">
                         <span className="almnc-cal-d">{lang === 'bn' ? toBn(String(d.day)) : d.day}</span>
                         <span className="almnc-cal-h">{d.hijri_day_bn}</span>
@@ -317,10 +325,53 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                           <strong>{formatTime12h(d.timings.Maghrib, lang)}</strong>
                         </div>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
+
+              {/* Selected day detail */}
+              {selectedDay && (() => {
+                const d = calendar.find(x => x.day === selectedDay);
+                if (!d) return null;
+                const [dd, mm, yyyy] = d.date_gregorian.split('-');
+                const dt = new Date(+yyyy, +mm - 1, +dd);
+                const dateLabel = dt.toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                return (
+                  <div className="almnc-cal-detail">
+                    <div className="almnc-cal-detail-hdr">
+                      <div>
+                        <div className="almnc-cal-detail-eyebrow">{lang === 'bn' ? 'নির্বাচিত দিন' : 'Selected Day'}</div>
+                        <div className="almnc-cal-detail-date">
+                          {dateLabel}
+                          <span className="almnc-bullet">·</span>
+                          <span className="almnc-cal-detail-hijri">{d.hijri_day_bn} {today?.date.hijri_bn?.split(' ').slice(1).join(' ')}</span>
+                        </div>
+                      </div>
+                      <button className="almnc-cal-detail-close" onClick={() => setSelectedDay(null)} aria-label="Close">×</button>
+                    </div>
+                    <ul className="almnc-list almnc-list-detail">
+                      {rows.map(key => {
+                        const time = d.timings[key];
+                        if (!time) return null;
+                        const isIftar = isRamadan && key === 'Maghrib';
+                        const isSehri = isRamadan && key === 'Imsak';
+                        return (
+                          <li key={key} className={`almnc-li${isIftar ? ' is-iftar' : ''}${isSehri ? ' is-sehri' : ''}`}>
+                            <span className="almnc-li-name">
+                              {prayerLabel(key, lang, isRamadan)}
+                              {isIftar && <span className="almnc-tag almnc-tag-iftar">{lang === 'bn' ? 'ইফতার' : 'Iftar'}</span>}
+                              {isSehri && <span className="almnc-tag almnc-tag-sehri">{lang === 'bn' ? 'সেহরি' : 'Suhoor'}</span>}
+                            </span>
+                            <span className="almnc-li-leader" />
+                            <span className="almnc-li-time">{formatTime12h(time, lang)}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                );
+              })()}
             </section>
           )}
 
