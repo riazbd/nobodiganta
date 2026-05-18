@@ -353,7 +353,11 @@ Route::get('/stories', [\App\Http\Controllers\StoriesController::class, 'index']
 Route::get('/api/stories', [\App\Http\Controllers\StoriesController::class, 'apiIndex'])->name('api.stories');
 
 // Article route LAST — two dynamic segments, catches /{category}/{slug}
-Route::get('/{category}/{slug}', [NewsController::class, 'article'])->name('article');
+// `category` must NOT be a reserved prefix (en, api, admin, storage) — otherwise
+// this catch-all swallows English edition routes like /en/prayer-times
+Route::get('/{category}/{slug}', [NewsController::class, 'article'])
+    ->name('article')
+    ->where('category', '^(?!en$|api$|admin$|storage$|build$).+');
 
 // ══════════════════════════════════════
 // ENGLISH EDITION — mirrors all public routes under /en prefix
