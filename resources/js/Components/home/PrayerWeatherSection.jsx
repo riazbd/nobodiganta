@@ -171,13 +171,16 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
   };
 
   useEffect(() => {
-    const savedCity = localStorage.getItem('pws_city');
     const savedLat  = localStorage.getItem('pws_lat');
     const savedLng  = localStorage.getItem('pws_lng');
+    const savedCity = localStorage.getItem('pws_city');
     if (savedLat && savedLng) {
       handleLocate();
     } else if (savedCity && savedCity !== 'dhaka') {
       fetchCity(savedCity);
+    } else if (!initialPrayer || !initialWeather) {
+      // Server-side props missing (API was slow/unavailable on first load) — fetch client-side
+      fetchCity('dhaka');
     }
   }, []);
 
@@ -215,7 +218,7 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
               {lang === 'bn' ? 'অবস্থান' : 'Locate'}
             </button>
           </div>
-          <button className="pws-more-btn" onClick={() => onNavigate('prayer-times')}>
+          <button className="pws-more-btn" onClick={() => onNavigate('prayerTimes')}>
             {lang === 'bn' ? 'বিস্তারিত সময়সূচি »' : 'Full timetable »'}
           </button>
         </div>
