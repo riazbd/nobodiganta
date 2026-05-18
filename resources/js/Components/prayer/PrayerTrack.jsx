@@ -69,10 +69,7 @@ export default function PrayerTrack({ prayer, next, lang, size = 'md' }) {
           );
         })}
 
-        <div className="pt-now-marker" style={{ left: `${nowPct}%` }}>
-          <div className="pt-now-line" />
-          <div className="pt-now-pin">{lang === 'bn' ? 'এখন' : 'NOW'}</div>
-        </div>
+        <div className="pt-now-marker" style={{ left: `${nowPct}%` }} aria-hidden="true" />
       </div>
     </div>
   );
