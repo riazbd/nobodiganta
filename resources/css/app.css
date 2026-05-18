@@ -2482,199 +2482,181 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
   .htcs-col:last-child{border-bottom:none;}
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   PRAYER + WEATHER — REDESIGNED  (pws- widget · pdb- page · pt- timeline)
-   ══════════════════════════════════════════════════════════════════════ */
+/* ═════════════════════════════════════════════════════════════════════════
+   ALMANAC — Prayer & Weather (editorial newspaper aesthetic)
+   ═════════════════════════════════════════════════════════════════════════ */
 
-.pws-dot{display:inline-block;width:3px;height:3px;border-radius:50%;background:#c8c8c8;margin:0 8px;vertical-align:middle;}
+.almnc{background:#fdfcf8;border:1px solid #d8d3cc;border-radius:4px;margin-bottom:10px;font-family:'SolaimanLipi',sans-serif;}
+.almnc.is-ramadan{border-top:3px double #a87f3c;}
+.almnc-bullet{color:#bdb8b0;margin:0 6px;font-weight:400;}
 
-/* City pill / locate btn / full link — shared */
-.pws-city-pill{display:inline-flex;align-items:center;gap:6px;background:#f5f5f7;border:1px solid #e0e0e0;border-radius:20px;padding:5px 12px 5px 10px;transition:border-color .15s;}
-.pws-city-pill:hover{border-color:var(--primary);}
-.pws-city-pill svg{color:var(--primary);flex-shrink:0;}
-.pws-city-select{background:transparent;border:none;outline:none;font-family:'SolaimanLipi',sans-serif;font-size:14px;color:var(--black);font-weight:600;cursor:pointer;padding-right:14px;appearance:none;}
-.pws-icon-btn{width:30px;height:30px;border-radius:50%;background:#f5f5f7;border:1px solid #e0e0e0;display:inline-flex;align-items:center;justify-content:center;color:var(--primary);cursor:pointer;transition:all .15s;}
-.pws-icon-btn:hover:not(:disabled){background:var(--primary);color:#fff;}
-.pws-icon-btn:disabled{opacity:.5;cursor:wait;}
-.pws-full-link{background:transparent;border:none;display:inline-flex;align-items:center;gap:5px;font-family:'SolaimanLipi',sans-serif;font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;padding:6px 0;}
-.pws-full-link:hover{text-decoration:underline;}
-.pws-loading{color:var(--lighter-text);font-size:14px;padding:20px;text-align:center;}
+.almnc-masthead{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;padding:12px 18px 10px;border-bottom:1px solid #d8d3cc;flex-wrap:wrap;}
+.almnc-mast-left{min-width:0;}
+.almnc-eyebrow{font-family:'Playfair Display','Georgia',serif;font-size:11px;font-weight:700;color:#6b6863;text-transform:uppercase;letter-spacing:0.16em;display:flex;align-items:center;flex-wrap:wrap;}
+.almnc-dateline{font-family:'SolaimanLipi',sans-serif;font-size:13px;color:#3a3833;margin-top:4px;font-weight:500;}
+.almnc-mast-right{display:flex;gap:8px;align-items:center;}
 
-/* ─── Homepage widget (pws-) ─── */
-.pws-block{background:#fff;border:1px solid #d8d8d8;border-radius:6px;margin-bottom:10px;overflow:hidden;}
-.pws-block.is-ramadan{border-top:3px solid #c9a227;}
-.pws-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;padding:14px 18px 12px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;}
-.pws-head-left{min-width:0;}
-.pws-head-title{font-family:'SolaimanLipi',sans-serif;font-size:18px;font-weight:800;color:var(--black);margin:0 0 3px;letter-spacing:-0.01em;}
-.pws-head-meta{font-size:12.5px;color:var(--lighter-text);font-weight:500;}
-.pws-head-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.pws-body{display:grid;grid-template-columns:1fr 280px;gap:0;}
-.pws-prayer-zone{padding:20px 22px 16px;border-right:1px solid #f0f0f0;display:flex;flex-direction:column;gap:14px;min-width:0;}
-.pws-weather-zone{padding:18px;background:#fafafa;display:flex;flex-direction:column;gap:12px;}
-.pws-countdown-hero{display:flex;flex-direction:column;gap:2px;}
-.pws-countdown-label{font-family:'SolaimanLipi',sans-serif;font-size:13px;font-weight:600;color:var(--lighter-text);text-transform:uppercase;letter-spacing:0.04em;}
-.pws-countdown-time{font-size:42px;font-weight:800;color:var(--black);font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-0.02em;}
-.pws-block.is-ramadan .pws-countdown-time{color:#b8860b;}
-.pws-countdown-at{font-size:12.5px;color:var(--lighter-text);margin-top:2px;}
-.pws-weather-card{display:flex;gap:12px;align-items:center;}
-.pws-weather-icon{flex-shrink:0;color:var(--primary);}
-.pws-weather-info{min-width:0;flex:1;}
-.pws-weather-temp{font-size:36px;font-weight:800;color:var(--black);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}
-.pws-deg{color:var(--lighter-text);font-weight:400;}
-.pws-weather-city{font-family:'SolaimanLipi',sans-serif;font-size:13px;color:var(--black);font-weight:700;margin-top:4px;}
-.pws-weather-cond{font-family:'SolaimanLipi',sans-serif;font-size:12.5px;color:var(--lighter-text);}
-.pws-weather-stats{display:flex;gap:10px;font-size:12px;color:#555;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid #e8e8e8;}
-.pws-stat{display:inline-flex;align-items:center;gap:4px;}
-.pws-stat svg{color:var(--lighter-text);}
-.pws-stat-feel{margin-left:auto;font-family:'SolaimanLipi',sans-serif;}
-.pws-forecast{display:flex;justify-content:space-between;gap:4px;}
-.pws-fc{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
-.pws-fc-day{font-size:10.5px;color:var(--lighter-text);font-family:'SolaimanLipi',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;}
-.pws-fc svg{color:var(--primary);}
-.pws-fc-temp{font-size:12px;font-weight:700;color:var(--black);font-variant-numeric:tabular-nums;}
+.almnc-city-pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfc9c0;border-radius:2px;padding:5px 10px;transition:border-color .12s;}
+.almnc-city-pill:hover{border-color:#3a3833;}
+.almnc-city-pill svg{color:#6b6863;flex-shrink:0;}
+.almnc-city-select{background:transparent;border:none;outline:none;font-family:'SolaimanLipi',sans-serif;font-size:13px;color:#1a1a1a;font-weight:700;cursor:pointer;padding-right:10px;appearance:none;letter-spacing:0.01em;}
+.almnc-icon-btn{width:30px;height:30px;background:#fff;border:1px solid #cfc9c0;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;color:#6b6863;cursor:pointer;transition:all .12s;}
+.almnc-icon-btn:hover:not(:disabled){background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.almnc-icon-btn:disabled{opacity:.5;cursor:wait;}
+.almnc-link{background:transparent;border:none;display:inline-flex;align-items:center;gap:5px;font-family:'Playfair Display','Georgia',serif;font-size:12px;font-style:italic;font-weight:600;color:#1a1a1a;cursor:pointer;padding:6px 0;border-bottom:1px solid #1a1a1a;}
+.almnc-link:hover{color:#c41e3a;border-bottom-color:#c41e3a;}
+.almnc-loading{color:#9c968d;font-size:13px;padding:14px 0;text-align:center;font-style:italic;}
+
+.almnc-body{display:grid;grid-template-columns:minmax(220px,1.1fr) minmax(280px,1.4fr) minmax(220px,1.1fr);gap:0;}
+.almnc-col{padding:18px 22px;border-right:1px solid #e5e0d8;}
+.almnc-col:last-child{border-right:none;}
+.almnc-col-weather{background:#f6f3eb;}
+
+.almnc-section-label{font-family:'Playfair Display','Georgia',serif;font-size:10.5px;font-weight:700;color:#a89e8e;text-transform:uppercase;letter-spacing:0.22em;padding-bottom:8px;border-bottom:1px solid #d8d3cc;margin-bottom:14px;}
+
+.almnc-col-countdown{display:flex;flex-direction:column;justify-content:center;}
+.almnc-countdown{font-family:'Playfair Display','Georgia',serif;font-size:46px;font-weight:800;color:#1a1a1a;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-0.02em;margin:4px 0;}
+.almnc.is-ramadan .almnc-countdown{color:#a87f3c;}
+.almnc-countdown-at{font-family:'SolaimanLipi',sans-serif;font-size:13px;color:#6b6863;margin-top:6px;}
+
+.almnc-list{list-style:none;margin:0;padding:0;}
+.almnc-li{display:flex;align-items:baseline;gap:0;padding:8px 0;border-bottom:1px dotted #d8d3cc;font-family:'SolaimanLipi',sans-serif;}
+.almnc-li:last-child{border-bottom:none;}
+.almnc-li-name{font-size:15px;font-weight:600;color:#1a1a1a;flex-shrink:0;display:flex;align-items:center;gap:6px;}
+.almnc-li-leader{flex:1;border-bottom:1px dotted #c8c1b6;margin:0 8px;transform:translateY(-3px);min-width:12px;}
+.almnc-li-time{font-family:'Playfair Display','Georgia',serif;font-size:15px;font-weight:700;color:#1a1a1a;font-variant-numeric:tabular-nums;letter-spacing:-0.01em;}
+.almnc-li-marker{font-family:'Playfair Display','Georgia',serif;font-size:9px;font-weight:800;color:#fff;background:#c41e3a;padding:2px 5px;border-radius:1px;letter-spacing:0.1em;margin-left:8px;text-transform:uppercase;}
+.almnc-li.is-past .almnc-li-name,
+.almnc-li.is-past .almnc-li-time{color:#a89e8e;}
+.almnc-li.is-next .almnc-li-name,
+.almnc-li.is-next .almnc-li-time{color:#c41e3a;font-weight:800;}
+.almnc-li.is-iftar .almnc-li-name,
+.almnc-li.is-iftar .almnc-li-time{color:#a87f3c;font-weight:800;}
+.almnc-li.is-sehri .almnc-li-name,
+.almnc-li.is-sehri .almnc-li-time{color:#2c4a6b;}
+
+.almnc-wx-main{display:flex;gap:10px;align-items:center;color:#3a3833;}
+.almnc-wx-temp{font-family:'Playfair Display','Georgia',serif;font-size:38px;font-weight:800;color:#1a1a1a;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}
+.almnc-deg{color:#a89e8e;font-weight:400;}
+.almnc-wx-cond{font-family:'SolaimanLipi',sans-serif;font-size:13px;color:#3a3833;margin-top:6px;font-weight:600;}
+.almnc-wx-meta{font-family:'SolaimanLipi',sans-serif;font-size:12px;color:#6b6863;margin-top:3px;}
+.almnc-wx-forecast{display:flex;justify-content:space-between;gap:6px;margin-top:12px;padding-top:12px;border-top:1px dotted #d8d3cc;}
+.almnc-wx-day{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+.almnc-wx-day-name{font-family:'Playfair Display','Georgia',serif;font-size:10px;font-weight:700;color:#a89e8e;text-transform:uppercase;letter-spacing:0.08em;}
+.almnc-wx-day svg{color:#6b6863;}
+.almnc-wx-day-temp{font-family:'Playfair Display','Georgia',serif;font-size:12px;font-weight:700;color:#1a1a1a;font-variant-numeric:tabular-nums;}
+
 @media(max-width:880px){
-  .pws-body{grid-template-columns:1fr;}
-  .pws-prayer-zone{border-right:none;border-bottom:1px solid #f0f0f0;}
-}
-@media(max-width:520px){
-  .pws-countdown-time{font-size:34px;}
-  .pws-head{padding:12px 14px 10px;}
-  .pws-prayer-zone,.pws-weather-zone{padding:14px;}
+  .almnc-body{grid-template-columns:1fr;}
+  .almnc-col{border-right:none;border-bottom:1px solid #e5e0d8;}
+  .almnc-col:last-child{border-bottom:none;}
 }
 
-/* ─── Timeline component (pt-) ─── */
-.pt-track{padding:38px 8px 28px;position:relative;}
-.pt-track-lg{padding:46px 8px 36px;}
-.pt-rail{position:relative;height:2px;background:transparent;}
-.pt-rail-base{position:absolute;top:0;left:0;right:0;height:2px;background:#e0e0e0;border-radius:2px;}
-.pt-rail-fill{position:absolute;top:0;left:0;height:2px;background:var(--primary);border-radius:2px;transition:width .6s ease-out;}
-.pt-stop{position:absolute;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;}
-.pt-stop-name{font-family:'SolaimanLipi',sans-serif;font-size:11px;font-weight:700;color:#555;white-space:nowrap;margin-bottom:6px;letter-spacing:0.01em;}
-.pt-stop-dot{width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid #d0d0d0;display:flex;align-items:center;justify-content:center;color:#9a9a9a;flex-shrink:0;transition:all .2s;z-index:2;position:relative;}
-.pt-stop-time{font-size:11.5px;font-weight:700;color:var(--black);font-variant-numeric:tabular-nums;white-space:nowrap;margin-top:6px;}
-.pt-track-lg .pt-stop-name{font-size:13px;margin-bottom:8px;}
-.pt-track-lg .pt-stop-dot{width:30px;height:30px;}
-.pt-track-lg .pt-stop-time{font-size:13px;margin-top:8px;}
-.pt-stop.is-past .pt-stop-dot{background:var(--primary);border-color:var(--primary);color:#fff;}
-.pt-stop.is-past .pt-stop-name,
-.pt-stop.is-past .pt-stop-time{color:#9a9a9a;}
-.pt-stop.is-next .pt-stop-dot{background:var(--breaking);border-color:var(--breaking);color:#fff;box-shadow:0 0 0 4px rgba(232,0,30,0.18);animation:pt-pulse 1.8s ease-in-out infinite;}
-.pt-stop.is-next .pt-stop-name{color:var(--breaking);font-weight:800;}
-.pt-stop.is-next .pt-stop-time{color:var(--breaking);font-weight:800;}
-.pt-stop.is-iftar .pt-stop-dot{background:#c9a227;border-color:#c9a227;color:#fff;}
-.pt-stop.is-iftar .pt-stop-name,
-.pt-stop.is-iftar .pt-stop-time{color:#b8860b;font-weight:800;}
-.pt-stop.is-sehri .pt-stop-dot{background:#4a6da7;border-color:#4a6da7;color:#fff;}
-.pt-stop.is-sehri .pt-stop-name,
-.pt-stop.is-sehri .pt-stop-time{color:#3a5a8a;}
-@keyframes pt-pulse{0%,100%{box-shadow:0 0 0 4px rgba(232,0,30,0.18);}50%{box-shadow:0 0 0 8px rgba(232,0,30,0.06);}}
-.pt-now-marker{position:absolute;top:50%;transform:translate(-50%,-50%);pointer-events:none;width:2px;height:64px;background:#1a1a1a;opacity:.18;border-radius:1px;z-index:1;}
-.pt-track-lg .pt-now-marker{height:80px;}
-.pt-stop{z-index:3;}
+/* ─── Prayer page ─── */
+.almnc-page-mast{position:relative;background:#fdfcf8;border:1px solid #d8d3cc;border-radius:4px;padding:24px 26px 20px;margin-bottom:10px;}
+.almnc-page-mast.is-ramadan{border-top:3px double #a87f3c;}
+.almnc-pm-eyebrow{font-family:'Playfair Display','Georgia',serif;font-size:11px;font-weight:700;color:#a89e8e;text-transform:uppercase;letter-spacing:0.24em;margin-bottom:6px;}
+.almnc-pm-title{font-family:'SolaimanLipi',serif;font-size:34px;font-weight:900;color:#1a1a1a;margin:0 0 6px;letter-spacing:-0.02em;line-height:1;}
+html[lang="en"] .almnc-pm-title{font-family:'Playfair Display','Georgia',serif;}
+.almnc-pm-dateline{font-family:'SolaimanLipi',sans-serif;font-size:13px;color:#6b6863;display:flex;align-items:center;flex-wrap:wrap;}
+.almnc-pm-city{display:inline-flex;align-items:center;gap:4px;color:#3a3833;font-weight:700;}
+.almnc-pm-controls{position:absolute;top:24px;right:26px;display:flex;gap:8px;align-items:center;}
 
-/* ─── Prayer dashboard page (pdb-) ─── */
-.pdb-hero{background:#fff;border:1px solid #d8d8d8;border-radius:6px;margin-bottom:10px;overflow:hidden;}
-.pdb-hero.is-ramadan{border-top:3px solid #c9a227;}
-.pdb-titlebar{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;padding:18px 22px 14px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;}
-.pdb-title{font-family:'SolaimanLipi',sans-serif;font-size:24px;font-weight:900;color:var(--black);margin:0 0 4px;letter-spacing:-0.015em;}
-.pdb-meta{font-size:13px;color:var(--lighter-text);font-weight:600;}
-.pdb-controls{display:flex;gap:8px;align-items:center;}
-.pdb-ramadan-bar{background:linear-gradient(90deg,#c9a227 0%,#b8860b 100%);color:#fff;font-family:'SolaimanLipi',sans-serif;font-size:14px;font-weight:700;padding:8px 22px;text-align:center;letter-spacing:0.01em;}
-.pdb-split{display:grid;grid-template-columns:1fr 1fr;gap:0;}
-.pdb-countdown{padding:22px;border-right:1px solid #f0f0f0;display:flex;flex-direction:column;justify-content:center;}
-.pdb-cd-label{font-family:'SolaimanLipi',sans-serif;font-size:13px;font-weight:700;color:var(--lighter-text);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;}
-.pdb-cd-time{font-size:58px;font-weight:800;color:var(--black);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-0.025em;}
-.pdb-hero.is-ramadan .pdb-cd-time{color:#b8860b;}
-.pdb-cd-at{font-family:'SolaimanLipi',sans-serif;font-size:13px;color:var(--lighter-text);margin-top:6px;}
-.pdb-weather{padding:22px;background:#fafafa;display:flex;flex-direction:column;gap:12px;}
-.pdb-weather-row{display:flex;align-items:center;gap:14px;color:var(--primary);}
-.pdb-weather-row > div:last-child{flex:1;color:var(--black);}
-.pdb-wx-temp{font-size:38px;font-weight:800;color:var(--black);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}
-.pdb-wx-cond{font-family:'SolaimanLipi',sans-serif;font-size:13px;color:var(--lighter-text);margin-top:2px;}
-.pdb-wx-stats{display:flex;gap:14px;font-size:12.5px;color:#555;padding-bottom:10px;border-bottom:1px solid #e8e8e8;flex-wrap:wrap;}
-.pdb-wx-stats span{display:inline-flex;align-items:center;gap:4px;font-family:'SolaimanLipi',sans-serif;}
-.pdb-wx-stats svg{color:var(--lighter-text);}
-.pdb-wx-fc{display:flex;justify-content:space-between;gap:6px;}
-.pdb-wx-fc-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.pdb-fc-name{font-family:'SolaimanLipi',sans-serif;font-size:10.5px;color:var(--lighter-text);font-weight:700;text-transform:uppercase;letter-spacing:0.03em;}
-.pdb-wx-fc-day svg{color:var(--primary);}
-.pdb-fc-temp{display:flex;gap:4px;align-items:baseline;font-variant-numeric:tabular-nums;}
-.pdb-fc-temp strong{font-size:13px;color:var(--black);font-weight:700;}
-.pdb-fc-temp span{font-size:11px;color:var(--lighter-text);}
-@media(max-width:820px){.pdb-split{grid-template-columns:1fr;}.pdb-countdown{border-right:none;border-bottom:1px solid #f0f0f0;}}
-.pdb-card{background:#fff;border:1px solid #d8d8d8;border-radius:6px;margin-bottom:10px;overflow:hidden;}
-.pdb-card-hdr{padding:14px 20px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
-.pdb-card-ttl{font-family:'SolaimanLipi',sans-serif;font-size:16px;font-weight:800;color:var(--black);margin:0;letter-spacing:-0.005em;}
-.pdb-rows{padding:6px 0;}
-.pdb-row{display:grid;grid-template-columns:36px 1fr auto auto;gap:14px;align-items:center;padding:11px 20px;border-bottom:1px solid #f5f5f5;transition:background .12s;}
-.pdb-row:last-child{border-bottom:none;}
-.pdb-row-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#f5f5f7;color:var(--primary);}
-.pdb-row-name{font-family:'SolaimanLipi',sans-serif;font-size:16px;font-weight:700;color:var(--black);display:flex;align-items:center;gap:8px;}
-.pdb-row-time{font-size:17px;font-weight:800;color:var(--black);font-variant-numeric:tabular-nums;}
-.pdb-row-status{font-family:'SolaimanLipi',sans-serif;font-size:12px;color:var(--lighter-text);text-transform:uppercase;letter-spacing:0.04em;font-weight:700;min-width:70px;text-align:right;}
-.pdb-row.is-past{background:#fafafa;}
-.pdb-row.is-past .pdb-row-name,
-.pdb-row.is-past .pdb-row-time{color:#a0a0a0;}
-.pdb-row.is-past .pdb-row-icon{background:#eaeaea;color:#a0a0a0;}
-.pdb-row.is-next{background:#fff5f5;}
-.pdb-row.is-next .pdb-row-icon{background:var(--breaking);color:#fff;}
-.pdb-row.is-next .pdb-row-time,
-.pdb-row.is-next .pdb-row-status{color:var(--breaking);}
-.pdb-row.is-iftar{background:#fffbed;}
-.pdb-row.is-iftar .pdb-row-icon{background:#c9a227;color:#fff;}
-.pdb-row.is-iftar .pdb-row-time{color:#b8860b;}
-.pdb-row.is-sehri{background:#f4f8ff;}
-.pdb-row.is-sehri .pdb-row-icon{background:#4a6da7;color:#fff;}
-.pdb-tag{font-size:10px;font-weight:800;padding:2px 6px;border-radius:3px;color:#fff;letter-spacing:0.04em;text-transform:uppercase;}
-.pdb-tag-iftar{background:#c9a227;}
-.pdb-tag-sehri{background:#4a6da7;}
-.pdb-week{padding:14px 20px 18px;overflow-x:auto;}
-.pdb-week-grid{display:grid;grid-template-columns:auto repeat(7,1fr);gap:1px;background:#e8e8e8;border:1px solid #e8e8e8;border-radius:5px;overflow:hidden;}
-.pdb-week-cell{background:#fff;padding:8px 10px;font-size:13px;text-align:center;font-variant-numeric:tabular-nums;}
-.pdb-week-corner{background:#f5f5f7;font-family:'SolaimanLipi',sans-serif;font-weight:700;color:var(--lighter-text);font-size:12px;text-transform:uppercase;letter-spacing:0.04em;text-align:left;}
-.pdb-week-day{background:#f5f5f7;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;}
-.pdb-week-day.is-today{background:var(--primary);color:#fff;}
-.pdb-week-day.is-today .pdb-wkn,
-.pdb-week-day.is-today .pdb-wkd{color:#fff;}
-.pdb-wkn{font-family:'SolaimanLipi',sans-serif;font-size:11px;font-weight:700;color:var(--lighter-text);text-transform:uppercase;}
-.pdb-wkd{font-size:13px;font-weight:800;color:var(--black);}
-.pdb-week-label{background:#fafafa;font-family:'SolaimanLipi',sans-serif;font-weight:700;text-align:left;color:var(--black);font-size:13px;padding:9px 12px;}
-.pdb-week-label.is-iftar{color:#b8860b;}
-.pdb-week-time{padding:9px 6px;color:#555;}
-.pdb-week-time.is-today{background:#fff5f5;color:var(--breaking);font-weight:700;}
-.pdb-week-time.is-iftar{background:#fffbed;color:#b8860b;font-weight:700;}
-.pdb-cal-hdr{padding:14px 20px;}
-.pdb-cal-nav{display:flex;align-items:center;gap:12px;}
-.pdb-cal-nav button{width:28px;height:28px;border-radius:50%;background:#f5f5f7;border:1px solid #e0e0e0;display:flex;align-items:center;justify-content:center;color:var(--primary);cursor:pointer;}
-.pdb-cal-nav button:hover{background:var(--primary);color:#fff;}
-.pdb-cal-month{font-family:'SolaimanLipi',sans-serif;font-size:14px;font-weight:700;color:var(--black);min-width:130px;text-align:center;}
-.pdb-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:14px 20px 20px;}
-.pdb-cal-cell{background:#fafafa;border:1px solid #e8e8e8;border-radius:5px;padding:8px;min-height:74px;display:flex;flex-direction:column;gap:6px;transition:all .15s;}
-.pdb-cal-cell:hover{border-color:var(--primary);}
-.pdb-cal-cell.is-today{background:#fff5f5;border-color:var(--breaking);border-width:2px;padding:7px;}
-.pdb-cal-num{display:flex;justify-content:space-between;align-items:baseline;}
-.pdb-cal-greg{font-size:15px;font-weight:800;color:var(--black);font-variant-numeric:tabular-nums;}
-.pdb-cal-hijri{font-size:11px;color:var(--lighter-text);font-family:'SolaimanLipi',sans-serif;}
-.pdb-cal-times{display:flex;flex-direction:column;gap:2px;margin-top:auto;}
-.pdb-cal-tline{display:flex;align-items:center;gap:4px;font-size:10.5px;color:#666;font-variant-numeric:tabular-nums;}
-.pdb-cal-tline svg{color:var(--lighter-text);flex-shrink:0;}
-.pdb-cal-tline.is-iftar{color:#b8860b;font-weight:700;}
-.pdb-cal-tline.is-iftar svg{color:#c9a227;}
-.pdb-cities{padding:14px 20px 18px;display:flex;flex-wrap:wrap;gap:6px;}
-.pdb-city{display:inline-flex;align-items:center;gap:5px;background:#f5f5f7;border:1px solid #e0e0e0;border-radius:20px;padding:6px 12px 6px 10px;font-family:'SolaimanLipi',sans-serif;font-size:13px;font-weight:600;color:var(--black);cursor:pointer;transition:all .15s;}
-.pdb-city:hover{border-color:var(--primary);}
-.pdb-city.is-active{background:var(--primary);border-color:var(--primary);color:#fff;}
-.pdb-city svg{color:inherit;opacity:.7;}
-.pdb-attribution{font-size:11.5px;color:var(--lighter-text);text-align:center;padding:8px 0 16px;letter-spacing:0.02em;}
 @media(max-width:680px){
-  .pdb-titlebar{padding:14px 16px 10px;}
-  .pdb-title{font-size:20px;}
-  .pdb-cd-time{font-size:42px;}
-  .pdb-countdown,.pdb-weather{padding:16px;}
-  .pdb-card-hdr{padding:12px 16px;}
-  .pdb-row{grid-template-columns:32px 1fr auto;padding:10px 14px;gap:10px;}
-  .pdb-row-status{display:none;}
-  .pdb-cal{grid-template-columns:repeat(4,1fr);}
-  .pdb-cal-cell{min-height:66px;}
+  .almnc-page-mast{padding:18px 18px 14px;}
+  .almnc-pm-title{font-size:26px;}
+  .almnc-pm-controls{position:static;margin-top:12px;}
 }
 
+.almnc-ramadan{background:#fbf6e9;border-left:3px solid #a87f3c;border-right:3px solid #a87f3c;color:#7a5a1f;font-family:'SolaimanLipi',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;text-align:center;letter-spacing:0.01em;margin-bottom:10px;border-radius:2px;}
+
+.almnc-cd-hero{background:#fdfcf8;border:1px solid #d8d3cc;border-radius:4px;padding:30px 22px;margin-bottom:10px;text-align:center;}
+.almnc-cd-rule{height:0;border-top:1px solid #1a1a1a;margin:0 auto;width:60px;}
+.almnc-cd-rule:first-child{margin-bottom:14px;}
+.almnc-cd-rule:last-child{margin-top:14px;}
+.almnc-cd-label{font-family:'Playfair Display','Georgia',serif;font-style:italic;font-size:14px;color:#6b6863;letter-spacing:0.04em;margin-bottom:6px;font-weight:500;}
+.almnc-cd-time{font-family:'Playfair Display','Georgia',serif;font-size:78px;font-weight:800;color:#1a1a1a;font-variant-numeric:tabular-nums;line-height:0.95;letter-spacing:-0.04em;margin:6px 0;}
+.almnc-cd-meta{font-family:'SolaimanLipi',sans-serif;font-size:13px;color:#6b6863;margin-top:6px;}
+
+@media(max-width:680px){
+  .almnc-cd-time{font-size:54px;}
+  .almnc-cd-hero{padding:22px 14px;}
+}
+
+.almnc-twin{display:grid;grid-template-columns:1.3fr 1fr;gap:10px;margin-bottom:10px;}
+.almnc-twin-col{background:#fdfcf8;border:1px solid #d8d3cc;border-radius:4px;padding:18px 22px;}
+.almnc-twin-wx{background:#f6f3eb;}
+.almnc-h2{font-family:'Playfair Display','Georgia',serif;font-size:11px;font-weight:700;color:#a89e8e;text-transform:uppercase;letter-spacing:0.24em;margin:0 0 14px;padding-bottom:6px;border-bottom:1px solid #d8d3cc;}
+
+@media(max-width:880px){.almnc-twin{grid-template-columns:1fr;}}
+
+.almnc-list-lg .almnc-li{padding:11px 0;}
+.almnc-list-lg .almnc-li-name{font-size:17px;}
+.almnc-list-lg .almnc-li-time{font-size:18px;}
+.almnc-tag{font-family:'Playfair Display','Georgia',serif;font-size:9px;font-weight:800;color:#fff;padding:2px 6px;border-radius:1px;letter-spacing:0.1em;text-transform:uppercase;margin-left:6px;}
+.almnc-tag-iftar{background:#a87f3c;}
+.almnc-tag-sehri{background:#2c4a6b;}
+
+.almnc-wx-main-lg{display:flex;gap:14px;align-items:center;color:#3a3833;}
+.almnc-wx-temp-lg{font-family:'Playfair Display','Georgia',serif;font-size:48px;font-weight:800;color:#1a1a1a;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-0.025em;}
+.almnc-wx-dl{display:flex;gap:0;margin:14px 0 0;padding:12px 0 0;border-top:1px dotted #c8c1b6;flex-wrap:wrap;}
+.almnc-wx-dl > div{flex:1;min-width:80px;}
+.almnc-wx-dl dt{font-family:'Playfair Display','Georgia',serif;font-size:10px;font-weight:700;color:#a89e8e;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:3px;}
+.almnc-wx-dl dd{font-family:'Playfair Display','Georgia',serif;font-size:18px;font-weight:700;color:#1a1a1a;font-variant-numeric:tabular-nums;margin:0;}
+.almnc-wx-outlook{margin-top:14px;padding-top:14px;border-top:1px dotted #c8c1b6;}
+.almnc-wx-outlook-ttl{font-family:'Playfair Display','Georgia',serif;font-size:10px;font-weight:700;color:#a89e8e;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:8px;}
+.almnc-wx-days{display:flex;justify-content:space-between;gap:6px;}
+.almnc-wx-day-lg{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;background:#fff;border:1px solid #e5e0d8;border-radius:2px;}
+.almnc-wx-day-lg svg{color:#6b6863;}
+.almnc-wx-day-temps{display:flex;gap:4px;align-items:baseline;font-variant-numeric:tabular-nums;}
+.almnc-wx-day-temps strong{font-family:'Playfair Display','Georgia',serif;font-size:13px;color:#1a1a1a;font-weight:700;}
+.almnc-wx-day-temps span{font-size:10px;color:#a89e8e;}
+
+.almnc-block{background:#fdfcf8;border:1px solid #d8d3cc;border-radius:4px;padding:18px 22px;margin-bottom:10px;}
+
+.almnc-week{overflow-x:auto;}
+.almnc-week-tbl{width:100%;border-collapse:collapse;font-family:'SolaimanLipi',sans-serif;}
+.almnc-week-tbl th,
+.almnc-week-tbl td{padding:9px 8px;text-align:center;font-size:13px;border-bottom:1px solid #e5e0d8;}
+.almnc-week-tbl th{font-family:'Playfair Display','Georgia',serif;font-size:11px;font-weight:700;color:#a89e8e;text-transform:uppercase;letter-spacing:0.1em;border-bottom:2px solid #1a1a1a;padding-bottom:10px;}
+.almnc-week-tbl th.is-today{color:#c41e3a;border-bottom-color:#c41e3a;}
+.almnc-wk-day{font-size:11px;letter-spacing:0.08em;}
+.almnc-wk-num{font-family:'Playfair Display','Georgia',serif;font-size:16px;font-weight:800;color:#1a1a1a;margin-top:2px;font-variant-numeric:tabular-nums;}
+.almnc-week-tbl th.is-today .almnc-wk-num{color:#c41e3a;}
+.almnc-wk-label{text-align:left!important;font-weight:700;color:#1a1a1a;font-size:14px;font-family:'SolaimanLipi',sans-serif;}
+.almnc-week-tbl td{font-family:'Playfair Display','Georgia',serif;font-variant-numeric:tabular-nums;color:#3a3833;font-weight:600;}
+.almnc-week-tbl td.is-today{background:#fdf1f3;color:#c41e3a;font-weight:800;}
+.almnc-week-tbl tr.is-iftar td{color:#a87f3c;}
+.almnc-week-tbl tr.is-iftar .almnc-wk-label{color:#a87f3c;}
+
+.almnc-cal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid #d8d3cc;}
+.almnc-cal-nav{display:flex;align-items:center;gap:10px;font-family:'Playfair Display','Georgia',serif;font-size:13px;font-weight:700;color:#1a1a1a;letter-spacing:0.02em;}
+.almnc-cal-nav button{width:24px;height:24px;background:transparent;border:1px solid #cfc9c0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#3a3833;cursor:pointer;}
+.almnc-cal-nav button:hover{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.almnc-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:0;border-top:1px solid #d8d3cc;border-left:1px solid #d8d3cc;}
+.almnc-cal-cell{background:#fdfcf8;border-right:1px solid #d8d3cc;border-bottom:1px solid #d8d3cc;padding:8px 8px 9px;min-height:78px;display:flex;flex-direction:column;gap:6px;}
+.almnc-cal-cell.is-today{background:#fdf1f3;}
+.almnc-cal-num{display:flex;justify-content:space-between;align-items:baseline;}
+.almnc-cal-d{font-family:'Playfair Display','Georgia',serif;font-size:17px;font-weight:800;color:#1a1a1a;font-variant-numeric:tabular-nums;line-height:1;}
+.almnc-cal-cell.is-today .almnc-cal-d{color:#c41e3a;}
+.almnc-cal-h{font-family:'SolaimanLipi',sans-serif;font-size:11px;color:#a89e8e;font-weight:600;}
+.almnc-cal-times{display:flex;flex-direction:column;gap:3px;margin-top:auto;font-family:'Playfair Display','Georgia',serif;font-variant-numeric:tabular-nums;}
+.almnc-cal-times > div{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:11px;color:#3a3833;}
+.almnc-cal-times span{font-family:'SolaimanLipi',sans-serif;font-size:9.5px;color:#a89e8e;text-transform:uppercase;letter-spacing:0.06em;font-weight:700;}
+.almnc-cal-times strong{font-weight:700;color:#1a1a1a;}
+.almnc-cal-times .is-iftar span,
+.almnc-cal-times .is-iftar strong{color:#a87f3c;}
+
+@media(max-width:680px){
+  .almnc-cal{grid-template-columns:repeat(4,1fr);}
+  .almnc-cal-cell{min-height:68px;padding:6px;}
+  .almnc-cal-d{font-size:15px;}
+  .almnc-cal-h{font-size:10px;}
+}
+
+.almnc-cities{display:flex;flex-wrap:wrap;gap:5px;}
+.almnc-city-chip{background:transparent;border:1px solid #cfc9c0;border-radius:2px;padding:6px 12px;font-family:'SolaimanLipi',sans-serif;font-size:13px;font-weight:600;color:#3a3833;cursor:pointer;transition:all .12s;}
+.almnc-city-chip:hover{background:#fdfcf8;border-color:#3a3833;color:#1a1a1a;}
+.almnc-city-chip.is-active{background:#1a1a1a;border-color:#1a1a1a;color:#fff;}
+
+.almnc-footnote{font-family:'Playfair Display','Georgia',serif;font-style:italic;font-size:11px;color:#a89e8e;text-align:center;padding:8px 0 16px;letter-spacing:0.02em;}
