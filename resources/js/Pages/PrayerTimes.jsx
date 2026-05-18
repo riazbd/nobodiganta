@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import { useApp } from '../contexts/AppContext';
 import MetaTags from '../Components/seo/MetaTags';
+import PageSidebar from '../Components/PageSidebar';
 import { prayerLabel, findNextPrayer, isPassed, formatCountdown, toBn, PRAYER_ORDER } from '../lib/prayerUtils';
 
 const DISPLAY_KEYS = ['Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
@@ -48,6 +49,7 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
   const next                          = today ? findNextPrayer(today.timings) : null;
   const countdown                     = useCountdown(next?.epochMs);
   const isRamadan                     = today?.is_ramadan;
+  const displayRows                   = DISPLAY_KEYS.filter(k => isRamadan || k !== 'Imsak');
 
   const fetchCity = async (key) => {
     try {
@@ -107,64 +109,85 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
     fetchCalendar(cityKey === '__location__' ? 'dhaka' : cityKey, m, y);
   };
 
-  const seo        = { title: lang === 'bn' ? 'নামাজের সময়সূচি' : 'Prayer Times', lang };
-  const displayRows = DISPLAY_KEYS.filter(k => !isRamadan ? k !== 'Imsak' : true);
+  const seo = { title: lang === 'bn' ? 'নামাজের সময়সূচি' : 'Prayer Times', lang };
 
   return (
     <>
       <MetaTags seo={seo} />
       <Head title={lang === 'bn' ? 'নামাজের সময়সূচি' : 'Prayer Times'} />
 
-      <div className="pp-wrap">
+      <div className="article-layout">
+        <div className="article-main">
 
-        {/* ── HERO ── */}
-        <div className={`pp-hero${isRamadan ? ' pp-hero-ramadan' : ''}`}>
+          {/* ── PAGE HEADER ── */}
+          <div className="p-sec-hdr-wrap" style={{ marginBottom: 14 }}>
+            <div className="p-sec-hdr">
+              <h1 className="p-sec-ttl" style={{ fontSize: 22 }}>
+                {lang === 'bn' ? 'নামাজের সময়সূচি' : 'Prayer Times'}
+              </h1>
+            </div>
+          </div>
+
+          {/* ── CITY + CLOCK ROW ── */}
+          <div className="p-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <select
+                className="pws-city-select"
+                value={cityKey}
+                onChange={e => handleCityChange(e.target.value)}
+                style={{ fontSize: 16 }}
+              >
+                <option value="__location__" disabled={cityKey !== '__location__'} style={{ display: cityKey === '__location__' ? '' : 'none' }}>
+                  {lang === 'bn' ? 'আপনার অবস্থান' : 'Your location'}
+                </option>
+                {Object.entries(cities || {}).map(([k, c]) => (
+                  <option key={k} value={k}>{lang === 'bn' ? c.name_bn : c.name_en}</option>
+                ))}
+              </select>
+              <button className="pws-locate-btn" onClick={handleLocate} disabled={locating} style={{ fontSize: 14 }}>
+                {locating ? (lang === 'bn' ? 'খুঁজছি...' : 'Locating...') : (lang === 'bn' ? 'অবস্থান' : 'Locate')}
+              </button>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--black)', fontVariantNumeric: 'tabular-nums' }}>
+                {lang === 'bn' ? toBn(clock) : clock}
+              </div>
+              {today && (
+                <div style={{ fontSize: 13, color: 'var(--lighter-text)' }}>
+                  {today.date.gregorian} &nbsp;·&nbsp; {today.date.hijri_bn}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── RAMADAN BANNER ── */}
           {isRamadan && today && (
             <div className="pp-ramadan-banner">
               {lang === 'bn' ? 'রমজান মোবারক — ' + today.date.hijri_bn : 'Ramadan Mubarak — ' + today.date.hijri_bn}
             </div>
           )}
-          <div className="pp-hero-inner">
-            <div className="pp-hero-left">
-              <div className="pp-clock">{lang === 'bn' ? toBn(clock) : clock}</div>
-              <div className="pp-hero-date">{today?.date.gregorian}</div>
-              {today && <div className="pp-hero-hijri">{today.date.hijri_bn}</div>}
-            </div>
-            <div className="pp-hero-right">
-              <div className="pp-city-row">
-                <select className="pp-city-select" value={cityKey} onChange={e => handleCityChange(e.target.value)}>
-                  {cityKey === '__location__' && (
-                    <option value="__location__">{lang === 'bn' ? 'আপনার অবস্থান' : 'Your location'}</option>
-                  )}
-                  {Object.entries(cities || {}).map(([k, c]) => (
-                    <option key={k} value={k}>{lang === 'bn' ? c.name_bn : c.name_en}</option>
-                  ))}
-                </select>
-                <button className="pp-locate-btn" onClick={handleLocate} disabled={locating}>
-                  {locating ? (lang === 'bn' ? 'খুঁজছি...' : 'Locating...') : (lang === 'bn' ? 'অবস্থান' : 'Locate')}
-                </button>
-              </div>
-              {next && (
-                <div className="pp-next-prayer">
-                  <div className="pp-next-label">
-                    {isRamadan && next.name === 'Maghrib'
-                      ? (lang === 'bn' ? 'ইফতার বাকি' : 'Iftar in')
-                      : (lang === 'bn'
-                          ? 'পরবর্তী নামাজ: ' + prayerLabel(next.name, lang, isRamadan)
-                          : 'Next: ' + prayerLabel(next.name, lang, isRamadan))}
-                  </div>
-                  <div className="pp-next-countdown">{lang === 'bn' ? toBn(countdown) : countdown}</div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
 
-        <div className="pp-body">
+          {/* ── NEXT PRAYER COUNTDOWN ── */}
+          {next && (
+            <div className="p-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontFamily: 'SolaimanLipi, sans-serif', fontSize: 16, color: 'var(--lighter-text)' }}>
+                {isRamadan && next.name === 'Maghrib'
+                  ? (lang === 'bn' ? 'ইফতার পর্যন্ত বাকি' : 'Time until Iftar')
+                  : (lang === 'bn' ? 'পরবর্তী নামাজ: ' + prayerLabel(next.name, lang, isRamadan) : 'Next prayer: ' + prayerLabel(next.name, lang, isRamadan))}
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--primary)', fontVariantNumeric: 'tabular-nums' }}>
+                {lang === 'bn' ? toBn(countdown) : countdown}
+              </div>
+            </div>
+          )}
 
           {/* ── TODAY'S TIMETABLE ── */}
-          <section className="pp-section">
-            <h2 className="pp-section-title">{lang === 'bn' ? 'আজকের নামাজের সময়' : "Today's Prayer Times"}</h2>
+          <div className="p-section">
+            <div className="p-sec-hdr-wrap">
+              <div className="p-sec-hdr">
+                <span className="p-sec-ttl" style={{ fontSize: 18 }}>{lang === 'bn' ? 'আজকের নামাজের সময়' : "Today's Prayer Times"}</span>
+              </div>
+            </div>
             <div className="pp-today-grid">
               {displayRows.map(key => {
                 const time    = today?.timings[key];
@@ -176,7 +199,7 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                 return (
                   <div key={key} className={`pp-prayer-card${isNext ? ' pp-next' : ''}${passed ? ' pp-passed' : ''}${isIftar ? ' pp-iftar' : ''}${isSehri ? ' pp-sehri' : ''}`}>
                     {isIftar && <div className="pp-iftar-badge">{lang === 'bn' ? 'ইফতার' : 'Iftar'}</div>}
-                    {isSehri && <div className="pp-sehri-badge">সেহরি</div>}
+                    {isSehri && <div className="pp-sehri-badge">{lang === 'bn' ? 'সেহরি' : 'Suhoor'}</div>}
                     <div className="pp-prayer-name">{prayerLabel(key, lang, isRamadan)}</div>
                     <div className="pp-prayer-time">{lang === 'bn' ? toBn(time) : time}</div>
                     {isNext && <div className="pp-next-dot" />}
@@ -184,36 +207,41 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                 );
               })}
             </div>
-          </section>
+          </div>
 
           {/* ── WEEKLY TIMETABLE ── */}
           {calendar.length > 0 && (
-            <section className="pp-section">
-              <h2 className="pp-section-title">{lang === 'bn' ? 'সাপ্তাহিক সময়সূচি' : 'Weekly Timetable'}</h2>
+            <div className="p-section">
+              <div className="p-sec-hdr-wrap">
+                <div className="p-sec-hdr">
+                  <span className="p-sec-ttl" style={{ fontSize: 18 }}>{lang === 'bn' ? 'সাপ্তাহিক সময়সূচি' : 'Weekly Timetable'}</span>
+                </div>
+              </div>
               <div className="pp-weekly-wrap">
                 <table className="pp-weekly-table">
                   <thead>
                     <tr>
                       <th>{lang === 'bn' ? 'নামাজ' : 'Prayer'}</th>
                       {calendar.slice(0, 7).map(d => {
-                        const dt      = new Date(d.date_gregorian.split('-').reverse().join('-'));
+                        const parts = d.date_gregorian.split('-');
+                        const dt = new Date(parts[2], parts[1] - 1, parts[0]);
                         const isToday = dt.toDateString() === new Date().toDateString();
                         return (
                           <th key={d.day} className={isToday ? 'pp-today-col' : ''}>
                             {dt.toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { weekday: 'short' })}
-                            <br />
-                            <span className="pp-week-day">{lang === 'bn' ? toBn(String(d.day)) : d.day}</span>
+                            <br /><span className="pp-week-day">{lang === 'bn' ? toBn(String(d.day)) : d.day}</span>
                           </th>
                         );
                       })}
                     </tr>
                   </thead>
                   <tbody>
-                    {DISPLAY_KEYS.filter(k => k !== 'Imsak' || isRamadan).map(key => (
+                    {DISPLAY_KEYS.filter(k => isRamadan || k !== 'Imsak').map(key => (
                       <tr key={key} className={isRamadan && key === 'Maghrib' ? 'pp-iftar-row' : ''}>
                         <td className="pp-row-label">{prayerLabel(key, lang, isRamadan)}</td>
                         {calendar.slice(0, 7).map(d => {
-                          const dt      = new Date(d.date_gregorian.split('-').reverse().join('-'));
+                          const parts = d.date_gregorian.split('-');
+                          const dt = new Date(parts[2], parts[1] - 1, parts[0]);
                           const isToday = dt.toDateString() === new Date().toDateString();
                           return (
                             <td key={d.day} className={isToday ? 'pp-today-col' : ''}>
@@ -226,25 +254,25 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                   </tbody>
                 </table>
               </div>
-            </section>
+            </div>
           )}
 
           {/* ── MONTHLY CALENDAR ── */}
           {calendar.length > 0 && (
-            <section className="pp-section">
+            <div className="p-section">
               <div className="pp-cal-header">
                 <button className="pp-cal-nav" onClick={() => changeCalMonth(-1)}>‹</button>
-                <h2 className="pp-section-title" style={{ margin: 0 }}>
-                  {new Date(calYear, calMonth - 1).toLocaleDateString(
-                    lang === 'bn' ? 'bn-BD' : 'en-GB',
-                    { month: 'long', year: 'numeric' }
-                  )}
-                </h2>
+                <div className="p-sec-hdr" style={{ flex: 1, justifyContent: 'center', border: 'none', paddingBottom: 0 }}>
+                  <span className="p-sec-ttl" style={{ fontSize: 18 }}>
+                    {new Date(calYear, calMonth - 1).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { month: 'long', year: 'numeric' })}
+                  </span>
+                </div>
                 <button className="pp-cal-nav" onClick={() => changeCalMonth(1)}>›</button>
               </div>
               <div className="pp-cal-grid">
                 {calendar.map(d => {
-                  const dt      = new Date(d.date_gregorian.split('-').reverse().join('-'));
+                  const parts = d.date_gregorian.split('-');
+                  const dt = new Date(parts[2], parts[1] - 1, parts[0]);
                   const isToday = dt.toDateString() === new Date().toDateString();
                   return (
                     <div
@@ -260,7 +288,7 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                       </div>
                       {expandedDay === d.day && (
                         <div className="pp-cal-expand">
-                          {DISPLAY_KEYS.filter(k => k !== 'Imsak' || isRamadan).map(k =>
+                          {DISPLAY_KEYS.filter(k => isRamadan || k !== 'Imsak').map(k =>
                             d.timings[k] ? (
                               <div key={k} className="pp-cal-expand-row">
                                 <span>{prayerLabel(k, lang, isRamadan)}</span>
@@ -274,34 +302,34 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                   );
                 })}
               </div>
-            </section>
+            </div>
           )}
 
-          {/* ── ALL CITIES STRIP ── */}
-          <section className="pp-section">
-            <h2 className="pp-section-title">{lang === 'bn' ? 'বিভিন্ন শহরের সময়' : 'Times by City'}</h2>
+          {/* ── ALL CITIES ── */}
+          <div className="p-section">
+            <div className="p-sec-hdr-wrap">
+              <div className="p-sec-hdr">
+                <span className="p-sec-ttl" style={{ fontSize: 18 }}>{lang === 'bn' ? 'বিভিন্ন শহরের সময়' : 'Times by City'}</span>
+              </div>
+            </div>
             <p className="pp-cities-note">{lang === 'bn' ? 'আজকের ফজর ও মাগরিবের সময়' : "Today's Fajr & Maghrib"}</p>
             <div className="pp-cities-strip">
               {Object.entries(cities || {}).map(([k, c]) => (
-                <button
-                  key={k}
-                  className={`pp-city-chip${k === cityKey ? ' active' : ''}`}
-                  onClick={() => handleCityChange(k)}
-                >
+                <button key={k} className={`pp-city-chip${k === cityKey ? ' active' : ''}`} onClick={() => handleCityChange(k)}>
                   <div className="pp-city-chip-name">{lang === 'bn' ? c.name_bn : c.name_en}</div>
                   <div className="pp-city-chip-label">{lang === 'bn' ? 'ফজর · মাগরিব' : 'Fajr · Maghrib'}</div>
                 </button>
               ))}
             </div>
-          </section>
+          </div>
 
           <div className="pp-method">
-            {lang === 'bn'
-              ? 'হিসাব পদ্ধতি: মুসলিম ওয়ার্ল্ড লীগ · উৎস: Aladhan.com'
-              : 'Method: Muslim World League · Source: Aladhan.com'}
+            {lang === 'bn' ? 'হিসাব পদ্ধতি: মুসলিম ওয়ার্ল্ড লীগ · উৎস: Aladhan.com' : 'Method: Muslim World League · Source: Aladhan.com'}
           </div>
 
         </div>
+
+        <PageSidebar />
       </div>
     </>
   );
