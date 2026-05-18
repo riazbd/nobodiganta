@@ -260,13 +260,16 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
           {/* ── MONTHLY CALENDAR ── */}
           {calendar.length > 0 && (
             <div className="p-section">
+              <div className="p-sec-hdr-wrap">
+                <div className="p-sec-hdr">
+                  <span className="p-sec-ttl" style={{ fontSize: 18 }}>{lang === 'bn' ? 'মাসিক ক্যালেন্ডার' : 'Monthly Calendar'}</span>
+                </div>
+              </div>
               <div className="pp-cal-header">
                 <button className="pp-cal-nav" onClick={() => changeCalMonth(-1)}>‹</button>
-                <div className="p-sec-hdr" style={{ flex: 1, justifyContent: 'center', border: 'none', paddingBottom: 0 }}>
-                  <span className="p-sec-ttl" style={{ fontSize: 18 }}>
-                    {new Date(calYear, calMonth - 1).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { month: 'long', year: 'numeric' })}
-                  </span>
-                </div>
+                <span style={{ fontFamily: 'SolaimanLipi, sans-serif', fontSize: 16, fontWeight: 700, color: 'var(--black)' }}>
+                  {new Date(calYear, calMonth - 1).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { month: 'long', year: 'numeric' })}
+                </span>
                 <button className="pp-cal-nav" onClick={() => changeCalMonth(1)}>›</button>
               </div>
               <div className="pp-cal-grid">
