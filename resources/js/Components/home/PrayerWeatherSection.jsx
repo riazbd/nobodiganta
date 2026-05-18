@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
-import { wmoLabel } from '../../lib/wmo';
 import { prayerLabel, findNextPrayer, isPassed, formatCountdown, toBn } from '../../lib/prayerUtils';
+import { fetchWeatherDirect } from '../../lib/bangladeshCities';
 
 function useCountdown(epochMs) {
   const [display, setDisplay] = useState('');
@@ -127,15 +127,16 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
   const [weather, setWeather] = useState(initialWeather);
   const [loading, setLoading] = useState(false);
 
-  const fetchCity = async (key) => {
+  const fetchCity = async (key, lat, lng) => {
     setLoading(true);
     try {
-      const [pRes, wRes] = await Promise.all([
-        fetch(`/api/prayer?city=${key}`).then(r => r.json()),
-        fetch(`/api/weather?city=${key}`).then(r => r.json()),
+      const prayerUrl = lat && lng ? `/api/prayer?lat=${lat}&lng=${lng}` : `/api/prayer?city=${key}`;
+      const [pRes, wData] = await Promise.all([
+        fetch(prayerUrl).then(r => r.json()),
+        fetchWeatherDirect(key, lat, lng),
       ]);
-      setPrayer(pRes.data);
-      setWeather(wRes.data);
+      if (pRes.data) setPrayer(pRes.data);
+      if (wData) setWeather(wData);
     } catch (e) {
       console.error('Failed to fetch city data', e);
     } finally {
@@ -148,39 +149,39 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
     localStorage.setItem('pws_city', key);
     localStorage.removeItem('pws_lat');
     localStorage.removeItem('pws_lng');
-    if (key !== 'dhaka' || !initialPrayer) fetchCity(key);
-    else { setPrayer(initialPrayer); setWeather(initialWeather); }
+    fetchCity(key);
   };
 
   const handleLocate = () => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(async (pos) => {
-      setLoading(true);
       const { latitude: lat, longitude: lng } = pos.coords;
       localStorage.setItem('pws_lat', lat);
       localStorage.setItem('pws_lng', lng);
-      const [pRes, wRes] = await Promise.all([
-        fetch(`/api/prayer?lat=${lat}&lng=${lng}`).then(r => r.json()),
-        fetch(`/api/weather?lat=${lat}&lng=${lng}`).then(r => r.json()),
-      ]);
-      if (pRes.data) { pRes.data.is_location = true; setPrayer(pRes.data); }
-      if (wRes.data) setWeather(wRes.data);
       setCityKey('__location__');
-      setLoading(false);
+      await fetchCity('dhaka', lat, lng);
+      setPrayer(p => p ? { ...p, is_location: true } : p);
     }, () => {});
   };
 
   useEffect(() => {
     const savedLat  = localStorage.getItem('pws_lat');
     const savedLng  = localStorage.getItem('pws_lng');
-    const savedCity = localStorage.getItem('pws_city');
+    const savedCity = localStorage.getItem('pws_city') || 'dhaka';
     if (savedLat && savedLng) {
-      handleLocate();
-    } else if (savedCity && savedCity !== 'dhaka') {
-      fetchCity(savedCity);
-    } else if (!initialPrayer || !initialWeather) {
-      // Server-side props missing (API was slow/unavailable on first load) — fetch client-side
-      fetchCity('dhaka');
+      // Previously used geolocation — restore it
+      setCityKey('__location__');
+      fetchCity('dhaka', parseFloat(savedLat), parseFloat(savedLng));
+    } else {
+      // Always fetch weather from browser (server-side weather API may be blocked)
+      // Only fetch prayer from server if initialPrayer is missing
+      if (!initialPrayer) {
+        fetchCity(savedCity);
+      } else {
+        // Prayer is fine from server; just fetch weather client-side
+        fetchWeatherDirect(savedCity).then(w => { if (w) setWeather(w); });
+        if (savedCity !== 'dhaka') fetchCity(savedCity); // also refresh prayer for non-dhaka
+      }
     }
   }, []);
 
