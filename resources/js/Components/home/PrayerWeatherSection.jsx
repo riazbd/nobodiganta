@@ -1,4 +1,3 @@
-// resources/js/Components/home/PrayerWeatherSection.jsx
 import { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
@@ -18,13 +17,10 @@ function useCountdown(epochMs) {
 }
 
 function PrayerPanel({ prayer, lang }) {
-  const next = prayer ? findNextPrayer(prayer.timings) : null;
+  const next      = prayer ? findNextPrayer(prayer.timings) : null;
   const countdown = useCountdown(next?.epochMs);
   const isRamadan = prayer?.is_ramadan;
-
-  const displayRows = ['Imsak', 'Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].filter(
-    k => !isRamadan ? k !== 'Imsak' : true
-  );
+  const rows      = ['Imsak','Fajr','Dhuhr','Asr','Maghrib','Isha'].filter(k => isRamadan || k !== 'Imsak');
 
   return (
     <div className="pws-panel pws-prayer-panel">
@@ -32,22 +28,17 @@ function PrayerPanel({ prayer, lang }) {
         <span className="pws-panel-title">{lang === 'bn' ? 'নামাজের সময়' : 'Prayer Times'}</span>
         {prayer && <span className="pws-date">{prayer.date.hijri_bn}</span>}
       </div>
-
-      {isRamadan && (
-        <div className="pws-ramadan-badge">{lang === 'bn' ? 'রমজান মোবারক' : 'Ramadan Mubarak'}</div>
-      )}
-
+      {isRamadan && <div className="pws-ramadan-badge">{lang === 'bn' ? 'রমজান মোবারক' : 'Ramadan Mubarak'}</div>}
       {prayer ? (
         <>
           <div className="pws-prayer-rows">
-            {displayRows.map(key => {
+            {rows.map(key => {
               const time = prayer.timings[key];
               if (!time) return null;
-              const isNext    = next?.name === key;
-              const passed    = !isNext && isPassed(time);
-              const isMaghrib = key === 'Maghrib';
+              const isNext = next?.name === key;
+              const passed = !isNext && isPassed(time);
               return (
-                <div key={key} className={`pws-prayer-row${isNext ? ' next' : ''}${passed ? ' passed' : ''}${isRamadan && isMaghrib ? ' iftar' : ''}`}>
+                <div key={key} className={`pws-prayer-row${isNext ? ' next' : ''}${passed ? ' passed' : ''}${isRamadan && key === 'Maghrib' ? ' iftar' : ''}`}>
                   <span className="pws-prayer-name">{prayerLabel(key, lang, isRamadan)}</span>
                   <span className="pws-prayer-time">{lang === 'bn' ? toBn(time) : time}</span>
                   {isNext && <span className="pws-pulse" />}
@@ -72,16 +63,19 @@ function PrayerPanel({ prayer, lang }) {
 }
 
 function WeatherPanel({ weather, lang }) {
+  if (!weather) return (
+    <div className="pws-panel pws-weather-panel">
+      <div className="pws-panel-hdr"><span className="pws-panel-title">{lang === 'bn' ? 'আবহাওয়া' : 'Weather'}</span></div>
+      <div className="pws-empty">{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
+    </div>
+  );
   const w = weather;
-  if (!w) return <div className="pws-panel pws-weather-panel"><div className="pws-empty">...</div></div>;
-
   return (
     <div className="pws-panel pws-weather-panel">
       <div className="pws-panel-hdr">
         <span className="pws-panel-title">{lang === 'bn' ? 'আবহাওয়া' : 'Weather'}</span>
         <span className="pws-date">{lang === 'bn' ? w.city_bn : w.city}</span>
       </div>
-
       <div className="pws-weather-main">
         <div className="pws-temp">
           {lang === 'bn' ? toBn(String(Math.round(w.current.temp_c))) : Math.round(w.current.temp_c)}°<span className="pws-temp-unit">C</span>
@@ -98,15 +92,14 @@ function WeatherPanel({ weather, lang }) {
           </div>
         </div>
       </div>
-
       <div className="pws-forecast">
         {w.forecast.slice(0, 5).map((d, i) => {
-          const dayLabel = i === 0
+          const day = i === 0
             ? (lang === 'bn' ? 'আজ' : 'Today')
             : new Date(d.date).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { weekday: 'short' });
           return (
             <div key={d.date} className="pws-forecast-day">
-              <div className="pws-forecast-label">{dayLabel}</div>
+              <div className="pws-forecast-label">{day}</div>
               <div className="pws-forecast-temp">
                 {lang === 'bn' ? toBn(String(Math.round(d.max_c))) : Math.round(d.max_c)}°
                 <span className="pws-forecast-min">/{lang === 'bn' ? toBn(String(Math.round(d.min_c))) : Math.round(d.min_c)}°</span>
@@ -119,71 +112,87 @@ function WeatherPanel({ weather, lang }) {
   );
 }
 
-export default function PrayerWeatherSection({ initialPrayer, initialWeather }) {
-  const { lang } = useApp();
-  const { onNavigate } = useNavigation();
-  const [cityKey, setCityKey] = useState(() => localStorage.getItem('pws_city') || 'dhaka');
-  const [prayer, setPrayer]   = useState(initialPrayer);
-  const [weather, setWeather] = useState(initialWeather);
-  const [loading, setLoading] = useState(false);
+export default function PrayerWeatherSection({ initialPrayer }) {
+  const { lang }        = useApp();
+  const { onNavigate }  = useNavigation();
 
-  const fetchCity = async (key, lat, lng) => {
+  // cityKey: named city key or '__location__' when using GPS
+  const [cityKey,  setCityKey]  = useState('dhaka');
+  const [gpsCoords, setGpsCoords] = useState(null);   // { lat, lng } when using location
+  const [prayer,   setPrayer]   = useState(initialPrayer || null);
+  const [weather,  setWeather]  = useState(null);
+  const [loading,  setLoading]  = useState(false);
+
+  // Core load function — always called with explicit city or coords
+  const load = async (key, coords) => {
     setLoading(true);
     try {
-      const prayerUrl = lat && lng ? `/api/prayer?lat=${lat}&lng=${lng}` : `/api/prayer?city=${key}`;
+      const prayerUrl = coords
+        ? `/api/prayer?lat=${coords.lat}&lng=${coords.lng}`
+        : `/api/prayer?city=${key}`;
+
+      // Prayer from Laravel server, weather directly from Open-Meteo in browser
       const [pRes, wData] = await Promise.all([
         fetch(prayerUrl).then(r => r.json()),
-        fetchWeatherDirect(key, lat, lng),
+        fetchWeatherDirect(key, coords?.lat, coords?.lng),
       ]);
+
       if (pRes.data) setPrayer(pRes.data);
-      if (wData) setWeather(wData);
+      if (wData)     setWeather(wData);
     } catch (e) {
-      console.error('Failed to fetch city data', e);
+      console.error('PrayerWeather load failed', e);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCityChange = (key) => {
-    setCityKey(key);
-    localStorage.setItem('pws_city', key);
-    localStorage.removeItem('pws_lat');
-    localStorage.removeItem('pws_lng');
-    fetchCity(key);
-  };
-
-  const handleLocate = () => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const { latitude: lat, longitude: lng } = pos.coords;
-      localStorage.setItem('pws_lat', lat);
-      localStorage.setItem('pws_lng', lng);
-      setCityKey('__location__');
-      await fetchCity('dhaka', lat, lng);
-      setPrayer(p => p ? { ...p, is_location: true } : p);
-    }, () => {});
-  };
-
+  // On mount: restore saved city/coords and load weather (server gave us prayer)
   useEffect(() => {
     const savedLat  = localStorage.getItem('pws_lat');
     const savedLng  = localStorage.getItem('pws_lng');
     const savedCity = localStorage.getItem('pws_city') || 'dhaka';
+
     if (savedLat && savedLng) {
-      // Previously used geolocation — restore it
+      const coords = { lat: parseFloat(savedLat), lng: parseFloat(savedLng) };
       setCityKey('__location__');
-      fetchCity('dhaka', parseFloat(savedLat), parseFloat(savedLng));
+      setGpsCoords(coords);
+      load('dhaka', coords);
     } else {
-      // Always fetch weather from browser (server-side weather API may be blocked)
-      // Only fetch prayer from server if initialPrayer is missing
-      if (!initialPrayer) {
-        fetchCity(savedCity);
+      setCityKey(savedCity);
+      // If server already gave us prayer for Dhaka, only fetch weather
+      if (initialPrayer && savedCity === 'dhaka') {
+        fetchWeatherDirect('dhaka').then(w => { if (w) setWeather(w); });
       } else {
-        // Prayer is fine from server; just fetch weather client-side
-        fetchWeatherDirect(savedCity).then(w => { if (w) setWeather(w); });
-        if (savedCity !== 'dhaka') fetchCity(savedCity); // also refresh prayer for non-dhaka
+        load(savedCity, null);
       }
     }
   }, []);
+
+  const handleCityChange = (key) => {
+    if (key === cityKey && !gpsCoords) return; // no-op if same city
+    setCityKey(key);
+    setGpsCoords(null);
+    localStorage.setItem('pws_city', key);
+    localStorage.removeItem('pws_lat');
+    localStorage.removeItem('pws_lng');
+    load(key, null);
+  };
+
+  const handleLocate = () => {
+    if (!navigator.geolocation) return;
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        localStorage.setItem('pws_lat', coords.lat);
+        localStorage.setItem('pws_lng', coords.lng);
+        setCityKey('__location__');
+        setGpsCoords(coords);
+        load('dhaka', coords);
+      },
+      () => setLoading(false)
+    );
+  };
 
   return (
     <div className={`pws-section${prayer?.is_ramadan ? ' pws-ramadan' : ''}`}>
@@ -192,11 +201,14 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
           <div className="pws-city-wrap">
             <select
               className="pws-city-select"
-              value={cityKey === '__location__' ? '__location__' : cityKey}
+              value={cityKey}
               onChange={e => handleCityChange(e.target.value)}
               disabled={loading}
             >
-              {cityKey === '__location__' && <option value="__location__">{lang === 'bn' ? 'আপনার অবস্থান' : 'Your location'}</option>}
+              {/* __location__ option always present so select value always matches */}
+              <option value="__location__" disabled={cityKey !== '__location__'} style={{ display: cityKey === '__location__' ? '' : 'none' }}>
+                {lang === 'bn' ? 'আপনার অবস্থান' : 'Your location'}
+              </option>
               <option value="dhaka">{lang === 'bn' ? 'ঢাকা' : 'Dhaka'}</option>
               <option value="chittagong">{lang === 'bn' ? 'চট্টগ্রাম' : 'Chittagong'}</option>
               <option value="sylhet">{lang === 'bn' ? 'সিলেট' : 'Sylhet'}</option>
@@ -212,10 +224,7 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
               <option value="bogra">{lang === 'bn' ? 'বগুড়া' : 'Bogra'}</option>
               <option value="coxsbazar">{lang === 'bn' ? 'কক্সবাজার' : "Cox's Bazar"}</option>
             </select>
-            <button
-              className="pws-locate-btn"
-              onClick={handleLocate}
-            >
+            <button className="pws-locate-btn" onClick={handleLocate} disabled={loading}>
               {lang === 'bn' ? 'অবস্থান' : 'Locate'}
             </button>
           </div>
@@ -223,7 +232,6 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
             {lang === 'bn' ? 'বিস্তারিত সময়সূচি »' : 'Full timetable »'}
           </button>
         </div>
-
         <div className="pws-panels">
           <PrayerPanel prayer={prayer} lang={lang} />
           <WeatherPanel weather={weather} lang={lang} />
