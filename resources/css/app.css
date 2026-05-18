@@ -2496,9 +2496,10 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 .almnc-dateline{font-family:'SolaimanLipi',sans-serif;font-size:13px;color:#3a3833;margin-top:4px;font-weight:500;}
 .almnc-mast-right{display:flex;gap:8px;align-items:center;}
 
-.almnc-city-pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfc9c0;border-radius:2px;padding:5px 10px;transition:border-color .12s;}
+.almnc-city-pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfc9c0;border-radius:2px;padding:2px 10px;transition:border-color .12s;}
 .almnc-city-pill:hover{border-color:#3a3833;}
 .almnc-city-pill svg{color:#6b6863;flex-shrink:0;}
+select.almnc-city-select{padding:0;}
 .almnc-city-select{background:transparent;border:none;outline:none;font-family:'SolaimanLipi',sans-serif;font-size:13px;color:#1a1a1a;font-weight:700;cursor:pointer;padding-right:10px;appearance:none;letter-spacing:0.01em;}
 .almnc-icon-btn{width:30px;height:30px;background:#fff;border:1px solid #cfc9c0;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;color:#6b6863;cursor:pointer;transition:all .12s;}
 .almnc-icon-btn:hover:not(:disabled){background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
@@ -2629,7 +2630,8 @@ html[lang="en"] .almnc-pm-title{font-family:'Playfair Display','Georgia',serif;}
 .almnc-week-tbl tr.is-iftar td{color:#a87f3c;}
 .almnc-week-tbl tr.is-iftar .almnc-wk-label{color:#a87f3c;}
 
-.almnc-cal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid #d8d3cc;}
+.almnc-cal-hdr{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid #d8d3cc;}
+.almnc-cal-hijri-sub{font-family:'SolaimanLipi','Kalpurush',sans-serif;font-size:12px;color:#7a7470;margin-top:2px;letter-spacing:0.01em;}
 .almnc-cal-nav{display:flex;align-items:center;gap:10px;font-family:'Playfair Display','Georgia',serif;font-size:13px;font-weight:700;color:#1a1a1a;letter-spacing:0.02em;}
 .almnc-cal-nav button{width:24px;height:24px;background:transparent;border:1px solid #cfc9c0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#3a3833;cursor:pointer;}
 .almnc-cal-nav button:hover{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}

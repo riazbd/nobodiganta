@@ -352,15 +352,9 @@ Route::post('/api/comments/{comment}/flag', [CommentController::class, 'flag'])-
 Route::get('/stories', [\App\Http\Controllers\StoriesController::class, 'index'])->name('stories');
 Route::get('/api/stories', [\App\Http\Controllers\StoriesController::class, 'apiIndex'])->name('api.stories');
 
-// Article route LAST — two dynamic segments, catches /{category}/{slug}
-// `category` must NOT be a reserved prefix (en, api, admin, storage) — otherwise
-// this catch-all swallows English edition routes like /en/prayer-times
-Route::get('/{category}/{slug}', [NewsController::class, 'article'])
-    ->name('article')
-    ->where('category', '^(?!en$|api$|admin$|storage$|build$).+');
-
 // ══════════════════════════════════════
 // ENGLISH EDITION — mirrors all public routes under /en prefix
+// MUST be declared before the /{category}/{slug} catch-all
 // ══════════════════════════════════════
 Route::prefix('en')->group(function () {
     Route::get('/', [NewsController::class, 'home'])->name('en.home');
@@ -388,6 +382,9 @@ Route::prefix('en')->group(function () {
     Route::get('/stories', [\App\Http\Controllers\StoriesController::class, 'index'])->name('en.stories');
     Route::get('/{category}/{slug}', [NewsController::class, 'article'])->name('en.article');
 });
+
+// Article catch-all — MUST be after all specific routes including /en prefix group
+Route::get('/{category}/{slug}', [NewsController::class, 'article'])->name('article');
 
 // ══════════════════════════════════════
 // ERROR PAGES

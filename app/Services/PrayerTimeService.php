@@ -15,6 +15,12 @@ class PrayerTimeService
         9=>'রমজান',10=>'শাওয়াল',11=>'জিলকদ',12=>'জিলহজ',
     ];
 
+    private array $hijriMonthsEn = [
+        1=>'Muharram',2=>'Safar',3=>"Rabi' al-Awwal",4=>"Rabi' al-Thani",
+        5=>"Jumada al-Awwal",6=>"Jumada al-Thani",7=>'Rajab',8=>"Sha'ban",
+        9=>'Ramadan',10=>'Shawwal',11=>"Dhul Qi'dah",12=>'Dhul Hijjah',
+    ];
+
     public function getTimingsForCity(string $cityKey, ?string $date = null): ?array
     {
         $cities = config('bangladesh_cities.cities');
@@ -48,7 +54,7 @@ class PrayerTimeService
 
         return Cache::remember($key, 86400 * 30, function() use ($city, $month, $year) {
             $url = self::BASE . "/calendar/{$year}/{$month}";
-            $res = Http::timeout(8)->get($url, [
+            $res = Http::timeout(8)->withoutVerifying()->get($url, [
                 'latitude'  => $city['lat'],
                 'longitude' => $city['lng'],
                 'method'    => self::METHOD,
@@ -56,11 +62,16 @@ class PrayerTimeService
             if (!$res->ok()) return [];
             $days = $res->json('data') ?? [];
             return collect($days)->map(fn($d) => [
-                'day'              => (int) $d['date']['gregorian']['day'],
-                'date_gregorian'   => $d['date']['gregorian']['date'],
-                'hijri_day_bn'     => $this->toBn((string)($d['date']['hijri']['day'] ?? '')),
+                'day'                => (int) $d['date']['gregorian']['day'],
+                'date_gregorian'     => $d['date']['gregorian']['date'],
+                'hijri_day'          => (int) ($d['date']['hijri']['day'] ?? 0),
+                'hijri_day_bn'       => $this->toBn((string)($d['date']['hijri']['day'] ?? '')),
                 'hijri_month_number' => (int) ($d['date']['hijri']['month']['number'] ?? 0),
-                'timings'          => $this->filterTimings($d['timings']),
+                'hijri_month_bn'     => $this->hijriMonthsBn[(int)($d['date']['hijri']['month']['number'] ?? 0)] ?? '',
+                'hijri_month_en'     => $this->hijriMonthsEn[(int)($d['date']['hijri']['month']['number'] ?? 0)] ?? '',
+                'hijri_year'         => (int) ($d['date']['hijri']['year'] ?? 0),
+                'hijri_year_bn'      => $this->toBn((string)($d['date']['hijri']['year'] ?? '')),
+                'timings'            => $this->filterTimings($d['timings']),
             ])->values()->all();
         });
     }
@@ -75,7 +86,7 @@ class PrayerTimeService
         try {
             $ts  = strtotime($date);
             $url = self::BASE . "/timings/{$ts}";
-            $res = Http::timeout(8)->get($url, [
+            $res = Http::timeout(8)->withoutVerifying()->get($url, [
                 'latitude'  => $lat,
                 'longitude' => $lng,
                 'method'    => self::METHOD,
@@ -85,8 +96,11 @@ class PrayerTimeService
             $hijri  = $data['date']['hijri'] ?? [];
             $mNum   = (int) ($hijri['month']['number'] ?? 0);
             $mBn    = $this->hijriMonthsBn[$mNum] ?? '';
-            $dayBn  = $this->toBn((string)($hijri['day'] ?? ''));
-            $yearBn = $this->toBn((string)($hijri['year'] ?? ''));
+            $mEn    = $this->hijriMonthsEn[$mNum] ?? '';
+            $day    = (string)($hijri['day'] ?? '');
+            $year   = (string)($hijri['year'] ?? '');
+            $dayBn  = $this->toBn($day);
+            $yearBn = $this->toBn($year);
 
             return [
                 'city'       => $nameEn,
@@ -96,6 +110,7 @@ class PrayerTimeService
                 'date'       => [
                     'gregorian'          => $data['date']['readable'] ?? $date,
                     'hijri_bn'           => "{$dayBn} {$mBn} {$yearBn}",
+                    'hijri_en'           => "{$day} {$mEn} {$year}",
                     'hijri_month_number' => $mNum,
                 ],
                 'is_ramadan' => $mNum === 9,

@@ -147,7 +147,7 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
             <div className="almnc-dateline">
               {formatGregorian(prayer.date.gregorian, lang)}
               <span className="almnc-bullet">·</span>
-              {prayer.date.hijri_bn}
+              {lang === 'bn' ? prayer.date.hijri_bn : (prayer.date.hijri_en ?? prayer.date.hijri_bn)}
             </div>
           )}
         </div>

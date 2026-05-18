@@ -122,7 +122,7 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                 <>
                   <span>{formatGregorian(today.date.gregorian, lang)}</span>
                   <span className="almnc-bullet">·</span>
-                  <span>{today.date.hijri_bn}</span>
+                  <span>{lang === 'bn' ? today.date.hijri_bn : today.date.hijri_en}</span>
                   <span className="almnc-bullet">·</span>
                 </>
               )}
@@ -290,10 +290,21 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
           )}
 
           {/* ═══════ MONTHLY ═══════ */}
-          {calendar.length >= 7 && (
+          {calendar.length >= 7 && (() => {
+            const hijriMonths = [...new Map(
+              calendar.map(d => [d.hijri_month_number, { bn: `${d.hijri_month_bn} ${d.hijri_year_bn}`, en: `${d.hijri_month_en} ${d.hijri_year}` }])
+            ).values()];
+            return (
             <section className="almnc-block">
               <div className="almnc-cal-hdr">
-                <h2 className="almnc-h2">{lang === 'bn' ? 'মাসিক ক্যালেন্ডার' : 'Monthly Calendar'}</h2>
+                <div>
+                  <h2 className="almnc-h2">{lang === 'bn' ? 'মাসিক ক্যালেন্ডার' : 'Monthly Calendar'}</h2>
+                  <div className="almnc-cal-hijri-sub">
+                    {hijriMonths.map((m, i) => (
+                      <span key={i}>{lang === 'bn' ? m.bn : m.en}{i < hijriMonths.length - 1 ? ' – ' : ''}</span>
+                    ))}
+                  </div>
+                </div>
                 <div className="almnc-cal-nav">
                   <button onClick={() => changeCalMonth(-1)}><ChevronLeft size={14} /></button>
                   <span>{new Date(calYear, calMonth - 1).toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { month: 'long', year: 'numeric' })}</span>
@@ -316,7 +327,7 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                     >
                       <div className="almnc-cal-num">
                         <span className="almnc-cal-d">{lang === 'bn' ? toBn(String(d.day)) : d.day}</span>
-                        <span className="almnc-cal-h">{d.hijri_day_bn}</span>
+                        <span className="almnc-cal-h">{lang === 'bn' ? d.hijri_day_bn : d.hijri_day}</span>
                       </div>
                       <div className="almnc-cal-times">
                         <div><span>{lang === 'bn' ? 'ফজ' : 'F'}</span><strong>{formatTime12h(d.timings.Fajr, lang)}</strong></div>
@@ -345,7 +356,11 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                         <div className="almnc-cal-detail-date">
                           {dateLabel}
                           <span className="almnc-bullet">·</span>
-                          <span className="almnc-cal-detail-hijri">{d.hijri_day_bn} {today?.date.hijri_bn?.split(' ').slice(1).join(' ')}</span>
+                          <span className="almnc-cal-detail-hijri">
+                            {lang === 'bn'
+                              ? `${d.hijri_day_bn} ${d.hijri_month_bn} ${d.hijri_year_bn}`
+                              : `${d.hijri_day} ${d.hijri_month_en} ${d.hijri_year}`}
+                          </span>
                         </div>
                       </div>
                       <button className="almnc-cal-detail-close" onClick={() => setSelectedDay(null)} aria-label="Close">×</button>
@@ -373,7 +388,7 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                 );
               })()}
             </section>
-          )}
+          );})()}
 
           {/* ═══════ CITIES ═══════ */}
           <section className="almnc-block">
