@@ -26,6 +26,7 @@ class LocationController extends Controller
 
         // Count articles per division so UI can show badge counts
         $divisionCounts = Article::published()
+            ->forEdition($edition)
             ->selectRaw('division, count(*) as total')
             ->whereNotNull('division')
             ->groupBy('division')
@@ -52,6 +53,7 @@ class LocationController extends Controller
         $articles = Article::published()
             ->forEdition($edition)
             ->where('division', $division)
+            ->withRelations()
             ->latest('published_at')
             ->paginate(20)
             ->through(fn($a) => $a->toAPIArray($edition));
@@ -86,6 +88,7 @@ class LocationController extends Controller
             ->forEdition($edition)
             ->where('division', $division)
             ->where('district', $district)
+            ->withRelations()
             ->latest('published_at')
             ->paginate(20)
             ->through(fn($a) => $a->toAPIArray($edition));
@@ -122,6 +125,7 @@ class LocationController extends Controller
             ->where('division', $division)
             ->where('district', $district)
             ->where('upazila', $upazila)
+            ->withRelations()
             ->latest('published_at')
             ->paginate(20)
             ->through(fn($a) => $a->toAPIArray($edition));
