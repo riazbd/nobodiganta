@@ -32,7 +32,7 @@ class Article extends Model
         'views', 'shares_count', 'read_time_bn', 'read_time_en',
         'meta_title_bn', 'meta_title_en',
         'meta_description_bn', 'meta_description_en',
-        'division', 'district',
+        'division', 'district', 'upazila',
         'published_at', 'scheduled_at',
     ];
 
