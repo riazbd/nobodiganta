@@ -1,11 +1,12 @@
+import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import MetaTags from '../Components/seo/MetaTags';
 import { buildDefaultSeo } from '../lib/seo';
 import { useApp } from '../contexts/AppContext';
-import PageSidebar from '../Components/PageSidebar';
 import Pagination from '../Components/ui/Pagination';
-import NewsCard from '../Components/ui/NewsCard';
 import EmptyState from '../Components/ui/EmptyState';
+import { relativeTime } from '../lib/formatters';
 import {
   BD_DIVISIONS,
   findDivision,
@@ -14,6 +15,8 @@ import {
 } from '../data/bdLocations';
 import { ROUTES } from '../lib/routes';
 
+// ── Breadcrumb ─────────────────────────────────────────────────────────────
+
 function LocationBreadcrumb({ level, division, district, upazila, lang }) {
   const crumbs = [
     { label: lang === 'bn' ? 'সারাদেশ' : 'Bangladesh', href: ROUTES.location(lang) },
@@ -21,46 +24,40 @@ function LocationBreadcrumb({ level, division, district, upazila, lang }) {
 
   if (level !== 'country') {
     const divData = findDivision(division);
-    if (divData) {
-      crumbs.push({
-        label: lang === 'bn' ? divData.bn : divData.en,
-        href: ROUTES.locationDiv(division, lang),
-      });
-    }
+    if (divData) crumbs.push({
+      label: lang === 'bn' ? divData.bn : divData.en,
+      href: ROUTES.locationDiv(division, lang),
+    });
   }
 
   if (level === 'district' || level === 'upazila') {
     const distData = findDistrict(division, district);
-    if (distData) {
-      crumbs.push({
-        label: lang === 'bn' ? distData.bn : distData.en,
-        href: ROUTES.locationDist(division, district, lang),
-      });
-    }
+    if (distData) crumbs.push({
+      label: lang === 'bn' ? distData.bn : distData.en,
+      href: ROUTES.locationDist(division, district, lang),
+    });
   }
 
   if (level === 'upazila') {
     const uzData = findUpazila(division, district, upazila);
-    if (uzData) {
-      crumbs.push({
-        label: lang === 'bn' ? uzData.bn : uzData.en,
-        href: ROUTES.locationUpazila(division, district, upazila, lang),
-      });
-    }
+    if (uzData) crumbs.push({
+      label: lang === 'bn' ? uzData.bn : uzData.en,
+      href: ROUTES.locationUpazila(division, district, upazila, lang),
+    });
   }
 
   return (
-    <nav className="breadcrumb" aria-label="breadcrumb">
+    <nav className="loc-bc" aria-label="breadcrumb">
       {crumbs.map((crumb, i) => {
         const isLast = i === crumbs.length - 1;
         return (
-          <span key={i} className="bc-item">
+          <span key={i} className="loc-bc-item">
             {isLast ? (
-              <span className="bc-current" aria-current="page">{crumb.label}</span>
+              <span className="loc-bc-current">{crumb.label}</span>
             ) : (
               <>
-                <Link href={crumb.href} className="bc-link">{crumb.label}</Link>
-                <span className="bc-sep" aria-hidden="true">›</span>
+                <Link href={crumb.href} className="loc-bc-link">{crumb.label}</Link>
+                <span className="loc-bc-sep" aria-hidden="true"> › </span>
               </>
             )}
           </span>
@@ -70,26 +67,233 @@ function LocationBreadcrumb({ level, division, district, upazila, lang }) {
   );
 }
 
-function FilterPills({ items, activeFn, hrefFn, lang, countMap }) {
+// ── Sub-location inline bullet links (district tabs / upazila tabs) ─────────
+
+function SubLocationLinks({ items, activeSlug, hrefFn, lang }) {
   return (
-    <div className="loc-pills">
-      {items.map((item) => {
-        const isActive = activeFn(item);
-        const count = countMap?.[item.slug];
+    <div className="loc-subloc">
+      {items.map((item, i) => {
+        const isActive = item.slug === activeSlug;
         return (
-          <Link
-            key={item.slug}
-            href={hrefFn(item)}
-            className={`loc-pill${isActive ? ' on' : ''}`}
-          >
-            <span>{lang === 'bn' ? item.bn : item.en}</span>
-            {count ? <span className="loc-pill-count">{count}</span> : null}
-          </Link>
+          <span key={item.slug} className="loc-subloc-entry">
+            {i > 0 && <span className="loc-subloc-sep" aria-hidden="true"> • </span>}
+            <Link
+              href={hrefFn(item)}
+              className={`loc-subloc-link${isActive ? ' on' : ''}`}
+            >
+              {lang === 'bn' ? item.bn : item.en}
+            </Link>
+          </span>
         );
       })}
     </div>
   );
 }
+
+// ── Article URL helper ─────────────────────────────────────────────────────
+
+function articleHref(article, lang) {
+  return ROUTES.article(article.category?.slug || 'bangladesh', article.slug, lang);
+}
+
+// ── Hero article (large, top of feed) ─────────────────────────────────────
+
+function LocHeroArticle({ article, lang }) {
+  return (
+    <Link href={articleHref(article, lang)} className="loc-hero-main">
+      {article.featured_image && (
+        <img
+          src={article.featured_image}
+          alt={article.featured_image_alt || article.title}
+          className="loc-hero-img"
+          loading="lazy"
+        />
+      )}
+      <div className="loc-hero-body">
+        {/* <span className="loc-hero-cat">{article.category?.name}</span> */}
+        <h2 className="loc-hero-title">{article.title}</h2>
+        {article.excerpt && <p className="loc-hero-excerpt">{article.excerpt}</p>}
+        {/* <span className="loc-hero-time">{relativeTime(article.published_at, lang)}</span> */}
+      </div>
+    </Link>
+  );
+}
+
+// ── Mini article (stacked beside hero) ────────────────────────────────────
+
+function LocMiniArticle({ article, lang }) {
+  return (
+    <Link href={articleHref(article, lang)} className="loc-mini">
+      <div className="loc-mini-info">
+        {/* <span className="loc-mini-cat">{article.category?.name}</span> */}
+        <h3 className="loc-mini-title">{article.title}</h3>
+      </div>
+      {article.featured_image && (
+        <img
+          src={article.featured_image}
+          alt={article.featured_image_alt || article.title}
+          className="loc-mini-img"
+          loading="lazy"
+        />
+      )}
+    </Link>
+  );
+}
+
+// ── List article (title+excerpt left, thumbnail right) ────────────────────
+
+function LocListArticle({ article, lang }) {
+  return (
+    <Link href={articleHref(article, lang)} className="loc-list-item">
+      <div className="loc-list-info">
+        {/* <span className="loc-list-cat">{article.category?.name}</span> */}
+        <h3 className="loc-list-title">{article.title}</h3>
+        {article.excerpt && <p className="loc-list-excerpt">{article.excerpt}</p>}
+        {/* <span className="loc-list-meta">{relativeTime(article.published_at, lang)}</span> */}
+      </div>
+      {article.featured_image && (
+        <img
+          src={article.featured_image}
+          alt={article.featured_image_alt || article.title}
+          className="loc-list-img"
+          loading="lazy"
+        />
+      )}
+    </Link>
+  );
+}
+
+// ── Full article feed with hero+mini+list layout ───────────────────────────
+
+function LocArticlesFeed({ articles, lang }) {
+  const results = articles?.data || [];
+
+  if (results.length === 0) {
+    return (
+      <EmptyState
+        titleBn="এই এলাকায় কোনো সংবাদ পাওয়া যায়নি"
+        titleEn="No articles found for this location"
+      />
+    );
+  }
+
+  const hero = results[0];
+  const minis = results.slice(1, 5);
+  const listItems = results.slice(5);
+
+  return (
+    <div className="loc-feed">
+      {/* Hero cluster */}
+      <div className="loc-hero-cluster">
+        <LocHeroArticle article={hero} lang={lang} />
+        {minis.length > 0 && (
+          <div className="loc-hero-stack">
+            {minis.map(a => <LocMiniArticle key={a.id} article={a} lang={lang} />)}
+          </div>
+        )}
+      </div>
+
+      {/* Divider */}
+      {listItems.length > 0 && <div className="loc-divider" />}
+
+      {/* List articles */}
+      {listItems.map(a => (
+        <LocListArticle key={a.id} article={a} lang={lang} />
+      ))}
+
+      {/* Pagination */}
+      {articles && <Pagination links={articles.links} />}
+    </div>
+  );
+}
+
+// ── Right sidebar: "আপনার এলাকার খবর" filter widget ──────────────────────
+
+function LocationFilterWidget({ division: initDiv, district: initDist, upazila: initUz, lang }) {
+  const [selDiv, setSelDiv] = useState(initDiv || '');
+  const [selDist, setSelDist] = useState(initDist || '');
+  const [selUz, setSelUz] = useState(initUz || '');
+
+  const divData = selDiv ? findDivision(selDiv) : null;
+  const distData = (selDiv && selDist) ? findDistrict(selDiv, selDist) : null;
+
+  const handleDivChange = (e) => {
+    setSelDiv(e.target.value);
+    setSelDist('');
+    setSelUz('');
+  };
+
+  const handleDistChange = (e) => {
+    setSelDist(e.target.value);
+    setSelUz('');
+  };
+
+  const handleSearch = () => {
+    if (selUz && selDist && selDiv) {
+      router.visit(ROUTES.locationUpazila(selDiv, selDist, selUz, lang));
+    } else if (selDist && selDiv) {
+      router.visit(ROUTES.locationDist(selDiv, selDist, lang));
+    } else if (selDiv) {
+      router.visit(ROUTES.locationDiv(selDiv, lang));
+    } else {
+      router.visit(ROUTES.location(lang));
+    }
+  };
+
+  return (
+    <div className="loc-widget">
+      <div className="loc-widget-hdr">
+        {lang === 'bn' ? 'আপনার এলাকার খবর' : 'News from your area'}
+      </div>
+
+      {/* Division */}
+      <select className="loc-widget-select" value={selDiv} onChange={handleDivChange}>
+        <option value="">{lang === 'bn' ? 'বিভাগ' : 'Division'}</option>
+        {BD_DIVISIONS.map(d => (
+          <option key={d.slug} value={d.slug}>
+            {lang === 'bn' ? d.bn : d.en}
+          </option>
+        ))}
+      </select>
+
+      {/* District — shown when division selected */}
+      <select
+        className="loc-widget-select"
+        value={selDist}
+        onChange={handleDistChange}
+        disabled={!divData}
+      >
+        <option value="">{lang === 'bn' ? 'জেলা' : 'District'}</option>
+        {divData?.districts.map(d => (
+          <option key={d.slug} value={d.slug}>
+            {lang === 'bn' ? d.bn : d.en}
+          </option>
+        ))}
+      </select>
+
+      {/* Upazila — shown when district selected */}
+      <select
+        className="loc-widget-select"
+        value={selUz}
+        onChange={e => setSelUz(e.target.value)}
+        disabled={!distData}
+      >
+        <option value="">{lang === 'bn' ? 'উপজেলা' : 'Upazila'}</option>
+        {distData?.upazilas.map(u => (
+          <option key={u.slug} value={u.slug}>
+            {lang === 'bn' ? u.bn : u.en}
+          </option>
+        ))}
+      </select>
+
+      <button className="loc-widget-btn" onClick={handleSearch}>
+        {lang === 'bn' ? 'খুঁজুন' : 'Search'}
+      </button>
+    </div>
+  );
+}
+
+// ── Division grid (country level) ─────────────────────────────────────────
 
 function DivisionGrid({ lang, divisionCounts }) {
   return (
@@ -114,6 +318,8 @@ function DivisionGrid({ lang, divisionCounts }) {
   );
 }
 
+// ── Main page ──────────────────────────────────────────────────────────────
+
 export default function Location({
   level,
   division,
@@ -137,8 +343,6 @@ export default function Location({
     return lang === 'bn' ? 'সারাদেশ' : 'Bangladesh';
   })();
 
-  const results = articles?.data || [];
-
   return (
     <>
       <MetaTags seo={buildDefaultSeo(lang)} />
@@ -147,71 +351,63 @@ export default function Location({
         <Head><meta name="robots" content="noindex,follow" /></Head>
       )}
 
-      <div className="article-layout">
-        <div className="article-main">
+      {/* Breadcrumb */}
+      <LocationBreadcrumb
+        level={level}
+        division={division}
+        district={district}
+        upazila={upazila}
+        lang={lang}
+      />
 
-          {/* Breadcrumb */}
-          <LocationBreadcrumb
-            level={level}
+      {/* Sub-location bullet links */}
+      {level === 'division' && divData && (
+        <SubLocationLinks
+          items={divData.districts}
+          activeSlug={district}
+          hrefFn={(d) => ROUTES.locationDist(division, d.slug, lang)}
+          lang={lang}
+        />
+      )}
+      {level === 'district' && distData && (
+        <SubLocationLinks
+          items={distData.upazilas}
+          activeSlug={upazila}
+          hrefFn={(u) => ROUTES.locationUpazila(division, district, u.slug, lang)}
+          lang={lang}
+        />
+      )}
+      {level === 'upazila' && distData && (
+        <SubLocationLinks
+          items={distData.upazilas}
+          activeSlug={upazila}
+          hrefFn={(u) => ROUTES.locationUpazila(division, district, u.slug, lang)}
+          lang={lang}
+        />
+      )}
+
+      {/* Country level: division grid */}
+      {level === 'country' && (
+        <DivisionGrid lang={lang} divisionCounts={divisionCounts} />
+      )}
+      <div className="article-layout">
+        {/* ── Left: main content ── */}
+        <div className="article-main">
+          {/* Article feed for all non-country levels */}
+          {level !== 'country' && (
+            <LocArticlesFeed articles={articles} lang={lang} />
+          )}
+        </div>
+
+        {/* ── Right: location filter widget ── */}
+        <div className="loc-sidebar">
+          <LocationFilterWidget
             division={division}
             district={district}
             upazila={upazila}
             lang={lang}
           />
-
-          {/* Page header */}
-          <div className="sec-hdr" style={{ marginBottom: 16 }}>
-            <div className="sec-ttl">{pageTitle}</div>
-          </div>
-
-          {/* Country level: show 8-division grid */}
-          {level === 'country' && (
-            <DivisionGrid lang={lang} divisionCounts={divisionCounts} />
-          )}
-
-          {/* Division level: show district pills */}
-          {level === 'division' && divData && (
-            <FilterPills
-              items={divData.districts}
-              activeFn={(d) => d.slug === district}
-              hrefFn={(d) => ROUTES.locationDist(division, d.slug, lang)}
-              lang={lang}
-              countMap={districtCounts}
-            />
-          )}
-
-          {/* District level: show upazila pills */}
-          {level === 'district' && distData && (
-            <FilterPills
-              items={distData.upazilas}
-              activeFn={(u) => u.slug === upazila}
-              hrefFn={(u) => ROUTES.locationUpazila(division, district, u.slug, lang)}
-              lang={lang}
-              countMap={upazilaCounts}
-            />
-          )}
-
-          {/* Article list — shown for division/district/upazila levels */}
-          {level !== 'country' && (
-            <>
-              {results.length === 0 ? (
-                <EmptyState
-                  titleBn="এই এলাকায় কোনো সংবাদ পাওয়া যায়নি"
-                  titleEn="No articles found for this location"
-                />
-              ) : (
-                <div className="g2" style={{ rowGap: 20, marginTop: 20 }}>
-                  {results.map((article) => (
-                    <NewsCard key={article.id} article={article} variant="featured" imgH={160} />
-                  ))}
-                </div>
-              )}
-              {articles && <Pagination links={articles.links} />}
-            </>
-          )}
-
         </div>
-        <PageSidebar />
       </div>
     </>
   );
