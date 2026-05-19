@@ -33,14 +33,13 @@ class DatabaseSeeder extends Seeder
             CricketMatchSeeder::class,
             PriceSeeder::class,
             PollSeeder::class,
-            WeatherSeeder::class,
             HoroscopeSeeder::class,
-            PrayerTimeSeeder::class,
             EpaperSeeder::class,
             NewsletterSeeder::class,
             MoreArticlesSeeder::class,
             HomepageSectionSeeder::class,
             StoriesSeeder::class,
+            SaradeshArticleSeeder::class,
         ]);
     }
 }
