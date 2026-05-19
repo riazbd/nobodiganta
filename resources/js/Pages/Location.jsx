@@ -1,4 +1,6 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import MetaTags from '../Components/seo/MetaTags';
+import { buildDefaultSeo } from '../lib/seo';
 import { useApp } from '../contexts/AppContext';
 import PageSidebar from '../Components/PageSidebar';
 import Pagination from '../Components/ui/Pagination';
@@ -57,7 +59,7 @@ function LocationBreadcrumb({ level, division, district, upazila, lang }) {
               <span className="bc-current" aria-current="page">{crumb.label}</span>
             ) : (
               <>
-                <a href={crumb.href} className="bc-link">{crumb.label}</a>
+                <Link href={crumb.href} className="bc-link">{crumb.label}</Link>
                 <span className="bc-sep" aria-hidden="true">›</span>
               </>
             )}
@@ -123,24 +125,27 @@ export default function Location({
   upazilaCounts,
 }) {
   const { lang } = useApp();
-  const ed = lang;
 
   const divData = division ? findDivision(division) : null;
   const distData = (division && district) ? findDistrict(division, district) : null;
   const uzData = (division && district && upazila) ? findUpazila(division, district, upazila) : null;
 
-  const pageTitle = () => {
+  const pageTitle = (() => {
     if (level === 'upazila' && uzData) return lang === 'bn' ? uzData.bn : uzData.en;
     if (level === 'district' && distData) return lang === 'bn' ? distData.bn : distData.en;
     if (level === 'division' && divData) return lang === 'bn' ? divData.bn : divData.en;
     return lang === 'bn' ? 'সারাদেশ' : 'Bangladesh';
-  };
+  })();
 
   const results = articles?.data || [];
 
   return (
     <>
-      <Head title={`${pageTitle()} | ${lang === 'bn' ? 'প্রতিটি' : 'Provati'}`} />
+      <MetaTags seo={buildDefaultSeo(lang)} />
+      <Head title={`${pageTitle} | ${lang === 'bn' ? 'নবদিগন্ত' : 'Provati'}`} />
+      {(articles?.current_page || 1) > 1 && (
+        <Head><meta name="robots" content="noindex,follow" /></Head>
+      )}
 
       <div className="article-layout">
         <div className="article-main">
@@ -156,7 +161,7 @@ export default function Location({
 
           {/* Page header */}
           <div className="sec-hdr" style={{ marginBottom: 16 }}>
-            <div className="sec-ttl">{pageTitle()}</div>
+            <div className="sec-ttl">{pageTitle}</div>
           </div>
 
           {/* Country level: show 8-division grid */}
@@ -169,7 +174,7 @@ export default function Location({
             <FilterPills
               items={divData.districts}
               activeFn={(d) => d.slug === district}
-              hrefFn={(d) => ROUTES.locationDist(division, d.slug, ed)}
+              hrefFn={(d) => ROUTES.locationDist(division, d.slug, lang)}
               lang={lang}
               countMap={districtCounts}
             />
@@ -180,7 +185,7 @@ export default function Location({
             <FilterPills
               items={distData.upazilas}
               activeFn={(u) => u.slug === upazila}
-              hrefFn={(u) => ROUTES.locationUpazila(division, district, u.slug, ed)}
+              hrefFn={(u) => ROUTES.locationUpazila(division, district, u.slug, lang)}
               lang={lang}
               countMap={upazilaCounts}
             />

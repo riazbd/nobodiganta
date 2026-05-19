@@ -48,6 +48,9 @@ html {
   --breaking: #e8001e;  /* breaking news stays red — semantic urgency */
   --blue: #0055a5;
   --green: #00885a;
+  --accent: var(--red);
+  --text: var(--black);
+  --text-muted: var(--lighter-text);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
