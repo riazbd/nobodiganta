@@ -2758,3 +2758,76 @@ html[lang="en"] .almnc-cal-detail-date{font-family:'Playfair Display','Georgia',
 .almnc-list-detail .almnc-li{padding:9px 0;}
 .almnc-list-detail .almnc-li-name{font-size:15px;}
 .almnc-list-detail .almnc-li-time{font-size:16px;}
+
+/* ── Location / Saradesh hierarchy page ── */
+.loc-div-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.loc-div-card {
+  display: block;
+  padding: 16px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color .15s, box-shadow .15s;
+}
+.loc-div-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.loc-div-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.loc-div-meta {
+  font-size: .78rem;
+  color: var(--text-muted);
+}
+.loc-div-count {
+  font-size: .75rem;
+  color: var(--accent);
+  margin-top: 6px;
+  font-weight: 600;
+}
+.loc-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.loc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: .82rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: background .15s, border-color .15s;
+}
+.loc-pill:hover,
+.loc-pill.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.loc-pill-count {
+  background: rgba(0,0,0,.12);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: .72rem;
+  line-height: 1.4;
+}
+.loc-pill.on .loc-pill-count {
+  background: rgba(255,255,255,.25);
+}
+@media (max-width: 480px) {
+  .loc-div-grid { grid-template-columns: repeat(2, 1fr); }
+}
