@@ -5,9 +5,10 @@ import { useNavigation } from '../contexts/NavigationContext';
 import { useSearch } from '../contexts/SearchContext';
 
 const MENU_ITEMS = [
-  { key: 'stories', page: 'stories', bn: 'স্টোরিজ', en: 'Stories' },
-  { key: 'gallery', page: 'gallery', bn: 'গ্যালারি', en: 'Gallery' },
-  { key: 'video',   page: 'video',   bn: 'ভিডিও',   en: 'Video'   },
+  { key: 'location', page: 'location', bn: 'সারাদেশ', en: 'Bangladesh' },
+  { key: 'stories',  page: 'stories',  bn: 'স্টোরিজ',  en: 'Stories'   },
+  { key: 'gallery',  page: 'gallery',  bn: 'গ্যালারি',  en: 'Gallery'   },
+  { key: 'video',    page: 'video',    bn: 'ভিডিও',    en: 'Video'     },
 ];
 
 const CloseIcon = () => (
