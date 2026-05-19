@@ -32,6 +32,7 @@ use App\Http\Controllers\PushController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\WeatherApiController;
+use App\Http\Controllers\LocationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -51,6 +52,11 @@ Route::get('/privacy', [NewsController::class, 'privacy'])->name('privacy');
 Route::get('/terms', [NewsController::class, 'terms'])->name('terms');
 Route::get('/archive', [NewsController::class, 'archive'])->name('archive');
 Route::get('/regional', [NewsController::class, 'regional'])->name('regional');
+// Location hierarchy — সারাদেশ
+Route::get('/saradesh', [LocationController::class, 'index'])->name('location');
+Route::get('/saradesh/{division}', [LocationController::class, 'division'])->name('location.division');
+Route::get('/saradesh/{division}/{district}', [LocationController::class, 'district'])->name('location.district');
+Route::get('/saradesh/{division}/{district}/{upazila}', [LocationController::class, 'upazila'])->name('location.upazila');
 Route::get('/prayer-times', [NewsController::class, 'prayerTimes'])->name('prayer-times');
 Route::get('/cricket', [NewsController::class, 'cricket'])->name('cricket');
 Route::get('/stock-market', [NewsController::class, 'stockMarket'])->name('stock-market');
@@ -368,6 +374,11 @@ Route::prefix('en')->group(function () {
     Route::get('/terms', [NewsController::class, 'terms'])->name('en.terms');
     Route::get('/archive', [NewsController::class, 'archive'])->name('en.archive');
     Route::get('/regional', [NewsController::class, 'regional'])->name('en.regional');
+    // Location hierarchy — সারাদেশ (English edition mirrors)
+    Route::get('/saradesh', [LocationController::class, 'index'])->name('en.location');
+    Route::get('/saradesh/{division}', [LocationController::class, 'division'])->name('en.location.division');
+    Route::get('/saradesh/{division}/{district}', [LocationController::class, 'district'])->name('en.location.district');
+    Route::get('/saradesh/{division}/{district}/{upazila}', [LocationController::class, 'upazila'])->name('en.location.upazila');
     Route::get('/prayer-times', [NewsController::class, 'prayerTimes'])->name('en.prayer-times');
     Route::get('/cricket', [NewsController::class, 'cricket'])->name('en.cricket');
     Route::get('/stock-market', [NewsController::class, 'stockMarket'])->name('en.stock-market');
