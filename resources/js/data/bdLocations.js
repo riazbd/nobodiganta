@@ -85,7 +85,7 @@ export const BD_DIVISIONS = [
           { slug: 'bhairab', bn: 'ভৈরব', en: 'Bhairab' },
           { slug: 'hossainpur', bn: 'হোসেনপুর', en: 'Hossainpur' },
           { slug: 'itna', bn: 'ইটনা', en: 'Itna' },
-          { slug: 'karimganj', bn: 'করিমগঞ্জ', en: 'Karimগঞ্জ' },
+          { slug: 'karimganj', bn: 'করিমগঞ্জ', en: 'Karimganj' },
           { slug: 'katiadi', bn: 'কটিয়াদী', en: 'Katiadi' },
           { slug: 'kuliarchar', bn: 'কুলিয়ারচর', en: 'Kuliarchar' },
           { slug: 'mithamain', bn: 'মিঠামইন', en: 'Mithamain' },
