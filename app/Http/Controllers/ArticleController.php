@@ -200,6 +200,9 @@ class ArticleController extends Controller
             'videoUrl' => 'nullable|url',
             'videoProvider' => 'nullable|string',
             'videoDuration' => 'nullable|string|max:10',
+            'division' => 'nullable|string|max:100',
+            'district' => 'nullable|string|max:100',
+            'upazila' => 'nullable|string|max:100',
         ]);
 
         $categoryIds = $validated['categories'];
@@ -257,6 +260,9 @@ class ArticleController extends Controller
             'meta_description_en' => $validated['metaDescEn'] ?? null,
             'published_at' => $publishedAt,
             'scheduled_at' => $scheduledAt,
+            'division' => $validated['division'] ?? null,
+            'district' => $validated['district'] ?? null,
+            'upazila' => $validated['upazila'] ?? null,
         ]);
 
         $this->syncCategoryPivot($article, $categoryIds, $primaryId);
@@ -362,6 +368,9 @@ class ArticleController extends Controller
                 'metaDescEn' => $article->meta_description_en,
                 'scheduledAt' => $article->scheduled_at?->format('Y-m-d\TH:i'),
                 'tags' => $article->tags->pluck('name_bn')->toArray(),
+                'division' => $article->division,
+                'district' => $article->district,
+                'upazila' => $article->upazila,
             ],
         ]);
     }
@@ -423,6 +432,9 @@ class ArticleController extends Controller
             'videoUrl' => 'nullable|url',
             'videoProvider' => 'nullable|string',
             'videoDuration' => 'nullable|string|max:10',
+            'division' => 'nullable|string|max:100',
+            'district' => 'nullable|string|max:100',
+            'upazila' => 'nullable|string|max:100',
         ]);
 
         $categoryIds = $validated['categories'];
@@ -487,6 +499,9 @@ class ArticleController extends Controller
             'meta_description_en' => $validated['metaDescEn'] ?? null,
             'published_at' => $publishedAt,
             'scheduled_at' => $scheduledAt,
+            'division' => $validated['division'] ?? null,
+            'district' => $validated['district'] ?? null,
+            'upazila' => $validated['upazila'] ?? null,
         ]);
 
         $this->syncCategoryPivot($article, $categoryIds, $primaryId);
