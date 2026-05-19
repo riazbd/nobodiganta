@@ -77,14 +77,14 @@ function FilterPills({ items, activeFn, hrefFn, lang, countMap }) {
         const isActive = activeFn(item);
         const count = countMap?.[item.slug];
         return (
-          <a
+          <Link
             key={item.slug}
             href={hrefFn(item)}
             className={`loc-pill${isActive ? ' on' : ''}`}
           >
             <span>{lang === 'bn' ? item.bn : item.en}</span>
             {count ? <span className="loc-pill-count">{count}</span> : null}
-          </a>
+          </Link>
         );
       })}
     </div>
@@ -97,7 +97,7 @@ function DivisionGrid({ lang, divisionCounts }) {
       {BD_DIVISIONS.map((div) => {
         const count = divisionCounts?.[div.slug] || 0;
         return (
-          <a key={div.slug} href={ROUTES.locationDiv(div.slug, lang)} className="loc-div-card">
+          <Link key={div.slug} href={ROUTES.locationDiv(div.slug, lang)} className="loc-div-card">
             <div className="loc-div-name">{lang === 'bn' ? div.bn : div.en}</div>
             <div className="loc-div-meta">
               {lang === 'bn' ? `${div.districts.length}টি জেলা` : `${div.districts.length} Districts`}
@@ -107,7 +107,7 @@ function DivisionGrid({ lang, divisionCounts }) {
                 {count} {lang === 'bn' ? 'সংবাদ' : 'news'}
               </div>
             )}
-          </a>
+          </Link>
         );
       })}
     </div>
