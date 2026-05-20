@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
-use App\Models\Division;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\AuditLog;
@@ -142,7 +141,15 @@ class ArticleController extends Controller
             'articles'      => $articles,
             'categories'    => Category::active()->editorial()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
             'authors'       => $authors,
-            'divisions'     => Division::orderBy('name_en')->get(['id', 'slug', 'name_bn', 'name_en']),
+            'divisions'     => Category::whereHas('parent', fn($q) => $q->where('slug', 'saradesh'))
+                ->orderBy('sort_order')
+                ->get()
+                ->map(fn($c) => [
+                    'slug'    => str_replace('division-', '', $c->slug),
+                    'name_bn' => $c->name_bn,
+                    'name_en' => $c->name_en,
+                ])
+                ->toArray(),
             'locationTree'  => $saradeshCat,
             'filters'       => $request->only(['status', 'edition', 'category', 'search', 'article_type', 'author', 'date_from', 'date_to', 'sort_by', 'sort_dir', 'per_page', 'division', 'district', 'location_category']),
         ]);

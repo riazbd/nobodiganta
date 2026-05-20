@@ -38,7 +38,7 @@ function SortIcon({ column, sortBy, sortDir }) {
     : <ArrowDown className="w-3 h-3 ml-1 text-[#263238] inline" />;
 }
 
-export default function AllNews({ articles, categories, authors = [], filters }) {
+export default function AllNews({ articles, categories, authors = [], divisions = [], locationTree = null, filters }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
   const { hasPermission } = usePermission();
@@ -50,6 +50,9 @@ export default function AllNews({ articles, categories, authors = [], filters })
   const [edition,      setEdition]      = useState(filters.edition      || 'all');
   const [articleType,  setArticleType]  = useState(filters.article_type || 'all');
   const [author,       setAuthor]       = useState(filters.author       || 'all');
+  const [division,     setDivision]     = useState(filters.division     || '');
+  const [district,     setDistrict]     = useState(filters.district     || '');
+  const [locCategory,  setLocCategory]  = useState(filters.location_category || '');
   const [dateFrom,     setDateFrom]     = useState(filters.date_from    || '');
   const [dateTo,       setDateTo]       = useState(filters.date_to      || '');
   const [perPage,      setPerPage]      = useState(filters.per_page     || '20');
@@ -59,13 +62,21 @@ export default function AllNews({ articles, categories, authors = [], filters })
   const [selected,     setSelected]     = useState([]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [submitting,   setSubmitting]   = useState(false);
+  const [dists,        setDists]        = useState([]);
 
-
+  useEffect(() => {
+    if (division) {
+      window.axios.get(`/api/location/districts/${division}`)
+        .then(r => setDists(r.data))
+        .catch(() => setDists([]));
+    }
+  }, [division]);
 
   const buildParams = (overrides = {}) => {
     const p = {
       search, status, category, edition,
       article_type: articleType, author,
+      division, district, location_category: locCategory,
       date_from: dateFrom, date_to: dateTo,
       per_page: perPage, sort_by: sortBy, sort_dir: sortDir,
       page: 1,
@@ -77,7 +88,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
 
   const applyFilters = useCallback((overrides = {}) => {
     router.get(route('admin.news'), buildParams(overrides), { preserveState: true, preserveScroll: true });
-  }, [search, status, category, edition, articleType, author, dateFrom, dateTo, perPage, sortBy, sortDir]);
+  }, [search, status, category, edition, articleType, author, division, district, locCategory, dateFrom, dateTo, perPage, sortBy, sortDir]);
 
   const handleSearch = (val) => {
     setSearch(val);
@@ -91,15 +102,28 @@ export default function AllNews({ articles, categories, authors = [], filters })
     applyFilters({ sort_by: col, sort_dir: dir });
   };
 
+  const handleDivisionChange = (val) => {
+    setDivision(val);
+    setDistrict('');
+    setDists([]);
+    if (val) {
+      window.axios.get(`/api/location/districts/${val}`)
+        .then(r => setDists(r.data))
+        .catch(() => setDists([]));
+    }
+    applyFilters({ division: val, district: '' });
+  };
+
   const resetFilters = () => {
     setSearch(''); setStatus('all'); setCategory('all'); setEdition('all');
-    setArticleType('all'); setAuthor('all'); setDateFrom(''); setDateTo('');
+    setArticleType('all'); setAuthor('all'); setDivision(''); setDistrict(''); setDists([]);
+    setLocCategory(''); setDateFrom(''); setDateTo('');
     setPerPage('20'); setSortBy('created_at'); setSortDir('desc');
     router.get(route('admin.news'), {}, { preserveState: true });
   };
 
   const hasActiveFilters = status !== 'all' || category !== 'all' || edition !== 'all' ||
-    articleType !== 'all' || author !== 'all' || dateFrom || dateTo;
+    articleType !== 'all' || author !== 'all' || division || district || locCategory || dateFrom || dateTo;
 
   const handleDelete = (id) => {
     setSubmitting(true);
@@ -230,6 +254,18 @@ export default function AllNews({ articles, categories, authors = [], filters })
               {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
             </Select>
 
+            {/* Division */}
+            <Select value={division} onChange={handleDivisionChange} className="min-w-[140px]">
+              <option value="">{l('সব বিভাগ', 'All Divisions')}</option>
+              {divisions.map(d => <option key={d.id} value={d.slug}>{l(d.name_bn, d.name_en)}</option>)}
+            </Select>
+
+            {/* District */}
+            <Select value={district} onChange={v => { setDistrict(v); applyFilters({ district: v }); }} className="min-w-[140px]">
+              <option value="">{l('সব জেলা', 'All Districts')}</option>
+              {dists.map(d => <option key={d.id} value={d.slug}>{l(d.name_bn, d.name_en)}</option>)}
+            </Select>
+
             {/* Date range */}
             <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); applyFilters({ date_from: e.target.value }); }}
               className="border border-gray-100 rounded-xl px-3.5 py-2.5 text-sm outline-none bg-gray-50 focus:bg-white transition-all cursor-pointer"
@@ -238,6 +274,7 @@ export default function AllNews({ articles, categories, authors = [], filters })
             <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); applyFilters({ date_to: e.target.value }); }}
               className="border border-gray-100 rounded-xl px-3.5 py-2.5 text-sm outline-none bg-gray-50 focus:bg-white transition-all cursor-pointer"
             />
+
           </div>
         )}
 
