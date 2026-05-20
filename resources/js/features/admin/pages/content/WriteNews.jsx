@@ -54,6 +54,12 @@ function SidebarSection({ title, icon: Icon, children, defaultOpen = false }) {
   );
 }
 
+const isLocationCat = (cat) =>
+  cat.slug === 'saradesh' ||
+  cat.slug.startsWith('division-') ||
+  cat.slug.startsWith('district-') ||
+  cat.slug.startsWith('upazila-');
+
 export default function WriteNews() {
   const { authors = [] } = usePage().props;
   const { lang } = useLanguage();
@@ -66,6 +72,9 @@ export default function WriteNews() {
   const [activeMediaTarget, setActiveMediaTarget] = useState('featured');
   const [isTranslating, setIsTranslating] = useState(false);
   const [tagsInput, setTagsInput] = useState('');
+  const [catSearch, setCatSearch] = useState('');
+  const [explicitCategories, setExplicitCategories] = useState(new Set());
+  const [locationOpen, setLocationOpen] = useState(false);
   const [manuallyEditedSlugBn, setManuallyEditedSlugBn] = useState(false);
   const [manuallyEditedSlugEn, setManuallyEditedSlugEn] = useState(false);
   const [manuallyEditedMetaBn, setManuallyEditedMetaBn] = useState(false);
@@ -188,6 +197,10 @@ export default function WriteNews() {
         scheduledAt: article.scheduledAt || '',
         tags: article.tags || [],
       });
+      // Treat all pre-existing categories as explicitly selected on edit load
+      setExplicitCategories(new Set(article.categories || []));
+      // Auto-open location section if article has any location categories
+      setLocationOpen((article.categories || []).length > 0);
     }
   }, [article]);
 
@@ -404,69 +417,178 @@ export default function WriteNews() {
     return map;
   }, [categories]);
 
-  const renderCategoryRow = (cat, depth = 0) => {
-    const isChecked = form.data.categories.includes(cat.id);
-    const isPrimary = String(form.data.primaryCategory) === String(cat.id);
-    const name = lang === 'bn' ? cat.nameBn : (cat.nameEn || cat.nameBn);
-    const children = (childrenByParentId[cat.id] || [])
+  const saradeshId = useMemo(
+    () => categories.find(c => c.slug === 'saradesh')?.id ?? null,
+    [categories]
+  );
+
+  const hasLocationSelected = useMemo(
+    () => form.data.categories.some(id => {
+      const c = categories.find(x => x.id === id);
+      return c && isLocationCat(c);
+    }),
+    [form.data.categories, categories]
+  );
+
+  const clearLocationCategories = () => {
+    const newCats = form.data.categories.filter(id => {
+      const c = categories.find(x => x.id === id);
+      return c && !isLocationCat(c);
+    });
+    const newExplicit = new Set([...explicitCategories].filter(id => {
+      const c = categories.find(x => x.id === id);
+      return c && !isLocationCat(c);
+    }));
+    let newPrimary = form.data.primaryCategory;
+    if (newPrimary) {
+      const pc = categories.find(c => String(c.id) === String(newPrimary));
+      if (pc && isLocationCat(pc)) newPrimary = newCats.length > 0 ? String(newCats[0]) : '';
+    }
+    setExplicitCategories(newExplicit);
+    form.setData({ ...form.data, categories: newCats, primaryCategory: newPrimary });
+  };
+
+  const renderCategoryRow = (cat, depth = 0, flatMode = false) => {
+    const isChecked   = form.data.categories.includes(cat.id);
+    const isPrimary   = String(form.data.primaryCategory) === String(cat.id);
+    const isLocCat    = isLocationCat(cat);
+    const isExplicit  = explicitCategories.has(cat.id);
+    const isAuto      = isChecked && !isExplicit && isLocCat;
+    const name        = lang === 'bn' ? cat.nameBn : (cat.nameEn || cat.nameBn);
+    const children    = flatMode ? [] : (childrenByParentId[cat.id] || [])
       .filter(c => c.edition === 'both' || c.edition === form.data.edition);
+
+    // Build ancestor breadcrumb for flat/search mode
+    const breadcrumb = flatMode && cat.parentId ? (() => {
+      const parts = [];
+      let cur = cat;
+      while (cur.parentId) {
+        const parent = categories.find(c => c.id === cur.parentId);
+        if (!parent) break;
+        parts.unshift(lang === 'bn' ? parent.nameBn : (parent.nameEn || parent.nameBn));
+        cur = parent;
+      }
+      return parts.join(' › ');
+    })() : null;
+
+    // First non-location category in current selection, or saradesh as fallback
+    const pickFallbackPrimary = (catList) => {
+      const firstNonLoc = catList.find(id => {
+        const c = categories.find(x => x.id === id);
+        return c && !isLocationCat(c);
+      });
+      if (firstNonLoc) return String(firstNonLoc);
+      if (saradeshId && catList.includes(saradeshId)) return String(saradeshId);
+      return catList.length > 0 ? String(catList[0]) : '';
+    };
 
     const toggleCategory = () => {
       if (isChecked) {
-        const newCategories = form.data.categories.filter(id => id !== cat.id);
-        let newPrimary = form.data.primaryCategory;
-        if (isPrimary) newPrimary = newCategories.length > 0 ? String(newCategories[0]) : '';
-        form.setData({ ...form.data, categories: newCategories, primaryCategory: newPrimary });
+        const newExplicit = new Set(explicitCategories);
+        newExplicit.delete(cat.id);
+
+        if (isLocCat) {
+          // Remove this location cat + all its location descendants
+          const toRemove = new Set([cat.id]);
+          const collectLocDescendants = (id) => {
+            (childrenByParentId[id] || []).forEach(child => {
+              if (isLocationCat(child)) {
+                toRemove.add(child.id);
+                newExplicit.delete(child.id);
+                collectLocDescendants(child.id);
+              }
+            });
+          };
+          collectLocDescendants(cat.id);
+          const newCats = form.data.categories.filter(id => !toRemove.has(id));
+          const primaryWasRemoved = toRemove.has(Number(form.data.primaryCategory)) ||
+                                    toRemove.has(form.data.primaryCategory);
+          const newPrimary = primaryWasRemoved ? pickFallbackPrimary(newCats) : form.data.primaryCategory;
+          setExplicitCategories(newExplicit);
+          form.setData({ ...form.data, categories: newCats, primaryCategory: newPrimary });
+        } else {
+          const newCats = form.data.categories.filter(id => id !== cat.id);
+          const newPrimary = isPrimary ? pickFallbackPrimary(newCats) : form.data.primaryCategory;
+          setExplicitCategories(newExplicit);
+          form.setData({ ...form.data, categories: newCats, primaryCategory: newPrimary });
+        }
       } else {
-        // Add this category + walk up the parentId chain to auto-select all ancestors
-        const newCategories = [...form.data.categories];
-        if (!newCategories.includes(cat.id)) newCategories.push(cat.id);
+        // Check: add this + all ancestors
+        const newCats = [...form.data.categories];
+        const newExplicit = new Set(explicitCategories);
+        if (!newCats.includes(cat.id)) newCats.push(cat.id);
+        newExplicit.add(cat.id); // only this one is explicit
 
         let parentId = cat.parentId;
         while (parentId) {
-          if (!newCategories.includes(parentId)) newCategories.push(parentId);
+          if (!newCats.includes(parentId)) newCats.push(parentId);
+          // ancestors are NOT marked explicit
           const parent = categories.find(c => c.id === parentId);
           parentId = parent?.parentId ?? null;
         }
 
+        // Auto-primary: never use a location category as primary
         let newPrimary = form.data.primaryCategory;
-        if (!newPrimary) newPrimary = String(cat.id);
+        const currentPc = categories.find(c => String(c.id) === String(newPrimary));
+        const primaryIsLoc = !newPrimary || (currentPc && isLocationCat(currentPc));
+        if (primaryIsLoc) {
+          if (!isLocCat) {
+            newPrimary = String(cat.id);
+          } else if (saradeshId && newCats.includes(saradeshId)) {
+            newPrimary = String(saradeshId);
+          }
+        }
 
         const isOpinion = cat.slug === 'opinion' || cat.nameBn === 'মতামত';
-        const newArticleType = isOpinion ? 'opinion' : form.data.articleType;
-
-        form.setData({ ...form.data, categories: newCategories, primaryCategory: newPrimary, articleType: newArticleType });
+        setExplicitCategories(newExplicit);
+        form.setData({
+          ...form.data,
+          categories: newCats,
+          primaryCategory: newPrimary,
+          articleType: isOpinion ? 'opinion' : form.data.articleType,
+        });
       }
     };
 
     return (
       <div key={cat.id}>
         <div
-          className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-          style={{ paddingLeft: `${8 + depth * 16}px` }}
+          className={`flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors ${isAuto ? 'opacity-60' : ''}`}
+          style={{ paddingLeft: flatMode ? '8px' : `${8 + depth * 16}px` }}
         >
-          {depth > 0 && <span className="text-gray-300 text-xs flex-shrink-0">↳</span>}
-        <input
-          type="checkbox"
-          id={`cat-${cat.id}`}
-          checked={isChecked}
-          onChange={toggleCategory}
-          className="w-4 h-4 rounded accent-[#263238] cursor-pointer flex-shrink-0"
-        />
-        <label htmlFor={`cat-${cat.id}`} className="flex-1 text-sm cursor-pointer select-none truncate">{name}</label>
-        {isChecked && (
-          <button
-            type="button"
-            onClick={() => form.setData('primaryCategory', String(cat.id))}
-            className={`flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded font-bold transition-colors ${
-              isPrimary ? 'bg-[#263238] text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
-            }`}
-          >
-            {lang === 'bn' ? 'প্রধান' : 'Primary'}
-          </button>
-        )}
+          {!flatMode && depth > 0 && <span className="text-gray-300 text-xs flex-shrink-0">↳</span>}
+          <input
+            type="checkbox"
+            id={`cat-${cat.id}`}
+            checked={isChecked}
+            onChange={toggleCategory}
+            className={`w-4 h-4 rounded cursor-pointer flex-shrink-0 ${isAuto ? 'accent-teal-500' : 'accent-[#263238]'}`}
+          />
+          <label htmlFor={`cat-${cat.id}`} className="flex-1 text-sm cursor-pointer select-none min-w-0">
+            <span className="truncate block">{name}</span>
+            {breadcrumb && <span className="text-[10px] text-gray-400 block truncate">{breadcrumb}</span>}
+          </label>
+          {isAuto && (
+            <span className="text-[9px] text-teal-600 font-bold bg-teal-50 border border-teal-200 px-1 py-0.5 rounded flex-shrink-0">auto</span>
+          )}
+          {isChecked && !isLocCat && (
+            <button
+              type="button"
+              onClick={() => form.setData('primaryCategory', String(cat.id))}
+              className={`flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded font-bold transition-colors ${
+                isPrimary ? 'bg-[#263238] text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
+              }`}
+            >
+              {lang === 'bn' ? 'প্রধান' : 'Primary'}
+            </button>
+          )}
+          {isChecked && isLocCat && isPrimary && (
+            <span className="flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded font-bold bg-teal-600 text-white">
+              {lang === 'bn' ? 'প্রধান' : 'Primary'}
+            </span>
+          )}
         </div>
-        {children.map(child => renderCategoryRow(child, depth + 1))}
+        {!flatMode && children.map(child => renderCategoryRow(child, depth + 1, false))}
       </div>
     );
   };
@@ -819,10 +941,84 @@ export default function WriteNews() {
           <SidebarSection title={lang === 'bn' ? 'বিভাগ ও ট্যাগ' : 'Organization'} icon={FolderTree} defaultOpen={true}>
             <div className="mb-4">
               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-wider">{lang === 'bn' ? 'বিভাগসমূহ' : 'Categories'}</label>
-              <div className="bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 max-h-96 overflow-y-auto">
-                {categories
-                  .filter(c => !c.parentId && (c.edition === 'both' || c.edition === form.data.edition))
-                  .map(parent => renderCategoryRow(parent, 0))}
+
+              {/* Search */}
+              <div className="relative mb-2">
+                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={catSearch}
+                  onChange={e => setCatSearch(e.target.value)}
+                  placeholder={lang === 'bn' ? 'বিভাগ খুঁজুন...' : 'Search categories...'}
+                  className="w-full bg-white border border-[var(--card-border,#e8ebf4)] rounded-lg pl-8 pr-7 py-1.5 text-xs outline-none focus:border-[#263238] transition-colors"
+                />
+                {catSearch && (
+                  <button type="button" onClick={() => setCatSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+
+              <div className="bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg p-2 max-h-80 overflow-y-auto">
+                {catSearch ? (
+                  // Flat search results across all categories
+                  (() => {
+                    const term = catSearch.toLowerCase();
+                    const matched = categories.filter(c =>
+                      (c.edition === 'both' || c.edition === form.data.edition) &&
+                      ((c.nameBn && c.nameBn.toLowerCase().includes(term)) ||
+                       (c.nameEn && c.nameEn.toLowerCase().includes(term)))
+                    );
+                    return matched.length === 0
+                      ? <p className="text-xs text-gray-400 text-center py-4">{lang === 'bn' ? 'কোনো বিভাগ পাওয়া যায়নি' : 'No categories found'}</p>
+                      : matched.map(c => renderCategoryRow(c, 0, true));
+                  })()
+                ) : (
+                  <>
+                    {/* Editorial categories */}
+                    {categories
+                      .filter(c => !c.parentId && !isLocationCat(c) && (c.edition === 'both' || c.edition === form.data.edition))
+                      .map(c => renderCategoryRow(c, 0))}
+
+                    {/* Location section — collapsible */}
+                    {categories.some(c => c.slug === 'saradesh') && (
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <button
+                          type="button"
+                          onClick={() => setLocationOpen(o => !o)}
+                          className="w-full flex items-center justify-between px-2 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            <span>📍</span>
+                            <span>{lang === 'bn' ? 'অবস্থান (সারাদেশ)' : 'Location (Saradesh)'}</span>
+                            {hasLocationSelected && (
+                              <span className="bg-teal-100 text-teal-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full">✓</span>
+                            )}
+                          </span>
+                          <span className="text-gray-400 text-[10px]">{locationOpen ? '▲' : '▼'}</span>
+                        </button>
+
+                        {locationOpen && (
+                          <>
+                            {categories
+                              .filter(c => c.slug === 'saradesh')
+                              .map(c => renderCategoryRow(c, 0))}
+                            {hasLocationSelected && (
+                              <button
+                                type="button"
+                                onClick={clearLocationCategories}
+                                className="mt-1 ml-2 text-[10px] text-red-400 hover:text-red-600 flex items-center gap-1 transition-colors"
+                              >
+                                <X className="w-2.5 h-2.5" />
+                                {lang === 'bn' ? 'অবস্থান মুছুন' : 'Clear location'}
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
