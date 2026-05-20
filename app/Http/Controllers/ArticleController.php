@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\Division;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\AuditLog;
@@ -30,6 +31,9 @@ class ArticleController extends Controller
         $search      = $request->input('search');
         $articleType = $request->input('article_type');
         $authorId    = $request->input('author');
+        $division    = $request->input('division');
+        $district    = $request->input('district');
+        $locCategory = $request->input('location_category');
         $dateFrom    = $request->input('date_from');
         $dateTo      = $request->input('date_to');
         $sortBy      = in_array($request->input('sort_by'), ['created_at', 'published_at', 'views', 'title_bn']) ? $request->input('sort_by') : 'created_at';
@@ -79,6 +83,18 @@ class ArticleController extends Controller
             });
         }
 
+        if ($division && $division !== 'all') {
+            $query->where('division', $division);
+        }
+
+        if ($district && $district !== 'all') {
+            $query->where('district', $district);
+        }
+
+        if ($locCategory) {
+            $query->whereHas('categories', fn($q) => $q->where('slug', $locCategory));
+        }
+
         $articles = $query->paginate($perPage)->withQueryString();
 
         $articles->getCollection()->transform(function ($article) {
@@ -116,11 +132,19 @@ class ArticleController extends Controller
             return response()->json(['articles' => $articles]);
         }
 
+        $saradeshCat = Category::with(['children' => function ($q) {
+            $q->withCount('articles')->with(['children' => function ($q2) {
+                $q2->withCount('articles')->orderBy('sort_order');
+            }])->orderBy('sort_order');
+        }])->withCount('articles')->where('slug', 'saradesh')->first();
+
         return Inertia::render('features/admin/pages/content/AllNews', [
-            'articles'   => $articles,
-            'categories' => Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
-            'authors'    => $authors,
-            'filters'    => $request->only(['status', 'edition', 'category', 'search', 'article_type', 'author', 'date_from', 'date_to', 'sort_by', 'sort_dir', 'per_page']),
+            'articles'      => $articles,
+            'categories'    => Category::active()->editorial()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
+            'authors'       => $authors,
+            'divisions'     => Division::orderBy('name_en')->get(['id', 'slug', 'name_bn', 'name_en']),
+            'locationTree'  => $saradeshCat,
+            'filters'       => $request->only(['status', 'edition', 'category', 'search', 'article_type', 'author', 'date_from', 'date_to', 'sort_by', 'sort_dir', 'per_page', 'division', 'district', 'location_category']),
         ]);
     }
 
@@ -200,9 +224,6 @@ class ArticleController extends Controller
             'videoUrl' => 'nullable|url',
             'videoProvider' => 'nullable|string',
             'videoDuration' => 'nullable|string|max:10',
-            'division' => 'nullable|string|max:100',
-            'district' => 'nullable|string|max:100',
-            'upazila' => 'nullable|string|max:100',
         ]);
 
         $categoryIds = $validated['categories'];
@@ -260,12 +281,11 @@ class ArticleController extends Controller
             'meta_description_en' => $validated['metaDescEn'] ?? null,
             'published_at' => $publishedAt,
             'scheduled_at' => $scheduledAt,
-            'division' => $validated['division'] ?? null,
-            'district' => $validated['district'] ?? null,
-            'upazila' => $validated['upazila'] ?? null,
         ]);
 
-        $this->syncCategoryPivot($article, $categoryIds, $primaryId);
+        $expandedIds = $this->expandCategoriesWithAncestors($categoryIds);
+        $this->syncCategoryPivot($article, $expandedIds, $primaryId);
+        $this->deriveAndSyncLocation($article, $expandedIds);
 
         if (!empty($validated['tags'])) {
             $tagIds = [];
@@ -368,9 +388,6 @@ class ArticleController extends Controller
                 'metaDescEn' => $article->meta_description_en,
                 'scheduledAt' => $article->scheduled_at?->format('Y-m-d\TH:i'),
                 'tags' => $article->tags->pluck('name_bn')->toArray(),
-                'division' => $article->division,
-                'district' => $article->district,
-                'upazila' => $article->upazila,
             ],
         ]);
     }
@@ -432,9 +449,6 @@ class ArticleController extends Controller
             'videoUrl' => 'nullable|url',
             'videoProvider' => 'nullable|string',
             'videoDuration' => 'nullable|string|max:10',
-            'division' => 'nullable|string|max:100',
-            'district' => 'nullable|string|max:100',
-            'upazila' => 'nullable|string|max:100',
         ]);
 
         $categoryIds = $validated['categories'];
@@ -499,12 +513,11 @@ class ArticleController extends Controller
             'meta_description_en' => $validated['metaDescEn'] ?? null,
             'published_at' => $publishedAt,
             'scheduled_at' => $scheduledAt,
-            'division' => $validated['division'] ?? null,
-            'district' => $validated['district'] ?? null,
-            'upazila' => $validated['upazila'] ?? null,
         ]);
 
-        $this->syncCategoryPivot($article, $categoryIds, $primaryId);
+        $expandedIds = $this->expandCategoriesWithAncestors($categoryIds);
+        $this->syncCategoryPivot($article, $expandedIds, $primaryId);
+        $this->deriveAndSyncLocation($article, $expandedIds);
 
         if (isset($validated['tags'])) {
             $tagIds = [];
@@ -590,16 +603,76 @@ class ArticleController extends Controller
         return back()->with('success', "{$count} articles deleted successfully");
     }
 
-    private function syncCategoryPivot(Article $article, array $categoryIds, int $primaryId): void
+    private function syncCategoryPivot(Article $article, array $expandedIds, int $primaryId): void
     {
         $pivotData = [];
-        foreach ($categoryIds as $i => $catId) {
+        foreach ($expandedIds as $i => $catId) {
             $pivotData[$catId] = [
                 'is_primary' => $catId === $primaryId,
                 'sort_order' => $catId === $primaryId ? 0 : $i + 1,
             ];
         }
         $article->categories()->sync($pivotData);
+    }
+
+    private function expandCategoriesWithAncestors(array $categoryIds): array
+    {
+        if (empty($categoryIds)) return [];
+
+        $allIds    = array_values(array_unique($categoryIds));
+        $toProcess = $allIds;
+
+        while (!empty($toProcess)) {
+            $parentIds = Category::whereIn('id', $toProcess)
+                ->whereNotNull('parent_id')
+                ->pluck('parent_id')
+                ->unique()
+                ->toArray();
+
+            $newParents = array_values(array_diff($parentIds, $allIds));
+            if (empty($newParents)) break;
+
+            $allIds    = array_values(array_unique(array_merge($allIds, $newParents)));
+            $toProcess = $newParents;
+        }
+
+        return $allIds;
+    }
+
+    private function deriveAndSyncLocation(Article $article, array $expandedCategoryIds): void
+    {
+        if (empty($expandedCategoryIds)) {
+            $article->update(['division' => null, 'district' => null, 'upazila' => null]);
+            return;
+        }
+
+        $locationCats = Category::whereIn('id', $expandedCategoryIds)
+            ->where(function ($q) {
+                $q->where('slug', 'like', 'division-%')
+                  ->orWhere('slug', 'like', 'district-%')
+                  ->orWhere('slug', 'like', 'upazila-%');
+            })
+            ->get(['slug']);
+
+        $division = null;
+        $district = null;
+        $upazila  = null;
+
+        foreach ($locationCats as $cat) {
+            if (str_starts_with($cat->slug, 'upazila-')) {
+                $upazila = substr($cat->slug, 8);
+            } elseif (str_starts_with($cat->slug, 'district-')) {
+                $district = substr($cat->slug, 9);
+            } elseif (str_starts_with($cat->slug, 'division-')) {
+                $division = substr($cat->slug, 9);
+            }
+        }
+
+        $article->update([
+            'division' => $division,
+            'district' => $district,
+            'upazila'  => $upazila,
+        ]);
     }
 
     /**
