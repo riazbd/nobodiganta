@@ -22,7 +22,7 @@ export const classicDark = {
     // ── 1. Load assets ────────────────────────────────────────────────────────
     const [articleImg, logoImg] = await Promise.all([
       loadImage(article.featured_image),
-      loadImage(settings?.site_logo),
+      loadImage('/logo.png'),
     ]);
 
     // ── 2. Top photo area (full cover) ────────────────────────────────────────
@@ -56,8 +56,8 @@ export const classicDark = {
     let logoBottomY = IMAGE_H;
 
     if (logoImg) {
-      const maxLogoW = 200;
-      const maxLogoH = 200;
+      const maxLogoW = 160;
+      const maxLogoH = 160;
 
       const ratio = Math.min(
         maxLogoW / logoImg.width,
