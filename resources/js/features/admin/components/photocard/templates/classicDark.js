@@ -56,8 +56,8 @@ export const classicDark = {
     let logoBottomY = IMAGE_H;
 
     if (logoImg) {
-      const maxLogoW = 160;
-      const maxLogoH = 160;
+      const maxLogoW = 120;
+      const maxLogoH = 120;
 
       const ratio = Math.min(
         maxLogoW / logoImg.width,
@@ -99,7 +99,7 @@ export const classicDark = {
 
     const title = article.title || article.title_en || '';
     ctx.fillStyle = '#ffffff';
-    ctx.font      = `900 58px 'SolaimanLipi', 'Noto Sans Bengali', 'Hind Siliguri', sans-serif`;
+    ctx.font      = `900 50px 'SolaimanLipi', 'Noto Sans Bengali', 'Hind Siliguri', sans-serif`;
     ctx.textAlign = 'center';
 
     wrapTextCenter(ctx, title, W / 2, headlineY, W - 100, 88, 3);
