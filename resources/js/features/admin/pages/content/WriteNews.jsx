@@ -75,6 +75,13 @@ export default function WriteNews() {
   const [catSearch, setCatSearch] = useState('');
   const [explicitCategories, setExplicitCategories] = useState(new Set());
   const [locationOpen, setLocationOpen] = useState(false);
+  const [openNodes, setOpenNodes] = useState(new Set());
+
+  const toggleNode = (id) => setOpenNodes(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
   const [manuallyEditedSlugBn, setManuallyEditedSlugBn] = useState(false);
   const [manuallyEditedSlugEn, setManuallyEditedSlugEn] = useState(false);
   const [manuallyEditedMetaBn, setManuallyEditedMetaBn] = useState(false);
@@ -199,8 +206,6 @@ export default function WriteNews() {
       });
       // Treat all pre-existing categories as explicitly selected on edit load
       setExplicitCategories(new Set(article.categories || []));
-      // Auto-open location section if article has any location categories
-      setLocationOpen((article.categories || []).length > 0);
     }
   }, [article]);
 
@@ -406,6 +411,25 @@ export default function WriteNews() {
     }
   };
 
+  // When categories API loads, auto-expand ancestor nodes of every selected category
+  useEffect(() => {
+    if (!categories.length || !form.data.categories.length) return;
+    const toOpen = new Set();
+    form.data.categories.forEach(catId => {
+      let cur = categories.find(c => c.id === catId);
+      while (cur?.parentId) {
+        toOpen.add(cur.parentId);
+        cur = categories.find(c => c.id === cur.parentId);
+      }
+    });
+    if (toOpen.size > 0) setOpenNodes(toOpen);
+    const hasLoc = form.data.categories.some(id => {
+      const c = categories.find(x => x.id === id);
+      return c && isLocationCat(c);
+    });
+    if (hasLoc) setLocationOpen(true);
+  }, [categories]); // intentionally only re-runs when categories list loads
+
   const childrenByParentId = useMemo(() => {
     const map = {};
     for (const c of categories) {
@@ -550,13 +574,28 @@ export default function WriteNews() {
       }
     };
 
+    const isOpen = openNodes.has(cat.id);
+
     return (
       <div key={cat.id}>
         <div
-          className={`flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors ${isAuto ? 'opacity-60' : ''}`}
-          style={{ paddingLeft: flatMode ? '8px' : `${8 + depth * 16}px` }}
+          className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors ${isAuto ? 'opacity-60' : ''}`}
+          style={{ paddingLeft: flatMode ? '8px' : `${8 + depth * 14}px` }}
         >
-          {!flatMode && depth > 0 && <span className="text-gray-300 text-xs flex-shrink-0">↳</span>}
+          {/* Chevron toggle for nodes with children; spacer for leaves */}
+          {!flatMode && (
+            children.length > 0
+              ? (
+                <button
+                  type="button"
+                  onClick={() => toggleNode(cat.id)}
+                  className="w-3.5 h-3.5 flex-shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors"
+                >
+                  <ChevronRight className={`w-3 h-3 transition-transform duration-150 ${isOpen ? 'rotate-90' : ''}`} />
+                </button>
+              )
+              : <span className="w-3.5 flex-shrink-0" />
+          )}
           <input
             type="checkbox"
             id={`cat-${cat.id}`}
@@ -588,7 +627,7 @@ export default function WriteNews() {
             </span>
           )}
         </div>
-        {!flatMode && children.map(child => renderCategoryRow(child, depth + 1, false))}
+        {!flatMode && isOpen && children.map(child => renderCategoryRow(child, depth + 1, false))}
       </div>
     );
   };
