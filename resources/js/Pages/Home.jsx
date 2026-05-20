@@ -517,7 +517,8 @@ function SaradeshSection({ articles, divisions, lang, nav }) {
   if (!articles?.length) return null;
 
   const hero  = articles[0];
-  const list  = articles.slice(1, 6);
+  const mid   = articles.slice(1, 3);
+  const strip = articles.slice(3, 6);
   const t     = (a) => lang === 'bn' ? a.title : (a.title_en || a.title);
   const label = (item) => lang === 'bn' ? item.name_bn : item.name_en;
 
@@ -548,6 +549,7 @@ function SaradeshSection({ articles, divisions, lang, nav }) {
 
   return (
     <div className="cs-section">
+      {/* Header — same as CategorySection */}
       <div className="p-sec-hdr-wrap" style={{ padding: '11px 14px 10px' }}>
         <div className="p-sec-hdr">
           <h2 className="p-sec-ttl" onClick={() => router.visit(ROUTES.location(lang))}>
@@ -559,38 +561,39 @@ function SaradeshSection({ articles, divisions, lang, nav }) {
         </div>
       </div>
 
-      <div className="hp-saradesh">
-        {/* Left — article feed */}
-        <div className="hp-saradesh-feed">
-          {hero && (
-            <div className="hp-saradesh-hero" onClick={() => go(hero, nav)} role="button" tabIndex={0}>
-              {hero.featured_image && (
-                <div className="hp-saradesh-hero-img">
-                  <img src={hero.featured_image} alt={t(hero)} loading="lazy" />
-                </div>
-              )}
-              <div className="hp-saradesh-hero-body">
-                <h3 className="hp-saradesh-hero-title">{t(hero)}</h3>
-                {hero.excerpt && <p className="hp-saradesh-hero-excerpt">{hero.excerpt}</p>}
+      {/* 3-column featured grid — hero | 2 stacked | filter widget */}
+      <div className="cs-feat">
+
+        {/* LEFT — hero */}
+        {hero && (
+          <div className="cs-hero" onClick={() => go(hero, nav)} role="button" tabIndex={0}>
+            <div className="cs-hero-img">
+              <Img src={hero.featured_image} alt={t(hero)} />
+            </div>
+            <div className="cs-hero-body">
+              <h3 className="cs-hero-h">{t(hero)}</h3>
+              {hero.excerpt && <p className="cs-hero-p">{hero.excerpt}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* CENTER — 2 stacked articles */}
+        <div className="cs-mid">
+          {mid.map((a, i) => (
+            <div key={a.id} className={`cs-mid-item${i > 0 ? ' cs-mid-sep' : ''}`}
+              onClick={() => go(a, nav)} role="button" tabIndex={0}>
+              <div className="cs-mid-img">
+                <Img src={a.featured_image} alt={t(a)} />
+              </div>
+              <div className="cs-mid-body">
+                <h4 className="cs-mid-h">{t(a)}</h4>
               </div>
             </div>
-          )}
-          <div className="hp-saradesh-list">
-            {list.map(a => (
-              <div key={a.id} className="hp-saradesh-list-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
-                {a.featured_image && (
-                  <div className="hp-saradesh-list-thumb">
-                    <img src={a.featured_image} alt={t(a)} loading="lazy" />
-                  </div>
-                )}
-                <h4 className="hp-saradesh-list-title">{t(a)}</h4>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
 
-        {/* Right — location filter widget */}
-        <div className="hp-saradesh-sidebar">
+        {/* RIGHT — location filter widget */}
+        <div className="cs-side">
           <div className="loc-widget" style={{ borderRadius: 5 }}>
             <div className="loc-widget-hdr">
               {lang === 'bn' ? 'আপনার এলাকার খবর' : 'News from your area'}
@@ -619,6 +622,24 @@ function SaradeshSection({ articles, divisions, lang, nav }) {
           </div>
         </div>
       </div>
+
+      {/* BOTTOM — 3-article strip, same as CategorySection */}
+      {strip.length > 0 && (
+        <div className="cs-strip">
+          {strip.map(a => (
+            <div key={a.id} className="cs-strip-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
+              {a.featured_image && (
+                <div className="cs-strip-img">
+                  <Img src={a.featured_image} alt={t(a)} />
+                </div>
+              )}
+              <div className="cs-strip-body">
+                <h5 className="cs-strip-h">{t(a)}</h5>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

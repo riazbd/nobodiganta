@@ -2898,27 +2898,6 @@ html[lang="en"] .almnc-cal-detail-date{font-family:'Playfair Display','Georgia',
 .loc-widget-btn { display:block; width:100%; background:var(--breaking); color:#fff; border:none; font-family:inherit; font-size:18px; font-weight:700; padding:12px; cursor:pointer; letter-spacing:.02em;border-bottom-left-radius:5px;border-bottom-right-radius:5px; }
 .loc-widget-btn:hover { background:var(--dark-red,#1a2428); }
 
-/* ── Homepage Saradesh section ── */
-.hp-saradesh { display:grid; grid-template-columns:1fr 240px; gap:16px; align-items:start; padding:0 14px 14px; }
-@media(max-width:768px){ .hp-saradesh{ grid-template-columns:1fr; } .hp-saradesh-sidebar{ order:-1; } }
-
-.hp-saradesh-hero { cursor:pointer; margin-bottom:12px; }
-.hp-saradesh-hero-img { aspect-ratio:16/9; overflow:hidden; border-radius:5px; margin-bottom:10px; }
-.hp-saradesh-hero-img img { width:100%; height:100%; object-fit:cover; transition:transform .3s; display:block; }
-.hp-saradesh-hero:hover .hp-saradesh-hero-img img { transform:scale(1.03); }
-.hp-saradesh-hero-title { font-size:1.05rem; font-weight:700; line-height:1.45; color:var(--black); margin:0 0 5px; }
-.hp-saradesh-hero:hover .hp-saradesh-hero-title { color:var(--breaking); }
-.hp-saradesh-hero-excerpt { font-size:.82rem; color:var(--lighter-text); margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-
-.hp-saradesh-list { border-top:1px solid var(--border); }
-.hp-saradesh-list-item { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); cursor:pointer; }
-.hp-saradesh-list-thumb { width:80px; height:56px; flex-shrink:0; overflow:hidden; border-radius:4px; }
-.hp-saradesh-list-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
-.hp-saradesh-list-title { font-size:.85rem; font-weight:600; line-height:1.5; color:var(--black); margin:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-.hp-saradesh-list-item:hover .hp-saradesh-list-title { color:var(--breaking); }
-
-.hp-saradesh-sidebar { position:sticky; top:80px; }
-
 /* ── Feed container ── */
 .loc-feed { }
 
