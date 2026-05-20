@@ -39,6 +39,8 @@ class DatabaseSeeder extends Seeder
             MoreArticlesSeeder::class,
             HomepageSectionSeeder::class,
             StoriesSeeder::class,
+            LocationSeeder::class,
+            SaradeshCategorySeeder::class,
             SaradeshArticleSeeder::class,
         ]);
     }

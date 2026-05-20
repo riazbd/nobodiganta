@@ -99,5 +99,6 @@ export const ROUTES = {
         horoscope:        '/admin/horoscope',
         prayerTimes:      '/admin/prayer-times',
         homepageLayout:   '/admin/homepage-layout',
+        locations:        '/admin/locations',
     },
 };

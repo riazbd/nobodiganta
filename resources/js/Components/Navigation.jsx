@@ -114,20 +114,24 @@ export default function Navigation() {
   const handleDropEnter = ()  => clearTimeout(hoverTimer.current);
   const handleDropLeave = ()  => { hoverTimer.current = setTimeout(() => setHoveredCat(null), 130); };
 
-  const renderDropdownItems = (items, depth) => items.map(child => (
-    <span key={child.slug}>
-      <a className="nav-sub-link"
-        style={depth > 0 ? { paddingLeft: `${20 + depth * 14}px`, opacity: 0.85 } : undefined}
-        onClick={() => { setHoveredCat(null); onNavigate('cat', child.slug); }}
-        role="menuitem" tabIndex={0}
-        onKeyDown={e => e.key === 'Enter' && onNavigate('cat', child.slug)}
-      >
-        {depth > 0 && <span style={{ marginRight: 4, opacity: 0.4 }}>↳</span>}
-        {lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn)}
-      </a>
-      {child.children?.length > 0 && renderDropdownItems(child.children, depth + 1)}
-    </span>
-  ));
+  const renderDropdownItems = (items, depth) => {
+    const useGrid = depth === 0 && items.length > 6;
+    const items2 = useGrid ? items : items;
+    const cols = useGrid ? (items.length > 10 ? 3 : 2) : 1;
+    return (
+      <div className={`nav-sub-items${useGrid ? ' nav-sub-grid' : ''}`} style={useGrid ? { columnCount: cols } : {}}>
+        {items2.map(child => (
+          <a key={child.slug} className="nav-sub-link"
+            onClick={() => { setHoveredCat(null); onNavigate('cat', child.slug); }}
+            role="menuitem" tabIndex={0}
+            onKeyDown={e => e.key === 'Enter' && onNavigate('cat', child.slug)}
+          >
+            {lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn)}
+          </a>
+        ))}
+      </div>
+    );
+  };
 
   const renderDrawerSubs = (items, depth = 0) => items.map(child => (
     <span key={child.slug}>
@@ -203,12 +207,6 @@ export default function Navigation() {
                 {hasChildren && isHovered && (
                   <div className="nav-sub-dropdown" role="menu"
                     onMouseEnter={handleDropEnter} onMouseLeave={handleDropLeave}>
-                    {/* <a className="nav-sub-parent"
-                      onClick={() => { setHoveredCat(null); onNavigate('cat', cat.slug); }}
-                      role="menuitem" tabIndex={0}>
-                      {lang === 'bn' ? `সব ${cat.name_bn}` : `All ${cat.name_en || cat.name_bn}`}
-                    </a>
-                    <div className="nav-sub-divider" /> */}
                     {renderDropdownItems(cat.children, 0)}
                   </div>
                 )}

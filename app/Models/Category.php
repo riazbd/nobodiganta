@@ -124,4 +124,15 @@ class Category extends Model
     {
         return $query->orderBy('sort_order')->orderBy('name_bn');
     }
+
+    /**
+     * Scope: Exclude location categories (saradesh tree)
+     */
+    public function scopeEditorial($query)
+    {
+        return $query->where('slug', 'not like', 'division-%')
+            ->where('slug', 'not like', 'district-%')
+            ->where('slug', 'not like', 'upazila-%')
+            ->where('slug', '!=', 'saradesh');
+    }
 }

@@ -67,6 +67,7 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
     settings: { bn: 'সেটিংস', en: 'Settings' },
     users: { bn: 'ব্যবহারকারী', en: 'Users' },
     'audit-log': { bn: 'অডিট লগ', en: 'Audit Log' },
+    locations: { bn: 'অবস্থান ব্যবস্থাপনা', en: 'Location Management' },
     epaper: { bn: 'ই-পেপার', en: 'E-Paper' },
     newsletter: { bn: 'নিউজলেটার', en: 'Newsletter' },
     profile: { bn: 'প্রোফাইল', en: 'Profile' },
