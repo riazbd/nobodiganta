@@ -3,7 +3,7 @@ import { useForm, usePage, router } from '@inertiajs/react';
 import {
   Save, Send, Eye, Image as ImageIcon, X, Plus, Type, Tag, FileText,
   Settings, ChevronRight, Newspaper, Globe, Clock, CheckCircle,
-  FolderTree, Trash2, Languages, Loader2, Video, Users, Search, Target
+  FolderTree, Trash2, Languages, Loader2, Video, Users, Search, Target, MapPin
 } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -989,7 +989,7 @@ export default function WriteNews() {
                           className="w-full flex items-center justify-between px-2 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                         >
                           <span className="flex items-center gap-1.5">
-                            <span>📍</span>
+                            <MapPin className="w-3.5 h-3.5 text-teal-500 flex-shrink-0" />
                             <span>{lang === 'bn' ? 'অবস্থান (সারাদেশ)' : 'Location (Saradesh)'}</span>
                             {hasLocationSelected && (
                               <span className="bg-teal-100 text-teal-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full">✓</span>
