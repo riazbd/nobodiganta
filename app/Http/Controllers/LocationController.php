@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
-use App\Models\Division;
-use App\Models\District;
-use App\Models\Upazila;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -23,29 +20,74 @@ class LocationController extends Controller
 
     protected function loadDivisions(): array
     {
-        return Division::withCount('districts')->orderBy('name_en')->get()->toArray();
+        return Category::whereHas('parent', fn($q) => $q->where('slug', 'saradesh'))
+            ->withCount('children as districts_count')
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn($c) => [
+                'slug'            => str_replace('division-', '', $c->slug),
+                'name_bn'         => $c->name_bn,
+                'name_en'         => $c->name_en,
+                'districts_count' => $c->districts_count,
+            ])
+            ->toArray();
     }
 
     protected function loadDistricts(string $divisionSlug): array
     {
-        $div = Division::where('slug', $divisionSlug)->first();
-        if (!$div) return [];
-        return $div->districts()->orderBy('name_en')
-            ->get(['id', 'slug', 'name_bn', 'name_en'])
-            ->map(fn($d) => $d->toArray())->toArray();
+        return Category::whereHas('parent', fn($q) => $q->where('slug', 'division-' . $divisionSlug))
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn($c) => [
+                'slug'    => str_replace('district-', '', $c->slug),
+                'name_bn' => $c->name_bn,
+                'name_en' => $c->name_en,
+            ])
+            ->toArray();
     }
 
     protected function loadUpazilas(string $divisionSlug, string $districtSlug): array
     {
-        $dist = District::whereHas('division', fn($q) => $q->where('slug', $divisionSlug))
-            ->where('slug', $districtSlug)->first();
-        if (!$dist) return [];
-        return $dist->upazilas()->orderBy('name_en')
-            ->get(['id', 'slug', 'name_bn', 'name_en'])
-            ->map(fn($u) => $u->toArray())->toArray();
+        return Category::whereHas('parent', fn($q) => $q->where('slug', 'district-' . $districtSlug))
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn($c) => [
+                'slug'    => str_replace('upazila-', '', $c->slug),
+                'name_bn' => $c->name_bn,
+                'name_en' => $c->name_en,
+            ])
+            ->toArray();
     }
 
-    // Builds the sidebar tree widget — counts come from the category pivot, not string columns
+    // Public API for filter widget — reads from categories, not location tables
+    public function apiDistricts(string $division)
+    {
+        $districts = Category::whereHas('parent', fn($q) => $q->where('slug', 'division-' . $division))
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn($c) => [
+                'slug'    => str_replace('district-', '', $c->slug),
+                'name_bn' => $c->name_bn,
+                'name_en' => $c->name_en,
+            ]);
+
+        return response()->json($districts);
+    }
+
+    public function apiUpazilas(string $district)
+    {
+        $upazilas = Category::whereHas('parent', fn($q) => $q->where('slug', 'district-' . $district))
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn($c) => [
+                'slug'    => str_replace('upazila-', '', $c->slug),
+                'name_bn' => $c->name_bn,
+                'name_en' => $c->name_en,
+            ]);
+
+        return response()->json($upazilas);
+    }
+
     protected function loadLocationTree(): ?array
     {
         $cat = Category::where('slug', 'saradesh')
@@ -59,17 +101,15 @@ class LocationController extends Controller
         return $cat?->toArray();
     }
 
-    // Returns article counts keyed by division slug (e.g. ['dhaka' => 12, 'chittagong' => 8])
     protected function divisionCounts(string $edition): array
     {
-        return Category::where('slug', 'like', 'division-%')
+        return Category::whereHas('parent', fn($q) => $q->where('slug', 'saradesh'))
             ->withCount(['articles as total' => fn($q) => $q->published()->forEdition($edition)])
             ->get()
             ->mapWithKeys(fn($c) => [str_replace('division-', '', $c->slug) => $c->total])
             ->toArray();
     }
 
-    // Returns article counts keyed by district slug for districts within the given division
     protected function districtCounts(string $division, string $edition): array
     {
         return Category::whereHas('parent', fn($q) => $q->where('slug', 'division-' . $division))
@@ -79,7 +119,6 @@ class LocationController extends Controller
             ->toArray();
     }
 
-    // Returns article counts keyed by upazila slug for upazilas within the given district
     protected function upazilaCounts(string $district, string $edition): array
     {
         return Category::whereHas('parent', fn($q) => $q->where('slug', 'district-' . $district))

@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\HoroscopeController;
 use App\Http\Controllers\Admin\EpaperController;
 use App\Http\Controllers\Admin\NewsletterController;
 use App\Http\Controllers\Admin\HomepageController;
+use App\Http\Controllers\Admin\LocationController as AdminLocationController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BreakingNewsController;
 use App\Http\Controllers\CategoryController;
@@ -132,7 +133,7 @@ Route::middleware(['auth'])->group(function () {
 
                 return Inertia::render("features/admin/pages/content/{$component}", [
                     'articles'   => $articles,
-                    'categories' => \App\Models\Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
+                    'categories' => \App\Models\Category::active()->editorial()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
                     'filters'    => $request->only(['search', 'edition', 'category', 'per_page']),
                 ]);
             };
@@ -314,6 +315,18 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/stories/{story}/slides/{slide}', [\App\Http\Controllers\Admin\StorySlideController::class, 'destroy'])->name('stories.slides.destroy');
         Route::post('/stories/{story}/slides/reorder', [\App\Http\Controllers\Admin\StorySlideController::class, 'reorder'])->name('stories.slides.reorder');
 
+        // Location Management
+        Route::get('/locations', [AdminLocationController::class, 'index'])->name('locations');
+        Route::post('/locations/divisions', [AdminLocationController::class, 'storeDivision'])->name('locations.divisions.store');
+        Route::put('/locations/divisions/{division}', [AdminLocationController::class, 'updateDivision'])->name('locations.divisions.update')->whereNumber('division');
+        Route::delete('/locations/divisions/{division}', [AdminLocationController::class, 'destroyDivision'])->name('locations.divisions.destroy')->whereNumber('division');
+        Route::post('/locations/districts', [AdminLocationController::class, 'storeDistrict'])->name('locations.districts.store');
+        Route::put('/locations/districts/{district}', [AdminLocationController::class, 'updateDistrict'])->name('locations.districts.update')->whereNumber('district');
+        Route::delete('/locations/districts/{district}', [AdminLocationController::class, 'destroyDistrict'])->name('locations.districts.destroy')->whereNumber('district');
+        Route::post('/locations/upazilas', [AdminLocationController::class, 'storeUpazila'])->name('locations.upazilas.store');
+        Route::put('/locations/upazilas/{upazila}', [AdminLocationController::class, 'updateUpazila'])->name('locations.upazilas.update')->whereNumber('upazila');
+        Route::delete('/locations/upazilas/{upazila}', [AdminLocationController::class, 'destroyUpazila'])->name('locations.upazilas.destroy')->whereNumber('upazila');
+
         // Editorial
         Route::get('/pitch-board', function () {
             return Inertia::render('features/admin/pages/editorial/PitchBoard');
@@ -327,7 +340,15 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-// Public APIs
+// Admin location dropdown APIs (use location tables, numeric IDs — for admin panels)
+Route::get('/api/locations/divisions', [AdminLocationController::class, 'apiDivisions'])->name('api.locations.divisions');
+Route::get('/api/locations/divisions/{division}/districts', [AdminLocationController::class, 'apiDistricts'])->name('api.locations.districts')->whereNumber('division');
+Route::get('/api/locations/districts/{district}/upazilas', [AdminLocationController::class, 'apiUpazilas'])->name('api.locations.upazilas')->whereNumber('district');
+
+// Public location cascade APIs (use categories, slug-based — for public filter widget)
+Route::get('/api/location/districts/{division}', [LocationController::class, 'apiDistricts'])->name('api.location.districts');
+Route::get('/api/location/upazilas/{district}', [LocationController::class, 'apiUpazilas'])->name('api.location.upazilas');
+
 Route::get('/api/trending', [NewsController::class, 'apiTrending'])->name('api.trending');
 Route::get('/api/opinions', [NewsController::class, 'apiOpinions'])->name('api.opinions');
 Route::get('/api/most-read', [NewsController::class, 'apiMostRead'])->name('api.most-read');
