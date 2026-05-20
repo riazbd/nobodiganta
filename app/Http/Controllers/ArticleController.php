@@ -116,11 +116,12 @@ class ArticleController extends Controller
                     'slug'       => $article->category->slug,
                     'color_code' => $article->category->color_code,
                 ] : null,
-                'author'        => $article->author?->name,
-                'author_id'     => $article->author_id,
-                'views'         => $article->views,
-                'published_at'  => $article->published_at?->toIso8601String(),
-                'created_at'    => $article->created_at->toIso8601String(),
+                'author'         => $article->author?->name,
+                'author_id'      => $article->author_id,
+                'views'          => $article->views,
+                'featured_image' => $article->featured_image,
+                'published_at'   => $article->published_at?->toIso8601String(),
+                'created_at'     => $article->created_at->toIso8601String(),
             ];
         });
 

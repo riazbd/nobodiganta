@@ -1,9 +1,11 @@
-﻿import { useState, useCallback, useRef, useEffect } from 'react';
+﻿import { useState, useCallback, useRef, useEffect, lazy, Suspense } from 'react';
+
+const PhotoCardModal = lazy(() => import('../../components/photocard/PhotoCardModal.jsx'));
 import { Head, Link, router } from '@inertiajs/react';
 import {
   Search, Plus, Eye, Edit3, Trash2, Send, ChevronDown, X, Loader2,
   AlertTriangle, Globe, CheckCircle, User, ArrowUpDown, ArrowUp, ArrowDown,
-  Filter, RotateCcw
+  Filter, RotateCcw, Image as ImageIcon
 } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -60,8 +62,9 @@ export default function AllNews({ articles, categories, authors = [], divisions 
   const [sortDir,      setSortDir]      = useState(filters.sort_dir     || 'desc');
   const [showFilters,  setShowFilters]  = useState(false);
   const [selected,     setSelected]     = useState([]);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [submitting,   setSubmitting]   = useState(false);
+  const [deleteConfirm,    setDeleteConfirm]    = useState(null);
+  const [submitting,       setSubmitting]       = useState(false);
+  const [photoCardArticle, setPhotoCardArticle] = useState(null);
   const [dists,        setDists]        = useState([]);
 
   useEffect(() => {
@@ -427,6 +430,13 @@ export default function AllNews({ articles, categories, authors = [], divisions 
                           <ArrowDown className="w-4 h-4" />
                         </button>
                       )}
+                      <button
+                        onClick={() => setPhotoCardArticle(article)}
+                        className="p-1.5 rounded-lg hover:bg-purple-50 text-gray-400 hover:text-purple-600 transition-all"
+                        title={l('ফটো কার্ড', 'Photo Card')}
+                      >
+                        <ImageIcon className="w-4 h-4" />
+                      </button>
                       <button onClick={() => setDeleteConfirm(article)}
                         className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all" title={l('মুছুন', 'Delete')}>
                         <Trash2 className="w-4 h-4" />
@@ -502,6 +512,16 @@ export default function AllNews({ articles, categories, authors = [], divisions 
             </div>
           </div>
         </div>
+      )}
+
+      {/* Photo Card Modal */}
+      {photoCardArticle && (
+        <Suspense fallback={null}>
+          <PhotoCardModal
+            article={photoCardArticle}
+            onClose={() => setPhotoCardArticle(null)}
+          />
+        </Suspense>
       )}
     </div>
   );
