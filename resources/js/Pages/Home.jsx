@@ -695,6 +695,14 @@ export default function Home({
         {/* Three-column: Opinion | Poll | Stories */}
         <ThreeColumnSection stories={heroStories} />
 
+        {/* Saradesh section */}
+        <SaradeshSection
+          articles={saradeshArticles}
+          divisions={saradeshDivisions}
+          lang={lang}
+          nav={onNavigate}
+        />
+
         {/* Category sections */}
         {catSecs.map((section, idx) => (
           <div key={section.id}>
@@ -712,14 +720,6 @@ export default function Home({
 
         {/* Ad strip */}
         <div className="p-ad-between"><AdSlot size="leaderboard" position="mid_home" /></div>
-
-        {/* Saradesh section */}
-        <SaradeshSection
-          articles={saradeshArticles}
-          divisions={saradeshDivisions}
-          lang={lang}
-          nav={onNavigate}
-        />
 
         <TagsCloud tags={popularTags} lang={lang} nav={onNavigate} />
 
