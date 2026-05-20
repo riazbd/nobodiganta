@@ -516,30 +516,24 @@ function SaradeshSection({ articles, divisions, lang, nav }) {
 
   if (!articles?.length) return null;
 
-  const hero  = articles[0];
-  const mid   = articles.slice(1, 3);
-  const strip = articles.slice(3, 6);
-  const t     = (a) => lang === 'bn' ? a.title : (a.title_en || a.title);
+  // Left: 3 articles with thumbnails | Center: 4 text-only
+  const leftItems   = articles.slice(0, 3);
+  const centerItems = articles.slice(3, 7);
+
+  const t     = (a) => lang === 'bn' ? a.title  : (a.title_en  || a.title);
+  const ex    = (a) => lang === 'bn' ? a.excerpt : (a.excerpt_en || a.excerpt);
   const label = (item) => lang === 'bn' ? item.name_bn : item.name_en;
 
   const handleDivChange = (e) => {
     const slug = e.target.value;
     setSelDiv(slug); setSelDist(''); setSelUz(''); setDists([]); setUzs([]);
-    if (slug) {
-      window.axios.get(`/api/location/districts/${slug}`)
-        .then(r => setDists(r.data)).catch(() => setDists([]));
-    }
+    if (slug) window.axios.get(`/api/location/districts/${slug}`).then(r => setDists(r.data)).catch(() => setDists([]));
   };
-
   const handleDistChange = (e) => {
     const slug = e.target.value;
     setSelDist(slug); setSelUz(''); setUzs([]);
-    if (slug) {
-      window.axios.get(`/api/location/upazilas/${slug}`)
-        .then(r => setUzs(r.data)).catch(() => setUzs([]));
-    }
+    if (slug) window.axios.get(`/api/location/upazilas/${slug}`).then(r => setUzs(r.data)).catch(() => setUzs([]));
   };
-
   const handleSearch = () => {
     if (selUz && selDist && selDiv) router.visit(ROUTES.locationUpazila(selDiv, selDist, selUz, lang));
     else if (selDist && selDiv)     router.visit(ROUTES.locationDist(selDiv, selDist, lang));
@@ -548,98 +542,71 @@ function SaradeshSection({ articles, divisions, lang, nav }) {
   };
 
   return (
-    <div className="cs-section">
-      {/* Header — same as CategorySection */}
-      <div className="p-sec-hdr-wrap" style={{ padding: '11px 14px 10px' }}>
-        <div className="p-sec-hdr">
-          <h2 className="p-sec-ttl" onClick={() => router.visit(ROUTES.location(lang))}>
-            {lang === 'bn' ? 'সারাদেশ' : 'Bangladesh'}
-          </h2>
-          <span className="p-sec-more" onClick={() => router.visit(ROUTES.location(lang))}>
-            {lang === 'bn' ? 'আরও »' : 'More »'}
-          </span>
-        </div>
+    <div className="hp-sd-section">
+      {/* Section header */}
+      <div className="hp-sd-hdr">
+        <h2 className="hp-sd-title" onClick={() => router.visit(ROUTES.location(lang))}>
+          {lang === 'bn' ? 'সারাদেশ' : 'Bangladesh'}
+        </h2>
       </div>
+      <hr className="hp-sd-rule" />
 
-      {/* 3-column featured grid — hero | 2 stacked | filter widget */}
-      <div className="cs-feat">
+      {/* 3-column grid */}
+      <div className="hp-sd-grid">
 
-        {/* LEFT — hero */}
-        {hero && (
-          <div className="cs-hero" onClick={() => go(hero, nav)} role="button" tabIndex={0}>
-            <div className="cs-hero-img">
-              <Img src={hero.featured_image} alt={t(hero)} />
-            </div>
-            <div className="cs-hero-body">
-              <h3 className="cs-hero-h">{t(hero)}</h3>
-              {hero.excerpt && <p className="cs-hero-p">{hero.excerpt}</p>}
-            </div>
-          </div>
-        )}
-
-        {/* CENTER — 2 stacked articles */}
-        <div className="cs-mid">
-          {mid.map((a, i) => (
-            <div key={a.id} className={`cs-mid-item${i > 0 ? ' cs-mid-sep' : ''}`}
-              onClick={() => go(a, nav)} role="button" tabIndex={0}>
-              <div className="cs-mid-img">
-                <Img src={a.featured_image} alt={t(a)} />
-              </div>
-              <div className="cs-mid-body">
-                <h4 className="cs-mid-h">{t(a)}</h4>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* RIGHT — location filter widget */}
-        <div className="cs-side">
-          <div className="loc-widget" style={{ borderRadius: 5 }}>
-            <div className="loc-widget-hdr">
-              {lang === 'bn' ? 'আপনার এলাকার খবর' : 'News from your area'}
-            </div>
-            <select className="loc-widget-select" value={selDiv} onChange={handleDivChange}>
-              <option value="">{lang === 'bn' ? 'বিভাগ নির্বাচন করুন' : 'Select Division'}</option>
-              {(divisions || []).map(d => (
-                <option key={d.slug} value={d.slug}>{label(d)}</option>
-              ))}
-            </select>
-            <select className="loc-widget-select" value={selDist} onChange={handleDistChange} disabled={!selDiv}>
-              <option value="">{lang === 'bn' ? 'জেলা নির্বাচন করুন' : 'Select District'}</option>
-              {dists.map(d => (
-                <option key={d.slug} value={d.slug}>{label(d)}</option>
-              ))}
-            </select>
-            <select className="loc-widget-select" value={selUz} onChange={e => setSelUz(e.target.value)} disabled={!selDist}>
-              <option value="">{lang === 'bn' ? 'উপজেলা নির্বাচন করুন' : 'Select Upazila'}</option>
-              {uzs.map(u => (
-                <option key={u.slug} value={u.slug}>{label(u)}</option>
-              ))}
-            </select>
-            <button className="loc-widget-btn" onClick={handleSearch}>
-              {lang === 'bn' ? 'খুঁজুন' : 'Search'}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* BOTTOM — 3-article strip, same as CategorySection */}
-      {strip.length > 0 && (
-        <div className="cs-strip">
-          {strip.map(a => (
-            <div key={a.id} className="cs-strip-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
+        {/* LEFT — thumbnail list */}
+        <div className="hp-sd-left">
+          {leftItems.map(a => (
+            <div key={a.id} className="hp-sd-thumb-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
               {a.featured_image && (
-                <div className="cs-strip-img">
+                <div className="hp-sd-thumb-img">
                   <Img src={a.featured_image} alt={t(a)} />
                 </div>
               )}
-              <div className="cs-strip-body">
-                <h5 className="cs-strip-h">{t(a)}</h5>
+              <div className="hp-sd-thumb-body">
+                <h3 className="hp-sd-thumb-title">{t(a)}</h3>
+                {ex(a) && <p className="hp-sd-thumb-excerpt">{ex(a)}</p>}
               </div>
             </div>
           ))}
         </div>
-      )}
+
+        {/* CENTER — text only */}
+        <div className="hp-sd-center">
+          {centerItems.map(a => (
+            <div key={a.id} className="hp-sd-text-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
+              <h3 className="hp-sd-text-title">{t(a)}</h3>
+              {ex(a) && <p className="hp-sd-text-excerpt">{ex(a)}</p>}
+            </div>
+          ))}
+        </div>
+
+        {/* RIGHT — filter widget */}
+        <div className="hp-sd-widget">
+          <div className="hp-sd-widget-hdr">{lang === 'bn' ? 'আপনার এলাকার খবর' : 'News from your area'}</div>
+          <div className="hp-sd-widget-rule" />
+          <div className="hp-sd-selects">
+            <select className="hp-sd-select" value={selDiv} onChange={handleDivChange}>
+              <option value="">{lang === 'bn' ? 'বিভাগ' : 'Division'}</option>
+              {(divisions || []).map(d => <option key={d.slug} value={d.slug}>{label(d)}</option>)}
+            </select>
+            <select className="hp-sd-select" value={selDist} onChange={handleDistChange} disabled={!selDiv}>
+              <option value="">{lang === 'bn' ? 'জেলা' : 'District'}</option>
+              {dists.map(d => <option key={d.slug} value={d.slug}>{label(d)}</option>)}
+            </select>
+            <select className="hp-sd-select" value={selUz} onChange={e => setSelUz(e.target.value)} disabled={!selDist}>
+              <option value="">{lang === 'bn' ? 'উপজেলা' : 'Upazila'}</option>
+              {uzs.map(u => <option key={u.slug} value={u.slug}>{label(u)}</option>)}
+            </select>
+          </div>
+          <button className="hp-sd-btn" onClick={handleSearch}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            {lang === 'bn' ? ' খুঁজুন' : ' Search'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

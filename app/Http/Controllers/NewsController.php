@@ -218,7 +218,7 @@ class NewsController extends Controller
             ->whereHas('categories', fn($q) => $q->where('slug', 'saradesh'))
             ->withRelations()
             ->latest('published_at')
-            ->limit(6)
+            ->limit(7)
             ->get()
             ->map(fn($a) => $a->toAPIArray($edition))
             ->values();
