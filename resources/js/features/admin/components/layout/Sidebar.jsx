@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Newspaper, FolderTree, Image, Video, PenLine, Users, MessageSquare,
   Megaphone, CreditCard, BarChart3, TrendingUp, Search, Settings, FileText, Mail,
   LogOut, Globe, ChevronDown, Shield, Crown, UserCheck, Layers, Camera,
-  Calendar, Send, Monitor, Palette, Edit3, ListChecks, Target, Zap, Bell, User, PlaySquare
+  Calendar, Send, Monitor, Palette, Edit3, ListChecks, Target, Zap, Bell, User, PlaySquare, MapPin
 } from 'lucide-react';
 import { useState } from 'react';
 import { usePermission } from '../../hooks/usePermission';
@@ -14,7 +14,7 @@ const ICON_MAP = {
   LayoutDashboard, Newspaper, FolderTree, Image, Video, PenLine, Users, MessageSquare,
   Megaphone, CreditCard, BarChart3, TrendingUp, Search, Settings, FileText, Mail,
   LogOut, Bell, Globe, ChevronDown, Shield, Crown, UserCheck, Layers, Camera,
-  Calendar, Send, Monitor, Palette, User, Edit3, ListChecks, Target, Zap, PlaySquare
+  Calendar, Send, Monitor, Palette, User, Edit3, ListChecks, Target, Zap, PlaySquare, MapPin
 };
 
 export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
@@ -65,6 +65,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
         { id: 'ads',       icon: 'Megaphone',     label: 'adsManagement',  permission: PERMISSIONS.BUSINESS_ADS_VIEW },
         { id: 'newsletter',icon: 'Mail',          label: 'newsletter',     permission: PERMISSIONS.NEWSLETTER_CREATE },
         { id: 'polls',     icon: 'BarChart3',     label: 'polls',          permission: PERMISSIONS.WIDGETS_POLLS_MANAGE },
+        // { id: 'locations', icon: 'MapPin', label: 'locations', permission: null },
       ]
     },
     {

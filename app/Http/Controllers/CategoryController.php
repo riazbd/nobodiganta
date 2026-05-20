@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
@@ -98,7 +100,14 @@ class CategoryController extends Controller
             $validated['color_code'] = $validated['color'];
         }
 
+        $oldSlug = $category->slug;
         $category->update($validated);
+
+        // If a location category's slug changed, re-derive string columns on all tagged articles
+        if ($this->isLocationCategory($oldSlug) && $oldSlug !== $category->slug) {
+            $articles = $category->articles()->with('categories')->get();
+            $this->rederiveArticleLocations($articles);
+        }
 
         if ($request->expectsJson() || $request->header('Accept') === 'application/json') {
             return response()->json([
@@ -120,17 +129,21 @@ class CategoryController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // Prevent deletion if category has articles
-        if ($category->articles()->exists()) {
-            if ($request->expectsJson() || $request->header('Accept') === 'application/json') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Cannot delete category with existing articles',
-                ], 422);
+        if ($this->isLocationCategory($category->slug)) {
+            // Location categories: clear article location data before deleting
+            $articleIds = $category->articles()->pluck('articles.id')->toArray();
+            $this->clearArticleLocations($articleIds);
+        } else {
+            // Editorial categories: block deletion if articles are tagged
+            if ($category->articles()->exists()) {
+                if ($request->expectsJson() || $request->header('Accept') === 'application/json') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Cannot delete category with existing articles',
+                    ], 422);
+                }
+                return back()->withErrors(['category' => 'Cannot delete category with existing articles']);
             }
-            return back()->withErrors([
-                'category' => 'Cannot delete category with existing articles'
-            ]);
         }
 
         $category->delete();
@@ -155,6 +168,7 @@ class CategoryController extends Controller
 
         // Load all active categories in one query, build recursive tree in PHP
         $all = Category::active()
+            ->editorial()
             ->forEdition($edition)
             ->ordered()
             ->get();
@@ -243,12 +257,74 @@ class CategoryController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        $becomingInactive = $category->is_active;
         $category->update(['is_active' => !$category->is_active]);
+
+        // Deactivating a location category removes articles from public location pages
+        if ($becomingInactive && $this->isLocationCategory($category->slug)) {
+            $articleIds = $category->articles()->pluck('articles.id')->toArray();
+            $this->clearArticleLocations($articleIds);
+        }
 
         return response()->json([
             'success' => true,
             'is_active' => $category->is_active,
         ]);
+    }
+
+    private function isLocationCategory(string $slug): bool
+    {
+        return str_starts_with($slug, 'division-')
+            || str_starts_with($slug, 'district-')
+            || str_starts_with($slug, 'upazila-');
+    }
+
+    private function clearArticleLocations(array $articleIds): void
+    {
+        if (empty($articleIds)) return;
+
+        $locationCatIds = Category::where(function ($q) {
+            $q->where('slug', 'saradesh')
+              ->orWhere('slug', 'like', 'division-%')
+              ->orWhere('slug', 'like', 'district-%')
+              ->orWhere('slug', 'like', 'upazila-%');
+        })->pluck('id')->toArray();
+
+        Article::whereIn('id', $articleIds)->update([
+            'division' => null,
+            'district' => null,
+            'upazila'  => null,
+        ]);
+
+        DB::table('article_category')
+            ->whereIn('article_id', $articleIds)
+            ->whereIn('category_id', $locationCatIds)
+            ->delete();
+    }
+
+    private function rederiveArticleLocations(\Illuminate\Support\Collection $articles): void
+    {
+        foreach ($articles as $article) {
+            $division = null;
+            $district = null;
+            $upazila  = null;
+
+            foreach ($article->categories as $cat) {
+                if (str_starts_with($cat->slug, 'upazila-')) {
+                    $upazila = substr($cat->slug, 8);
+                } elseif (str_starts_with($cat->slug, 'district-')) {
+                    $district = substr($cat->slug, 9);
+                } elseif (str_starts_with($cat->slug, 'division-')) {
+                    $division = substr($cat->slug, 9);
+                }
+            }
+
+            $article->update([
+                'division' => $division,
+                'district' => $district,
+                'upazila'  => $upazila,
+            ]);
+        }
     }
 
     /**
@@ -275,8 +351,26 @@ class CategoryController extends Controller
             $updateData['edition'] = $validated['edition'];
         }
 
-        Category::whereIn('id', $validated['category_ids'])
-            ->update($updateData);
+        // Collect location categories being deactivated before the batch update
+        $locationCatsBeingDeactivated = [];
+        if (isset($validated['is_active']) && $validated['is_active'] === false) {
+            $locationCatsBeingDeactivated = Category::whereIn('id', $validated['category_ids'])
+                ->where('is_active', true)
+                ->where(function ($q) {
+                    $q->where('slug', 'like', 'division-%')
+                      ->orWhere('slug', 'like', 'district-%')
+                      ->orWhere('slug', 'like', 'upazila-%');
+                })
+                ->get();
+        }
+
+        Category::whereIn('id', $validated['category_ids'])->update($updateData);
+
+        // Clear location data for articles tagged to any of the deactivated location categories
+        foreach ($locationCatsBeingDeactivated as $locationCat) {
+            $articleIds = $locationCat->articles()->pluck('articles.id')->toArray();
+            $this->clearArticleLocations($articleIds);
+        }
 
         return back()->with('success', count($validated['category_ids']) . ' categories updated');
     }
