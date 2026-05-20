@@ -3,9 +3,8 @@ import { useForm, usePage, router } from '@inertiajs/react';
 import {
   Save, Send, Eye, Image as ImageIcon, X, Plus, Type, Tag, FileText,
   Settings, ChevronRight, Newspaper, Globe, Clock, CheckCircle,
-  FolderTree, Trash2, Languages, Loader2, Video, Users, Search, Target, MapPin
+  FolderTree, Trash2, Languages, Loader2, Video, Users, Search, Target
 } from 'lucide-react';
-import { BD_DIVISIONS, findDivision, findDistrict } from '../../../../data/bdLocations';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
@@ -74,6 +73,7 @@ export default function WriteNews() {
 
   const { article } = usePage().props;
 
+
   useEffect(() => {
     window.axios.get('/api/admin/categories')
       .then((res) => res.data)
@@ -140,9 +140,6 @@ export default function WriteNews() {
     scheduledAt: '',
     sendPushNotification: false,
     allowComments: true,
-    division: '',
-    district: '',
-    upazila: '',
   });
 
   useEffect(() => {
@@ -190,9 +187,6 @@ export default function WriteNews() {
         metaDescEn: article.metaDescEn || '',
         scheduledAt: article.scheduledAt || '',
         tags: article.tags || [],
-        division: article.division || '',
-        district: article.district || '',
-        upazila: article.upazila || '',
       });
     }
   }, [article]);
@@ -418,15 +412,31 @@ export default function WriteNews() {
       .filter(c => c.edition === 'both' || c.edition === form.data.edition);
 
     const toggleCategory = () => {
-      const newCategories = isChecked
-        ? form.data.categories.filter(id => id !== cat.id)
-        : [...form.data.categories, cat.id];
-      let newPrimary = form.data.primaryCategory;
-      if (isChecked && isPrimary) newPrimary = newCategories.length > 0 ? String(newCategories[0]) : '';
-      if (!isChecked && !newPrimary) newPrimary = String(cat.id);
-      const isOpinion = cat.slug === 'opinion' || cat.nameBn === 'মতামত';
-      const newArticleType = !isChecked && isOpinion ? 'opinion' : form.data.articleType;
-      form.setData({ ...form.data, categories: newCategories, primaryCategory: newPrimary, articleType: newArticleType });
+      if (isChecked) {
+        const newCategories = form.data.categories.filter(id => id !== cat.id);
+        let newPrimary = form.data.primaryCategory;
+        if (isPrimary) newPrimary = newCategories.length > 0 ? String(newCategories[0]) : '';
+        form.setData({ ...form.data, categories: newCategories, primaryCategory: newPrimary });
+      } else {
+        // Add this category + walk up the parentId chain to auto-select all ancestors
+        const newCategories = [...form.data.categories];
+        if (!newCategories.includes(cat.id)) newCategories.push(cat.id);
+
+        let parentId = cat.parentId;
+        while (parentId) {
+          if (!newCategories.includes(parentId)) newCategories.push(parentId);
+          const parent = categories.find(c => c.id === parentId);
+          parentId = parent?.parentId ?? null;
+        }
+
+        let newPrimary = form.data.primaryCategory;
+        if (!newPrimary) newPrimary = String(cat.id);
+
+        const isOpinion = cat.slug === 'opinion' || cat.nameBn === 'মতামত';
+        const newArticleType = isOpinion ? 'opinion' : form.data.articleType;
+
+        form.setData({ ...form.data, categories: newCategories, primaryCategory: newPrimary, articleType: newArticleType });
+      }
     };
 
     return (
@@ -924,82 +934,6 @@ export default function WriteNews() {
                   <span className="text-sm font-semibold text-gray-700">Allow Comments</span>
                 </label>
               </div>
-            </div>
-          </SidebarSection>
-
-          <SidebarSection title={lang === 'bn' ? 'অবস্থান (Location)' : 'Location'} icon={MapPin} defaultOpen={false}>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">
-                  {lang === 'bn' ? 'বিভাগ' : 'Division'}
-                </label>
-                <select
-                  value={form.data.division}
-                  onChange={(e) => {
-                    form.setData(d => ({ ...d, division: e.target.value, district: '', upazila: '' }));
-                  }}
-                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
-                >
-                  <option value="">{lang === 'bn' ? '— বিভাগ নির্বাচন করুন —' : '— Select Division —'}</option>
-                  {BD_DIVISIONS.map(d => (
-                    <option key={d.slug} value={d.slug}>{d.bn} ({d.en})</option>
-                  ))}
-                </select>
-              </div>
-
-              {form.data.division && (() => {
-                const divData = findDivision(form.data.division);
-                return divData ? (
-                  <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">
-                      {lang === 'bn' ? 'জেলা' : 'District'}
-                    </label>
-                    <select
-                      value={form.data.district}
-                      onChange={(e) => {
-                        form.setData(d => ({ ...d, district: e.target.value, upazila: '' }));
-                      }}
-                      className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
-                    >
-                      <option value="">{lang === 'bn' ? '— জেলা নির্বাচন করুন —' : '— Select District —'}</option>
-                      {divData.districts.map(d => (
-                        <option key={d.slug} value={d.slug}>{d.bn} ({d.en})</option>
-                      ))}
-                    </select>
-                  </div>
-                ) : null;
-              })()}
-
-              {form.data.division && form.data.district && (() => {
-                const distData = findDistrict(form.data.division, form.data.district);
-                return distData ? (
-                  <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">
-                      {lang === 'bn' ? 'উপজেলা' : 'Upazila'}
-                    </label>
-                    <select
-                      value={form.data.upazila}
-                      onChange={(e) => form.setData('upazila', e.target.value)}
-                      className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
-                    >
-                      <option value="">{lang === 'bn' ? '— উপজেলা নির্বাচন করুন —' : '— Select Upazila —'}</option>
-                      {distData.upazilas.map(u => (
-                        <option key={u.slug} value={u.slug}>{u.bn} ({u.en})</option>
-                      ))}
-                    </select>
-                  </div>
-                ) : null;
-              })()}
-
-              {(form.data.division || form.data.district || form.data.upazila) && (
-                <button
-                  type="button"
-                  onClick={() => form.setData(d => ({ ...d, division: '', district: '', upazila: '' }))}
-                  className="text-xs text-red-500 hover:text-red-700"
-                >
-                  {lang === 'bn' ? '✕ অবস্থান মুছুন' : '✕ Clear location'}
-                </button>
-              )}
             </div>
           </SidebarSection>
 
