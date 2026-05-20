@@ -542,14 +542,17 @@ function SaradeshSection({ articles, divisions, lang, nav }) {
   };
 
   return (
-    <div className="hp-sd-section">
-      {/* Section header */}
-      <div className="hp-sd-hdr">
-        <h2 className="hp-sd-title" onClick={() => router.visit(ROUTES.location(lang))}>
-          {lang === 'bn' ? 'সারাদেশ' : 'Bangladesh'}
-        </h2>
+    <div className="cs-section">
+      <div className="p-sec-hdr-wrap">
+        <div className="p-sec-hdr">
+          <h2 className="p-sec-ttl" onClick={() => router.visit(ROUTES.location(lang))}>
+            {lang === 'bn' ? 'সারাদেশ' : 'Bangladesh'}
+          </h2>
+          <span className="p-sec-more" onClick={() => router.visit(ROUTES.location(lang))}>
+            {lang === 'bn' ? 'আরও »' : 'More »'}
+          </span>
+        </div>
       </div>
-      <hr className="hp-sd-rule" />
 
       {/* 3-column grid */}
       <div className="hp-sd-grid">
