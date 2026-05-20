@@ -212,6 +212,27 @@ class NewsController extends Controller
         $prayerService = new PrayerTimeService();
         $prayerTimes = $prayerService->getTimingsForCity('dhaka');
 
+        // 9b. Saradesh section — latest location-tagged articles + divisions for filter widget
+        $saradeshArticles = Article::published()
+            ->forEdition($edition)
+            ->whereHas('categories', fn($q) => $q->where('slug', 'saradesh'))
+            ->withRelations()
+            ->latest('published_at')
+            ->limit(6)
+            ->get()
+            ->map(fn($a) => $a->toAPIArray($edition))
+            ->values();
+
+        $saradeshDivisions = Category::whereHas('parent', fn($q) => $q->where('slug', 'saradesh'))
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn($c) => [
+                'slug'    => str_replace('division-', '', $c->slug),
+                'name_bn' => $c->name_bn,
+                'name_en' => $c->name_en,
+            ])
+            ->toArray();
+
         // 9. Active poll
         $pollRow = Poll::where('is_active', true)->with('options')->latest('start_date')->first();
         $poll = $pollRow ? [
@@ -236,7 +257,9 @@ class NewsController extends Controller
             'weather'      => $weather,
             'prayerTimes'  => $prayerTimes,
             'poll'         => $poll,
-            'ads'          => $this->getAds($edition),
+            'ads'               => $this->getAds($edition),
+            'saradeshArticles'  => $saradeshArticles,
+            'saradeshDivisions' => $saradeshDivisions,
         ]);
     }
 

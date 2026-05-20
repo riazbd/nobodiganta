@@ -462,14 +462,21 @@ article .card{padding:8px;}
 /* Sub items */
 .drw-subs{border-bottom:1px solid #f0f0f0;}
 .drw-sub{
-  display:block;width:100%;text-align:left;
-  padding:10px 18px 10px 28px;
-  font-family:inherit;font-size:18.2px;font-weight:500;color:#333;
-  background:none;border:none;border-bottom:1px solid #f7f7f7;
-  cursor:pointer;transition:background .1s,color .1s;
+  display:block;
+  width:100%;
+  text-align:left;
+  background:none;
+  border:none;
+  padding:11px 18px;
+  font-size:16px;
+  font-weight:600;
+  color:#555;
+  cursor:pointer;
+  transition:background .12s,color .12s;
+  font-family:'SolaimanLipi',sans-serif;
 }
-.drw-sub:hover{background:#fff5f5;color:var(--red);}
-.drw-sub-all{color:var(--red);font-weight:700;padding-left:18px;}
+.drw-sub:hover{background:#fff5f5;color:#e8001e;}
+.drw-sub-all{color:#e8001e;font-weight:700;padding-left:18px;font-family:'SolaimanLipi',sans-serif;}
 .drw-sub-all:hover{background:#fff5f5;}
 
 .drw-divider{height:6px;background:#f5f5f5;margin:8px 0;border-top:1px solid #ebebeb;border-bottom:1px solid #ebebeb;}
@@ -1222,34 +1229,33 @@ article .card{padding:8px;}
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:12px 16px;
-  font-size:18.2px;
-  font-weight:800;
-  color:var(--red);
-  font-family:'SolaimanLipi',sans-serif;
+  padding:10px 16px;
+  font-size:15px;
+  font-weight:700;
+  color:#e8001e;
   cursor:pointer;
   transition:background .12s;
-  background:#fff8f8;
 }
-.nav-sub-parent:hover{background:#ffe8e8;}
-.nav-sub-divider{height:1px;background:#f0f0f0;}
+.nav-sub-parent:hover{background:#fff0f0;}
+.nav-sub-parent svg{transition:transform .12s;}
+.nav-sub-parent:hover svg{transform:translateX(3px);}
+.nav-sub-divider{height:1px;background:#f0f0f0;margin:0;}
+.nav-sub-items{padding:4px 0;}
+.nav-sub-grid{column-gap:0;padding:6px 0;}
+.nav-sub-grid .nav-sub-link{break-inside:avoid;padding:8px 16px;}
 .nav-sub-link{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:10px 16px 10px 20px;
-  font-size:17.5px;
-  color:#333;
-  font-family:'SolaimanLipi',sans-serif;
-  font-weight:600;
+  display:block;
+  padding:8px 16px;
+  font-size:15px;
+  color:#444;
+  font-weight:500;
   cursor:pointer;
   border-bottom:1px solid #f7f7f7;
-  transition:background .12s,color .12s,padding-left .12s;
+  transition:background .12s,color .12s;
+  white-space:nowrap;
 }
 .nav-sub-link:last-child{border-bottom:none;}
-.nav-sub-link::before{content:'›';color:#ccc;font-size:18.2px;flex-shrink:0;transition:color .12s,transform .12s;display:inline-block;}
-.nav-sub-link:hover{background:#fdf5f5;color:var(--red);padding-left:24px;}
-.nav-sub-link:hover::before{color:var(--red);}
+.nav-sub-link:hover{background:#f5f5f5;color:#e8001e;}
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    ARTICLE BODY â€” Rich Text (Quill HTML)
@@ -2891,6 +2897,27 @@ html[lang="en"] .almnc-cal-detail-date{font-family:'Playfair Display','Georgia',
 .loc-widget-select:focus { border-bottom-color:var(--primary); }
 .loc-widget-btn { display:block; width:100%; background:var(--breaking); color:#fff; border:none; font-family:inherit; font-size:18px; font-weight:700; padding:12px; cursor:pointer; letter-spacing:.02em;border-bottom-left-radius:5px;border-bottom-right-radius:5px; }
 .loc-widget-btn:hover { background:var(--dark-red,#1a2428); }
+
+/* ── Homepage Saradesh section ── */
+.hp-saradesh { display:grid; grid-template-columns:1fr 240px; gap:16px; align-items:start; padding:0 14px 14px; }
+@media(max-width:768px){ .hp-saradesh{ grid-template-columns:1fr; } .hp-saradesh-sidebar{ order:-1; } }
+
+.hp-saradesh-hero { cursor:pointer; margin-bottom:12px; }
+.hp-saradesh-hero-img { aspect-ratio:16/9; overflow:hidden; border-radius:5px; margin-bottom:10px; }
+.hp-saradesh-hero-img img { width:100%; height:100%; object-fit:cover; transition:transform .3s; display:block; }
+.hp-saradesh-hero:hover .hp-saradesh-hero-img img { transform:scale(1.03); }
+.hp-saradesh-hero-title { font-size:1.05rem; font-weight:700; line-height:1.45; color:var(--black); margin:0 0 5px; }
+.hp-saradesh-hero:hover .hp-saradesh-hero-title { color:var(--breaking); }
+.hp-saradesh-hero-excerpt { font-size:.82rem; color:var(--lighter-text); margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+.hp-saradesh-list { border-top:1px solid var(--border); }
+.hp-saradesh-list-item { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+.hp-saradesh-list-thumb { width:80px; height:56px; flex-shrink:0; overflow:hidden; border-radius:4px; }
+.hp-saradesh-list-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.hp-saradesh-list-title { font-size:.85rem; font-weight:600; line-height:1.5; color:var(--black); margin:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.hp-saradesh-list-item:hover .hp-saradesh-list-title { color:var(--breaking); }
+
+.hp-saradesh-sidebar { position:sticky; top:80px; }
 
 /* ── Feed container ── */
 .loc-feed { }

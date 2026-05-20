@@ -1,5 +1,7 @@
 ﻿import { useState, useEffect, useRef } from 'react';
 import { Head } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import { ROUTES } from '../lib/routes';
 import PrayerWeatherSection from '../Components/home/PrayerWeatherSection';
 import AdSlot from '../Components/ui/AdSlot';
 import { useApp } from '../contexts/AppContext';
@@ -74,7 +76,7 @@ function SocialFollow({ settings, lang }) {
 
   return (
     <div className="hp-social-follow">
-      <div className="hp-social-hd">{lang === 'bn' ? 'আমাদের ফলো করুন' : 'Follow Us'}</div>
+      <div className="hp-social-hd text-center">{lang === 'bn' ? 'আমাদের ফলো করুন' : 'Follow Us'}</div>
       <div className="hp-social-btns">
         {platforms.map(({ key, label, color, icon }) => (
           <a
@@ -504,16 +506,135 @@ function TagsCloud({ tags, lang, nav }) {
   );
 }
 
+// ─── SARADESH SECTION ────────────────────────────────────────────────────────
+function SaradeshSection({ articles, divisions, lang, nav }) {
+  const [selDiv,  setSelDiv]  = useState('');
+  const [selDist, setSelDist] = useState('');
+  const [selUz,   setSelUz]   = useState('');
+  const [dists,   setDists]   = useState([]);
+  const [uzs,     setUzs]     = useState([]);
+
+  if (!articles?.length) return null;
+
+  const hero  = articles[0];
+  const list  = articles.slice(1, 6);
+  const t     = (a) => lang === 'bn' ? a.title : (a.title_en || a.title);
+  const label = (item) => lang === 'bn' ? item.name_bn : item.name_en;
+
+  const handleDivChange = (e) => {
+    const slug = e.target.value;
+    setSelDiv(slug); setSelDist(''); setSelUz(''); setDists([]); setUzs([]);
+    if (slug) {
+      window.axios.get(`/api/location/districts/${slug}`)
+        .then(r => setDists(r.data)).catch(() => setDists([]));
+    }
+  };
+
+  const handleDistChange = (e) => {
+    const slug = e.target.value;
+    setSelDist(slug); setSelUz(''); setUzs([]);
+    if (slug) {
+      window.axios.get(`/api/location/upazilas/${slug}`)
+        .then(r => setUzs(r.data)).catch(() => setUzs([]));
+    }
+  };
+
+  const handleSearch = () => {
+    if (selUz && selDist && selDiv) router.visit(ROUTES.locationUpazila(selDiv, selDist, selUz, lang));
+    else if (selDist && selDiv)     router.visit(ROUTES.locationDist(selDiv, selDist, lang));
+    else if (selDiv)                router.visit(ROUTES.locationDiv(selDiv, lang));
+    else                            router.visit(ROUTES.location(lang));
+  };
+
+  return (
+    <div className="cs-section">
+      <div className="p-sec-hdr-wrap" style={{ padding: '11px 14px 10px' }}>
+        <div className="p-sec-hdr">
+          <h2 className="p-sec-ttl" onClick={() => router.visit(ROUTES.location(lang))}>
+            {lang === 'bn' ? 'সারাদেশ' : 'Bangladesh'}
+          </h2>
+          <span className="p-sec-more" onClick={() => router.visit(ROUTES.location(lang))}>
+            {lang === 'bn' ? 'আরও »' : 'More »'}
+          </span>
+        </div>
+      </div>
+
+      <div className="hp-saradesh">
+        {/* Left — article feed */}
+        <div className="hp-saradesh-feed">
+          {hero && (
+            <div className="hp-saradesh-hero" onClick={() => go(hero, nav)} role="button" tabIndex={0}>
+              {hero.featured_image && (
+                <div className="hp-saradesh-hero-img">
+                  <img src={hero.featured_image} alt={t(hero)} loading="lazy" />
+                </div>
+              )}
+              <div className="hp-saradesh-hero-body">
+                <h3 className="hp-saradesh-hero-title">{t(hero)}</h3>
+                {hero.excerpt && <p className="hp-saradesh-hero-excerpt">{hero.excerpt}</p>}
+              </div>
+            </div>
+          )}
+          <div className="hp-saradesh-list">
+            {list.map(a => (
+              <div key={a.id} className="hp-saradesh-list-item" onClick={() => go(a, nav)} role="button" tabIndex={0}>
+                {a.featured_image && (
+                  <div className="hp-saradesh-list-thumb">
+                    <img src={a.featured_image} alt={t(a)} loading="lazy" />
+                  </div>
+                )}
+                <h4 className="hp-saradesh-list-title">{t(a)}</h4>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right — location filter widget */}
+        <div className="hp-saradesh-sidebar">
+          <div className="loc-widget" style={{ borderRadius: 5 }}>
+            <div className="loc-widget-hdr">
+              {lang === 'bn' ? 'আপনার এলাকার খবর' : 'News from your area'}
+            </div>
+            <select className="loc-widget-select" value={selDiv} onChange={handleDivChange}>
+              <option value="">{lang === 'bn' ? 'বিভাগ নির্বাচন করুন' : 'Select Division'}</option>
+              {(divisions || []).map(d => (
+                <option key={d.slug} value={d.slug}>{label(d)}</option>
+              ))}
+            </select>
+            <select className="loc-widget-select" value={selDist} onChange={handleDistChange} disabled={!selDiv}>
+              <option value="">{lang === 'bn' ? 'জেলা নির্বাচন করুন' : 'Select District'}</option>
+              {dists.map(d => (
+                <option key={d.slug} value={d.slug}>{label(d)}</option>
+              ))}
+            </select>
+            <select className="loc-widget-select" value={selUz} onChange={e => setSelUz(e.target.value)} disabled={!selDist}>
+              <option value="">{lang === 'bn' ? 'উপজেলা নির্বাচন করুন' : 'Select Upazila'}</option>
+              {uzs.map(u => (
+                <option key={u.slug} value={u.slug}>{label(u)}</option>
+              ))}
+            </select>
+            <button className="loc-widget-btn" onClick={handleSearch}>
+              {lang === 'bn' ? 'খুঁজুন' : 'Search'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 export default function Home({
-  leadArticles = [],
-  breakingNews = [],
-  sections     = [],
-  opinions     = [],
-  mostRead     = [],
-  popularTags  = [],
-  weather      = null,
-  prayerTimes  = null,
+  leadArticles       = [],
+  breakingNews       = [],
+  sections           = [],
+  opinions           = [],
+  mostRead           = [],
+  popularTags        = [],
+  weather            = null,
+  prayerTimes        = null,
+  saradeshArticles   = [],
+  saradeshDivisions  = [],
 }) {
   const { lang, settings } = useApp();
   const { onNavigate } = useNavigation();
@@ -600,6 +721,14 @@ export default function Home({
 
         {/* Ad strip */}
         <div className="p-ad-between"><AdSlot size="leaderboard" position="mid_home" /></div>
+
+        {/* Saradesh section */}
+        <SaradeshSection
+          articles={saradeshArticles}
+          divisions={saradeshDivisions}
+          lang={lang}
+          nav={onNavigate}
+        />
 
         <TagsCloud tags={popularTags} lang={lang} nav={onNavigate} />
 
