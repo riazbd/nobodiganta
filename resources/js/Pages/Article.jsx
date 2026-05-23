@@ -239,7 +239,7 @@ export default function Article({
               return chains.map((chain, chainIdx) => (
                 <span key={chainIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                   {chainIdx > 0 && (
-                    <span style={{ display: 'inline-flex', alignItems: 'center', margin: '0 6px', color: '#ddd', fontSize: 16, lineHeight: 1, userSelect: 'none' }}>·</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', margin: '0 6px', color: '#ddd', fontSize: 13, lineHeight: 1, userSelect: 'none' }}>|</span>
                   )}
                   {chain.map((c, i) => (
                     <span key={c.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
