@@ -17,97 +17,50 @@ const BANGLA_MONTHS = [
  * @returns {string} e.g. "১৪ বৈশাখ ১৪৩২" or "14 Baishakh 1432"
  */
 export function toBanglaCalendar(date = new Date(), lang = 'bn') {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1; // 1-based
-  const day = date.getDate();
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  const todayUTC = Date.UTC(y, m - 1, d);
 
-  // Bangla calendar starts mid-April
-  // Approximate algorithm: Bangla year = Gregorian year - 593 (before April 14)
-  //                                      Gregorian year - 593 (after April 14+1)
-  // More precise: use Julian Day Number approach
+  // Bangla year: starts April 14
+  const isAfterNewYear = m > 4 || (m === 4 && d >= 14);
+  const BY = isAfterNewYear ? y - 593 : y - 594;
 
-  let banglaYear;
-  let banglaMonthIndex;
-  let banglaDay;
-
-  // Conversion table approach (simplified but accurate enough for display)
-  const startDates = [
-    [4, 14], [5, 15], [6, 15], [7, 16], [8, 16], [9, 16],
-    [10, 16], [11, 15], [12, 15], [1, 14], [2, 13], [3, 14],
+  // All 12 Bangla month starts as UTC timestamps for this Bangla year.
+  // Months 0-8 (Baishakh-Poush) are in Gregorian year BY+593.
+  // Months 9-11 (Magh-Chaitra) are in Gregorian year BY+594.
+  const gy  = BY + 593;
+  const gy2 = BY + 594;
+  const monthStartsUTC = [
+    Date.UTC(gy,  3, 14), // 0 Baishakh  — Apr 14
+    Date.UTC(gy,  4, 15), // 1 Jaistha   — May 15
+    Date.UTC(gy,  5, 15), // 2 Asharh    — Jun 15
+    Date.UTC(gy,  6, 16), // 3 Shraban   — Jul 16
+    Date.UTC(gy,  7, 16), // 4 Bhadra    — Aug 16
+    Date.UTC(gy,  8, 16), // 5 Ashwin    — Sep 16
+    Date.UTC(gy,  9, 16), // 6 Kartik    — Oct 16
+    Date.UTC(gy, 10, 15), // 7 Ogrohayon — Nov 15
+    Date.UTC(gy, 11, 15), // 8 Poush     — Dec 15
+    Date.UTC(gy2, 0, 14), // 9 Magh      — Jan 14
+    Date.UTC(gy2, 1, 13), // 10 Falgun   — Feb 13
+    Date.UTC(gy2, 2, 14), // 11 Chaitra  — Mar 14
   ];
 
-  // Find which Bangla month we're in
-  let foundMonth = 0;
-  for (let i = 0; i < 12; i++) {
-    const [gMonth, gDay] = startDates[i];
-    const nextIdx = (i + 1) % 12;
-    const [ngMonth, ngDay] = startDates[nextIdx];
-
-    const current = month * 100 + day;
-    const start = gMonth * 100 + gDay;
-    let end;
-    if (nextIdx === 0) {
-      // wraps into next year — use a large number
-      end = ngMonth * 100 + ngDay + 1200;
-    } else {
-      end = ngMonth * 100 + ngDay;
-    }
-
-    // Simpler: just check if we're past this month's start
-    if (month === gMonth && day >= gDay) {
-      foundMonth = i;
-    } else if (month > gMonth || (month === gMonth && day >= gDay)) {
-      if (i > foundMonth || foundMonth === 0) foundMonth = i;
-    }
+  // Find the latest month start that is on or before today
+  let banglaMonthIndex = 0;
+  for (let i = 1; i < 12; i++) {
+    if (monthStartsUTC[i] <= todayUTC) banglaMonthIndex = i;
   }
 
-  // Simpler approach: lookup table for month starts in Gregorian
-  // Bangla month i starts on startDates[i][0]-startDates[i][1] in Gregorian
-  const allStarts = startDates.map(([m, d], i) => ({ m, d, banglaMonth: i }));
-
-  // Sort by effective position in year
-  let currentBanglaMonth = 0;
-  let currentBanglaMonthStart = { m: 4, d: 14 };
-
-  for (let i = 0; i < 12; i++) {
-    const { m: sm, d: sd } = startDates[i];
-    // Check if we are on or past this start date
-    if ((month > sm) || (month === sm && day >= sd)) {
-      currentBanglaMonth = i;
-      currentBanglaMonthStart = { m: sm, d: sd };
-    }
-    // Handle year wrap: months 9-11 (Jan-Mar) are after new year
-    if (sm < 4 && ((month < 4) || (month === 4 && day < 14))) {
-      if ((month > sm) || (month === sm && day >= sd)) {
-        currentBanglaMonth = i;
-        currentBanglaMonthStart = { m: sm, d: sd };
-      }
-    }
-  }
-
-  // Calculate day within Bangla month
-  const startDate = new Date(year, currentBanglaMonthStart.m - 1, currentBanglaMonthStart.d);
-  banglaDay = Math.floor((date - startDate) / 86400000) + 1;
-
-  // Calculate Bangla year
-  // Bangla year = Gregorian year - 593 if after April 13, else - 594
-  if (month > 4 || (month === 4 && day >= 14)) {
-    banglaYear = year - 593;
-  } else {
-    banglaYear = year - 594;
-  }
-
-  banglaMonthIndex = currentBanglaMonth;
-
-  const monthName = BANGLA_MONTHS[banglaMonthIndex];
+  const banglaDay = Math.round((todayUTC - monthStartsUTC[banglaMonthIndex]) / 86400000) + 1;
 
   if (lang === 'en') {
     const enMonths = ['Baishakh', 'Joishtho', 'Asharh', 'Shraban', 'Bhadra', 'Ashwin',
                       'Kartik', 'Ogrohayon', 'Poush', 'Magh', 'Falgun', 'Chaitra'];
-    return `${banglaDay} ${enMonths[banglaMonthIndex]} ${banglaYear}`;
+    return `${banglaDay} ${enMonths[banglaMonthIndex]} ${BY}`;
   }
 
-  return `${toBengaliNum(banglaDay)} ${monthName} ${toBengaliNum(banglaYear)}`;
+  return `${toBengaliNum(banglaDay)} ${BANGLA_MONTHS[banglaMonthIndex]} ${toBengaliNum(BY)}`;
 }
 
 /**

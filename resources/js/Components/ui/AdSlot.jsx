@@ -76,7 +76,7 @@ export default function AdSlot({ size = 'mrec', position, slotId, className = ''
   if (internalAd) {
     if (internalAd.type === 'image') {
       return (
-        <div className={`promo-banner promo-banner--${size} ${className}`} style={containerStyle}>
+        <div className={`ad-slot-wrap ad-slot-wrap--${size} ${className}`} style={containerStyle}>
           <a
             href={internalAd.link}
             target="_blank"
@@ -86,7 +86,6 @@ export default function AdSlot({ size = 'mrec', position, slotId, className = ''
           >
             <img src={internalAd.image} alt={internalAd.title} style={{ width: '100%', height: 'auto', display: 'block' }} />
           </a>
-          <div style={{ position: 'absolute', top: 2, right: 5, fontSize: 9, color: 'rgba(0,0,0,0.3)', pointerEvents: 'none' }}>PROMO</div>
         </div>
       );
     }
@@ -95,20 +94,19 @@ export default function AdSlot({ size = 'mrec', position, slotId, className = ''
       const config = getUniversalEmbedConfig(internalAd.video_url, internalAd.video_provider);
       if (!config) return null;
       return (
-        <div className={`promo-banner promo-banner--${size} ${className}`} style={containerStyle}>
+        <div className={`ad-slot-wrap ad-slot-wrap--${size} ${className}`} style={containerStyle}>
           {config.type === 'iframe' ? (
             <iframe src={config.src} className="w-full h-full border-0" allow="autoplay; encrypted-media; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
           ) : (
             <video src={config.src} poster={internalAd.image} controls muted autoPlay loop className="w-full h-full object-cover" />
           )}
-          <div style={{ position: 'absolute', top: 2, right: 5, fontSize: 9, color: 'white', background: 'rgba(0,0,0,0.5)', padding: '1px 4px', borderRadius: 2, pointerEvents: 'none', zIndex: 10 }}>VIDEO PROMO</div>
         </div>
       );
     }
 
     if (['html', 'google_ad', 'code', 'script'].includes(internalAd.type)) {
       return (
-        <div className={`promo-banner promo-banner--${size} ${className}`} style={containerStyle}>
+        <div className={`ad-slot-wrap ad-slot-wrap--${size} ${className}`} style={containerStyle}>
           <AdCodeRenderer code={internalAd.code} type={internalAd.type} />
         </div>
       );
@@ -116,7 +114,7 @@ export default function AdSlot({ size = 'mrec', position, slotId, className = ''
   }
 
   return (
-    <div ref={adRef} className={`promo-banner promo-banner--${size} ${className}`} style={containerStyle} aria-label="Promotion">
+    <div ref={adRef} className={`ad-slot-wrap ad-slot-wrap--${size} ${className}`} style={containerStyle} aria-label="Promotion">
       {slotId ? (
         <ins
           className="adsbygoogle"

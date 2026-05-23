@@ -261,11 +261,13 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                     <select value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]">
                        <option value="header">Header</option>
                        <option value="home_top">Home Top</option>
+                       <option value="hero_sidebar_top">Hero Sidebar Top</option>
                        <option value="between_sections">Between Sections</option>
                        <option value="sidebar_top">Sidebar Top</option>
                        <option value="sidebar_middle">Sidebar Middle</option>
                        <option value="category_middle">Category Middle</option>
                        <option value="article_bottom">Article Bottom</option>
+                       <option value="mid_home">Mid Home</option>
                        <option value="home_bottom">Home Bottom</option>
                     </select>
                   </div>

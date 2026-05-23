@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             VideoSeeder::class,
             CommentSeeder::class,
             AdSeeder::class,
+            HeroSidebarAdSeeder::class,
             SubscriptionSeeder::class,
             AuditLogSeeder::class,
             StockSeeder::class,

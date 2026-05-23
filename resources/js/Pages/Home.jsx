@@ -76,7 +76,6 @@ function SocialFollow({ settings, lang }) {
 
   return (
     <div className="hp-social-follow">
-      <div className="hp-social-hd text-center">{lang === 'bn' ? 'আমাদের ফলো করুন' : 'Follow Us'}</div>
       <div className="hp-social-btns">
         {platforms.map(({ key, label, color, icon }) => (
           <a
@@ -173,10 +172,12 @@ function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings }) {
         </div>
       </div>
 
-      {/* ── RIGHT: Social follow + Trending ── */}
-      <div className="hp-h3-right">
-        <SocialFollow settings={settings} lang={lang} />
-        <TrendingWidget />
+      {/* ── RIGHT: Ad above, Trending below ── */}
+      <div className="hp-h3-right-col">
+        <AdSlot size="mrec" position="hero_sidebar_top" />
+        <div className="hp-h3-right">
+          <TrendingWidget />
+        </div>
       </div>
     </div>
   );

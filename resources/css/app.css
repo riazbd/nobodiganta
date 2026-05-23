@@ -221,6 +221,30 @@ article .card{padding:8px;}
 .bbc-right {
   display: flex; align-items: center; gap: 8px; justify-content: flex-end;
 }
+.bbc-date-wrap {
+  display: inline-block;
+  margin-left: 14px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 2px 0;
+}
+.bbc-date-slot {
+  display: inline-block;
+  color: #1a1a2e;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.bbc-date-slot--in  { animation: dateIn  0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.bbc-date-slot--out { animation: dateOut 0.4s  cubic-bezier(0.55, 0, 1, 0.45) both; }
+@keyframes dateIn {
+  from { opacity: 0; filter: blur(8px); transform: scale(1.06); letter-spacing: 0.12em; }
+  to   { opacity: 1; filter: blur(0);   transform: scale(1);    letter-spacing: 0.02em; }
+}
+@keyframes dateOut {
+  from { opacity: 1; filter: blur(0);   transform: scale(1);    letter-spacing: 0.02em; }
+  to   { opacity: 0; filter: blur(8px); transform: scale(0.94); letter-spacing: 0.08em; }
+}
 .bbc-edition {
   display: flex; border: 1.5px solid #ddd; border-radius: 5px; overflow: hidden;
 }
@@ -232,6 +256,19 @@ article .card{padding:8px;}
 }
 .bbc-ed.on { background: var(--red); color: #fff; cursor: default; pointer-events: none; }
 .bbc-ed:not(.on):hover { background: #f5f5f5; color: var(--red); }
+
+.bbc-hdr-socials { display: flex; align-items: center; gap: 8px; }
+.bbc-hdr-soc {
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; border-radius: 50%;
+  transition: opacity .15s, transform .15s;
+}
+.bbc-hdr-soc:hover { opacity: .82; transform: scale(1.1); }
+.bbc-hdr-soc[aria-label="Facebook"]  { background: #1877f2; }
+.bbc-hdr-soc[aria-label="X"]         { background: #000; }
+.bbc-hdr-soc[aria-label="YouTube"]   { background: #ff0000; }
+.bbc-hdr-soc[aria-label="Instagram"] { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
 
 .bbc-register {
   padding: 8px 16px;
@@ -286,6 +323,7 @@ article .card{padding:8px;}
   .bbc-register { padding: 6px 10px; font-size: 12px; }
   .bbc-signin { font-size: 12px; padding: 6px 6px; }
   .bbc-edition { display: none; }
+  .bbc-date-wrap { display: none; }
   #header.header-scrolled .bbc-bar { padding: 4px 10px; }
   #header.header-scrolled .bbc-block { width: 34px; height: 34px; font-size: 20px; }
 }
@@ -1853,7 +1891,7 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    AD SLOTS
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-.promo-banner { text-transform: uppercase; letter-spacing: 2px; }
+.ad-slot-wrap { position: relative; }
 
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -2021,9 +2059,11 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 .p-top-wrap{max-width:1400px;margin:0 auto;padding:0 10px;margin-bottom: 25px;}
 
 /* ── NEW HERO 3-COL (top.html reference) ── */
-.hp-hero3{display:grid;grid-template-columns:1fr 300px 265px;gap:12px;margin-bottom:0;align-items:start;}
+.hp-hero3{display:grid;grid-template-columns:1fr 300px 300px;gap:12px;margin-bottom:0;align-items:start;}
 .hp-h3-left{min-width:0;display:flex;flex-direction:column;border:1px solid #e2e2e2;background:#fff;border-radius:5px;}
 .hp-h3-mid{min-width:0;display:flex;flex-direction:column;border:1px solid #e2e2e2;background:#fff;border-radius:5px;padding:8px;}
+.hp-h3-right-col{display:flex;flex-direction:column;gap:8px;min-width:0;width:300px;}
+.hp-h3-right-col .ad-slot-wrap{width:300px;flex-shrink:0;}
 .hp-h3-right{min-width:0;display:flex;flex-direction:column;border:1px solid #e2e2e2;background:#fff;border-radius:5px;padding:8px;}
 .hp-social-follow{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;}
 .hp-social-hd{font-family:'SolaimanLipi',sans-serif;font-size:14px;font-weight:800;color:#333;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;}
@@ -2091,7 +2131,7 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 .hp-h3-arr-left{left:4px;}
 
 /* Responsive */
-@media(max-width:1100px){.hp-hero3{grid-template-columns:1fr 260px 240px;}}
+@media(max-width:1100px){.hp-hero3{grid-template-columns:1fr 260px 300px;}}
 @media(max-width:860px){
   .hp-hero3{grid-template-columns:1fr;gap:8px;}
   .hp-h3-grid-row{grid-template-columns:1fr 1fr;}

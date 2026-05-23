@@ -99,12 +99,6 @@ export default function TopBar() {
           <span className="tb-clock">{lang === 'bn' ? toBn(clock) : clock}</span>
           <span className="tb-sep" />
           <span className="tb-date">{gregDate}</span>
-          {prayer?.date?.hijri && (
-            <>
-              <span className="tb-sep tb-sep-md" />
-              <span className="tb-hijri">{prayer.date.hijri}</span>
-            </>
-          )}
           {next && (
             <>
               <span className="tb-sep tb-sep-lg" />
