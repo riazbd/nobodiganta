@@ -134,7 +134,10 @@ class LocationController extends Controller
 
         $articles = Article::published()
             ->forEdition($edition)
-            ->whereHas('categories', fn($q) => $q->where('slug', 'saradesh'))
+            ->where(function ($q) {
+                $q->whereHas('categories', fn($q2) => $q2->where('slug', 'saradesh'))
+                  ->orWhereNotNull('division');
+            })
             ->withRelations()
             ->latest('published_at')
             ->paginate(20)
@@ -159,7 +162,10 @@ class LocationController extends Controller
 
         $articles = Article::published()
             ->forEdition($edition)
-            ->whereHas('categories', fn($q) => $q->where('slug', 'division-' . $division))
+            ->where(function ($q) use ($division) {
+                $q->whereHas('categories', fn($q2) => $q2->where('slug', 'division-' . $division))
+                  ->orWhere('division', $division);
+            })
             ->withRelations()
             ->latest('published_at')
             ->paginate(20)
@@ -185,7 +191,10 @@ class LocationController extends Controller
 
         $articles = Article::published()
             ->forEdition($edition)
-            ->whereHas('categories', fn($q) => $q->where('slug', 'district-' . $district))
+            ->where(function ($q) use ($district) {
+                $q->whereHas('categories', fn($q2) => $q2->where('slug', 'district-' . $district))
+                  ->orWhere('district', $district);
+            })
             ->withRelations()
             ->latest('published_at')
             ->paginate(20)
@@ -212,7 +221,10 @@ class LocationController extends Controller
 
         $articles = Article::published()
             ->forEdition($edition)
-            ->whereHas('categories', fn($q) => $q->where('slug', 'upazila-' . $upazila))
+            ->where(function ($q) use ($upazila) {
+                $q->whereHas('categories', fn($q2) => $q2->where('slug', 'upazila-' . $upazila))
+                  ->orWhere('upazila', $upazila);
+            })
             ->withRelations()
             ->latest('published_at')
             ->paginate(20)
