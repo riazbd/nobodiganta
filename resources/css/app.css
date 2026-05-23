@@ -222,28 +222,38 @@ article .card{padding:8px;}
   display: flex; align-items: center; gap: 8px; justify-content: flex-end;
 }
 .bbc-date-wrap {
+  position: relative;
   display: inline-block;
+  overflow: hidden;
+  height: 1.5em;
   margin-left: 14px;
   font-size: 17px;
   font-weight: 700;
-  line-height: 1.5;
-  padding: 2px 0;
+  line-height: 1.5em;
+  vertical-align: middle;
 }
 .bbc-date-slot {
-  display: inline-block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
   color: #1a1a2e;
   letter-spacing: 0.02em;
-  white-space: nowrap;
+  line-height: 1.5em;
 }
-.bbc-date-slot--in  { animation: dateIn  0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.bbc-date-slot--out { animation: dateOut 0.4s  cubic-bezier(0.55, 0, 1, 0.45) both; }
-@keyframes dateIn {
-  from { opacity: 0; filter: blur(8px); transform: scale(1.06); letter-spacing: 0.12em; }
-  to   { opacity: 1; filter: blur(0);   transform: scale(1);    letter-spacing: 0.02em; }
+.bbc-date-enter {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
 }
-@keyframes dateOut {
-  from { opacity: 1; filter: blur(0);   transform: scale(1);    letter-spacing: 0.02em; }
-  to   { opacity: 0; filter: blur(8px); transform: scale(0.94); letter-spacing: 0.08em; }
+.bbc-date-exit {
+  animation: slideUpOut 0.32s cubic-bezier(0.4, 0, 1, 1) both;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes slideUpOut {
+  from { transform: translateY(0);     opacity: 1; }
+  to   { transform: translateY(-100%); opacity: 0; }
 }
 .bbc-edition {
   display: flex; border: 1.5px solid #ddd; border-radius: 5px; overflow: hidden;
@@ -257,6 +267,27 @@ article .card{padding:8px;}
 .bbc-ed.on { background: var(--red); color: #fff; cursor: default; pointer-events: none; }
 .bbc-ed:not(.on):hover { background: #f5f5f5; color: var(--red); }
 
+.bbc-social-slider {
+  position: relative;
+  overflow: hidden;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  min-width: 120px;
+  margin-right: 8px;
+}
+.bbc-soc-slot {
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bbc-soc-enter { animation: slideUp    0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both; }
+.bbc-soc-exit  { animation: slideUpOut 0.32s cubic-bezier(0.4, 0, 1, 1)   both; }
+.bbc-soc-icons { display: flex; align-items: center; gap: 4px; }
+.bbc-soc-label { font-size: 17px; font-weight: 700; color: #111; white-space: nowrap; letter-spacing: 0.02em; }
 .bbc-hdr-socials { display: flex; align-items: center; gap: 8px; }
 .bbc-hdr-soc {
   width: 30px; height: 30px;

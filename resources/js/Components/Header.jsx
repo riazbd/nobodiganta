@@ -32,30 +32,100 @@ const YtIcon  = () => <svg viewBox="0 0 24 24" width="15" height="15" fill="curr
 const IgIcon  = () => <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>;
 
 
-function RotatingDates({ items, font }) {
-  const [idx, setIdx]     = useState(0);
-  const [phase, setPhase] = useState('in');
+function SocialSlider({ settings, lang }) {
+  const [showIcons, setShowIcons] = useState(false);
+  const [prevShow,  setPrevShow]  = useState(null);
 
   useEffect(() => {
     const id = setInterval(() => {
-      setPhase('out');
-      setTimeout(() => {
-        setIdx(i => (i + 1) % items.length);
-        setPhase('in');
-      }, 420);
-    }, 3600);
+      setShowIcons(v => {
+        setPrevShow(v);
+        return !v;
+      });
+    }, 5500);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (prevShow === null) return;
+    const t = setTimeout(() => setPrevShow(null), 350);
+    return () => clearTimeout(t);
+  }, [prevShow]);
+
+  const socials = [
+    { url: settings.facebook_url,  Icon: FbIcon,  label: 'Facebook' },
+    { url: settings.twitter_url,   Icon: XIcon,   label: 'X' },
+    { url: settings.youtube_url,   Icon: YtIcon,  label: 'YouTube' },
+    { url: settings.instagram_url, Icon: IgIcon,  label: 'Instagram' },
+  ].filter(s => s.url);
+
+  const renderSlide = (isIcons) => isIcons ? (
+    <div className="bbc-soc-icons">
+      {socials.map(({ url, Icon, label }) => (
+        <a key={label} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="bbc-hdr-soc">
+          <Icon />
+        </a>
+      ))}
+    </div>
+  ) : (
+    <span className="bbc-soc-label">{lang === 'bn' ? 'ফলো করুন' : 'Follow us'}</span>
+  );
+
+  return (
+    <div className="bbc-social-slider">
+      {prevShow !== null && (
+        <div key={`out-${prevShow}`} className="bbc-soc-slot bbc-soc-exit">
+          {renderSlide(prevShow)}
+        </div>
+      )}
+      <div key={`in-${showIcons}`} className="bbc-soc-slot bbc-soc-enter">
+        {renderSlide(showIcons)}
+      </div>
+    </div>
+  );
+}
+
+function RotatingDates({ items, font }) {
+  const [idx, setIdx]         = useState(0);
+  const [prevIdx, setPrevIdx] = useState(null);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setIdx(i => {
+        const next = (i + 1) % items.length;
+        setPrevIdx(i);
+        return next;
+      });
+    }, 5500);
     return () => clearInterval(id);
   }, [items.length]);
 
+  useEffect(() => {
+    if (prevIdx === null) return;
+    const t = setTimeout(() => setPrevIdx(null), 600);
+    return () => clearTimeout(t);
+  }, [prevIdx]);
+
+  const enterRef = useRef(null);
+  const wrapRef  = useRef(null);
+
+  useEffect(() => {
+    if (enterRef.current && wrapRef.current) {
+      wrapRef.current.style.width = enterRef.current.scrollWidth + 'px';
+    }
+  }, [idx]);
+
   return (
-    <span className="bbc-date-wrap" style={{ fontFamily: font }}>
-      <span
-        key={idx}
-        className={`bbc-date-slot bbc-date-slot--${phase}`}
-      >
+    <div ref={wrapRef} className="bbc-date-wrap" style={{ fontFamily: font }}>
+      {prevIdx !== null && (
+        <span key={`out-${prevIdx}`} className="bbc-date-slot bbc-date-exit">
+          {items[prevIdx]}
+        </span>
+      )}
+      <span key={`in-${idx}`} ref={enterRef} className="bbc-date-slot bbc-date-enter">
         {items[idx]}
       </span>
-    </span>
+    </div>
   );
 }
 
@@ -190,18 +260,7 @@ export default function Header() {
 
         {/* Right: socials + edition */}
         <div className="bbc-right">
-          <div className="bbc-hdr-socials">
-            {[
-              { url: settings.facebook_url,  Icon: FbIcon,  label: 'Facebook' },
-              { url: settings.twitter_url,   Icon: XIcon,   label: 'X' },
-              { url: settings.youtube_url,   Icon: YtIcon,  label: 'YouTube' },
-              { url: settings.instagram_url, Icon: IgIcon,  label: 'Instagram' },
-            ].filter(s => s.url).map(({ url, Icon, label }) => (
-              <a key={label} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="bbc-hdr-soc">
-                <Icon />
-              </a>
-            ))}
-          </div>
+          <SocialSlider settings={settings} lang={lang} />
 
           {/* Edition toggle — compact */}
           <div className="bbc-edition">
