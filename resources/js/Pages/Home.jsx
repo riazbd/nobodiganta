@@ -175,9 +175,10 @@ function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings }) {
       {/* ── RIGHT: Ad above, Trending below ── */}
       <div className="hp-h3-right-col">
         <AdSlot size="mrec" position="hero_sidebar_top" />
-        <div className="hp-h3-right">
+        {/* <div className="hp-h3-right">
           <TrendingWidget />
-        </div>
+        </div> */}
+        <TrendingWidget />
       </div>
     </div>
   );

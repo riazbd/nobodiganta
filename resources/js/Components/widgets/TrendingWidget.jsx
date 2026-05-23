@@ -13,7 +13,7 @@ export default function TrendingWidget() {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([getLatestArticles(7, lang), getMostReadArticles(7, lang)]).then(([lRes, pRes]) => {
+    Promise.all([getLatestArticles(5, lang), getMostReadArticles(5, lang)]).then(([lRes, pRes]) => {
       setLatest(lRes.data || []);
       setPopular(pRes.data || []);
       setLoading(false);
