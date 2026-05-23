@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Head } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import { ROUTES } from '../lib/routes';
 import { t } from '../translations';
 import Icon from '../Components/Icon';
 import PageSidebar from '../Components/PageSidebar';
@@ -236,25 +238,43 @@ export default function Article({
                 fontWeight: 600,
               };
 
+              // Resolve the correct URL for a category in a chain.
+              // Saradesh and its children have dedicated /saradesh/... routes.
+              const resolveCatUrl = (chain, index) => {
+                if (chain[0]?.slug === 'saradesh') {
+                  const divSlug  = chain[1]?.slug?.replace('division-', '');
+                  const distSlug = chain[2]?.slug?.replace('district-', '');
+                  const uzSlug   = chain[3]?.slug?.replace('upazila-', '');
+                  if (index === 0) return ROUTES.location(edition);
+                  if (index === 1 && divSlug)  return ROUTES.locationDiv(divSlug, edition);
+                  if (index === 2 && distSlug) return ROUTES.locationDist(divSlug, distSlug, edition);
+                  if (index === 3 && uzSlug)   return ROUTES.locationUpazila(divSlug, distSlug, uzSlug, edition);
+                }
+                return ROUTES.category(chain[index].slug, edition);
+              };
+
               return chains.map((chain, chainIdx) => (
                 <span key={chainIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                   {chainIdx > 0 && (
                     <span style={{ display: 'inline-flex', alignItems: 'center', margin: '0 6px', color: '#ddd', fontSize: 13, lineHeight: 1, userSelect: 'none' }}>|</span>
                   )}
-                  {chain.map((c, i) => (
-                    <span key={c.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                      {i > 0 && <ChevronRight />}
-                      <span
-                        style={i === chain.length - 1 ? catStyle : ancestorStyle}
-                        onClick={() => onNavigate('cat', c.slug)}
-                        role="link"
-                        tabIndex={0}
-                        onKeyDown={e => e.key === 'Enter' && onNavigate('cat', c.slug)}
-                      >
-                        {c.name}
+                  {chain.map((c, i) => {
+                    const url = resolveCatUrl(chain, i);
+                    return (
+                      <span key={c.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                        {i > 0 && <ChevronRight />}
+                        <span
+                          style={i === chain.length - 1 ? catStyle : ancestorStyle}
+                          onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); router.visit(url); }}
+                          role="link"
+                          tabIndex={0}
+                          onKeyDown={e => e.key === 'Enter' && router.visit(url)}
+                        >
+                          {c.name}
+                        </span>
                       </span>
-                    </span>
-                  ))}
+                    );
+                  })}
                 </span>
               ));
             })()}
