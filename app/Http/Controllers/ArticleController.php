@@ -116,7 +116,10 @@ class ArticleController extends Controller
                     'slug'       => $article->category->slug,
                     'color_code' => $article->category->color_code,
                 ] : null,
-                'author'         => $article->author?->name,
+                'author'         => $article->is_guest_author
+                    ? ($article->guest_author_name_bn ?: $article->guest_author_name_en)
+                    : $article->author?->name,
+                'is_guest'       => (bool) $article->is_guest_author,
                 'author_id'      => $article->author_id,
                 'views'          => $article->views,
                 'featured_image' => $article->featured_image,

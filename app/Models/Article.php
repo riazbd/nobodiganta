@@ -292,6 +292,22 @@ class Article extends Model
      */
     public function getAuthorData(string $edition = 'bn'): array
     {
+        if ($this->is_guest_author) {
+            $name = $edition === 'en'
+                ? ($this->guest_author_name_en ?: $this->guest_author_name_bn)
+                : ($this->guest_author_name_bn ?: $this->guest_author_name_en);
+
+            return [
+                'id'          => 0,
+                'name'        => $name ?: ($edition === 'en' ? 'Guest Author' : 'অতিথি লেখক'),
+                'slug'        => null,
+                'designation' => null,
+                'bio'         => $edition === 'en' ? ($this->guest_author_bio_en ?: $this->guest_author_bio_bn) : ($this->guest_author_bio_bn ?: $this->guest_author_bio_en),
+                'image'       => $this->guest_author_image ?: null,
+                'is_guest'    => true,
+            ];
+        }
+
         if (!$this->author) {
             return [
                 'id' => 0,

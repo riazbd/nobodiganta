@@ -9,9 +9,9 @@ export default function AuthorBio({ article }) {
   if (!article || !article.author) return null;
 
   const author = article.author;
-  // If author is an object (new structure)
   const isObject = typeof author === 'object' && author !== null;
-  
+
+  const isGuest = isObject ? author.is_guest : false;
   const name = isObject ? author.name : author;
   const designation = isObject ? author.designation : article.authorDesg;
   const bio = isObject ? author.bio : null;
@@ -35,12 +35,14 @@ export default function AuthorBio({ article }) {
         {bio && (
           <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6, marginBottom: 12 }}>{bio}</p>
         )}
-        <button
-          onClick={() => onNavigate('author', slug)}
-          style={{ fontSize: 13, color: '#0055a5', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
-        >
-          {lang === 'bn' ? 'সব লেখা দেখুন →' : 'View all articles →'}
-        </button>
+        {!isGuest && slug && (
+          <button
+            onClick={() => onNavigate('author', slug)}
+            style={{ fontSize: 13, color: '#0055a5', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+          >
+            {lang === 'bn' ? 'সব লেখা দেখুন →' : 'View all articles →'}
+          </button>
+        )}
       </div>
     </div>
   );

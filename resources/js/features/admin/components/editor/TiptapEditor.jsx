@@ -77,7 +77,7 @@ export default function TiptapEditor({ value, onChange, placeholder, lang = 'bn'
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none min-h-[400px] max-w-none p-5 font-["SolaimanLipi","Noto_Sans_Bengali","Inter",sans-serif]',
+        class: 'tiptap-editor-content focus:outline-none min-h-[400px] max-w-none p-5',
       },
     },
   });
@@ -252,30 +252,52 @@ export default function TiptapEditor({ value, onChange, placeholder, lang = 'bn'
       />
 
       <style dangerouslySetInnerHTML={{ __html: `
+        .tiptap-editor-content {
+          font-family: 'Noto Sans Bengali', 'SolaimanLipi', 'Inter', sans-serif;
+          font-size: 15px !important;
+          font-weight: 400 !important;
+          line-height: 1.7;
+          color: #1a1a1a;
+        }
+        .tiptap-editor-content p {
+          font-size: 15px !important;
+          font-weight: 400 !important;
+          margin: 0 0 0.75rem 0;
+        }
+        .tiptap-editor-content h1 { font-size: 22px !important; font-weight: 700 !important; margin: 1rem 0 0.5rem; }
+        .tiptap-editor-content h2 { font-size: 19px !important; font-weight: 700 !important; margin: 1rem 0 0.5rem; }
+        .tiptap-editor-content h3 { font-size: 17px !important; font-weight: 600 !important; margin: 0.75rem 0 0.4rem; }
+        .tiptap-editor-content ul, .tiptap-editor-content ol { padding-left: 1.5rem; margin: 0.5rem 0; }
+        .tiptap-editor-content li { font-size: 15px !important; font-weight: 400 !important; margin: 0.25rem 0; }
+        .tiptap-editor-content blockquote {
+          border-left: 4px solid #263238;
+          background: #fffafa;
+          padding: 1rem 1.5rem;
+          font-style: italic;
+          font-size: 15px !important;
+          font-weight: 400 !important;
+          border-radius: 0 0.75rem 0.75rem 0;
+          margin: 1.25rem 0;
+        }
+        .tiptap-editor-content img {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          max-width: 100%;
+        }
+        .tiptap-editor-content a {
+          color: #263238;
+          text-decoration: underline;
+          font-weight: 400 !important;
+        }
         .tiptap p.is-editor-empty:first-child::before {
           content: attr(data-placeholder);
           float: left;
           color: #9ca3af;
+          font-size: 15px;
+          font-weight: 400;
           pointer-events: none;
           height: 0;
-        }
-        .prose blockquote {
-          border-left: 4px solid #263238;
-          background: #fffafa;
-          padding: 1.5rem;
-          font-style: italic;
-          font-family: 'SolaimanLipi', serif;
-          border-radius: 0 0.75rem 0.75rem 0;
-          margin: 2rem 0;
-        }
-        .prose img {
-          display: block;
-          margin-left: auto;
-          margin-right: auto;
-        }
-        .prose a {
-          color: #263238;
-          text-decoration: underline;
         }
       `}} />
     </div>

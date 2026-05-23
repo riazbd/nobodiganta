@@ -758,7 +758,7 @@ export default function WriteNews() {
                       form.setData('titleBn', e.target.value);
                     }}
                     placeholder={lang === 'bn' ? 'সংবাদের শিরোনাম লিখুন...' : 'Enter Bengali title...'}
-                    className="w-full text-3xl md:text-4xl font-bold font-['Noto_Sans_Bengali'] text-gray-900 border-none outline-none resize-none placeholder-gray-300 leading-tight focus:ring-0 px-0"
+                    className="w-full text-lg font-semibold font-['Noto_Sans_Bengali'] text-gray-900 border-none outline-none resize-none placeholder-gray-300 leading-snug focus:ring-0 px-0"
                     rows={1}
                   />
                   <CharCounter current={(form.data.titleBn || '').length} max={100} />
@@ -770,7 +770,7 @@ export default function WriteNews() {
                     value={form.data.subtitleBn}
                     onChange={(e) => form.setData('subtitleBn', e.target.value)}
                     placeholder={lang === 'bn' ? 'সাবটাইটেল (ঐচ্ছিক)' : 'Subtitle (Optional)'}
-                    className="w-full text-lg md:text-xl font-medium font-['Noto_Sans_Bengali'] text-gray-500 border-none outline-none placeholder-gray-300 focus:ring-0 px-0"
+                    className="w-full text-sm font-normal font-['Noto_Sans_Bengali'] text-gray-500 border-none outline-none placeholder-gray-300 focus:ring-0 px-0"
                   />
                 </div>
 
@@ -803,7 +803,7 @@ export default function WriteNews() {
                       form.setData('titleEn', e.target.value);
                     }}
                     placeholder="Enter English title..."
-                    className="w-full text-3xl md:text-4xl font-bold text-gray-900 border-none outline-none resize-none placeholder-gray-300 leading-tight focus:ring-0 px-0"
+                    className="w-full text-lg font-semibold text-gray-900 border-none outline-none resize-none placeholder-gray-300 leading-snug focus:ring-0 px-0"
                     rows={1}
                   />
                   <CharCounter current={(form.data.titleEn || '').length} max={100} />
@@ -815,7 +815,7 @@ export default function WriteNews() {
                     value={form.data.subtitleEn}
                     onChange={(e) => form.setData('subtitleEn', e.target.value)}
                     placeholder="Subtitle (Optional)"
-                    className="w-full text-lg md:text-xl font-medium text-gray-500 border-none outline-none placeholder-gray-300 focus:ring-0 px-0"
+                    className="w-full text-sm font-normal text-gray-500 border-none outline-none placeholder-gray-300 focus:ring-0 px-0"
                   />
                 </div>
 

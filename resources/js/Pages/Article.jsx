@@ -178,25 +178,87 @@ export default function Article({
 
       <div className="article-layout">
         <article className="article-main" ref={articleRef}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
-            {[article.category, ...(article.categories || []).filter(c => !c.is_primary && c.id !== article.category?.id)]
-              .filter(Boolean)
-              .map((c, i) => (
-                <span key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {i > 0 && <span style={{ color: '#bbb', fontSize: 12 }}>»</span>}
-                  <span
-                    className="art-category"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => onNavigate('cat', c.slug)}
-                    role="link"
-                    tabIndex={0}
-                  >
-                    {c.name}
-                  </span>
+          <nav aria-label="category breadcrumb" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0, marginBottom: 10, lineHeight: 1 }}>
+            {(() => {
+              const allCats = article.categories || [];
+
+              const buildChains = () => {
+                if (allCats.length === 0) {
+                  return article.category ? [[article.category]] : [];
+                }
+                const catMap = {};
+                allCats.forEach(c => { catMap[c.id] = c; });
+
+                const parentIds = new Set(allCats.map(c => c.parent_id).filter(Boolean));
+                const leaves = allCats.filter(c => !parentIds.has(c.id));
+                const primaryLeaf = leaves.find(c => c.is_primary) || leaves[0];
+                const orderedLeaves = primaryLeaf
+                  ? [primaryLeaf, ...leaves.filter(c => c.id !== primaryLeaf.id)]
+                  : leaves;
+
+                return orderedLeaves.map(leaf => {
+                  const chain = [];
+                  let cur = leaf;
+                  const seen = new Set();
+                  while (cur && !seen.has(cur.id)) {
+                    chain.unshift(cur);
+                    seen.add(cur.id);
+                    cur = cur.parent_id ? catMap[cur.parent_id] : null;
+                  }
+                  return chain;
+                });
+              };
+
+              const chains = buildChains();
+
+              const ChevronRight = () => (
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"
+                  style={{ flexShrink: 0, display: 'block' }}>
+                  <path d="M4 2.5L7.5 6L4 9.5" stroke="#ccc" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              );
+
+              const catStyle = {
+                color: 'var(--red)',
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: '0.02em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                display: 'inline',
+                lineHeight: 1,
+                whiteSpace: 'nowrap',
+              };
+
+              const ancestorStyle = {
+                ...catStyle,
+                color: '#888',
+                fontWeight: 600,
+              };
+
+              return chains.map((chain, chainIdx) => (
+                <span key={chainIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                  {chainIdx > 0 && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', margin: '0 6px', color: '#ddd', fontSize: 16, lineHeight: 1, userSelect: 'none' }}>·</span>
+                  )}
+                  {chain.map((c, i) => (
+                    <span key={c.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                      {i > 0 && <ChevronRight />}
+                      <span
+                        style={i === chain.length - 1 ? catStyle : ancestorStyle}
+                        onClick={() => onNavigate('cat', c.slug)}
+                        role="link"
+                        tabIndex={0}
+                        onKeyDown={e => e.key === 'Enter' && onNavigate('cat', c.slug)}
+                      >
+                        {c.name}
+                      </span>
+                    </span>
+                  ))}
                 </span>
-              ))
-            }
-          </div>
+              ));
+            })()}
+          </nav>
           <h1 className="art-h1">{article.title}</h1>
           <div className="art-sub">{article.subtitle}</div>
           <div className="art-meta">

@@ -56,11 +56,11 @@ html {
 html{scroll-behavior:smooth;}
 
 /* Bengali edition (default) */
-body{font-family:'SolaimanLipi',sans-serif;background:#fff;color:var(--black);font-size:24.7px;line-height:1.9;font-weight:600;}
+body{font-family:'SolaimanLipi',sans-serif;background:#fff;color:var(--black);line-height:1.9;}
 h1,h2,h3,h4,h5,h6{font-family:'SolaimanLipi',sans-serif;font-weight:900;color:#0d0d0d;letter-spacing:-0.01em;}
 
 /* Bengali weight boost — Kalpurush needs heavier stroke for screen clarity */
-html[lang="bn"] body{font-weight:600;}
+/* html[lang="bn"] body{font-weight:600;} */
 html[lang="bn"] p,html[lang="bn"] li,html[lang="bn"] span,html[lang="bn"] div{font-weight:inherit;}
 html[lang="bn"] .p-latest-h,html[lang="bn"] .p-hero-h,html[lang="bn"] .p-mini3-h,
 html[lang="bn"] .p-center-row-h,html[lang="bn"] .p-right-h,html[lang="bn"] .p-feat-h,

@@ -73,11 +73,18 @@ export default function RichTextEditor({ value, onChange, placeholder, lang = 'b
         .ql-container {
           font-family: 'Noto Sans Bengali', 'Inter', sans-serif !important;
           font-size: 15px !important;
+          font-weight: 400 !important;
           min-height: 300px;
         }
         .ql-editor {
           min-height: 300px;
           line-height: 1.7;
+          font-size: 15px !important;
+          font-weight: 400 !important;
+        }
+        .ql-editor h1, .ql-editor h2, .ql-editor h3,
+        .ql-editor h4, .ql-editor h5, .ql-editor h6 {
+          font-weight: 700;
         }
         .ql-toolbar.ql-snow {
           border-top-left-radius: 8px;
