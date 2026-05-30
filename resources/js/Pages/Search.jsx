@@ -8,6 +8,7 @@ import EmptyState from '../Components/ui/EmptyState';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useSearch } from '../contexts/SearchContext';
+import ArticleThumb from '../Components/ui/ArticleThumb';
 import { validateSearchQuery } from '../lib/validators';
 import { toBengaliNum } from '../lib/formatters';
 import MetaTags from '../Components/seo/MetaTags';
@@ -82,9 +83,7 @@ export default function Search({ query: initialQuery, articles }) {
                 role="button"
                 tabIndex={0}
               >
-                {item.featured_image
-                  ? <img src={item.featured_image} style={{ width: 120, height: 82, objectFit: 'cover', flexShrink: 0 }} loading="lazy" alt={item.title} />
-                  : <div className="ph" style={{ width: 120, height: 82, flexShrink: 0 }}>📰</div>}
+                <ArticleThumb src={item.featured_image} alt={item.title} isVideo={item.article_type === 'video'} width={120} height={82} />
                 <div>
                   <h3>{item.title}</h3>
                   <p>{item.excerpt}</p>

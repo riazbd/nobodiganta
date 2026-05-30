@@ -13,6 +13,7 @@ import TrendingWidget from '../Components/widgets/TrendingWidget';
 import ThreeColumnSection from '../features/home/ThreeColumnSection';
 import MetaTags from '../Components/seo/MetaTags';
 import { OrganizationJsonLd, WebSiteJsonLd } from '../Components/seo/JsonLd';
+import ArticleThumb from '../Components/ui/ArticleThumb';
 import { buildDefaultSeo } from '../lib/seo';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -108,9 +109,7 @@ function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings }) {
         {feat && (
           <div className="hp-h3-feat" onClick={() => go(feat, nav)} role="button" tabIndex={0} aria-label={t(feat)} style={{ marginBottom: 0 }}>
             <div className="hp-h3-feat-img">
-              {feat.featured_image
-                ? <img src={feat.featured_image} alt={t(feat)} loading="eager" />
-                : <div className="ph" style={{ width: '100%', height: '100%' }} />}
+              <ArticleThumb src={feat.featured_image} alt={t(feat)} isVideo={feat.article_type === 'video'} style={{ width: '100%', height: '100%' }} />
             </div>
             <div className="hp-h3-feat-body">
               {/* <CatTag cat={feat.category} /> */}
@@ -128,9 +127,7 @@ function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings }) {
                 {row.map(a => (
                   <div key={a.id} className="hp-h3-card" onClick={() => go(a, nav)} role="button" tabIndex={0}>
                     <div className="hp-h3-card-img">
-                      {a.featured_image
-                        ? <img src={a.featured_image} alt={t(a)} loading="lazy" />
-                        : <div className="ph" style={{ width: '100%', height: '100%' }} />}
+                      <ArticleThumb src={a.featured_image} alt={t(a)} isVideo={a.article_type === 'video'} style={{ width: '100%', height: '100%' }} />
                     </div>
                     <h3 className="hp-h3-card-h">
                       {t(a)}
@@ -148,9 +145,7 @@ function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings }) {
         {midMain && (
           <div className="hp-h3-main" onClick={() => go(midMain, nav)} role="button" tabIndex={0}>
             <div className="hp-h3-main-img">
-              {midMain.featured_image
-                ? <img src={midMain.featured_image} alt={t(midMain)} loading="lazy" />
-                : <div className="ph" style={{ width: '100%', height: '100%' }} />}
+              <ArticleThumb src={midMain.featured_image} alt={t(midMain)} isVideo={midMain.article_type === 'video'} style={{ width: '100%', height: '100%' }} />
             </div>
             <div className="hp-h3-main-body">
               {/* <CatTag cat={midMain.category} /> */}
@@ -163,7 +158,7 @@ function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings }) {
             <div key={a.id} className="hp-h3-row" onClick={() => go(a, nav)} role="button" tabIndex={0}>
               {a.featured_image && (
                 <div className="hp-h3-row-thumb">
-                  <img src={a.featured_image} alt={t(a)} loading="lazy" />
+                  <ArticleThumb src={a.featured_image} alt={t(a)} isVideo={a.article_type === 'video'} style={{ width: '100%', height: '100%' }} />
                 </div>
               )}
               <h4 className="hp-h3-row-h">{t(a)}</h4>

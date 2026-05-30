@@ -6,6 +6,7 @@ import { t } from '../translations';
 import Icon from '../Components/Icon';
 import PageSidebar from '../Components/PageSidebar';
 import AdSlot from '../Components/ui/AdSlot';
+import ArticleThumb from '../Components/ui/ArticleThumb';
 import ArticleShare from '../Components/article/ArticleShare';
 import MetaTags from '../Components/seo/MetaTags';
 import { NewsArticleJsonLd } from '../Components/seo/JsonLd';
@@ -21,7 +22,80 @@ import { useReadingProgress } from '../hooks/useReadingProgress';
 import { calculateReadingTime } from '../lib/readingTime';
 import { relativeTime, toBengaliNum } from '../lib/formatters';
 
-export default function Article({ 
+function ArticleBodyWithAd({ html, ad, position = 4 }) {
+  if (!html) return null;
+
+  if (!ad) {
+    return <div className="art-body" dangerouslySetInnerHTML={{ __html: html }} />;
+  }
+
+  // Prefer an explicit <div data-ad-slot> marker placed via the editor
+  const splitOnMarker = (rawHtml) => {
+    const re = /<div[^>]*data-ad-slot[^>]*>.*?<\/div>/i;
+    const m = re.exec(rawHtml);
+    if (!m) return null;
+    return [rawHtml.slice(0, m.index), rawHtml.slice(m.index + m[0].length)];
+  };
+
+  // Fallback: split after the Nth </p>
+  const splitHtmlAtParagraph = (rawHtml, n) => {
+    let count = 0;
+    let splitIdx = -1;
+    const re = /<\/p>/gi;
+    let match;
+    while ((match = re.exec(rawHtml)) !== null) {
+      count++;
+      if (count === n) {
+        splitIdx = match.index + match[0].length;
+        break;
+      }
+    }
+    if (splitIdx === -1) return [rawHtml, ''];
+    return [rawHtml.slice(0, splitIdx), rawHtml.slice(splitIdx)];
+  };
+
+  const [top, bottom] = splitOnMarker(html) ?? splitHtmlAtParagraph(html, position);
+
+  const renderAd = () => {
+    if (!ad) return null;
+    if (ad.type === 'image') {
+      return (
+        <div className="in-article-ad" style={{ margin: '24px 0', textAlign: 'center' }}>
+          <a href={ad.link || '#'} target="_blank" rel="noopener noreferrer sponsored">
+            <img src={ad.image} alt={ad.title || 'Advertisement'} style={{ maxWidth: '100%', height: 'auto', display: 'inline-block' }} loading="lazy" />
+          </a>
+        </div>
+      );
+    }
+    if (ad.type === 'video') {
+      return (
+        <div className="in-article-ad" style={{ margin: '24px 0' }}>
+          <video src={ad.video_url} controls style={{ width: '100%', maxHeight: 300 }} preload="none" />
+        </div>
+      );
+    }
+    if (ad.type === 'html' || ad.type === 'script' || ad.type === 'adsense') {
+      return (
+        <div
+          className="in-article-ad"
+          style={{ margin: '24px 0', textAlign: 'center' }}
+          dangerouslySetInnerHTML={{ __html: ad.code || '' }}
+        />
+      );
+    }
+    return null;
+  };
+
+  return (
+    <>
+      <div className="art-body" dangerouslySetInnerHTML={{ __html: top }} />
+      {renderAd()}
+      {bottom && <div className="art-body" dangerouslySetInnerHTML={{ __html: bottom }} />}
+    </>
+  );
+}
+
+export default function Article({
   article,
   relatedArticles = [],
   paywall = false,
@@ -46,10 +120,7 @@ export default function Article({
 
   const ni = (item, w, h) => {
     if (!item) return null;
-    if (item.featured_image) {
-      return <img src={item.featured_image} style={{ width: w, height: h, objectFit: 'cover', display: 'block', flexShrink: 0 }} loading="lazy" alt={item.title || ''} />;
-    }
-    return <div className="ph" style={{ width: w, height: h, flexShrink: 0 }}>📰</div>;
+    return <ArticleThumb src={item.featured_image} alt={item.title || ''} isVideo={item.article_type === 'video'} width={w} height={h} />;
   };
 
   const secHdr = (title) => (
@@ -335,7 +406,7 @@ export default function Article({
               )}
             </div>
           )}
-          <div className="art-body" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+          <ArticleBodyWithAd html={bodyHtml} ad={article.in_article_ad} position={article.in_article_ad_position ?? 4} />
 
           <div style={{ margin: '30px 0' }}>
             <AdSlot size="leaderboard" position="article_bottom" />

@@ -33,24 +33,37 @@ const IgIcon  = () => <svg viewBox="0 0 24 24" width="15" height="15" fill="curr
 
 
 function SocialSlider({ settings, lang }) {
-  const [showIcons, setShowIcons] = useState(false);
-  const [prevShow,  setPrevShow]  = useState(null);
+  const labels = lang === 'bn'
+    ? ['ফলো করুন', 'সাবস্ক্রাইব করুন']
+    : ['Follow us', 'Subscribe'];
+
+  const [idx, setIdx]         = useState(0);
+  const [prevIdx, setPrevIdx] = useState(null);
+  const enterRef = useRef(null);
+  const wrapRef  = useRef(null);
 
   useEffect(() => {
     const id = setInterval(() => {
-      setShowIcons(v => {
-        setPrevShow(v);
-        return !v;
+      setIdx(i => {
+        const next = (i + 1) % labels.length;
+        setPrevIdx(i);
+        return next;
       });
-    }, 5500);
+    }, 10000);
     return () => clearInterval(id);
-  }, []);
+  }, [labels.length]);
 
   useEffect(() => {
-    if (prevShow === null) return;
-    const t = setTimeout(() => setPrevShow(null), 350);
+    if (prevIdx === null) return;
+    const t = setTimeout(() => setPrevIdx(null), 400);
     return () => clearTimeout(t);
-  }, [prevShow]);
+  }, [prevIdx]);
+
+  useEffect(() => {
+    if (enterRef.current && wrapRef.current) {
+      wrapRef.current.style.width = enterRef.current.scrollWidth + 'px';
+    }
+  }, [idx]);
 
   const socials = [
     { url: settings.facebook_url,  Icon: FbIcon,  label: 'Facebook' },
@@ -59,27 +72,28 @@ function SocialSlider({ settings, lang }) {
     { url: settings.instagram_url, Icon: IgIcon,  label: 'Instagram' },
   ].filter(s => s.url);
 
-  const renderSlide = (isIcons) => isIcons ? (
-    <div className="bbc-soc-icons">
-      {socials.map(({ url, Icon, label }) => (
-        <a key={label} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="bbc-hdr-soc">
-          <Icon />
-        </a>
-      ))}
-    </div>
-  ) : (
-    <span className="bbc-soc-label">{lang === 'bn' ? 'ফলো করুন' : 'Follow us'}</span>
-  );
-
   return (
     <div className="bbc-social-slider">
-      {prevShow !== null && (
-        <div key={`out-${prevShow}`} className="bbc-soc-slot bbc-soc-exit">
-          {renderSlide(prevShow)}
-        </div>
-      )}
-      <div key={`in-${showIcons}`} className="bbc-soc-slot bbc-soc-enter">
-        {renderSlide(showIcons)}
+      <div ref={wrapRef} className="bbc-soc-label-wrap">
+        {prevIdx !== null && (
+          <span key={`out-${prevIdx}`} className="bbc-soc-label bbc-soc-label-exit">
+            {labels[prevIdx]}
+          </span>
+        )}
+        <span key={`in-${idx}`} ref={enterRef} className="bbc-soc-label bbc-soc-label-enter">
+          {labels[idx]}
+        </span>
+      </div>
+      <svg className="bbc-soc-arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+        <polyline points="5 10 15 10" />
+        <polyline points="11 6 15 10 11 14" />
+      </svg>
+      <div className="bbc-soc-icons">
+        {socials.map(({ url, Icon, label }) => (
+          <a key={label} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="bbc-hdr-soc">
+            <Icon />
+          </a>
+        ))}
       </div>
     </div>
   );

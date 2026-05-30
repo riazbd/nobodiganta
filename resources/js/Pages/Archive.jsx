@@ -5,6 +5,7 @@ import PageSidebar from '../Components/PageSidebar';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { toBengaliNum } from '../lib/formatters';
+import ArticleThumb from '../Components/ui/ArticleThumb';
 
 export default function Archive({ year: initialYear, month: initialMonth, day: initialDay, articles = [] }) {
   const { lang } = useApp();
@@ -138,12 +139,7 @@ export default function Archive({ year: initialYear, month: initialMonth, day: i
                 role="button"
                 tabIndex={0}
               >
-                <img
-                  src={item.featured_image || 'https://picsum.photos/seed/news/100/70'}
-                  style={{ width: 100, height: 70, objectFit: 'cover', flexShrink: 0 }}
-                  loading="lazy"
-                  alt={item.title}
-                />
+                <ArticleThumb src={item.featured_image} alt={item.title} isVideo={item.article_type === 'video'} width={100} height={70} />
                 <div>
                   <h4>{item.title}</h4>
                   <p>{item.excerpt}</p>

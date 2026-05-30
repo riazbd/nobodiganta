@@ -1,6 +1,7 @@
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
 import Icon from '../Icon';
+import ArticleThumb from './ArticleThumb';
 
 /**
  * Unified news card — works with toAPIArray() article shape.
@@ -17,15 +18,10 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
 
   if (!article) return null;
 
-  const imgSrc = article.featured_image;
-  const title  = article.title || '';
+  const imgSrc  = article.featured_image;
+  const title   = article.title || '';
   const excerpt = article.excerpt || '';
-
-  function Img({ h, style = {} }) {
-    return imgSrc
-      ? <img src={imgSrc} alt={title} loading="lazy" style={{ width: '100%', height: h, objectFit: 'cover', display: 'block', ...style }} />
-      : <div className="ph" style={{ height: h }}>📰</div>;
-  }
+  const isVideo = article.article_type === 'video';
 
   if (variant === 'list') {
     return (
@@ -35,7 +31,7 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
         role="button" tabIndex={0}
         onKeyDown={e => e.key === 'Enter' && handleClick()}
       >
-        <Img h={imgH || 70} style={{ width: 100, height: imgH || 70, flexShrink: 0 }} />
+        <ArticleThumb src={imgSrc} alt={title} isVideo={isVideo} width={100} height={imgH || 70} />
         <div>
           <h4>{title}</h4>
           {excerpt && <p>{excerpt}</p>}
@@ -53,7 +49,7 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
         onKeyDown={e => e.key === 'Enter' && handleClick()}
       >
         <div className="sc-img">
-          <Img h={50} style={{ width: 70, height: 50 }} />
+          <ArticleThumb src={imgSrc} alt={title} isVideo={isVideo} width={70} height={50} />
         </div>
         <div className="sc-text">
           <h4>{title}</h4>
@@ -66,8 +62,7 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
     return (
       <div onClick={handleClick} role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleClick()}>
         <div className="vid-thumb">
-          <Img h={imgH || 130} />
-          <div className="play-btn"><Icon name="play" size={16} /></div>
+          <ArticleThumb src={imgSrc} alt={title} isVideo height={imgH || 130} />
         </div>
         <div className="vid-info"><h4>{title}</h4></div>
       </div>
@@ -82,7 +77,7 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
       role="button" tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && handleClick()}
     >
-      <Img h={imgH || 185} />
+      <ArticleThumb src={imgSrc} alt={title} isVideo={isVideo} height={imgH || 185} />
       <div className="cb">
         <h3>{title}</h3>
         {excerpt && <p>{excerpt}</p>}

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Reporter;
+use App\Models\Ad;
 
 class Article extends Model
 {
@@ -34,6 +35,7 @@ class Article extends Model
         'meta_description_bn', 'meta_description_en',
         'division', 'district', 'upazila',
         'published_at', 'scheduled_at',
+        'in_article_ad_id', 'in_article_ad_position',
     ];
 
     protected $casts = [
@@ -48,6 +50,7 @@ class Article extends Model
         'read_time_en' => 'integer',
         'published_at' => 'datetime',
         'scheduled_at' => 'datetime',
+        'in_article_ad_position' => 'integer',
     ];
 
     /**
@@ -56,6 +59,11 @@ class Article extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function inArticleAd(): BelongsTo
+    {
+        return $this->belongsTo(Ad::class, 'in_article_ad_id');
     }
 
     /**
@@ -276,7 +284,7 @@ class Article extends Model
      */
     public function scopeWithRelations($query)
     {
-        return $query->with(['category', 'categories', 'author', 'tags']);
+        return $query->with(['category', 'categories', 'author', 'tags', 'inArticleAd']);
     }
 
     /**
@@ -385,6 +393,18 @@ class Article extends Model
             'meta_title' => $this->getMetaTitle($edition),
             'meta_description' => $this->getMetaDescription($edition),
             'published_at' => $this->published_at?->toIso8601String(),
+            'in_article_ad' => $this->relationLoaded('inArticleAd') && $this->inArticleAd
+                ? [
+                    'id'       => $this->inArticleAd->id,
+                    'type'     => $this->inArticleAd->type,
+                    'image'    => $this->inArticleAd->image,
+                    'video_url'=> $this->inArticleAd->video_url,
+                    'link'     => $this->inArticleAd->link,
+                    'code'     => $this->inArticleAd->code,
+                    'title'    => $this->inArticleAd->getTitle($edition),
+                  ]
+                : null,
+            'in_article_ad_position' => $this->in_article_ad_position ?? 4,
             'tags' => $this->tags->map(fn($tag) => [
                 'id' => $tag->id,
                 'name' => $edition === 'en' && $tag->name_en ? $tag->name_en : $tag->name_bn,

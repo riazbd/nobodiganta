@@ -172,10 +172,12 @@ class ArticleController extends Controller
         $authors = User::whereIn('role', ['admin', 'editor', 'reporter'])
             ->orderBy('name')
             ->get(['id', 'name']);
+        $ads = \App\Models\Ad::active()->orderBy('title_bn')->get(['id', 'title_bn', 'title_en', 'type', 'position']);
 
         return Inertia::render('features/admin/pages/content/WriteNews', [
             'categories' => $categories,
             'authors' => $authors,
+            'ads' => $ads,
             'article' => null,
         ]);
     }
@@ -235,6 +237,8 @@ class ArticleController extends Controller
             'videoUrl' => 'nullable|url',
             'videoProvider' => 'nullable|string',
             'videoDuration' => 'nullable|string|max:10',
+            'inArticleAdId' => 'nullable|exists:ads,id',
+            'inArticleAdPosition' => 'nullable|integer|min:1|max:20',
         ]);
 
         $categoryIds = $validated['categories'];
@@ -292,6 +296,8 @@ class ArticleController extends Controller
             'meta_description_en' => $validated['metaDescEn'] ?? null,
             'published_at' => $publishedAt,
             'scheduled_at' => $scheduledAt,
+            'in_article_ad_id' => $validated['inArticleAdId'] ?? null,
+            'in_article_ad_position' => $validated['inArticleAdPosition'] ?? 4,
         ]);
 
         $expandedIds = $this->expandCategoriesWithAncestors($categoryIds);
@@ -352,10 +358,12 @@ class ArticleController extends Controller
         $authors = User::whereIn('role', ['admin', 'editor', 'reporter'])
             ->orderBy('name')
             ->get(['id', 'name']);
+        $ads = \App\Models\Ad::active()->orderBy('title_bn')->get(['id', 'title_bn', 'title_en', 'type', 'position']);
 
         return Inertia::render('features/admin/pages/content/WriteNews', [
             'categories' => $categories,
             'authors' => $authors,
+            'ads' => $ads,
             'article' => [
                 'id' => $article->id,
                 'titleBn' => $article->title_bn,
@@ -399,6 +407,8 @@ class ArticleController extends Controller
                 'metaDescEn' => $article->meta_description_en,
                 'scheduledAt' => $article->scheduled_at?->format('Y-m-d\TH:i'),
                 'tags' => $article->tags->pluck('name_bn')->toArray(),
+                'inArticleAdId' => $article->in_article_ad_id,
+                'inArticleAdPosition' => $article->in_article_ad_position ?? 4,
             ],
         ]);
     }
@@ -460,6 +470,8 @@ class ArticleController extends Controller
             'videoUrl' => 'nullable|url',
             'videoProvider' => 'nullable|string',
             'videoDuration' => 'nullable|string|max:10',
+            'inArticleAdId' => 'nullable|exists:ads,id',
+            'inArticleAdPosition' => 'nullable|integer|min:1|max:20',
         ]);
 
         $categoryIds = $validated['categories'];
@@ -524,6 +536,8 @@ class ArticleController extends Controller
             'meta_description_en' => $validated['metaDescEn'] ?? null,
             'published_at' => $publishedAt,
             'scheduled_at' => $scheduledAt,
+            'in_article_ad_id' => $validated['inArticleAdId'] ?? null,
+            'in_article_ad_position' => $validated['inArticleAdPosition'] ?? 4,
         ]);
 
         $expandedIds = $this->expandCategoriesWithAncestors($categoryIds);

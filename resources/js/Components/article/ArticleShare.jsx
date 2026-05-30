@@ -84,20 +84,18 @@ export default function ArticleShare({ url, title, total, platforms = {}, sharin
 
   return (
     <div className="art-share-wrap">
-      {/* Total count */}
-      <div className="art-share-header">
-        <div className="art-share-total">
-          <ShareTotalIcon />
-          <span>
-            {lang === 'bn'
-              ? `${fmtCount(total, lang)} বার শেয়ার হয়েছে`
-              : `${fmtCount(total, lang)} shares`}
-          </span>
-        </div>
-        <span className="art-share-label">
-          {lang === 'bn' ? 'শেয়ার করুন:' : 'Share:'}
+      <div className="art-share-total">
+        <ShareTotalIcon />
+        <span>
+          {lang === 'bn'
+            ? `${fmtCount(total, lang)} বার শেয়ার হয়েছে`
+            : `${fmtCount(total, lang)} shares`}
         </span>
       </div>
+      <span className="art-share-sep">|</span>
+      <span className="art-share-label">
+        {lang === 'bn' ? 'শেয়ার করুন:' : 'Share:'}
+      </span>
 
       {/* Platform buttons */}
       <div className="art-share-btns">

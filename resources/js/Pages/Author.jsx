@@ -8,6 +8,7 @@ import { useNavigation } from '../contexts/NavigationContext';
 import { toBengaliNum } from '../lib/formatters';
 import MetaTags from '../Components/seo/MetaTags';
 import { buildAuthorSeo } from '../lib/seo';
+import ArticleThumb from '../Components/ui/ArticleThumb';
 
 function ArticleCard({ item, lang, onNavigate }) {
   if (!item) return null;
@@ -19,9 +20,7 @@ function ArticleCard({ item, lang, onNavigate }) {
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
     >
-      {item.featured_image
-        ? <img src={item.featured_image} alt={item.title} style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block' }} loading="lazy" />
-        : <div className="ph" style={{ height: 180 }}>📰</div>}
+      <ArticleThumb src={item.featured_image} alt={item.title} isVideo={item.article_type === 'video'} height={180} />
       <div className="cb">
         <h3>{item.title}</h3>
         {item.excerpt && <p>{item.excerpt}</p>}

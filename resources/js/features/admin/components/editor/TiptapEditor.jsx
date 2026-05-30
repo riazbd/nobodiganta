@@ -1,4 +1,5 @@
 ﻿import { useEditor, EditorContent } from '@tiptap/react';
+import { Node, mergeAttributes } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
@@ -7,11 +8,37 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
 import { useCallback, useState, useEffect } from 'react';
-import { 
-  Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3, 
+import {
+  Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3,
   Link as LinkIcon, Image as ImageIcon, Video, Highlighter, Undo, Redo,
-  AlignLeft, AlignCenter, AlignRight, Maximize, Minus, Type, Code
+  AlignLeft, AlignCenter, AlignRight, Maximize, Minus, Type, Code, Target
 } from 'lucide-react';
+
+const AdSlotNode = Node.create({
+  name: 'adSlot',
+  group: 'block',
+  atom: true,
+  parseHTML() {
+    return [{ tag: 'div[data-ad-slot]' }];
+  },
+  renderHTML() {
+    return ['div', { 'data-ad-slot': 'true' }];
+  },
+  addNodeView() {
+    return () => {
+      const dom = document.createElement('div');
+      dom.className = 'ad-slot-node';
+      dom.setAttribute('contenteditable', 'false');
+      dom.innerHTML = '<span>📢</span> AD SLOT';
+      return { dom };
+    };
+  },
+  addCommands() {
+    return {
+      insertAdSlot: () => ({ commands }) => commands.insertContent({ type: 'adSlot' }),
+    };
+  },
+});
 import MediaLibraryModal from '../media/MediaLibraryModal';
 
 const MenuButton = ({ onClick, isActive, children, title, disabled = false }) => (
@@ -70,6 +97,7 @@ export default function TiptapEditor({ value, onChange, placeholder, lang = 'bn'
         multicolor: true,
       }),
       Typography,
+      AdSlotNode,
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -229,11 +257,17 @@ export default function TiptapEditor({ value, onChange, placeholder, lang = 'bn'
            >
              <Video className="w-4 h-4" />
            </MenuButton>
-           <MenuButton 
+           <MenuButton
              onClick={() => editor.chain().focus().setHorizontalRule().run()}
              title="Horizontal Rule"
            >
              <Minus className="w-4 h-4" />
+           </MenuButton>
+           <MenuButton
+             onClick={() => editor.chain().focus().insertAdSlot().run()}
+             title="Insert Ad Slot"
+           >
+             <Target className="w-4 h-4" />
            </MenuButton>
         </div>
       </div>
@@ -289,6 +323,22 @@ export default function TiptapEditor({ value, onChange, placeholder, lang = 'bn'
           color: #263238;
           text-decoration: underline;
           font-weight: 400 !important;
+        }
+        .ad-slot-node {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin: 12px 0;
+          padding: 10px 16px;
+          background: #fff8e1;
+          border: 2px dashed #f59e0b;
+          border-radius: 6px;
+          font-size: 13px;
+          font-weight: 700;
+          color: #92400e;
+          letter-spacing: 0.05em;
+          cursor: default;
+          user-select: none;
         }
         .tiptap p.is-editor-empty:first-child::before {
           content: attr(data-placeholder);

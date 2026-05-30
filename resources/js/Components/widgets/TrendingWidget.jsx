@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
 import { getLatestArticles, getMostReadArticles } from '../../services/newsService';
+import ArticleThumb from '../ui/ArticleThumb';
 
 export default function TrendingWidget() {
   const { lang } = useApp();
@@ -97,16 +98,7 @@ export default function TrendingWidget() {
                   </div>
                 </div>
 
-                {item.featured_image ? (
-                  <img
-                    src={item.featured_image}
-                    alt={item.title || ''}
-                    loading="lazy"
-                    style={{ flexShrink: 0, width: 68, height: 50, objectFit: 'cover', borderRadius: 2 }}
-                  />
-                ) : (
-                  <div style={{ flexShrink: 0, width: 68, height: 50, background: '#f0f0f0', borderRadius: 2 }} />
-                )}
+                <ArticleThumb src={item.featured_image} alt={item.title || ''} isVideo={item.article_type === 'video'} width={68} height={50} style={{ borderRadius: 2 }} />
               </div>
             ))
         }

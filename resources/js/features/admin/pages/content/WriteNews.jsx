@@ -3,7 +3,7 @@ import { useForm, usePage, router } from '@inertiajs/react';
 import {
   Save, Send, Eye, Image as ImageIcon, X, Plus, Type, Tag, FileText,
   Settings, ChevronRight, Newspaper, Globe, Clock, CheckCircle,
-  FolderTree, Trash2, Languages, Loader2, Video, Users, Search, Target, MapPin
+  FolderTree, Trash2, Languages, Loader2, Video, Users, Search, MapPin, Target
 } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -61,7 +61,7 @@ const isLocationCat = (cat) =>
   cat.slug.startsWith('upazila-');
 
 export default function WriteNews() {
-  const { authors = [] } = usePage().props;
+  const { authors = [], ads = [] } = usePage().props;
   const { lang } = useLanguage();
   const { showToast } = useToast();
   const [mediaFiles, setMediaFiles] = useState([]);
@@ -156,6 +156,8 @@ export default function WriteNews() {
     scheduledAt: '',
     sendPushNotification: false,
     allowComments: true,
+    inArticleAdId: '',
+    inArticleAdPosition: 4,
   });
 
   useEffect(() => {
@@ -203,6 +205,8 @@ export default function WriteNews() {
         metaDescEn: article.metaDescEn || '',
         scheduledAt: article.scheduledAt || '',
         tags: article.tags || [],
+        inArticleAdId: article.inArticleAdId ? String(article.inArticleAdId) : '',
+        inArticleAdPosition: article.inArticleAdPosition ?? 4,
       });
       // Treat all pre-existing categories as explicitly selected on edit load
       setExplicitCategories(new Set(article.categories || []));
@@ -1216,6 +1220,46 @@ export default function WriteNews() {
                   </div>
                 )}
               </div>
+            </div>
+          </SidebarSection>
+
+          <SidebarSection title={lang === 'bn' ? 'আর্টিকেল বিজ্ঞাপন' : 'In-Article Ad'} icon={Target}>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">
+                  {lang === 'bn' ? 'বিজ্ঞাপন নির্বাচন করুন' : 'Select Ad'}
+                </label>
+                <select
+                  value={form.data.inArticleAdId}
+                  onChange={e => form.setData('inArticleAdId', e.target.value)}
+                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
+                >
+                  <option value="">{lang === 'bn' ? '— কোনো বিজ্ঞাপন নেই —' : '— No ad —'}</option>
+                  {ads.map(ad => (
+                    <option key={ad.id} value={ad.id}>
+                      {ad.title_bn || ad.title_en} ({ad.type})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {form.data.inArticleAdId && (
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">
+                    {lang === 'bn' ? 'কত নম্বর প্যারার পরে দেখাবে' : 'Show after paragraph #'}
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={form.data.inArticleAdPosition}
+                    onChange={e => form.setData('inArticleAdPosition', Number(e.target.value))}
+                    className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
+                  />
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    {lang === 'bn' ? 'ডিফল্ট ৪' : 'Default: 4'}
+                  </p>
+                </div>
+              )}
             </div>
           </SidebarSection>
         </div>

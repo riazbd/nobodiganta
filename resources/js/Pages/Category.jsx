@@ -10,6 +10,7 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { toBengaliNum } from '../lib/formatters';
 import MetaTags from '../Components/seo/MetaTags';
+import ArticleThumb from '../Components/ui/ArticleThumb';
 import { BreadcrumbJsonLd } from '../Components/seo/JsonLd';
 import { buildCategorySeo } from '../lib/seo';
 
@@ -23,11 +24,7 @@ function ArticleCard({ item, lang, onNavigate, hero = false }) {
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
     >
-      <div style={{ aspectRatio: hero ? '3/2' : '4/3', overflow: 'hidden' }}>
-        {item.featured_image
-          ? <img src={item.featured_image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} loading="lazy" />
-          : <div className="ph" style={{ width: '100%', height: '100%' }}>📰</div>}
-      </div>
+      <ArticleThumb src={item.featured_image} alt={item.title} isVideo={item.article_type === 'video'} aspectRatio={hero ? '3/2' : '4/3'} />
       <div className="cb">
         <h3>{item.title}</h3>
         {item.excerpt && <p>{item.excerpt}</p>}
@@ -46,11 +43,7 @@ function ArticleListItem({ item, lang, onNavigate }) {
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
     >
-      <div style={{ flexShrink: 0, width: 120, aspectRatio: '4/3', overflow: 'hidden' }}>
-        {item.featured_image
-          ? <img src={item.featured_image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} loading="lazy" />
-          : <div className="ph" style={{ width: '100%', height: '100%' }}>📰</div>}
-      </div>
+      <ArticleThumb src={item.featured_image} alt={item.title} isVideo={item.article_type === 'video'} width={120} aspectRatio="4/3" />
       <div>
         <h4>{item.title}</h4>
       </div>

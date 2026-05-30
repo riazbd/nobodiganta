@@ -148,26 +148,32 @@ export default function PollWidget() {
             >
               <span className={`poll-radio-circle${isSelected ? ' checked' : ''}`} />
               <span className="poll-opt-lbl">{opt.option}</span>
-              <span className="poll-opt-pct">
-                {lang === 'bn' ? toBengaliNum(String(pct)) : pct}%
-              </span>
+              {(voted || isClosed) && (
+                <span className="poll-opt-pct">
+                  {lang === 'bn' ? toBengaliNum(String(pct)) : pct}%
+                </span>
+              )}
             </div>
-            <div className="poll-bar-wrap">
-              <div
-                className={`poll-bar-fill ${isWinner ? 'winner' : 'normal'}`}
-                style={{ width: `${pct}%` }}
-              />
-            </div>
+            {(voted || isClosed) && (
+              <div className="poll-bar-wrap">
+                <div
+                  className={`poll-bar-fill ${isWinner ? 'winner' : 'normal'}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            )}
           </div>
         );
       })}
 
       <div className="poll-footer-row">
-        <span className="poll-total">
-          {lang === 'bn'
-            ? `মোট ভোটদাতাঃ ${fmtNum(totalVotes)} জন`
-            : `${fmtNum(totalVotes)} votes cast`}
-        </span>
+        {(voted || isClosed) && (
+          <span className="poll-total">
+            {lang === 'bn'
+              ? `মোট ভোটদাতাঃ ${fmtNum(totalVotes)} জন`
+              : `${fmtNum(totalVotes)} votes cast`}
+          </span>
+        )}
         <button className="poll-share-btn" onClick={handleShare} aria-label="Share poll">
           <ShareIcon />
         </button>
