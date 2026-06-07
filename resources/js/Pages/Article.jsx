@@ -22,42 +22,120 @@ import { useReadingProgress } from '../hooks/useReadingProgress';
 import { calculateReadingTime } from '../lib/readingTime';
 import { relativeTime, toBengaliNum } from '../lib/formatters';
 
+// Parse body HTML and extract inline ad markers (new format: data-inline-ad)
+function parseInlineAds(html) {
+  const re = /<div([^>]*data-inline-ad[^>]*)>(?:.*?)<\/div>/gi;
+  const segments = [];
+  let lastIndex = 0;
+  let match;
+  while ((match = re.exec(html)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ type: 'html', content: html.slice(lastIndex, match.index) });
+    }
+    const attrStr = match[1];
+    const attr = (name) => { const m = new RegExp(`${name}="([^"]*)"`, 'i').exec(attrStr); return m ? m[1] : null; };
+    const rawCode = attr('data-ad-code');
+    segments.push({
+      type: 'ad',
+      adType: attr('data-ad-type') || 'image',
+      adSrc: attr('data-ad-src'),
+      adLink: attr('data-ad-link'),
+      adCode: rawCode ? decodeURIComponent(rawCode) : null,
+      adTitle: attr('data-ad-title'),
+      adHref: attr('data-ad-href'),
+    });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < html.length) segments.push({ type: 'html', content: html.slice(lastIndex) });
+  return segments;
+}
+
+function ScriptInjector({ html, className, style }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!ref.current || !html) return;
+    ref.current.innerHTML = '';
+    try {
+      const frag = document.createRange().createContextualFragment(html);
+      ref.current.appendChild(frag);
+    } catch {
+      ref.current.innerHTML = html;
+    }
+  }, [html]);
+  return <div ref={ref} className={className} style={style} />;
+}
+
+function InlineAdBlock({ seg }) {
+  const { adType, adSrc, adLink, adCode, adTitle, adHref } = seg;
+  const wrap = (child) => <div className="in-article-ad" style={{ margin: '24px 0', textAlign: 'center' }}>{child}</div>;
+
+  if (adType === 'news_promo' && adHref) {
+    return (
+      <div className="in-article-ad" style={{ margin: '24px 0' }}>
+        <a href={adHref} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '12px 16px', border: '1px solid #e8e8e8', borderRadius: 8, textDecoration: 'none', color: 'inherit', background: '#fafafa' }}>
+          {adSrc && <img src={adSrc} alt="" style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }} />}
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#e8001e', textTransform: 'uppercase', marginBottom: 4 }}>আরও পড়ুন</div>
+            <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.4 }}>{adTitle}</div>
+          </div>
+        </a>
+      </div>
+    );
+  }
+
+  if ((adType === 'image' || adType === 'custom_image') && adSrc) {
+    const img = <img src={adSrc} alt={adTitle || 'Advertisement'} style={{ maxWidth: '100%', height: 'auto', display: 'inline-block' }} loading="lazy" />;
+    return wrap(adLink ? <a href={adLink} target="_blank" rel="noopener noreferrer sponsored">{img}</a> : img);
+  }
+
+  if (adType === 'video' && adSrc) {
+    return <div className="in-article-ad" style={{ margin: '24px 0' }}><video src={adSrc} controls style={{ width: '100%', maxHeight: 300 }} preload="none" /></div>;
+  }
+
+  if (adCode) {
+    return wrap(<ScriptInjector html={adCode} />);
+  }
+
+  return null;
+}
+
 function ArticleBodyWithAd({ html, ad, position = 4 }) {
   if (!html) return null;
 
-  if (!ad) {
-    return <div className="art-body" dangerouslySetInnerHTML={{ __html: html }} />;
+  // New format: inline ads embedded in body HTML
+  const segments = parseInlineAds(html);
+  if (segments.some(s => s.type === 'ad')) {
+    return (
+      <>
+        {segments.map((seg, i) =>
+          seg.type === 'html'
+            ? (seg.content ? <div key={i} className="art-body" dangerouslySetInnerHTML={{ __html: seg.content }} /> : null)
+            : <InlineAdBlock key={i} seg={seg} />
+        )}
+      </>
+    );
   }
 
-  // Prefer an explicit <div data-ad-slot> marker placed via the editor
+  // Legacy: no inline ads → use sidebar-assigned ad with paragraph fallback
+  if (!ad) return <div className="art-body" dangerouslySetInnerHTML={{ __html: html }} />;
+
+  const splitHtmlAtParagraph = (rawHtml, n) => {
+    let count = 0, splitIdx = -1;
+    const re = /<\/p>/gi;
+    let m;
+    while ((m = re.exec(rawHtml)) !== null) {
+      if (++count === n) { splitIdx = m.index + m[0].length; break; }
+    }
+    return splitIdx === -1 ? [rawHtml, ''] : [rawHtml.slice(0, splitIdx), rawHtml.slice(splitIdx)];
+  };
+
   const splitOnMarker = (rawHtml) => {
     const re = /<div[^>]*data-ad-slot[^>]*>.*?<\/div>/i;
     const m = re.exec(rawHtml);
-    if (!m) return null;
-    return [rawHtml.slice(0, m.index), rawHtml.slice(m.index + m[0].length)];
+    return m ? [rawHtml.slice(0, m.index), rawHtml.slice(m.index + m[0].length)] : null;
   };
 
-  // Fallback: split after the Nth </p>
-  const splitHtmlAtParagraph = (rawHtml, n) => {
-    let count = 0;
-    let splitIdx = -1;
-    const re = /<\/p>/gi;
-    let match;
-    while ((match = re.exec(rawHtml)) !== null) {
-      count++;
-      if (count === n) {
-        splitIdx = match.index + match[0].length;
-        break;
-      }
-    }
-    if (splitIdx === -1) return [rawHtml, ''];
-    return [rawHtml.slice(0, splitIdx), rawHtml.slice(splitIdx)];
-  };
-
-  const [top, bottom] = splitOnMarker(html) ?? splitHtmlAtParagraph(html, position);
-
-  const renderAd = () => {
-    if (!ad) return null;
+  const renderLegacyAd = () => {
     if (ad.type === 'image') {
       return (
         <div className="in-article-ad" style={{ margin: '24px 0', textAlign: 'center' }}>
@@ -68,28 +146,19 @@ function ArticleBodyWithAd({ html, ad, position = 4 }) {
       );
     }
     if (ad.type === 'video') {
-      return (
-        <div className="in-article-ad" style={{ margin: '24px 0' }}>
-          <video src={ad.video_url} controls style={{ width: '100%', maxHeight: 300 }} preload="none" />
-        </div>
-      );
+      return <div className="in-article-ad" style={{ margin: '24px 0' }}><video src={ad.video_url} controls style={{ width: '100%', maxHeight: 300 }} preload="none" /></div>;
     }
-    if (ad.type === 'html' || ad.type === 'script' || ad.type === 'adsense') {
-      return (
-        <div
-          className="in-article-ad"
-          style={{ margin: '24px 0', textAlign: 'center' }}
-          dangerouslySetInnerHTML={{ __html: ad.code || '' }}
-        />
-      );
+    if (['html', 'script', 'adsense', 'google_ad'].includes(ad.type)) {
+      return <div className="in-article-ad" style={{ margin: '24px 0', textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: ad.code || '' }} />;
     }
     return null;
   };
 
+  const [top, bottom] = splitOnMarker(html) ?? splitHtmlAtParagraph(html, position);
   return (
     <>
       <div className="art-body" dangerouslySetInnerHTML={{ __html: top }} />
-      {renderAd()}
+      {renderLegacyAd()}
       {bottom && <div className="art-body" dangerouslySetInnerHTML={{ __html: bottom }} />}
     </>
   );
@@ -98,6 +167,7 @@ function ArticleBodyWithAd({ html, ad, position = 4 }) {
 export default function Article({
   article,
   relatedArticles = [],
+  ads = {},
   paywall = false,
   paywallReason = null,
   meterRemaining = 0,
@@ -406,7 +476,18 @@ export default function Article({
               )}
             </div>
           )}
-          <ArticleBodyWithAd html={bodyHtml} ad={article.in_article_ad} position={article.in_article_ad_position ?? 4} />
+          <ArticleBodyWithAd
+            html={bodyHtml}
+            ad={(() => {
+              const position = article.in_article_ad_position ?? 4;
+              if (article.in_article_ad) return article.in_article_ad;
+              const defaultAd = ads?.in_article?.[0] ?? null;
+              if (!defaultAd) return null;
+              const paragraphs = (bodyHtml?.match(/<\/p>/gi) || []).length;
+              return paragraphs >= position ? defaultAd : null;
+            })()}
+            position={article.in_article_ad_position ?? 4}
+          />
 
           <div style={{ margin: '30px 0' }}>
             <AdSlot size="leaderboard" position="article_bottom" />

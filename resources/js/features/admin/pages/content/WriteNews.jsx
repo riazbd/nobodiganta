@@ -783,6 +783,7 @@ export default function WriteNews() {
                     value={form.data.bodyBn}
                     onChange={(val) => form.setData('bodyBn', val)}
                     lang="bn"
+                    ads={ads}
                     placeholder={lang === 'bn' ? 'আপনার সংবাদ এখানে লেখা শুরু করুন...' : 'Start writing your story here...'}
                   />
                 </div>
@@ -828,6 +829,7 @@ export default function WriteNews() {
                     value={form.data.bodyEn}
                     onChange={(val) => form.setData('bodyEn', val)}
                     lang="en"
+                    ads={ads}
                     placeholder="Start writing your story here in English..."
                   />
                 </div>
@@ -1223,7 +1225,7 @@ export default function WriteNews() {
             </div>
           </SidebarSection>
 
-          <SidebarSection title={lang === 'bn' ? 'আর্টিকেল বিজ্ঞাপন' : 'In-Article Ad'} icon={Target}>
+          <SidebarSection title={lang === 'bn' ? 'আর্টিকেল বিজ্ঞাপন' : 'In-Article Ad'} icon={Target} defaultOpen={true}>
             <div className="space-y-3">
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">
@@ -1237,7 +1239,7 @@ export default function WriteNews() {
                   <option value="">{lang === 'bn' ? '— কোনো বিজ্ঞাপন নেই —' : '— No ad —'}</option>
                   {ads.map(ad => (
                     <option key={ad.id} value={ad.id}>
-                      {ad.title_bn || ad.title_en} ({ad.type})
+                      {ad.title_bn || ad.title_en} [{ad.position}]
                     </option>
                   ))}
                 </select>

@@ -266,6 +266,7 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                        <option value="sidebar_top">Sidebar Top</option>
                        <option value="sidebar_middle">Sidebar Middle</option>
                        <option value="category_middle">Category Middle</option>
+                       <option value="in_article">In-Article</option>
                        <option value="article_bottom">Article Bottom</option>
                        <option value="mid_home">Mid Home</option>
                        <option value="home_bottom">Home Bottom</option>

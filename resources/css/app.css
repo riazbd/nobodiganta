@@ -237,7 +237,7 @@ article .card{padding:8px;}
   left: 0;
   top: 0;
   white-space: nowrap;
-  color: #1a1a2e;
+  color: #000000;
   letter-spacing: 0.02em;
   line-height: 1.5em;
 }
@@ -378,6 +378,10 @@ article .card{padding:8px;}
   .bbc-signin { font-size: 12px; padding: 6px 6px; }
   .bbc-edition { display: none; }
   .bbc-date-wrap { display: none; }
+  .bbc-soc-label-wrap { display: none; }
+  .bbc-soc-arrow { display: none; }
+  .bbc-social-slider { margin-right: 0; gap: 4px; }
+  .bbc-hdr-soc { width: 26px; height: 26px; }
   #header.header-scrolled .bbc-bar { padding: 4px 10px; }
   #header.header-scrolled .bbc-block { width: 34px; height: 34px; font-size: 20px; }
 }
@@ -592,20 +596,20 @@ article .card{padding:8px;}
   z-index:600;
   overflow:hidden;
 }
-/* "সিরানাম" red label */
+/* "শিরোনাম" red label */
 .brk-label{
-  background:var(--red);
+  background:var(--breaking);
   color:#fff;
   font-family:'SolaimanLipi',sans-serif;
   font-size:16.9px;
-  font-weight:900;
+  font-weight:900 !important;
   letter-spacing:.5px;
   padding:0 18px;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
   white-space:nowrap;
   writing-mode:horizontal-tb;
-  border-right:2px solid rgba(255,255,255,.15);
+  border-right:2px solid rgba(255,255,255,.2);
 }
 /* Scrolling track wrapper */
 .brk-track-wrap{
@@ -641,8 +645,18 @@ article .card{padding:8px;}
   transition:color .15s;
   letter-spacing:.01em;
 }
+.brk-link{color:#fff;}
 .brk-link:hover{color:#fff;text-decoration:underline;}
-.brk-dot{color:#fff;font-size:18.2px;margin:0 14px;opacity:.4;vertical-align:middle;line-height:1;}
+.brk-logo-dot{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;
+  border-radius:50%;
+  background:#fff;
+  margin:0 12px;
+  flex-shrink:0;
+  overflow:hidden;
+}
+.brk-logo-dot img{width:20px;height:20px;object-fit:contain;display:block;}
 
 /* Add bottom padding to page so ticker doesn't overlap content */
 .page-container{padding-bottom:54px;}
@@ -1314,7 +1328,7 @@ article .card{padding:8px;}
   box-shadow:0 16px 40px rgba(0,0,0,.1),0 4px 12px rgba(0,0,0,.06);
   z-index:9999;
   border-radius:0 0 10px 10px;
-  overflow:hidden;
+  overflow:visible;
   animation:navDrop .18s ease;
 }
 .nav-sub-parent{
@@ -1348,6 +1362,35 @@ article .card{padding:8px;}
 }
 .nav-sub-link:last-child{border-bottom:none;}
 .nav-sub-link:hover{background:#f5f5f5;color:#e8001e;}
+.nav-sub-has-sub{display:flex;align-items:center;justify-content:space-between;}
+.nav-sub-wrap{position:relative;}
+.nav-sub-wrap:hover>.nav-sub-link{background:#f5f5f5;color:#e8001e;}
+.nav-sub-sub{
+  display:none;
+  position:absolute;
+  left:100%;
+  top:0;
+  background:#fff;
+  min-width:200px;
+  overflow:visible;
+  border:1px solid #e8e8e8;
+  box-shadow:4px 8px 24px rgba(0,0,0,.1);
+  z-index:10000;
+  border-radius:0 8px 8px 8px;
+}
+.nav-sub-wrap:hover>.nav-sub-sub{display:block;}
+.nav-sub-sub .nav-sub-wrap{position:relative;}
+/* Third level (upazilas) — no nested children so safe to scroll here */
+.nav-sub-sub .nav-sub-sub{
+  border-radius:0 8px 8px 8px;
+  z-index:10001;
+  max-height:420px;
+  overflow-y:auto;
+}
+
+/* "আরও / More" overflow dropdown — right-aligned so it doesn't clip viewport */
+.nav-more-wrap{position:relative;display:flex;align-items:stretch;}
+.nav-more-dropdown{left:auto;right:0;border-radius:8px 0 8px 8px;}
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    ARTICLE BODY â€” Rich Text (Quill HTML)

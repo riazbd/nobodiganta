@@ -1,5 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
-import { Plus, Edit3, Trash2, X, Check, Loader2, AlertTriangle, FolderTree } from 'lucide-react';
+﻿import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Edit3, Trash2, X, Check, Loader2, AlertTriangle, FolderTree, GripVertical, Navigation } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -17,6 +17,9 @@ export default function CategoryList() {
   const [showModal, setShowModal] = useState(false);
   const [editingCat, setEditingCat] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [reordering, setReordering]       = useState(false);
+  const dragId   = useRef(null);
+  const dragOver = useRef(null);
 
   // Form state
   const [catNameBn, setCatNameBn] = useState('');
@@ -57,6 +60,7 @@ export default function CategoryList() {
         slug: c.slug || '',
         edition: c.edition || 'both',
         isActive: c.is_active !== false,
+        showInNav: c.show_in_nav !== false,
         color: c.color || '#6b7280',
         descriptionBn: c.description_bn || '',
         descriptionEn: c.description_en || '',
@@ -168,6 +172,15 @@ export default function CategoryList() {
     }
   };
 
+  const handleToggleNav = async (cat) => {
+    try {
+      await window.axios.patch(`/admin/categories/${cat.id}/toggle-nav`);
+      setCategories(prev => prev.map(c => c.id === cat.id ? { ...c, showInNav: !c.showInNav } : c));
+    } catch {
+      showToast(lang === 'bn' ? 'ব্যর্থ হয়েছে' : 'Failed to update');
+    }
+  };
+
   const handleToggleStatus = async (cat) => {
     try {
       await window.axios.patch(`/admin/categories/${cat.id}/toggle-status`);
@@ -191,6 +204,50 @@ export default function CategoryList() {
     } catch (err) {
       console.error('Error deleting category:', err);
       showToast(err.message || (lang === 'bn' ? 'মুছে ফেলতে ব্যর্থ' : 'Failed to delete'));
+    }
+  };
+
+  // ── Drag-to-reorder (top-level categories only) ──────────────
+  const onDragStart = (e, id) => {
+    dragId.current = id;
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const onDragEnter = (id) => { dragOver.current = id; };
+
+  const onDragEnd = async () => {
+    const fromId = dragId.current;
+    const toId   = dragOver.current;
+    dragId.current = dragOver.current = null;
+
+    if (!fromId || !toId || fromId === toId) return;
+
+    // Reorder local list optimistically
+    const roots = categories.filter(c => !c.parentId);
+    const subs  = categories.filter(c =>  c.parentId);
+    const fromIdx = roots.findIndex(c => c.id === fromId);
+    const toIdx   = roots.findIndex(c => c.id === toId);
+    if (fromIdx === -1 || toIdx === -1) return;
+
+    const reordered = [...roots];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+
+    const withOrder = reordered.map((c, i) => ({ ...c, sort_order: i + 1 }));
+    setCategories([...withOrder, ...subs]);
+
+    // Persist to server
+    setReordering(true);
+    try {
+      await window.axios.post('/admin/categories/reorder', {
+        categories: withOrder.map(c => ({ id: c.id, sort_order: c.sort_order })),
+      });
+      showToast(lang === 'bn' ? 'ক্রম সংরক্ষিত হয়েছে' : 'Order saved');
+    } catch {
+      showToast(lang === 'bn' ? 'ক্রম সংরক্ষণ ব্যর্থ' : 'Failed to save order');
+      await fetchCategories();
+    } finally {
+      setReordering(false);
     }
   };
 
@@ -233,7 +290,10 @@ export default function CategoryList() {
              <FolderTree className="w-7 h-7 text-[#263238]" />
              {lang === 'bn' ? 'বিভাগ ব্যবস্থাপনা' : 'Category Management'}
           </h1>
-          <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75">{categories.length} {lang === 'bn' ? 'টি বিভাগ ও উপ-বিভাগ' : 'categories & subcategories'}</p>
+          <p className="text-[12.5px] text-[var(--text-muted,#9ca3af)] mt-0.75 flex items-center gap-2">
+            {categories.length} {lang === 'bn' ? 'টি বিভাগ ও উপ-বিভাগ' : 'categories & subcategories'}
+            {reordering && <span className="flex items-center gap-1 text-[#263238]"><Loader2 className="w-3 h-3 animate-spin" />{lang === 'bn' ? 'সংরক্ষণ হচ্ছে...' : 'Saving...'}</span>}
+          </p>
         </div>
         <button onClick={openAddModal} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
           <Plus className="w-4 h-4" /> {lang === 'bn' ? 'নতুন বিভাগ' : 'New Category'}
@@ -245,6 +305,7 @@ export default function CategoryList() {
         <table className="w-full border-collapse">
           <thead>
             <tr>
+              <th className="w-8 px-2 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)]" title={lang === 'bn' ? 'টেনে সাজান' : 'Drag to reorder'} />
               <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'নাম' : 'Name'}</th>
               <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'স্লাগ' : 'Slug'}</th>
               <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'আর্টিকেল' : 'Articles'}</th>
@@ -264,8 +325,18 @@ export default function CategoryList() {
                 .filter(c => !c.parentId)
                 .map(mainCat => (
                   <React.Fragment key={mainCat.id}>
-                    {/* Main Category Row */}
-                    <tr className="hover:bg-[#fafbff] transition-colors border-l-4 border-l-transparent group">
+                    {/* Main Category Row — draggable */}
+                    <tr
+                      className="hover:bg-[#fafbff] transition-colors border-l-4 border-l-transparent group cursor-grab active:cursor-grabbing"
+                      draggable
+                      onDragStart={e => onDragStart(e, mainCat.id)}
+                      onDragEnter={() => onDragEnter(mainCat.id)}
+                      onDragEnd={onDragEnd}
+                      onDragOver={e => e.preventDefault()}
+                    >
+                      <td className="px-2 py-3 border-b border-[#f3f4f6] text-gray-300 group-hover:text-gray-400">
+                        <GripVertical size={16} />
+                      </td>
                       <td className="px-4 py-3 border-b border-[#f3f4f6]">
                         <div className="font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2">
                           <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ backgroundColor: mainCat.color }} />
@@ -281,15 +352,16 @@ export default function CategoryList() {
                         <StatusButton cat={mainCat} onToggle={handleToggleStatus} />
                       </td>
                       <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                        <ActionButtons onEdit={() => openEditModal(mainCat)} onDelete={() => setDeleteConfirm(mainCat)} />
+                        <ActionButtons onEdit={() => openEditModal(mainCat)} onDelete={() => setDeleteConfirm(mainCat)} onToggleNav={() => handleToggleNav(mainCat)} showInNav={mainCat.showInNav} />
                       </td>
                     </tr>
 
-                    {/* Subcategories */}
+                    {/* Subcategories — not draggable */}
                     {categories
                       .filter(sub => sub.parentId === mainCat.id)
                       .map(subCat => (
                         <tr key={subCat.id} className="hover:bg-[#fafbff] transition-colors bg-gray-50/20">
+                          <td className="px-2 py-3 border-b border-[#f3f4f6]" />
                           <td className="px-4 py-3 border-b border-[#f3f4f6] pl-10">
                             <div className="flex items-center gap-2 text-[var(--text-primary,#1a1d2e)]">
                               <span className="text-gray-300">↳</span>
@@ -526,10 +598,19 @@ function StatusButton({ cat, onToggle, size = 'md' }) {
   );
 }
 
-function ActionButtons({ onEdit, onDelete, size = 'md' }) {
+function ActionButtons({ onEdit, onDelete, onToggleNav, showInNav, size = 'md' }) {
   const iconSize = size === 'sm' ? 14 : 16;
   return (
     <div className="flex items-center gap-1">
+      {onToggleNav && (
+        <button
+          onClick={onToggleNav}
+          title={showInNav ? 'Hide from nav' : 'Show in nav'}
+          className={`p-1.5 rounded-lg transition-colors ${showInNav ? 'text-blue-500 hover:bg-blue-50' : 'text-gray-300 hover:bg-gray-100 hover:text-gray-500'}`}
+        >
+          <Navigation size={iconSize} />
+        </button>
+      )}
       <button onClick={onEdit} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600">
         <Edit3 size={iconSize} />
       </button>

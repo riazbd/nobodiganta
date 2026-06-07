@@ -23,13 +23,15 @@ class Category extends Model
         'color_code',
         'sort_order',
         'is_active',
+        'show_in_nav',
         'edition',
     ];
 
     protected $casts = [
-        'parent_id' => 'integer',
-        'is_active' => 'boolean',
-        'sort_order' => 'integer',
+        'parent_id'   => 'integer',
+        'is_active'   => 'boolean',
+        'show_in_nav' => 'boolean',
+        'sort_order'  => 'integer',
     ];
 
     /**

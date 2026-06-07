@@ -1,11 +1,12 @@
 import { t } from '../translations';
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { router } from '@inertiajs/react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useSearch } from '../contexts/SearchContext';
+import { ROUTES } from '../lib/routes';
 
 const MENU_ITEMS = [
-  { key: 'location', page: 'location', bn: 'সারাদেশ', en: 'Bangladesh' },
   { key: 'stories',  page: 'stories',  bn: 'স্টোরিজ',  en: 'Stories'   },
   { key: 'gallery',  page: 'gallery',  bn: 'গ্যালারি',  en: 'Gallery'   },
   { key: 'video',    page: 'video',    bn: 'ভিডিও',    en: 'Video'     },
@@ -29,7 +30,7 @@ const ChevronDown = ({ open }) => (
 );
 
 export default function Navigation() {
-  const { lang } = useApp();
+  const { lang, settings } = useApp();
   const { onNavigate } = useNavigation();
   const { searchQuery, setSearchQuery, onSearch } = useSearch();
 
@@ -37,12 +38,13 @@ export default function Navigation() {
   const [loading,      setLoading]     = useState(true);
   const [drawerOpen,   setDrawerOpen]  = useState(false);
   const [hoveredCat,   setHoveredCat]  = useState(null);
-  const [expandedCat,  setExpandedCat] = useState(null);
+  const [expandedCat,  setExpandedCat] = useState({});
 
-  const measureRef = useRef(null);
-  const navRef     = useRef(null);
-  const hoverTimer = useRef(null);
-  const searchRef  = useRef(null);
+  const measureRef  = useRef(null);
+  const navRef      = useRef(null);
+  const hoverTimer  = useRef(null);
+  const moreTimer   = useRef(null);
+  const searchRef   = useRef(null);
 
   // Fetch categories
   useEffect(() => {
@@ -76,6 +78,25 @@ export default function Navigation() {
   const closeDrawer = () => setDrawerOpen(false);
   const go = (page, sub) => { closeDrawer(); if (sub) onNavigate(page, sub); else onNavigate(page); };
 
+  // Resolve click handler for any category, aware of saradesh hierarchy
+  const makeCatNav = (cat, ancestors = []) => {
+    const underLocation = cat.slug === 'saradesh' || ancestors.some(a => a.slug === 'saradesh');
+    if (!underLocation) return () => go('cat', cat.slug);
+    if (cat.slug === 'saradesh') return () => go('location');
+
+    const divCat  = ancestors.find(a => a.slug.startsWith('division-')) ?? (cat.slug.startsWith('division-') ? cat : null);
+    const distCat = ancestors.find(a => a.slug.startsWith('district-')) ?? (cat.slug.startsWith('district-') ? cat : null);
+    const uzSlug  = cat.slug.startsWith('upazila-') ? cat.slug.replace('upazila-', '') : null;
+    const divSlug  = divCat?.slug.replace('division-', '');
+    const distSlug = distCat?.slug.replace('district-', '');
+
+    const visit = url => () => { closeDrawer(); window.scrollTo({ top: 0 }); router.visit(url); };
+    if (uzSlug  && divSlug && distSlug) return visit(ROUTES.locationUpazila(divSlug, distSlug, uzSlug, lang));
+    if (distSlug && divSlug)            return visit(ROUTES.locationDist(divSlug, distSlug, lang));
+    if (divSlug)                        return visit(ROUTES.locationDiv(divSlug, lang));
+    return () => go('location');
+  };
+
   const handleEdition = (ed) => {
     if (ed === lang) return;
     const path = window.location.pathname;
@@ -85,7 +106,12 @@ export default function Navigation() {
     window.location.href = target;
   };
 
-  // Desktop hover dropdown
+  // "আরও / More" overflow dropdown
+  const [moreOpen, setMoreOpen] = useState(false);
+  const handleMoreEnter = () => { clearTimeout(moreTimer.current); setMoreOpen(true); };
+  const handleMoreLeave = () => { moreTimer.current = setTimeout(() => setMoreOpen(false), 130); };
+
+  // Responsive width measurement (used when nav_max_visible = 0)
   const [visibleCount, setVisibleCount] = useState(99);
   const calculateVisible = useCallback(() => {
     const mc  = measureRef.current;
@@ -109,39 +135,97 @@ export default function Navigation() {
     return () => { clearTimeout(t1); clearTimeout(t2); window.removeEventListener('resize', calculateVisible); };
   }, [calculateVisible, categories]);
 
+  // Desktop nav: only show_in_nav=true categories; drawer uses full `categories`
+  const navCats = categories.filter(c => c.show_in_nav !== false);
+
+  // Split into visible + overflow based on admin setting or DOM width
+  const navMaxVisible = parseInt(settings?.nav_max_visible) || 0;
+  const autoMax       = Math.max(1, visibleCount - 1);
+  const effectiveMax  = navMaxVisible > 0 ? Math.min(navMaxVisible, autoMax) : autoMax;
+  const visibleCats   = navCats.slice(0, effectiveMax);
+  const overflowCats  = navCats.slice(effectiveMax);
+  const moreLabel     = lang === 'bn'
+    ? (settings?.nav_more_label_bn || 'আরও')
+    : (settings?.nav_more_label_en || 'More');
+
   const handleCatEnter = slug => { clearTimeout(hoverTimer.current); setHoveredCat(slug); };
   const handleCatLeave = ()   => { hoverTimer.current = setTimeout(() => setHoveredCat(null), 130); };
   const handleDropEnter = ()  => clearTimeout(hoverTimer.current);
   const handleDropLeave = ()  => { hoverTimer.current = setTimeout(() => setHoveredCat(null), 130); };
 
-  const renderDropdownItems = (items, depth) => {
-    const useGrid = depth === 0 && items.length > 6;
-    const items2 = useGrid ? items : items;
+  const renderDropdownItems = (items, depth, ancestors = []) => {
+    const useGrid = depth === 0 && items.length > 6 && !items.some(i => i.children?.length > 0);
     const cols = useGrid ? (items.length > 10 ? 3 : 2) : 1;
     return (
       <div className={`nav-sub-items${useGrid ? ' nav-sub-grid' : ''}`} style={useGrid ? { columnCount: cols } : {}}>
-        {items2.map(child => (
-          <a key={child.slug} className="nav-sub-link"
-            onClick={() => { setHoveredCat(null); onNavigate('cat', child.slug); }}
-            role="menuitem" tabIndex={0}
-            onKeyDown={e => e.key === 'Enter' && onNavigate('cat', child.slug)}
-          >
-            {lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn)}
-          </a>
-        ))}
+        {items.map(child => {
+          const nav = makeCatNav(child, ancestors);
+          const hasSub = child.children?.length > 0 && depth < 2;
+          const name = lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn);
+          if (hasSub) {
+            return (
+              <div key={child.slug} className="nav-sub-wrap">
+                <a className="nav-sub-link nav-sub-has-sub"
+                  onClick={() => { setHoveredCat(null); nav(); }}
+                  role="menuitem" tabIndex={0}
+                  onKeyDown={e => e.key === 'Enter' && (setHoveredCat(null), nav())}
+                >
+                  {name}
+                  <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0, marginLeft: 4 }}>
+                    <polyline points="4 2 8 6 4 10"/>
+                  </svg>
+                </a>
+                <div className="nav-sub-sub">
+                  {renderDropdownItems(child.children, depth + 1, [...ancestors, child])}
+                </div>
+              </div>
+            );
+          }
+          return (
+            <a key={child.slug} className="nav-sub-link"
+              onClick={() => { setHoveredCat(null); nav(); }}
+              role="menuitem" tabIndex={0}
+              onKeyDown={e => e.key === 'Enter' && (setHoveredCat(null), nav())}
+            >
+              {name}
+            </a>
+          );
+        })}
       </div>
     );
   };
 
-  const renderDrawerSubs = (items, depth = 0) => items.map(child => (
-    <span key={child.slug}>
-      <button className="drw-sub" style={{ paddingLeft: 16 + depth * 16 }}
-        onClick={() => go('cat', child.slug)}>
-        {lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn)}
-      </button>
-      {child.children?.length > 0 && renderDrawerSubs(child.children, depth + 1)}
-    </span>
-  ));
+  const toggleExpanded = key => setExpandedCat(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const renderDrawerSubs = (items, depth = 0, ancestors = []) => items.map(child => {
+    const hasChildren = child.children?.length > 0;
+    const nav = makeCatNav(child, ancestors);
+    const childKey = `drw-sub-${child.slug}`;
+    const isExpanded = !!expandedCat[childKey];
+    return (
+      <div key={child.slug}>
+        <button
+          className="drw-sub"
+          style={{ paddingLeft: 16 + depth * 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          onClick={() => {
+            if (hasChildren) toggleExpanded(childKey);
+            else nav();
+          }}
+        >
+          <span>{lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn)}</span>
+          {hasChildren && <ChevronDown open={isExpanded} />}
+        </button>
+        {hasChildren && isExpanded && (
+          <div>
+            <button className="drw-sub drw-sub-all" style={{ paddingLeft: 16 + (depth + 1) * 16 }} onClick={nav}>
+              {lang === 'bn' ? `সব ${child.name_bn}` : `All ${child.name_en || child.name_bn}`}
+            </button>
+            {renderDrawerSubs(child.children, depth + 1, [...ancestors, child])}
+          </div>
+        )}
+      </div>
+    );
+  });
 
   const handleDrawerSearch = e => {
     e.preventDefault();
@@ -167,12 +251,18 @@ export default function Navigation() {
     <>
       {/* ── Desktop nav bar ───────────────────────────────────── */}
       <nav id="nav" aria-label={lang === 'bn' ? 'প্রধান নেভিগেশন' : 'Main navigation'}>
-        {/* Measurement ghost */}
+        {/* Measurement ghost — measures all items to compute auto width cap */}
         <div className="nav-measure" ref={measureRef} aria-hidden="true">
           <a className="nav-measure-item nav-home">{t('nav.home', lang)}</a>
-          {categories.map(cat => (
+          {navCats.map(cat => (
             <a key={cat.slug + '-m'} className="nav-measure-item">
               {lang === 'bn' ? cat.name_bn : (cat.name_en || cat.name_bn)}
+            </a>
+          ))}
+          <a className="nav-measure-item">{moreLabel}</a>
+          {MENU_ITEMS.map(item => (
+            <a key={item.key + '-m'} className="nav-measure-item">
+              {lang === 'bn' ? item.bn : item.en}
             </a>
           ))}
         </div>
@@ -184,19 +274,18 @@ export default function Navigation() {
             {t('nav.home', lang)}
           </a>
 
-          {/* Categories */}
-          {categories.map((cat, i) => {
+          {/* Visible categories */}
+          {visibleCats.map(cat => {
             const hasChildren = cat.children?.length > 0;
             const isHovered   = hoveredCat === cat.slug;
-            const hidden      = i >= visibleCount - 1;
+            const nav         = makeCatNav(cat);
             return (
-              <div key={cat.slug} className={`nav-cat-wrap${hidden ? ' nav-hidden' : ''}`}
-                onMouseEnter={() => !hidden && hasChildren && handleCatEnter(cat.slug)}
+              <div key={cat.slug} className="nav-cat-wrap"
+                onMouseEnter={() => hasChildren && handleCatEnter(cat.slug)}
                 onMouseLeave={handleCatLeave}>
                 <a className={`nav-item${hasChildren ? ' nav-has-sub' : ''}`}
-                  onClick={() => onNavigate('cat', cat.slug)}
-                  role="menuitem" tabIndex={hidden ? -1 : 0}
-                  onKeyDown={e => e.key === 'Enter' && onNavigate('cat', cat.slug)}>
+                  onClick={nav} role="menuitem" tabIndex={0}
+                  onKeyDown={e => e.key === 'Enter' && nav()}>
                   {lang === 'bn' ? cat.name_bn : (cat.name_en || cat.name_bn)}
                   {hasChildren && (
                     <svg className="nav-arrow" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -207,16 +296,16 @@ export default function Navigation() {
                 {hasChildren && isHovered && (
                   <div className="nav-sub-dropdown" role="menu"
                     onMouseEnter={handleDropEnter} onMouseLeave={handleDropLeave}>
-                    {renderDropdownItems(cat.children, 0)}
+                    {renderDropdownItems(cat.children, 0, [cat])}
                   </div>
                 )}
               </div>
             );
           })}
 
-          {/* MENU_ITEMS in nav (visible if space, else in drawer) */}
+          {/* MENU_ITEMS (Stories, Gallery, Video) */}
           {MENU_ITEMS.map((item, i) => {
-            const hidden = categories.length + i >= visibleCount - 1;
+            const hidden = visibleCats.length + i >= visibleCount - 1;
             return (
               <a key={item.key} className={`nav-item${hidden ? ' nav-hidden' : ''}`}
                 onClick={() => onNavigate(item.page)} role="menuitem" tabIndex={hidden ? -1 : 0}>
@@ -224,6 +313,30 @@ export default function Navigation() {
               </a>
             );
           })}
+
+          {/* "আরও / More" — always last */}
+          {overflowCats.length > 0 && (
+            <div className="nav-cat-wrap nav-more-wrap"
+              onMouseEnter={handleMoreEnter} onMouseLeave={handleMoreLeave}>
+              <a className="nav-item nav-more-btn" role="button" tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && setMoreOpen(o => !o)}>
+                {moreLabel}
+                <svg className="nav-arrow" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                  style={{ transition: 'transform .2s', transform: moreOpen ? 'rotate(180deg)' : 'none' }}>
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </a>
+              {moreOpen && (
+                <div className="nav-sub-dropdown nav-more-dropdown" role="menu"
+                  onMouseEnter={handleMoreEnter} onMouseLeave={handleMoreLeave}>
+                  {renderDropdownItems(overflowCats.map(cat => ({
+                    ...cat,
+                    children: cat.children ?? [],
+                  })), 0, [])}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </nav>
 
@@ -262,23 +375,24 @@ export default function Navigation() {
           {/* All categories */}
           {categories.map(cat => {
             const hasChildren = cat.children?.length > 0;
-            const isExpanded  = expandedCat === cat.slug;
+            const isExpanded  = !!expandedCat[cat.slug];
+            const nav         = makeCatNav(cat);
             return (
               <div key={cat.slug}>
                 <button className="drw-item"
                   onClick={() => {
-                    if (hasChildren) setExpandedCat(isExpanded ? null : cat.slug);
-                    else go('cat', cat.slug);
+                    if (hasChildren) toggleExpanded(cat.slug);
+                    else nav();
                   }}>
                   <span>{lang === 'bn' ? cat.name_bn : (cat.name_en || cat.name_bn)}</span>
                   {hasChildren && <ChevronDown open={isExpanded} />}
                 </button>
                 {hasChildren && isExpanded && (
                   <div className="drw-subs">
-                    <button className="drw-sub drw-sub-all" onClick={() => go('cat', cat.slug)}>
+                    <button className="drw-sub drw-sub-all" onClick={nav}>
                       {lang === 'bn' ? `সব ${cat.name_bn}` : `All ${cat.name_en || cat.name_bn}`}
                     </button>
-                    {renderDrawerSubs(cat.children)}
+                    {renderDrawerSubs(cat.children, 0, [cat])}
                   </div>
                 )}
               </div>

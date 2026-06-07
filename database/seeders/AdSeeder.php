@@ -169,6 +169,20 @@ class AdSeeder extends Seeder
             ],
         ];
 
+            [
+                'title_bn' => 'আর্টিকেল বিজ্ঞাপন',
+                'title_en' => 'In-Article Banner',
+                'image' => 'https://placehold.co/728x90/e8001e/ffffff?text=In-Article+Ad',
+                'link' => 'https://example.com',
+                'position' => 'in_article',
+                'type' => 'image',
+                'is_active' => true,
+                'sort_order' => 12,
+                'impressions' => 0,
+                'clicks' => 0,
+            ],
+        ];
+
         foreach ($ads as $ad) {
             Ad::create($ad);
         }

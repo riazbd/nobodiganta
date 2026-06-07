@@ -159,6 +159,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy')->whereNumber('category');
         Route::post('/categories/reorder', [CategoryController::class, 'reorder'])->name('categories.reorder');
         Route::patch('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status')->whereNumber('category');
+        Route::patch('/categories/{category}/toggle-nav', [CategoryController::class, 'toggleNav'])->name('categories.toggle-nav')->whereNumber('category');
         Route::post('/categories/bulk-update', [CategoryController::class, 'bulkUpdate'])->name('categories.bulk-update');
 
         // Media

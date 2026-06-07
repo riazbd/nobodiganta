@@ -58,6 +58,7 @@ class CategoryController extends Controller
         $validated['color_code'] = $validated['color'] ?? '#e8001e';
 
         $category = Category::create($validated);
+        $this->bustNavCache();
 
         if ($request->expectsJson() || $request->header('Accept') === 'application/json') {
             return response()->json([
@@ -102,6 +103,7 @@ class CategoryController extends Controller
 
         $oldSlug = $category->slug;
         $category->update($validated);
+        $this->bustNavCache();
 
         // If a location category's slug changed, re-derive string columns on all tagged articles
         if ($this->isLocationCategory($oldSlug) && $oldSlug !== $category->slug) {
@@ -147,6 +149,7 @@ class CategoryController extends Controller
         }
 
         $category->delete();
+        $this->bustNavCache();
 
         if ($request->expectsJson() || $request->header('Accept') === 'application/json') {
             return response()->json([
@@ -166,16 +169,66 @@ class CategoryController extends Controller
     {
         $edition = $request->get('edition', 'bn');
 
-        // Load all active categories in one query, build recursive tree in PHP
-        $all = Category::active()
-            ->editorial()
-            ->forEdition($edition)
-            ->ordered()
-            ->get();
+        $categories = \Cache::remember("nav_categories_{$edition}", 3600, function () use ($edition) {
+            // Editorial categories (excludes saradesh tree)
+            $all = Category::active()
+                ->editorial()
+                ->forEdition($edition)
+                ->ordered()
+                ->get();
 
-        $categories = $this->buildCategoryTree($all, null, $edition);
+            $categories = $this->buildCategoryTree($all, null, $edition);
+
+            // Append saradesh with full location hierarchy
+            $saradesh = Category::where('slug', 'saradesh')->active()->first();
+            if ($saradesh) {
+                $locationAll = Category::active()
+                    ->where(function ($q) use ($saradesh) {
+                        $q->where('id', $saradesh->id)
+                          ->orWhere('slug', 'like', 'division-%')
+                          ->orWhere('slug', 'like', 'district-%')
+                          ->orWhere('slug', 'like', 'upazila-%');
+                    })
+                    ->ordered()
+                    ->get();
+
+                // Pre-index by parent_id for O(n) tree build
+                $byParent = [];
+                foreach ($locationAll as $cat) {
+                    if ($cat->parent_id !== null) {
+                        $byParent[$cat->parent_id][] = $cat;
+                    }
+                }
+
+                $saradeshNode = $this->buildLocationNode($byParent, $saradesh, $edition);
+
+                // Insert at the correct sort_order position rather than always appending
+                $saradeshOrder = $saradesh->sort_order ?? PHP_INT_MAX;
+                $insertAt = $all->filter(fn($c) => $c->parent_id === null && ($c->sort_order ?? 0) < $saradeshOrder)->count();
+                array_splice($categories, min($insertAt, count($categories)), 0, [$saradeshNode]);
+            }
+
+            return $categories;
+        });
 
         return response()->json($categories);
+    }
+
+    private function buildLocationNode($byParent, $node, string $edition): array
+    {
+        $children = $byParent[$node->id] ?? [];
+        return [
+            'id'             => $node->id,
+            'name_bn'        => $node->name_bn,
+            'name_en'        => $node->name_en,
+            'slug'           => $node->slug,
+            'edition'        => $node->edition,
+            'description_bn' => null,
+            'description_en' => null,
+            'icon'           => $node->icon,
+            'color'          => $node->color,
+            'children'       => array_map(fn($c) => $this->buildLocationNode($byParent, $c, $edition), $children),
+        ];
     }
 
     private function buildCategoryTree($all, $parentId, string $edition): array
@@ -189,6 +242,7 @@ class CategoryController extends Controller
                 'name_en'        => $c->name_en,
                 'slug'           => $c->slug,
                 'edition'        => $c->edition,
+                'show_in_nav'    => (bool) $c->show_in_nav,
                 'description_bn' => $c->getDescription('bn'),
                 'description_en' => $c->getDescription('en'),
                 'icon'           => $c->icon,
@@ -215,6 +269,7 @@ class CategoryController extends Controller
                     'slug' => $category->slug,
                     'edition' => $category->edition,
                     'is_active' => $category->is_active,
+                    'show_in_nav' => $category->show_in_nav,
                     'color' => $category->color,
                     'description_bn' => $category->description_bn,
                     'description_en' => $category->description_en,
@@ -245,6 +300,8 @@ class CategoryController extends Controller
                 ->update(['sort_order' => $item['sort_order']]);
         }
 
+        $this->bustNavCache();
+
         return response()->json(['success' => true]);
     }
 
@@ -259,6 +316,7 @@ class CategoryController extends Controller
 
         $becomingInactive = $category->is_active;
         $category->update(['is_active' => !$category->is_active]);
+        $this->bustNavCache();
 
         // Deactivating a location category removes articles from public location pages
         if ($becomingInactive && $this->isLocationCategory($category->slug)) {
@@ -270,6 +328,24 @@ class CategoryController extends Controller
             'success' => true,
             'is_active' => $category->is_active,
         ]);
+    }
+
+    public function toggleNav(Category $category)
+    {
+        if (!auth()->user()->hasPermission('category.edit')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $category->update(['show_in_nav' => !$category->show_in_nav]);
+        $this->bustNavCache();
+
+        return response()->json(['success' => true, 'show_in_nav' => $category->show_in_nav]);
+    }
+
+    private function bustNavCache(): void
+    {
+        \Cache::forget('nav_categories_bn');
+        \Cache::forget('nav_categories_en');
     }
 
     private function isLocationCategory(string $slug): bool

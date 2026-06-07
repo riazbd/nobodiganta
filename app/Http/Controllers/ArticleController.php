@@ -172,7 +172,7 @@ class ArticleController extends Controller
         $authors = User::whereIn('role', ['admin', 'editor', 'reporter'])
             ->orderBy('name')
             ->get(['id', 'name']);
-        $ads = \App\Models\Ad::active()->orderBy('title_bn')->get(['id', 'title_bn', 'title_en', 'type', 'position']);
+        $ads = \App\Models\Ad::active()->orderBy('title_bn')->get(['id', 'title_bn', 'title_en', 'type', 'position', 'image', 'link', 'code', 'video_url']);
 
         return Inertia::render('features/admin/pages/content/WriteNews', [
             'categories' => $categories,
@@ -358,7 +358,7 @@ class ArticleController extends Controller
         $authors = User::whereIn('role', ['admin', 'editor', 'reporter'])
             ->orderBy('name')
             ->get(['id', 'name']);
-        $ads = \App\Models\Ad::active()->orderBy('title_bn')->get(['id', 'title_bn', 'title_en', 'type', 'position']);
+        $ads = \App\Models\Ad::active()->orderBy('title_bn')->get(['id', 'title_bn', 'title_en', 'type', 'position', 'image', 'link', 'code', 'video_url']);
 
         return Inertia::render('features/admin/pages/content/WriteNews', [
             'categories' => $categories,
@@ -381,6 +381,7 @@ class ArticleController extends Controller
                 'status' => $article->status,
                 'isBreaking' => $article->is_breaking,
                 'isFeatured' => $article->is_featured,
+                'isPremium' => $article->is_premium,
                 'isExclusive' => $article->is_exclusive,
                 'allowComments' => (bool)$article->allow_comments,
                 'videoUrl' => $article->video_url,
