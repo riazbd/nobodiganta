@@ -423,27 +423,35 @@ export default function Article({
           <h1 className="art-h1">{article.title}</h1>
           <div className="art-sub">{article.subtitle}</div>
           <div className="art-meta">
-            <span
-              className="author"
-              style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: article.author?.slug ? 'pointer' : 'default' }}
-              onClick={() => article.author?.slug && onNavigate('author', article.author.slug)}
-              role={article.author?.slug ? 'link' : undefined}
-              tabIndex={article.author?.slug ? 0 : undefined}
-              onKeyDown={e => e.key === 'Enter' && article.author?.slug && onNavigate('author', article.author.slug)}
-            >
-              {article.author?.image ? (
-                <img
-                  src={article.author.image}
-                  alt={article.author.name}
-                  style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }}
-                />
-              ) : (
-                <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 'bold' }}>
-                  {article.author?.name?.charAt(0)}
-                </div>
-              )}
-              {article.author?.name}
-            </span>
+            {article.author?.name && (
+              <span
+                className="author"
+                style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: article.author?.slug ? 'pointer' : 'default' }}
+                onClick={() => article.author?.slug && onNavigate('author', article.author.slug)}
+                role={article.author?.slug ? 'link' : undefined}
+                tabIndex={article.author?.slug ? 0 : undefined}
+                onKeyDown={e => e.key === 'Enter' && article.author?.slug && onNavigate('author', article.author.slug)}
+              >
+                {article.author?.image ? (
+                  <img
+                    src={article.author.image}
+                    alt={article.author.name}
+                    style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 'bold' }}>
+                    {article.author?.name?.charAt(0)}
+                  </div>
+                )}
+                <span style={{ color: 'var(--red)', fontWeight: 800, fontSize: 13, marginRight: 2 }}>
+                  {lang === 'bn' ? 'প্রতিনিধি' : 'Reporter'}
+                </span>
+                {article.author.name}
+                {article.author.designation && (
+                  <span style={{ fontSize: 12, color: '#888' }}>, {article.author.designation}</span>
+                )}
+              </span>
+            )}
             <span className="time"><Icon name="clock" size={14} /> {relativeTime(article.published_at, lang)}</span>
             <span className="time"><Icon name="eye" size={12} /> {lang === 'bn' ? toBengaliNum(String(article.views || 0)) : (article.views || 0)} {t('article.readers', lang)}</span>
             <span style={{ fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -476,6 +484,7 @@ export default function Article({
               )}
             </div>
           )}
+
           <ArticleBodyWithAd
             html={bodyHtml}
             ad={(() => {
@@ -489,12 +498,21 @@ export default function Article({
             position={article.in_article_ad_position ?? 4}
           />
 
-          <div style={{ margin: '30px 0' }}>
+          {/* অনুমোদন কারী */}
+          {article.approver?.name && (
+            <div className="art-approver-line">
+              <span className="art-approver-label">{lang === 'bn' ? 'অনুমোদন কারী' : 'Approved by'}</span>
+              <span className="art-approver-sep">–</span>
+              <span className="art-approver-name">{article.approver.name}</span>
+            </div>
+          )}
+
+          <div style={{ margin: '20px 0' }}>
             <AdSlot size="leaderboard" position="article_bottom" />
           </div>
 
           {/* Author bio */}
-          <AuthorBio article={article} />
+          {/* <AuthorBio article={article} /> */}
 
           {/* Tags */}
           {tags.length > 0 && (

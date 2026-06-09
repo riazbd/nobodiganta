@@ -11,7 +11,7 @@ export default function PageSidebar() {
       </div>
 
       <div style={{ margin: '20px 0' }}>
-        <AdSlot size="half-page" position="sidebar_middle" />
+        <AdSlot size="mrec" position="sidebar_middle" />
       </div>
     </aside>
   );

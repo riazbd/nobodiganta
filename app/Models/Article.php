@@ -19,7 +19,7 @@ class Article extends Model
         'excerpt_bn', 'excerpt_en',
         'edition', 'article_type', 'status',
         'is_breaking', 'is_featured', 'is_premium', 'is_exclusive', 'allow_comments',
-        'category_id', 'author_id', 'secondary_author_id',
+        'category_id', 'author_id', 'secondary_author_id', 'approver_id',
         'is_guest_author',
         'guest_author_name_bn', 'guest_author_name_en',
         'guest_author_bio_bn', 'guest_author_bio_en',
@@ -91,6 +91,14 @@ class Article extends Model
     public function secondaryAuthor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'secondary_author_id');
+    }
+
+    /**
+     * Approver
+     */
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approver_id');
     }
 
     /**
@@ -284,7 +292,7 @@ class Article extends Model
      */
     public function scopeWithRelations($query)
     {
-        return $query->with(['category', 'categories', 'author', 'tags', 'inArticleAd']);
+        return $query->with(['category', 'categories', 'author', 'secondaryAuthor', 'approver', 'tags', 'inArticleAd']);
     }
 
     /**
@@ -382,6 +390,10 @@ class Article extends Model
                 ])->values()->toArray()
                 : [],
             'author' => $this->getAuthorData($edition),
+            'approver' => $this->approver ? [
+                'id'   => $this->approver->id,
+                'name' => $this->approver->name,
+            ] : null,
             'featured_image' => $this->featured_image,
             'featured_image_alt' => $this->getFeaturedImageAlt($edition),
             'featured_image_caption' => $edition === 'en' 
