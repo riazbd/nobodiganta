@@ -120,7 +120,7 @@ Route::middleware(['auth'])->group(function () {
                     ->where('status', $status)
                     ->when($request->search, fn($q, $s) => $q->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%"))
                     ->when($edition && $edition !== 'all', fn($q) => $q->where(fn($q2) => $q2->where('edition', 'both')->orWhere('edition', $edition)))
-                    ->when($category && $category !== 'all', fn($q) => $q->whereHas('category', fn($q2) => $q2->where('slug', $category)->orWhere('id', $category)))
+                    ->when($category && $category !== 'all', fn($q) => $q->whereHas('category', fn($q2) => is_numeric($category) ? $q2->where('id', (int)$category) : $q2->where('slug', $category)))
                     ->latest()->paginate($perPage)->withQueryString()
                     ->through(fn($a) => [
                         'id' => $a->id, 'title' => $a->title_bn, 'title_en' => $a->title_en,
