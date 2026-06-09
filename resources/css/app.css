@@ -367,6 +367,11 @@ article .card{padding:8px;}
 }
 .bbc-search-form button:hover { background: var(--dark-red); }
 
+/* Medium phones: hide social slider but keep edition toggle */
+@media(max-width:900px){
+  .bbc-social-slider { display: none; }
+}
+
 /* Mobile */
 @media(max-width:640px){
   :root { --header-h: 50px; }
@@ -1209,6 +1214,7 @@ article .card{padding:8px;}
 }
 @media(max-width:600px){
   .g3,.g2,.g4{grid-template-columns:1fr;}
+  .right-col{display:none;}
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -2248,6 +2254,8 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
   .hp-hero3{grid-template-columns:1fr;gap:8px;}
   .hp-h3-grid-row{grid-template-columns:1fr 1fr;}
   .hp-h3-grid-row .hp-h3-card:nth-child(3){display:none;}
+  .hp-h3-right-col{width:100%; margin-top: 4px; gap: 12px;}
+  .hp-h3-right-col .ad-slot-wrap{width:100%; margin-top: 4px; gap: 12px;}
 }
 @media(max-width:560px){
   .hp-h3-feat{flex-direction:column;}
