@@ -281,8 +281,10 @@ class NewsController extends Controller
 
         $query = Article::published()->forEdition($edition);
 
-        $query->whereHas('categories', function ($q) use ($category) {
-            $q->where('categories.id', $category->id);
+        $query->where(function ($q) use ($category) {
+            $q->whereHas('categories', function ($q2) use ($category) {
+                $q2->where('categories.id', $category->id);
+            })->orWhere('category_id', $category->id);
         });
 
         $articles = $query->withRelations()
