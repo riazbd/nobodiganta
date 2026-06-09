@@ -369,21 +369,21 @@ article .card{padding:8px;}
 
 /* Mobile */
 @media(max-width:640px){
-  :root { --header-h: 56px; }
-  body.is-scrolled { --header-h: 46px; }
-  .bbc-bar { padding: 6px 10px; }
-  .bbc-block { width: 38px; height: 38px; font-size: 22px; }
+  :root { --header-h: 50px; }
+  .bbc-bar { padding: 5px 10px; }
+  .bbc-search-drop { padding: 8px 10px; }
+  .bbc-search-form input { padding: 10px 0; font-size: 14px; }
+  .bbc-search-form button { padding: 6px 14px; font-size: 12px; }
+  /* Right column invisible but 1fr track remains so logo stays centred */
+  .bbc-right { visibility: hidden; pointer-events: none; }
+  .bbc-block { width: 36px; height: 36px; font-size: 20px; }
   .bbc-tagline { display: none; }
-  .bbc-register { padding: 6px 10px; font-size: 12px; }
-  .bbc-signin { font-size: 12px; padding: 6px 6px; }
-  .bbc-edition { display: none; }
+  .bbc-site-name { font-size: 22px; letter-spacing: 0; }
+  .bbc-logo-img { max-height: 36px; max-width: 110px; }
   .bbc-date-wrap { display: none; }
-  .bbc-soc-label-wrap { display: none; }
-  .bbc-soc-arrow { display: none; }
-  .bbc-social-slider { margin-right: 0; gap: 4px; }
-  .bbc-hdr-soc { width: 26px; height: 26px; }
   #header.header-scrolled .bbc-bar { padding: 4px 10px; }
-  #header.header-scrolled .bbc-block { width: 34px; height: 34px; font-size: 20px; }
+  #header.header-scrolled .bbc-site-name { font-size: 20px; }
+  #header.header-scrolled .bbc-logo-img { max-height: 30px; }
 }
 
 /* ── NAV BAR ──────────────────────────────────────────────── */
@@ -660,6 +660,15 @@ article .card{padding:8px;}
 
 /* Add bottom padding to page so ticker doesn't overlap content */
 .page-container{padding-bottom:54px;}
+
+@media(max-width:640px){
+  .brk-fixed { height:34px; }
+  .brk-label { font-size:13px; padding:0 10px; letter-spacing:.3px; }
+  .brk-link { font-size:14px; padding:0 6px; }
+  .brk-logo-dot { width:14px; height:14px; margin:0 8px; }
+  .brk-logo-dot img { width:14px; height:14px; }
+  .page-container { padding-bottom:44px; }
+}
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    STOCKS
@@ -2139,11 +2148,17 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 /* ── PAGE ── */
 .p-page{background:#fff;min-height:100vh;}
 .p-ad-top{text-align:center;padding:6px 0;background:#fff;}
-.home-notice-wrapper{margin-bottom: 20px;padding:0 10px;}
+.home-notice-wrapper{margin-bottom:20px;padding:0 10px;}
 .home-notice{background:#c0392b;color:#fff;}
 .home-notice-inner{max-width:1220px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px;}
 .home-notice-icon{flex-shrink:0;margin-top:1px;opacity:.9;}
 .home-notice-text{font-family:'SolaimanLipi',sans-serif;font-size:17px;font-weight:600;line-height:1.7;}
+@media(max-width:640px){
+  .home-notice-wrapper{margin-bottom:14px;padding:0;}
+  .home-notice-inner{padding:9px 12px;gap:8px;}
+  .home-notice-icon svg{width:15px;height:15px;}
+  .home-notice-text{font-size:14.5px;line-height:1.55;}
+}
 .p-ad-between{text-align:center;padding:10px 0;}
 .p-ad-bottom{text-align:center;padding:10px 0;}
 

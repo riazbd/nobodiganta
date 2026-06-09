@@ -9,10 +9,10 @@
  * - API responses: Network-first (1 min timeout)
  */
 
-const CACHE_NAME = 'nobodiganta-v1';
-const STATIC_CACHE = 'nobodiganta-static-v1';
-const DYNAMIC_CACHE = 'nobodiganta-dynamic-v1';
-const IMAGES_CACHE = 'nobodiganta-images-v1';
+const CACHE_NAME = 'nobodiganta-v2';
+const STATIC_CACHE = 'nobodiganta-static-v2';
+const DYNAMIC_CACHE = 'nobodiganta-dynamic-v2';
+const IMAGES_CACHE = 'nobodiganta-images-v2';
 
 // Static assets to cache immediately
 const STATIC_ASSETS = [
@@ -50,7 +50,7 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((name) => name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name !== IMAGES_CACHE)
+            .filter((name) => ![STATIC_CACHE, DYNAMIC_CACHE, IMAGES_CACHE, CACHE_NAME].includes(name))
             .map((name) => caches.delete(name))
         );
       })
@@ -70,6 +70,10 @@ self.addEventListener('fetch', (event) => {
 
   // Skip external requests
   if (!url.origin.includes(self.location.hostname)) return;
+
+  // Never cache Inertia XHR navigation requests — they carry dynamic page data
+  // and must always be served fresh to avoid stale UI after data changes.
+  if (request.headers.get('X-Inertia')) return;
 
   // Apply strategy based on request type
   if (request.destination === 'image') {

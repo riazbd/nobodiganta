@@ -148,6 +148,10 @@ class OpinionController extends Controller
             'published_at' => ($validated['status'] ?? 'draft') === 'published' ? now() : null,
         ]);
 
+        if ($category) {
+            $article->categories()->sync([$category->id => ['is_primary' => true, 'sort_order' => 0]]);
+        }
+
         return redirect()->route('admin.opinions.edit', $article)
             ->with('success', 'Opinion created successfully');
     }
@@ -203,6 +207,8 @@ class OpinionController extends Controller
 
         $newStatus = $validated['status'] ?? $article->status;
 
+        $category = Category::where('slug', 'opinion')->first();
+
         $article->update([
             'title_bn' => $validated['titleBn'] ?? null,
             'title_en' => $validated['titleEn'] ?? null,
@@ -216,6 +222,7 @@ class OpinionController extends Controller
             'excerpt_en' => $validated['excerptEn'] ?? null,
             'edition' => $validated['edition'],
             'article_type' => 'opinion',
+            'category_id' => $category ? $category->id : $article->category_id,
             'featured_image' => $validated['featuredImage'] ?? null,
             'featured_image_alt_bn' => $validated['featuredImageAltBn'] ?? null,
             'featured_image_alt_en' => $validated['featuredImageAltEn'] ?? null,
@@ -231,6 +238,10 @@ class OpinionController extends Controller
             'status' => $newStatus,
             'published_at' => ($newStatus === 'published' && !$article->published_at) ? now() : $article->published_at,
         ]);
+
+        if ($category) {
+            $article->categories()->sync([$category->id => ['is_primary' => true, 'sort_order' => 0]]);
+        }
 
         return back()->with('success', 'Opinion updated successfully');
     }

@@ -42,12 +42,13 @@ class NewsController extends Controller
     {
         return Ad::active()->get()->groupBy('position')->map(function($group) use ($edition) {
             return $group->map(fn($ad) => [
-                'id' => $ad->id,
-                'title' => $ad->getTitle($edition),
-                'image' => $ad->image,
-                'link' => $ad->link,
-                'type' => $ad->type,
-                'code' => $ad->code,
+                'id'        => $ad->id,
+                'title'     => $ad->getTitle($edition),
+                'image'     => $ad->image,
+                'link'      => $ad->link,
+                'type'      => $ad->type,
+                'code'      => $ad->code,
+                'video_url' => $ad->video_url,
             ]);
         });
     }

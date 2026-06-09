@@ -148,8 +148,8 @@ function ArticleBodyWithAd({ html, ad, position = 4 }) {
     if (ad.type === 'video') {
       return <div className="in-article-ad" style={{ margin: '24px 0' }}><video src={ad.video_url} controls style={{ width: '100%', maxHeight: 300 }} preload="none" /></div>;
     }
-    if (['html', 'script', 'adsense', 'google_ad'].includes(ad.type)) {
-      return <div className="in-article-ad" style={{ margin: '24px 0', textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: ad.code || '' }} />;
+    if (['html', 'script', 'adsense', 'google_ad', 'code'].includes(ad.type)) {
+      return <div className="in-article-ad" style={{ margin: '24px 0', textAlign: 'center' }}><ScriptInjector html={ad.code || ''} /></div>;
     }
     return null;
   };
