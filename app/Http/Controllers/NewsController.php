@@ -285,6 +285,11 @@ class NewsController extends Controller
             $q->whereHas('categories', function ($q2) use ($category) {
                 $q2->where('categories.id', $category->id);
             })->orWhere('category_id', $category->id);
+
+            // Opinion articles are typed by article_type rather than category alone
+            if (in_array($category->slug, ['opinion', 'মতামত'])) {
+                $q->orWhere('article_type', 'opinion');
+            }
         });
 
         $articles = $query->withRelations()
