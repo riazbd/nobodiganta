@@ -138,11 +138,9 @@ export default function Category({ category, articles }) {
                   </div>
                 )}
 
-                {data.length > 3 && (
-                  <div style={{ margin: '20px 0' }}>
-                    <AdSlot size="leaderboard" position="category_middle" />
-                  </div>
-                )}
+                <div style={{ margin: '20px 0' }}>
+                  <AdSlot size="leaderboard" position="category_middle" />
+                </div>
 
                 {/* List items */}
                 {data.slice(3).length > 0 && (
