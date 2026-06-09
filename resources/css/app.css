@@ -1177,9 +1177,9 @@ article .card{padding:8px;}
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    BACK TO TOP
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-#btt{position:fixed;bottom:50px;left:22px;width:40px;height:40px;background:var(--red);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:26px;display:none;align-items:center;justify-content:center;z-index:500;transition:background .15s;}
-#btt:hover{background:var(--dark-red);}
-#btt.show{display:flex;}
+#btt{position:fixed;bottom:70px;right:16px;width:34px;height:34px;background:rgba(38,50,56,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;border:none;border-radius:8px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:600;transition:background .15s,opacity .2s,transform .2s;opacity:0;transform:translateY(6px);box-shadow:0 2px 8px rgba(0,0,0,.22);}
+#btt:hover{background:rgba(38,50,56,1);}
+#btt.show{display:flex;opacity:1;transform:translateY(0);}
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    RESPONSIVE
