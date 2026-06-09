@@ -138,16 +138,20 @@ export default function Category({ category, articles }) {
                   </div>
                 )}
 
-                <div style={{ margin: '20px 0' }}>
-                  <AdSlot size="leaderboard" position="category_middle" />
-                </div>
+                {data.length > 3 && (
+                  <div style={{ margin: '20px 0' }}>
+                    <AdSlot size="leaderboard" position="category_middle" />
+                  </div>
+                )}
 
                 {/* List items */}
-                <div className="sec">
-                  {data.slice(3).map(item => (
-                    <ArticleListItem key={item.id} item={item} lang={lang} onNavigate={onNavigate} />
-                  ))}
-                </div>
+                {data.slice(3).length > 0 && (
+                  <div className="sec">
+                    {data.slice(3).map(item => (
+                      <ArticleListItem key={item.id} item={item} lang={lang} onNavigate={onNavigate} />
+                    ))}
+                  </div>
+                )}
 
                 <Pagination links={articles.links} />
               </>
