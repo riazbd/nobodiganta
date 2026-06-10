@@ -173,6 +173,8 @@ article .card{padding:8px;}
 
 /* 3-column BBC bar: [left icons] [centred logo] [right actions] */
 .bbc-bar {
+  max-width: 1220px;
+  margin: 0 auto;
   padding: 10px 16px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
