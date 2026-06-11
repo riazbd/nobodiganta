@@ -50,7 +50,7 @@ export default function StockMarket() {
             </div>
 
             {/* Gainers & Losers */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="stock-gl-grid">
               <div style={{ background: '#fff', borderRadius: 8, padding: 16 }}>
                 <h3 style={{ color: '#28a745', marginBottom: 12, fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Icon name="trendingUp" size={14} />

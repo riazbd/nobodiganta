@@ -13,6 +13,7 @@ class Reporter extends Model
 
     protected $fillable = [
         'user_id',
+        'district_id',
         'name_bn',
         'name_en',
         'slug',
@@ -42,6 +43,11 @@ class Reporter extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class);
     }
 
     /**

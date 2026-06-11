@@ -668,7 +668,7 @@ export default function TiptapEditor({ value, onChange, placeholder, lang = 'bn'
 
       <style dangerouslySetInnerHTML={{ __html: `
         .tiptap-editor-content {
-          font-family: 'Noto Sans Bengali', 'SolaimanLipi', 'Inter', sans-serif;
+          font-family: 'SolaimanLipi', sans-serif;
           font-size: 15px !important;
           font-weight: 400 !important;
           line-height: 1.7;

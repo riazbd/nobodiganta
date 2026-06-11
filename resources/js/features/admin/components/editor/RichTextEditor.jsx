@@ -71,7 +71,7 @@ export default function RichTextEditor({ value, onChange, placeholder, lang = 'b
     <div className="quill-editor-container bg-white">
       <style dangerouslySetInnerHTML={{ __html: `
         .ql-container {
-          font-family: 'Noto Sans Bengali', 'Inter', sans-serif !important;
+          font-family: 'SolaimanLipi', sans-serif !important;
           font-size: 15px !important;
           font-weight: 400 !important;
           min-height: 300px;

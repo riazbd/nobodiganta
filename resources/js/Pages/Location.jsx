@@ -6,7 +6,7 @@ import { buildDefaultSeo } from '../lib/seo';
 import { useApp } from '../contexts/AppContext';
 import Pagination from '../Components/ui/Pagination';
 import EmptyState from '../Components/ui/EmptyState';
-import { relativeTime } from '../lib/formatters';
+import { toBengaliNum } from '../lib/formatters';
 import { ROUTES } from '../lib/routes';
 
 function LocationBreadcrumb({ level, division, district, upazila, divisions, districts, upazilas, lang }) {
@@ -299,11 +299,11 @@ function DivisionGrid({ divisions, lang, divisionCounts }) {
           <Link key={div.slug} href={ROUTES.locationDiv(div.slug, lang)} className="loc-div-card">
             <div className="loc-div-name">{label(div)}</div>
             <div className="loc-div-meta">
-              {lang === 'bn' ? `${div.districts_count || 0}টি জেলা` : `${div.districts_count || 0} Districts`}
+              {lang === 'bn' ? `${toBengaliNum(String(div.districts_count || 0))}টি জেলা` : `${div.districts_count || 0} Districts`}
             </div>
             {count > 0 && (
               <div className="loc-div-count">
-                {count} {lang === 'bn' ? 'সংবাদ' : 'news'}
+                {lang === 'bn' ? toBengaliNum(String(count)) : count} {lang === 'bn' ? 'সংবাদ' : 'news'}
               </div>
             )}
           </Link>
@@ -330,7 +330,7 @@ function LocationTreeWidget({ tree, lang }) {
             >
               <span className="font-medium text-gray-700">{l(div)}</span>
               <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
-                {div.articles_count || 0}
+                {lang === 'bn' ? toBengaliNum(String(div.articles_count || 0)) : (div.articles_count || 0)}
               </span>
             </Link>
           </div>

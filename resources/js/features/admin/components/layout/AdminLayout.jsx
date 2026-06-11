@@ -13,7 +13,7 @@ export default function AdminLayout({ children, currentPage, onNavigate, userRol
 
   return (
     <LanguageProvider>
-      <div className={`flex min-h-screen`} style={{ fontFamily: "'Plus Jakarta Sans', 'Noto Sans Bengali', 'Inter', sans-serif" }}>
+      <div className="admin-root flex min-h-screen" style={{ fontFamily: "'SolaimanLipi', sans-serif" }}>
         <Sidebar currentPage={currentPage} onNavigate={onNavigate} roleInfo={roleInfo} userRole={userRole} />
         <div className="ml-60 flex-1 flex flex-col min-h-screen">
           <Topbar currentPage={currentPage} onNavigate={onNavigate} showToast={showToast} />

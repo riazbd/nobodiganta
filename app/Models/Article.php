@@ -106,7 +106,7 @@ class Article extends Model
      */
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class)->withTimestamps();
+        return $this->belongsToMany(Tag::class)->withTimestamps()->withPivot('edition');
     }
 
     /**
@@ -341,7 +341,7 @@ class Article extends Model
                 'name' => $reporter->getName($edition),
                 'slug' => $reporter->slug,
                 'designation' => $reporter->getDesignation($edition),
-                'image' => $reporter->image ?: $this->author->profile_photo_url,
+                'image' => $reporter->image ?: null,
             ];
         }
 
@@ -350,7 +350,27 @@ class Article extends Model
             'name' => $this->author->name,
             'slug' => strtolower(str_replace(' ', '-', $this->author->name)),
             'designation' => null,
-            'image' => $this->author->profile_photo_url,
+            'image' => null,
+        ];
+    }
+
+    protected function resolveInArticleAd(string $edition): ?array
+    {
+        if (!$this->relationLoaded('inArticleAd') || !$this->inArticleAd) return null;
+        $ad = $this->inArticleAd;
+        $now = now();
+        $active = $ad->is_active
+            && (!$ad->start_date || $ad->start_date->lte($now))
+            && (!$ad->end_date   || $ad->end_date->gte($now));
+        if (!$active) return null;
+        return [
+            'id'        => $ad->id,
+            'type'      => $ad->type,
+            'image'     => $ad->image,
+            'video_url' => $ad->video_url,
+            'link'      => $ad->link,
+            'code'      => $ad->code,
+            'title'     => $ad->getTitle($edition),
         ];
     }
 
@@ -390,6 +410,12 @@ class Article extends Model
                 ])->values()->toArray()
                 : [],
             'author' => $this->getAuthorData($edition),
+            'secondary_author' => $this->secondaryAuthor ? [
+                'id'   => $this->secondaryAuthor->id,
+                'name' => $this->secondaryAuthor->name,
+                'slug' => strtolower(str_replace(' ', '-', $this->secondaryAuthor->name)),
+                'image' => $this->secondaryAuthor->profile_photo_url ?? null,
+            ] : null,
             'approver' => $this->approver ? [
                 'id'   => $this->approver->id,
                 'name' => $this->approver->name,
@@ -405,23 +431,15 @@ class Article extends Model
             'meta_title' => $this->getMetaTitle($edition),
             'meta_description' => $this->getMetaDescription($edition),
             'published_at' => $this->published_at?->toIso8601String(),
-            'in_article_ad' => $this->relationLoaded('inArticleAd') && $this->inArticleAd
-                ? [
-                    'id'       => $this->inArticleAd->id,
-                    'type'     => $this->inArticleAd->type,
-                    'image'    => $this->inArticleAd->image,
-                    'video_url'=> $this->inArticleAd->video_url,
-                    'link'     => $this->inArticleAd->link,
-                    'code'     => $this->inArticleAd->code,
-                    'title'    => $this->inArticleAd->getTitle($edition),
-                  ]
-                : null,
+            'in_article_ad' => $this->resolveInArticleAd($edition),
             'in_article_ad_position' => $this->in_article_ad_position ?? 4,
-            'tags' => $this->tags->map(fn($tag) => [
-                'id' => $tag->id,
-                'name' => $edition === 'en' && $tag->name_en ? $tag->name_en : $tag->name_bn,
-                'slug' => $tag->slug,
-            ]),
+            'tags' => $this->tags
+                ->filter(fn($tag) => $tag->pivot->edition === $edition)
+                ->map(fn($tag) => [
+                    'id' => $tag->id,
+                    'name' => $edition === 'en' && $tag->name_en ? $tag->name_en : $tag->name_bn,
+                    'slug' => $tag->slug,
+                ])->values(),
         ];
     }
 }

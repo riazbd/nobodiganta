@@ -38,7 +38,7 @@ export default function Gallery() {
   return (
     <div className="sec" style={{ marginBottom: 14 }}>
       <div className="sec-hdr"><div className="sec-ttl">{t('gallery.title', lang)}</div></div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+      <div className="gallery-tab-bar">
         {tabLabels.map((tab, i) => (
           <div
             key={i}
@@ -77,7 +77,8 @@ export default function Gallery() {
               <img
                 src={it.src}
                 alt={it.alt_text || it.caption || 'Gallery photo'}
-                style={{ width: '100%', height: i === 0 ? 410 : 200, objectFit: 'cover', display: 'block' }}
+                className={i === 0 ? 'gl-img-big' : 'gl-img'}
+                style={{ width: '100%', objectFit: 'cover', display: 'block' }}
                 loading="lazy"
               />
               <div className="gl-overlay">

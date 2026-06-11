@@ -1,48 +1,134 @@
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
-import { getAvatarImage } from '../../helpers/images';
+import { t } from '../../translations';
 
 export default function AuthorBio({ article }) {
-  const { lang } = useApp();
+  const { lang, settings } = useApp();
   const { onNavigate } = useNavigation();
 
-  if (!article || !article.author) return null;
+  if (!article?.author) return null;
 
   const author = article.author;
-  const isObject = typeof author === 'object' && author !== null;
-
-  const isGuest = isObject ? author.is_guest : false;
-  const name = isObject ? author.name : author;
-  const designation = isObject ? author.designation : article.authorDesg;
-  const bio = isObject ? author.bio : null;
-  const image = isObject ? author.image : null;
-  const slug = isObject ? author.slug : (article.authorId || name);
+  const name = author.name;
+  const designation = author.designation;
+  const bio = author.bio;
+  const image = author.image;
+  const slug = author.slug;
+  const isGuest = author.is_guest;
 
   if (!name) return null;
 
   return (
-    <div className="author-bio" style={{ display: 'flex', gap: 16, alignItems: 'flex-start', padding: '24px', background: 'var(--body-bg, #f0f2f8)', borderRadius: 16, margin: '32px 0', border: '1px solid #e8ebf4' }}>
-      <img
-        src={getAvatarImage(image || name)}
-        alt={name}
-        style={{ width: 64, height: 64, borderRadius: 16, objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-      />
-      <div>
-        <div style={{ fontWeight: 700, fontSize: 17, color: 'var(--black)', marginBottom: 2 }}>{name}</div>
-        {designation && (
-          <div style={{ color: 'var(--red)', fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{designation}</div>
-        )}
-        {bio && (
-          <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6, marginBottom: 12 }}>{bio}</p>
-        )}
-        {!isGuest && slug && (
-          <button
-            onClick={() => onNavigate('author', slug)}
-            style={{ fontSize: 13, color: '#0055a5', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
-          >
-            {lang === 'bn' ? 'সব লেখা দেখুন →' : 'View all articles →'}
-          </button>
-        )}
+    <div style={{
+      margin: '32px 0 8px',
+      borderTop: '3px solid var(--red)',
+      background: '#fff',
+      border: '1px solid #e8e8e8',
+      borderTopColor: 'var(--red)',
+      borderTopWidth: 3,
+    }}>
+      {/* Header label */}
+      <div style={{
+        padding: '8px 20px',
+        borderBottom: '1px solid #f0f0f0',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+      }}>
+        <span style={{
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: 'var(--red)',
+          fontFamily: 'sans-serif',
+        }}>
+          {t('article.author_bio', lang)}
+        </span>
+      </div>
+
+      {/* Author info */}
+      <div style={{ display: 'flex', gap: 20, padding: '18px 20px', alignItems: 'flex-start' }}>
+        {/* Avatar */}
+        <div style={{ flexShrink: 0 }}>
+          <img
+            src={image || settings?.site_logo || '/logo.png'}
+            alt={name}
+            onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = settings?.site_logo || '/logo.png'; }}
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '2px solid #eee',
+              display: 'block',
+            }}
+          />
+        </div>
+
+        {/* Text */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ marginBottom: 2 }}>
+            <span style={{
+              fontFamily: 'SolaimanLipi, sans-serif',
+              fontSize: 18,
+              fontWeight: 800,
+              color: '#111',
+              lineHeight: 1.3,
+            }}>
+              {name}
+            </span>
+          </div>
+
+          {designation && (
+            <div style={{
+              fontSize: 13,
+              color: 'var(--red)',
+              fontWeight: 700,
+              marginBottom: 10,
+              fontFamily: 'SolaimanLipi, sans-serif',
+            }}>
+              {designation}
+            </div>
+          )}
+
+          {bio && (
+            <p style={{
+              fontFamily: 'SolaimanLipi, sans-serif',
+              fontSize: 15,
+              color: '#555',
+              lineHeight: 1.7,
+              margin: '0 0 12px',
+            }}>
+              {bio}
+            </p>
+          )}
+
+          {!isGuest && slug && (
+            <button
+              onClick={() => onNavigate('author', slug)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                fontSize: 13,
+                fontWeight: 700,
+                color: '#fff',
+                background: 'var(--red)',
+                border: 'none',
+                borderRadius: 2,
+                padding: '5px 14px',
+                cursor: 'pointer',
+                fontFamily: 'SolaimanLipi, sans-serif',
+                transition: 'opacity .15s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '.85'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+            >
+              {t('article.view_all_by', lang)}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

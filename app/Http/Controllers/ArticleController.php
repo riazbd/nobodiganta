@@ -231,8 +231,10 @@ class ArticleController extends Controller
             'metaDescBn' => 'nullable|string|max:500',
             'metaDescEn' => 'nullable|string|max:500',
             'scheduledAt' => 'nullable|date',
-            'tags' => 'nullable|array',
-            'tags.*' => 'string|max:100',
+            'tags_bn' => 'nullable|array',
+            'tags_bn.*' => 'string|max:100',
+            'tags_en' => 'nullable|array',
+            'tags_en.*' => 'string|max:100',
             'sendPushNotification' => 'boolean',
             'allowComments' => 'boolean',
             'videoUrl' => 'nullable|url',
@@ -306,18 +308,7 @@ class ArticleController extends Controller
         $this->syncCategoryPivot($article, $expandedIds, $primaryId);
         $this->deriveAndSyncLocation($article, $expandedIds);
 
-        if (!empty($validated['tags'])) {
-            $tagIds = [];
-            foreach ($validated['tags'] as $tagName) {
-                if (empty($tagName)) continue;
-                $tag = Tag::firstOrCreate(
-                    ['slug' => Str::slug($tagName)],
-                    ['name_bn' => $tagName, 'name_en' => $tagName]
-                );
-                $tagIds[] = $tag->id;
-            }
-            $article->tags()->sync($tagIds);
-        }
+        $this->syncArticleTags($article, $validated['tags_bn'] ?? [], $validated['tags_en'] ?? []);
 
         AuditLog::create([
             'user_id' => Auth::id(),
@@ -410,7 +401,8 @@ class ArticleController extends Controller
                 'metaDescBn' => $article->meta_description_bn,
                 'metaDescEn' => $article->meta_description_en,
                 'scheduledAt' => $article->scheduled_at?->format('Y-m-d\TH:i'),
-                'tags' => $article->tags->pluck('name_bn')->toArray(),
+                'tags_bn' => $article->tags->filter(fn($t) => $t->pivot->edition === 'bn')->pluck('name_bn')->values()->toArray(),
+                'tags_en' => $article->tags->filter(fn($t) => $t->pivot->edition === 'en')->pluck('name_en')->values()->toArray(),
                 'inArticleAdId' => $article->in_article_ad_id,
                 'inArticleAdPosition' => $article->in_article_ad_position ?? 4,
             ],
@@ -468,8 +460,10 @@ class ArticleController extends Controller
             'metaDescBn' => 'nullable|string|max:500',
             'metaDescEn' => 'nullable|string|max:500',
             'scheduledAt' => 'nullable|date',
-            'tags' => 'nullable|array',
-            'tags.*' => 'string|max:100',
+            'tags_bn' => 'nullable|array',
+            'tags_bn.*' => 'string|max:100',
+            'tags_en' => 'nullable|array',
+            'tags_en.*' => 'string|max:100',
             'sendPushNotification' => 'boolean',
             'allowComments' => 'boolean',
             'videoUrl' => 'nullable|url',
@@ -550,15 +544,7 @@ class ArticleController extends Controller
         $this->syncCategoryPivot($article, $expandedIds, $primaryId);
         $this->deriveAndSyncLocation($article, $expandedIds);
 
-        if (isset($validated['tags'])) {
-            $tagIds = [];
-            foreach ($validated['tags'] as $tagName) {
-                if (empty($tagName)) continue;
-                $tag = Tag::firstOrCreate(['slug' => Str::slug($tagName)], ['name_bn' => $tagName, 'name_en' => $tagName]);
-                $tagIds[] = $tag->id;
-            }
-            $article->tags()->sync($tagIds);
-        }
+        $this->syncArticleTags($article, $validated['tags_bn'] ?? [], $validated['tags_en'] ?? []);
 
         AuditLog::create([
             'user_id' => Auth::id(),
@@ -732,6 +718,44 @@ class ArticleController extends Controller
             $counter++;
         }
 
+        return $slug;
+    }
+
+    protected function syncArticleTags(Article $article, array $tagsBn, array $tagsEn): void
+    {
+        $pivotData = [];
+
+        foreach ($tagsBn as $name) {
+            $name = trim($name);
+            if (empty($name)) continue;
+            $slug = $this->makeTagSlug($name);
+            $tag = Tag::firstOrCreate(['slug' => $slug], ['name_bn' => $name, 'name_en' => null]);
+            $pivotData[$tag->id . ':bn'] = ['tag_id' => $tag->id, 'edition' => 'bn'];
+        }
+
+        foreach ($tagsEn as $name) {
+            $name = trim($name);
+            if (empty($name)) continue;
+            $slug = $this->makeTagSlug($name);
+            $tag = Tag::firstOrCreate(['slug' => $slug], ['name_bn' => $name, 'name_en' => $name]);
+            if ($tag->name_en === null) {
+                $tag->update(['name_en' => $name]);
+            }
+            $pivotData[$tag->id . ':en'] = ['tag_id' => $tag->id, 'edition' => 'en'];
+        }
+
+        $article->tags()->detach();
+        foreach ($pivotData as $entry) {
+            $article->tags()->attach($entry['tag_id'], ['edition' => $entry['edition']]);
+        }
+    }
+
+    protected function makeTagSlug(string $name): string
+    {
+        $slug = Str::slug($name);
+        if (empty($slug)) {
+            $slug = 'tag-' . substr(md5($name), 0, 8);
+        }
         return $slug;
     }
 

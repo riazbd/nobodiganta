@@ -49,7 +49,7 @@ export function LineChart({
               boxShadow: `0 0 8px ${entry.stroke}60`,
             }} />
             <span style={{ color: '#9ca3af', fontSize: '12px', flex: 1 }}>{entry.name}</span>
-            <span style={{ color: '#fff', fontWeight: 600, fontSize: '13px', fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}>
+            <span style={{ color: '#fff', fontWeight: 600, fontSize: '13px', fontFamily: "'SolaimanLipi', sans-serif" }}>
               {entry.value?.toLocaleString()}
             </span>
           </div>
@@ -88,14 +88,14 @@ export function LineChart({
           dataKey="name"
           axisLine={false}
           tickLine={false}
-          tick={{ fontSize: 11, fill: '#9ca3af', fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontWeight: 500 }}
+          tick={{ fontSize: 11, fill: '#9ca3af', fontFamily: "'SolaimanLipi', sans-serif", fontWeight: 500 }}
           dy={8}
         />
 
         <YAxis
           axisLine={false}
           tickLine={false}
-          tick={{ fontSize: 11, fill: '#9ca3af', fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", fontWeight: 500 }}
+          tick={{ fontSize: 11, fill: '#9ca3af', fontFamily: "'SolaimanLipi', sans-serif", fontWeight: 500 }}
           tickFormatter={fmt}
           dx={-4}
           width={48}

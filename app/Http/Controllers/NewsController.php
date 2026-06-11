@@ -190,8 +190,9 @@ class NewsController extends Controller
             ->map(fn($a) => $a->toAPIArray($edition))
             ->values();
 
-        // 6. Popular tags — live count of published articles
+        // 6. Popular tags — live count of published articles, filtered to current edition
         $popularTags = Tag::withCount(['articles' => fn($q) => $q->where('status', 'published')])
+            ->when($edition === 'en', fn($q) => $q->whereNotNull('name_en'))
             ->orderByDesc('articles_count')
             ->limit(50)
             ->get()
@@ -405,8 +406,8 @@ class NewsController extends Controller
 
         $articles = Article::published()
             ->forEdition($edition)
-            ->whereHas('tags', function ($q) use ($tag) {
-                $q->where('tag_id', $tag->id);
+            ->whereHas('tags', function ($q) use ($tag, $edition) {
+                $q->where('tag_id', $tag->id)->where('edition', $edition);
             })
             ->latest()
             ->paginate(20)
@@ -447,7 +448,7 @@ class NewsController extends Controller
                 'slug' => $slug,
                 'designation' => null,
                 'bio' => null,
-                'image' => $user->profile_photo_url,
+                'image' => null,
             ];
             $authorId = $user->id;
         } else {
@@ -459,7 +460,7 @@ class NewsController extends Controller
                 'slug' => $reporter->slug,
                 'designation' => $reporter->getDesignation($edition),
                 'bio' => $reporter->getBio($edition),
-                'image' => $reporter->image ?: ($reporter->user ? $reporter->user->profile_photo_url : null),
+                'image' => $reporter->image ?: null,
                 'social_links' => $reporter->social_links,
             ];
             $authorId = $reporter->user_id ?: 0; // If reporter has no user_id, use 0

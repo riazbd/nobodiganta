@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\District;
 use App\Models\Reporter;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class ReporterController extends Controller
             abort(403);
         }
 
-        $query = Reporter::with('user')->withCount('articles');
+        $query = Reporter::with(['user', 'district.division'])->withCount('articles');
 
         if ($request->search) {
             $query->where(function($q) use ($request) {
@@ -31,7 +32,19 @@ class ReporterController extends Controller
             });
         }
 
+        if ($request->district_id) {
+            $query->where('district_id', $request->district_id);
+        }
+
         $reporters = $query->orderBy('sort_order')->orderBy('name_en')->get();
+
+        $districts = District::with('division')->orderBy('name_bn')->get()->map(fn($d) => [
+            'id' => $d->id,
+            'name_bn' => $d->name_bn,
+            'name_en' => $d->name_en,
+            'division_bn' => $d->division?->name_bn,
+            'division_en' => $d->division?->name_en,
+        ]);
 
         return Inertia::render('features/admin/pages/Reporters', [
             'reporters' => $reporters->map(function($r) {
@@ -49,16 +62,23 @@ class ReporterController extends Controller
                     'image' => $r->image ?: ($r->user ? $r->user->profile_photo_url : null),
                     'avatar' => mb_substr($r->name_bn, 0, 1),
                     'articles' => $r->articles_count,
-                    'performance' => rand(70, 98), // Mock performance for now
+                    'performance' => rand(70, 98),
                     'joined' => $r->created_at->format('Y-m-d'),
                     'status' => $r->is_active ? 'active' : 'inactive',
                     'is_featured' => $r->is_featured,
                     'social_links' => $r->social_links,
                     'sort_order' => $r->sort_order,
                     'user_id' => $r->user_id,
+                    'district_id' => $r->district_id,
+                    'district' => $r->district ? [
+                        'id' => $r->district->id,
+                        'name_bn' => $r->district->name_bn,
+                        'name_en' => $r->district->name_en,
+                    ] : null,
                 ];
             }),
-            'filters' => $request->only('search'),
+            'districts' => $districts,
+            'filters' => $request->only(['search', 'district_id']),
         ]);
     }
 
@@ -83,6 +103,7 @@ class ReporterController extends Controller
             'image' => 'nullable|string',
             'isFeatured' => 'boolean',
             'sortOrder' => 'integer',
+            'districtId' => 'nullable|exists:districts,id',
             'socialLinks' => 'nullable|array',
             'createLogin' => 'boolean',
             'password' => 'nullable|string|min:8|confirmed',
@@ -126,6 +147,7 @@ class ReporterController extends Controller
                 'image' => $validated['image'] ?? null,
                 'is_featured' => $validated['isFeatured'] ?? false,
                 'sort_order' => $validated['sortOrder'] ?? 0,
+                'district_id' => $validated['districtId'] ?? null,
                 'social_links' => $validated['socialLinks'] ?? null,
                 'is_active' => true,
                 'user_id' => $userId,
@@ -157,6 +179,7 @@ class ReporterController extends Controller
             'isFeatured' => 'boolean',
             'status' => 'string|in:active,inactive',
             'sortOrder' => 'integer',
+            'districtId' => 'nullable|exists:districts,id',
             'socialLinks' => 'nullable|array',
             'createLogin' => 'boolean',
             'password' => 'nullable|string|min:8|confirmed',
@@ -206,6 +229,7 @@ class ReporterController extends Controller
                 'is_featured' => $validated['isFeatured'] ?? $reporter->is_featured,
                 'is_active' => ($validated['status'] ?? ($reporter->is_active ? 'active' : 'inactive')) === 'active',
                 'sort_order' => $validated['sortOrder'] ?? $reporter->sort_order,
+                'district_id' => array_key_exists('districtId', $validated) ? $validated['districtId'] : $reporter->district_id,
                 'social_links' => $validated['socialLinks'] ?? $reporter->social_links,
                 'user_id' => $userId,
             ]);

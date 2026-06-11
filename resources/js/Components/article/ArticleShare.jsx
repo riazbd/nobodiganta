@@ -110,7 +110,6 @@ export default function ArticleShare({ url, title, total, platforms = {}, sharin
             title={lang === 'bn' ? labelBn : label}
           >
             <Icon />
-            <span className="art-share-btn-label">{lang === 'bn' ? labelBn : label}</span>
             {platforms[key] > 0 && (
               <span className="art-share-btn-count">{fmtCount(platforms[key], lang)}</span>
             )}
@@ -126,7 +125,6 @@ export default function ArticleShare({ url, title, total, platforms = {}, sharin
             aria-label={lang === 'bn' ? 'শেয়ার' : 'Share'}
           >
             <ShareIcon />
-            <span className="art-share-btn-label">{lang === 'bn' ? 'শেয়ার' : 'Share'}</span>
           </button>
         )}
 
@@ -138,11 +136,6 @@ export default function ArticleShare({ url, title, total, platforms = {}, sharin
           aria-label={lang === 'bn' ? 'লিঙ্ক কপি' : 'Copy link'}
         >
           <CopyIcon />
-          <span className="art-share-btn-label">
-            {copied
-              ? (lang === 'bn' ? 'কপি হয়েছে!' : 'Copied!')
-              : (lang === 'bn' ? 'লিঙ্ক কপি' : 'Copy link')}
-          </span>
         </button>
       </div>
     </div>

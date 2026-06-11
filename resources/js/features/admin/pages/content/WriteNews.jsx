@@ -71,7 +71,8 @@ export default function WriteNews() {
   const [showTranslateConfirm, setShowTranslateConfirm] = useState(false);
   const [activeMediaTarget, setActiveMediaTarget] = useState('featured');
   const [isTranslating, setIsTranslating] = useState(false);
-  const [tagsInput, setTagsInput] = useState('');
+  const [tagsBnInput, setTagsBnInput] = useState('');
+  const [tagsEnInput, setTagsEnInput] = useState('');
   const [catSearch, setCatSearch] = useState('');
   const [explicitCategories, setExplicitCategories] = useState(new Set());
   const [locationOpen, setLocationOpen] = useState(false);
@@ -143,7 +144,8 @@ export default function WriteNews() {
     guestAuthorBioBn: '',
     guestAuthorBioEn: '',
     guestAuthorImage: '',
-    tags: [],
+    tags_bn: [],
+    tags_en: [],
     featuredImage: '',
     featuredImageAltBn: '',
     featuredImageAltEn: '',
@@ -206,7 +208,8 @@ export default function WriteNews() {
         metaDescBn: article.metaDescBn || '',
         metaDescEn: article.metaDescEn || '',
         scheduledAt: article.scheduledAt || '',
-        tags: article.tags || [],
+        tags_bn: article.tags_bn || [],
+        tags_en: article.tags_en || [],
         inArticleAdId: article.inArticleAdId ? String(article.inArticleAdId) : '',
         inArticleAdPosition: article.inArticleAdPosition ?? 4,
       });
@@ -235,16 +238,28 @@ export default function WriteNews() {
     if (Object.keys(updates).length > 0) form.setData(data => ({ ...data, ...updates }));
   }, [form.data.titleEn]);
 
-  const addTag = () => {
-    const tag = tagsInput.trim();
-    if (tag && !form.data.tags.includes(tag)) {
-      form.setData('tags', [...form.data.tags, tag]);
-      setTagsInput('');
+  const addTag = (edition) => {
+    if (edition === 'bn') {
+      const tag = tagsBnInput.trim();
+      if (tag && !form.data.tags_bn.includes(tag)) {
+        form.setData('tags_bn', [...form.data.tags_bn, tag]);
+        setTagsBnInput('');
+      }
+    } else {
+      const tag = tagsEnInput.trim();
+      if (tag && !form.data.tags_en.includes(tag)) {
+        form.setData('tags_en', [...form.data.tags_en, tag]);
+        setTagsEnInput('');
+      }
     }
   };
 
-  const removeTag = (tagToRemove) => {
-    form.setData('tags', form.data.tags.filter((t) => t !== tagToRemove));
+  const removeTag = (tagToRemove, edition) => {
+    if (edition === 'bn') {
+      form.setData('tags_bn', form.data.tags_bn.filter((t) => t !== tagToRemove));
+    } else {
+      form.setData('tags_en', form.data.tags_en.filter((t) => t !== tagToRemove));
+    }
   };
 
   const getSubmitUrl = () => {
@@ -285,15 +300,23 @@ export default function WriteNews() {
     }
 
     const statusToSubmit = newStatus || form.data.status;
+    let handled = false;
     const submitOptions = {
       preserveScroll: true,
       onSuccess: () => {
-        showToast(successMessage || (lang === 'bn' ? 'সংরক্ষণ করা হয়েছে' : 'Saved successfully'));
+        handled = true;
+        showToast(successMessage || (lang === 'bn' ? 'সংরক্ষণ করা হয়েছে' : 'Saved successfully'), 'success');
       },
       onError: (errors) => {
+        handled = true;
         const firstError = Object.values(errors)[0];
-        showToast(firstError || (lang === 'bn' ? 'সংরক্ষণ করতে ব্যর্থ' : 'Failed to save'), 'error');
-      }
+        showToast(firstError || (lang === 'bn' ? 'সংরক্ষণ করতে ব্যর্থ হয়েছে' : 'Failed to save'), 'error');
+      },
+      onFinish: () => {
+        if (!handled) {
+          showToast(lang === 'bn' ? 'সার্ভার ত্রুটি। পুনরায় চেষ্টা করুন।' : 'Server error. Please try again.', 'error');
+        }
+      },
     };
 
     form.transform(data => ({ ...data, status: statusToSubmit }));
@@ -332,7 +355,7 @@ export default function WriteNews() {
           featuredImageCaptionEn: data.media?.caption_en || prev.featuredImageCaptionEn,
         }));
         setMediaFiles([]);
-        showToast(lang === 'bn' ? 'ছবি আপলোড সফল হয়েছে' : 'Image uploaded successfully');
+        showToast(lang === 'bn' ? 'ছবি আপলোড সফল হয়েছে' : 'Image uploaded successfully', 'success');
       } else {
         const errMsg = data.errors
           ? Object.values(data.errors).flat().join(' ')
@@ -1069,28 +1092,55 @@ export default function WriteNews() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-wider">{lang === 'bn' ? 'ট্যাগ' : 'Tags'}</label>
-              <div className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  value={tagsInput}
-                  onChange={(e) => setTagsInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  placeholder={lang === 'bn' ? 'ট্যাগ যোগ করুন...' : 'Add a tag...'}
-                  className="flex-1 bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.5 text-xs outline-none focus:bg-white focus:border-[#263238] transition-colors"
-                />
-                <button type="button" onClick={addTag} className="bg-gray-800 text-white rounded-lg px-2.5 py-1.5 hover:bg-black transition-colors">
-                  <Plus className="w-4 h-4" />
-                </button>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 tracking-wider">{lang === 'bn' ? 'বাংলা ট্যাগ' : 'Bangla Tags'}</label>
+                <div className="flex gap-2 mb-1.5">
+                  <input
+                    type="text"
+                    value={tagsBnInput}
+                    onChange={(e) => setTagsBnInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('bn'))}
+                    placeholder={lang === 'bn' ? 'বাংলা ট্যাগ যোগ করুন...' : 'Add Bangla tag...'}
+                    className="flex-1 bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.5 text-xs outline-none focus:bg-white focus:border-[#263238] transition-colors"
+                  />
+                  <button type="button" onClick={() => addTag('bn')} className="bg-gray-800 text-white rounded-lg px-2.5 py-1.5 hover:bg-black transition-colors">
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {(form.data.tags_bn || []).map((tag) => (
+                    <span key={tag} className="inline-flex items-center gap-1 bg-[var(--body-bg,#f0f2f8)] border border-[var(--card-border,#e8ebf4)] rounded-md px-2 py-1 text-[11px] font-medium text-gray-700">
+                      {tag}
+                      <button type="button" onClick={() => removeTag(tag, 'bn')} className="hover:text-red-500 transition-colors"><X className="w-3 h-3" /></button>
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                {(form.data.tags || []).map((tag) => (
-                  <span key={tag} className="inline-flex items-center gap-1 bg-[var(--body-bg,#f0f2f8)] border border-[var(--card-border,#e8ebf4)] rounded-md px-2 py-1 text-[11px] font-medium text-gray-700">
-                    {tag}
-                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 transition-colors"><X className="w-3 h-3" /></button>
-                  </span>
-                ))}
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5 tracking-wider">{lang === 'bn' ? 'ইংরেজি ট্যাগ' : 'English Tags'}</label>
+                <div className="flex gap-2 mb-1.5">
+                  <input
+                    type="text"
+                    value={tagsEnInput}
+                    onChange={(e) => setTagsEnInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag('en'))}
+                    placeholder={lang === 'bn' ? 'ইংরেজি ট্যাগ যোগ করুন...' : 'Add English tag...'}
+                    className="flex-1 bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-1.5 text-xs outline-none focus:bg-white focus:border-[#263238] transition-colors"
+                  />
+                  <button type="button" onClick={() => addTag('en')} className="bg-gray-800 text-white rounded-lg px-2.5 py-1.5 hover:bg-black transition-colors">
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {(form.data.tags_en || []).map((tag) => (
+                    <span key={tag} className="inline-flex items-center gap-1 bg-[var(--body-bg,#f0f2f8)] border border-[var(--card-border,#e8ebf4)] rounded-md px-2 py-1 text-[11px] font-medium text-gray-700">
+                      {tag}
+                      <button type="button" onClick={() => removeTag(tag, 'en')} className="hover:text-red-500 transition-colors"><X className="w-3 h-3" /></button>
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </SidebarSection>
@@ -1241,6 +1291,11 @@ export default function WriteNews() {
 
           <SidebarSection title={lang === 'bn' ? 'আর্টিকেল বিজ্ঞাপন' : 'In-Article Ad'} icon={Target} defaultOpen={true}>
             <div className="space-y-3">
+              <p className="text-[10px] text-gray-400 leading-relaxed">
+                {lang === 'bn'
+                  ? 'নোট: এডিটর থেকে ইনলাইন বিজ্ঞাপন যোগ করলে এই সিলেকশন উপেক্ষা হবে।'
+                  : 'Note: If inline ads are inserted via the editor, this selection is ignored.'}
+              </p>
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">
                   {lang === 'bn' ? 'বিজ্ঞাপন নির্বাচন করুন' : 'Select Ad'}

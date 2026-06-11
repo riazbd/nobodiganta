@@ -30,7 +30,7 @@ function ArticleCard({ item, lang, onNavigate }) {
 }
 
 export default function Author({ author, articles }) {
-  const { lang } = useApp();
+  const { lang, settings } = useApp();
   const { onNavigate } = useNavigation();
 
   const name = author?.name || (lang === 'bn' ? 'অজ্ঞাত লেখক' : 'Unknown Author');
@@ -54,9 +54,11 @@ export default function Author({ author, articles }) {
         {/* Author profile header */}
         <div className="author-profile">
           <div className="author-av">
-            {author?.image
-              ? <img src={author.image} alt={name} />
-              : <div className="author-av-ph">{name.charAt(0)}</div>}
+            <img
+              src={author?.image || settings?.site_logo || '/logo.png'}
+              alt={name}
+              onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = settings?.site_logo || '/logo.png'; }}
+            />
           </div>
           <div className="author-info">
             <h1 className="author-name">{name}</h1>

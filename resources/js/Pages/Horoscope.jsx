@@ -47,24 +47,15 @@ export default function Horoscope() {
         </h1>
 
         {/* Sign grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 24 }}>
+        <div className="horoscope-sign-grid">
           {SIGNS.map((s) => (
             <button
               key={s.key}
+              className={`horoscope-sign-btn${selected === s.key ? ' on' : ''}`}
               onClick={() => setSelected(s.key)}
-              style={{
-                padding: '10px 4px',
-                border: selected === s.key ? '2px solid #e8001e' : '1px solid #e8ebf4',
-                borderRadius: 12,
-                background: selected === s.key ? '#fff5f5' : '#fff',
-                cursor: 'pointer',
-                textAlign: 'center',
-                fontSize: 12,
-                transition: 'all 0.2s',
-              }}
             >
-              <div style={{ fontSize: 24 }}>{s.emoji}</div>
-              <div style={{ marginTop: 6, fontWeight: selected === s.key ? 'bold' : 'normal', color: selected === s.key ? '#e8001e' : '#6b7280' }}>{lang === 'bn' ? s.bn : s.en}</div>
+              <span className="horoscope-sign-emoji">{s.emoji}</span>
+              <span className="horoscope-sign-label">{lang === 'bn' ? s.bn : s.en}</span>
             </button>
           ))}
         </div>

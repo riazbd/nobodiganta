@@ -42,11 +42,12 @@ const publicLayout = (page) => (
 // For anything else (e.g. post-deploy asset version mismatch): hard reload.
 router.on('invalid', (e) => {
     e.preventDefault();
-    if (e.detail?.response?.status === 419) {
+    const status = e.detail?.response?.status;
+    if (status === 419) {
         router.reload({ preserveState: true });
-    } else {
-        window.location.reload();
     }
+    // All other errors (500, etc.) are handled per-request via onFinish/onError
+    // callbacks in form submissions. No reload — preserves the user's work.
 });
 
 // Keep the meta[name="csrf-token"] tag fresh so Inertia's own HTTP client
@@ -92,7 +93,7 @@ createInertiaApp({
         showInstallPrompt();
     },
     progress: {
-        color: '#e8001e',
+        color: '#263238',
     },
 });
 
@@ -123,11 +124,13 @@ function AdminShell({ children }) {
     }, []);
 
     return (
-        <AdminNavigationProvider currentPage={currentPage} onNavigate={handleNavigate}>
-            <AdminLayout currentPage={currentPage} onNavigate={handleNavigate} userRole={userRole}>
-                {children}
-            </AdminLayout>
-        </AdminNavigationProvider>
+        <ToastProvider>
+            <AdminNavigationProvider currentPage={currentPage} onNavigate={handleNavigate}>
+                <AdminLayout currentPage={currentPage} onNavigate={handleNavigate} userRole={userRole}>
+                    {children}
+                </AdminLayout>
+            </AdminNavigationProvider>
+        </ToastProvider>
     );
 }
 
