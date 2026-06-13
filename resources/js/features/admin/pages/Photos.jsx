@@ -54,11 +54,36 @@ export default function Photos({ initialPhotos = [], pagination = {}, filters = 
     }
   }, [errors]);
 
-  // Focus the close button when modal opens
+  // Focus the close button when modal opens; enforce focus trap on window keydown
   useEffect(() => {
-    if (showModal && closeButtonRef.current) {
-      closeButtonRef.current.focus();
-    }
+    if (!showModal) return;
+    closeButtonRef.current?.focus();
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') { closeModal(); return; }
+      if (e.key !== 'Tab') return;
+      const modal = document.querySelector('.modal-trap');
+      if (!modal) return;
+      const focusable = Array.from(modal.querySelectorAll(
+        'button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+      ));
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      // If focus escaped outside the modal, pull it back in
+      if (!modal.contains(document.activeElement)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+        return;
+      }
+      // Wrap at boundaries
+      if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, [showModal]);
 
   useEffect(() => {
@@ -275,19 +300,6 @@ export default function Photos({ initialPhotos = [], pagination = {}, filters = 
         <div
           className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4"
           onClick={closeModal}
-          onKeyDown={e => {
-            if (e.key === 'Escape') { closeModal(); return; }
-            if (e.key !== 'Tab') return;
-            const modal = e.currentTarget.querySelector('.modal-trap');
-            if (!modal) return;
-            const focusable = Array.from(modal.querySelectorAll('button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])'));
-            if (!focusable.length) return;
-            const first = focusable[0], last = focusable[focusable.length - 1];
-            if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
-              e.preventDefault();
-              (e.shiftKey ? last : first).focus();
-            }
-          }}
         >
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-trap" onClick={e => e.stopPropagation()}>
             {/* Modal header */}
