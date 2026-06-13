@@ -10,9 +10,8 @@ export default function AuthorBio({ article }) {
 
   const author = article.author;
   const name = author.name;
-  const designation = author.designation;
+  const designation = author.designation || t('article.staff_reporter', lang);
   const bio = author.bio;
-  const image = author.image;
   const slug = author.slug;
   const isGuest = author.is_guest;
 
@@ -52,9 +51,8 @@ export default function AuthorBio({ article }) {
         {/* Avatar */}
         <div style={{ flexShrink: 0 }}>
           <img
-            src={image || settings?.site_logo || '/logo.png'}
+            src={settings?.site_logo || '/logo.png'}
             alt={name}
-            onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = settings?.site_logo || '/logo.png'; }}
             style={{
               width: 72,
               height: 72,
@@ -68,7 +66,7 @@ export default function AuthorBio({ article }) {
 
         {/* Text */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ marginBottom: 2 }}>
+          <div style={{ marginBottom: 10 }}>
             <span style={{
               fontFamily: 'SolaimanLipi, sans-serif',
               fontSize: 18,
@@ -76,21 +74,9 @@ export default function AuthorBio({ article }) {
               color: '#111',
               lineHeight: 1.3,
             }}>
-              {name}
+              {designation}
             </span>
           </div>
-
-          {designation && (
-            <div style={{
-              fontSize: 13,
-              color: 'var(--red)',
-              fontWeight: 700,
-              marginBottom: 10,
-              fontFamily: 'SolaimanLipi, sans-serif',
-            }}>
-              {designation}
-            </div>
-          )}
 
           {bio && (
             <p style={{

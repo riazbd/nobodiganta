@@ -30,6 +30,7 @@ export const pages = {
   'article.published': 'প্রকাশ :',
   'article.approved_by': 'অনুমোদন :',
   'article.author_bio': 'লেখক পরিচিতি',
+  'article.staff_reporter': 'স্টাফ রিপোর্টার',
   'article.view_all_by': 'সব লেখা দেখুন →',
   'article.online_edition': 'অনলাইন সংস্করণ',
   'article.share': 'শেয়ার করুন',

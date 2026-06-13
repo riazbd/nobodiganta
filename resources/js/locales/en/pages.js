@@ -15,6 +15,7 @@ export const pages = {
   'article.published': 'Published:',
   'article.approved_by': 'Approved:',
   'article.author_bio': 'About the Author',
+  'article.staff_reporter': 'Staff Reporter',
   'article.view_all_by': 'View all articles →',
   'article.online_edition': 'Online Edition',
   'article.share': 'Share',

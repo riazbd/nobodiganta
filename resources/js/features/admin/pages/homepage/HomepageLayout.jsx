@@ -289,6 +289,12 @@ function SpecialFeatureConfigPanel({ formData, setFormData, lang, categories = [
   const manualArticles = cfg.manual_articles || [];
   const itemCount = Math.max(1, parseInt(formData.item_count, 10) || 1);
 
+  // Only the first layout is offered for now — force it so older sections saved
+  // with a different layout get migrated to it automatically.
+  useEffect(() => {
+    if (formData.layout !== SF_LAYOUTS[0].value) setLayout(SF_LAYOUTS[0].value);
+  }, [formData.layout]);
+
   // Fetch the article grid for the selected category (and its subcategories), filterable by title.
   useEffect(() => {
     let cancelled = false;
@@ -459,20 +465,11 @@ function SpecialFeatureConfigPanel({ formData, setFormData, lang, categories = [
           {lang === 'bn' ? 'লেআউট' : 'Layout'}
         </label>
         <div className="grid grid-cols-2 gap-2">
-          {SF_LAYOUTS.map(l => (
-            <button
-              key={l.value}
-              type="button"
-              onClick={() => setLayout(l.value)}
-              className={`p-3 rounded-xl border-2 text-left transition-all ${
-                formData.layout === l.value
-                  ? 'border-[#1a56db] bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
+          {SF_LAYOUTS.slice(0, 1).map(l => (
+            <div key={l.value} className="p-3 rounded-xl border-2 border-[#1a56db] bg-blue-50 text-left">
               <pre className="text-[9px] leading-tight font-mono text-gray-500 mb-1.5 overflow-hidden">{l.preview}</pre>
               <div className="text-xs font-bold text-gray-700">{lang === 'bn' ? l.label : l.labelEn}</div>
-            </button>
+            </div>
           ))}
         </div>
         <p className="text-xs text-gray-400 mt-2">

@@ -33,7 +33,6 @@ export default function Author({ author, articles }) {
   const { lang, settings } = useApp();
   const { onNavigate } = useNavigation();
 
-  const name = author?.name || (lang === 'bn' ? 'অজ্ঞাত লেখক' : 'Unknown Author');
   const designation = author?.designation || (lang === 'bn' ? 'সাংবাদিক' : 'Journalist');
   const bio = author?.bio || '';
   const count = articles?.total || 0;
@@ -55,14 +54,12 @@ export default function Author({ author, articles }) {
         <div className="author-profile">
           <div className="author-av">
             <img
-              src={author?.image || settings?.site_logo || '/logo.png'}
-              alt={name}
-              onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = settings?.site_logo || '/logo.png'; }}
+              src={settings?.site_logo || '/logo.png'}
+              alt={designation}
             />
           </div>
           <div className="author-info">
-            <h1 className="author-name">{name}</h1>
-            {designation && <div className="author-desg">{designation}</div>}
+            <h1 className="author-name">{designation}</h1>
             {bio && <p className="author-bio">{bio}</p>}
             <div className="author-meta">
               {author?.email && (

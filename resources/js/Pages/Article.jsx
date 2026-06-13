@@ -346,7 +346,7 @@ export default function Article({
                 style={{ cursor: article.author?.slug ? 'pointer' : 'default' }}
               >
                 <Icon name="user" size={13} style={{ marginTop: 2, color: '#888', flexShrink: 0 }} />
-                <span className="art-left-meta-author">{article.author.name}</span>
+                <span className="art-left-meta-author">{article.author.designation || t('article.staff_reporter', lang)}</span>
               </div>
             )}
             {article.secondary_author?.name && (
