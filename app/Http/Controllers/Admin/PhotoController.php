@@ -21,7 +21,6 @@ class PhotoController extends Controller
 
         $query = Article::with(['category'])
             ->where('article_type', 'photo')
-            ->where('status', 'published')
             ->latest();
 
         if ($edition && $edition !== 'all') {
@@ -81,6 +80,7 @@ class PhotoController extends Controller
         $category  = Category::where('slug', 'photo')->orWhere('slug', 'gallery')->first();
         $slugBn    = $this->generateSlug($validated['title_bn'], 'slug_bn');
         $slugEn    = !empty($validated['title_en']) ? $this->generateSlug($validated['title_en'], 'slug_en') : null;
+        // Both columns store the same JSON; bilingual captions live inside each photo object
         $photosJson = json_encode($validated['photos'], JSON_UNESCAPED_UNICODE);
 
         Article::create([

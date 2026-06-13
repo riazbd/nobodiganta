@@ -1,8 +1,22 @@
 import { t } from '../translations';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { ListSkeleton } from '../Components/ui/Skeleton';
 import EmptyState from '../Components/ui/EmptyState';
+
+function GallerySkeleton() {
+  return (
+    <div className="gallery-grid">
+      {[0, 1, 2, 3, 4, 5].map(i => (
+        <div key={i} className={`gallery-item ${i === 0 ? 'big' : ''}`} style={{ background: '#f3f4f6' }}>
+          <div
+            className={i === 0 ? 'gl-img-big' : 'gl-img'}
+            style={{ background: 'linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%)', backgroundSize: '200% 100%', animation: 'skeleton-shimmer 1.4s ease-in-out infinite' }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 async function fetchGalleries(edition, page = 1) {
   const params = new URLSearchParams({ edition, page, per_page: 12 });
@@ -81,7 +95,7 @@ export default function Gallery() {
       </div>
 
       {loading ? (
-        <ListSkeleton count={4} />
+        <GallerySkeleton />
       ) : galleries.length === 0 ? (
         <EmptyState
           title={lang === 'bn' ? 'কোনো ফটো গ্যালারি নেই' : 'No photo galleries'}
@@ -182,21 +196,19 @@ export default function Gallery() {
               {lightbox.idx + 1} / {lightbox.gallery.photos.length}
             </div>
 
-            {/* Prev / Next — overlaid on the image so they stay on-screen on mobile */}
-            {lightbox.gallery.photos.length > 1 && (
-              <div style={{ position: 'relative' }}>
-                <button
-                  onClick={e => { e.stopPropagation(); prevPhoto(); }}
-                  aria-label={lang === 'bn' ? 'আগের ছবি' : 'Previous photo'}
-                  className="lb-nav lb-nav-prev"
-                >‹</button>
-                <button
-                  onClick={e => { e.stopPropagation(); nextPhoto(); }}
-                  aria-label={lang === 'bn' ? 'পরের ছবি' : 'Next photo'}
-                  className="lb-nav lb-nav-next"
-                >›</button>
-              </div>
-            )}
+            {/* Prev / Next — absolute inside lb-inner (position:relative) so top:50% works correctly */}
+            {lightbox.gallery.photos.length > 1 && <>
+              <button
+                onClick={e => { e.stopPropagation(); prevPhoto(); }}
+                aria-label={lang === 'bn' ? 'আগের ছবি' : 'Previous photo'}
+                className="lb-nav lb-nav-prev"
+              >‹</button>
+              <button
+                onClick={e => { e.stopPropagation(); nextPhoto(); }}
+                aria-label={lang === 'bn' ? 'পরের ছবি' : 'Next photo'}
+                className="lb-nav lb-nav-next"
+              >›</button>
+            </>}
 
             {/* Thumbnail strip */}
             {lightbox.gallery.photos.length > 1 && (

@@ -511,6 +511,75 @@ const SF_DEFAULTS = {
   show_badge: true, show_excerpt: true,
 };
 
+// Sub-components defined at module scope so React doesn't remount them on every parent render
+function SFHeader({ title, badge, cfg }) {
+  return (
+    <div className="sf-hdr" style={{ background: cfg.header_bg }}>
+      {cfg.show_badge !== false && (
+        <span className="sf-badge" style={{ background: cfg.badge_bg, color: cfg.badge_text_color }}>{badge}</span>
+      )}
+      <h2 className="sf-ttl" style={{ color: cfg.header_text_color }}>{title}</h2>
+    </div>
+  );
+}
+
+function SFHeroCard({ article, large, cfg, lang, nav }) {
+  const label  = lang === 'bn' ? article.title : (article.title_en || article.title);
+  const excerpt = lang === 'bn' ? article.excerpt : (article.excerpt_en || article.excerpt);
+  return (
+    <div
+      className={large ? 'sf-hero' : 'sf-hero-sm'}
+      onClick={() => go(article, nav)}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && go(article, nav)}
+      role="button" tabIndex={0}
+    >
+      <div className={large ? 'sf-hero-img' : 'sf-hero-sm-img'}>
+        <ArticleThumb src={article.featured_image} alt={label} style={{ width: '100%', height: '100%' }} />
+      </div>
+      <div className="sf-hero-body">
+        <h2 className={large ? 'sf-hero-h' : 'sf-hero-sm-h'}>{label}</h2>
+        {cfg.show_excerpt !== false && excerpt && large && <p className="sf-hero-p">{excerpt}</p>}
+      </div>
+    </div>
+  );
+}
+
+function SFListItem({ article, i, lang, nav }) {
+  const label = lang === 'bn' ? article.title : (article.title_en || article.title);
+  return (
+    <div
+      className={`sf-item${i > 0 ? ' sf-item-sep' : ''}`}
+      onClick={() => go(article, nav)}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && go(article, nav)}
+      role="button" tabIndex={0}
+    >
+      <div className="sf-item-img">
+        <ArticleThumb src={article.featured_image} alt={label} style={{ width: '100%', height: '100%' }} />
+      </div>
+      <div className="sf-item-body">
+        <h4 className="sf-item-h">{label}</h4>
+      </div>
+    </div>
+  );
+}
+
+function SFGridItem({ article, lang, nav }) {
+  const label = lang === 'bn' ? article.title : (article.title_en || article.title);
+  return (
+    <div
+      className="sf-grid-item"
+      onClick={() => go(article, nav)}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && go(article, nav)}
+      role="button" tabIndex={0}
+    >
+      <div className="sf-grid-img">
+        <ArticleThumb src={article.featured_image} alt={label} style={{ width: '100%', height: '100%' }} />
+      </div>
+      <h4 className="sf-grid-item-h">{label}</h4>
+    </div>
+  );
+}
+
 function SpecialFeatureSection({ section, lang, nav }) {
   const items  = section.items || [];
   if (!items.length) return null;
@@ -518,109 +587,60 @@ function SpecialFeatureSection({ section, lang, nav }) {
   const cfg    = { ...SF_DEFAULTS, ...(section.config || {}) };
   const layout = section.layout || 'hero_list';
   const title  = lang === 'bn' ? (section.title_bn || section.title || 'বিশেষ প্রতিবেদন') : (section.title_en || section.title_bn || 'Special Feature');
-  const t      = (a) => lang === 'bn' ? a.title : (a.title_en || a.title);
-  const ex     = (a) => lang === 'bn' ? a.excerpt : (a.excerpt_en || a.excerpt);
   const badge  = lang === 'bn' ? (cfg.badge_label_bn || 'বিশেষ') : (cfg.badge_label_en || 'Special');
   const hero   = items[0];
   const rest   = items.slice(1);
 
-  const sectionStyle = { background: cfg.section_bg };
-  const headerStyle  = { background: cfg.header_bg };
-  const titleStyle   = { color: cfg.header_text_color };
-  const badgeStyle   = { background: cfg.badge_bg, color: cfg.badge_text_color };
-
-  const SFHeader = () => (
-    <div className="sf-hdr" style={headerStyle}>
-      {cfg.show_badge !== false && (
-        <span className="sf-badge" style={badgeStyle}>{badge}</span>
-      )}
-      <h2 className="sf-ttl" style={titleStyle}>{title}</h2>
-    </div>
-  );
-
-  const HeroCard = ({ article, large }) => (
-    <div className={large ? 'sf-hero' : 'sf-hero-sm'} onClick={() => go(article, nav)} role="button" tabIndex={0}>
-      <div className={large ? 'sf-hero-img' : 'sf-hero-sm-img'}>
-        <ArticleThumb src={article.featured_image} alt={t(article)} style={{ width: '100%', height: '100%' }} />
-      </div>
-      <div className="sf-hero-body">
-        <h2 className={large ? 'sf-hero-h' : 'sf-hero-sm-h'}>{t(article)}</h2>
-        {cfg.show_excerpt !== false && ex(article) && large && (
-          <p className="sf-hero-p">{ex(article)}</p>
-        )}
-      </div>
-    </div>
-  );
-
-  const ListItem = ({ article, i }) => (
-    <div className={`sf-item${i > 0 ? ' sf-item-sep' : ''}`} onClick={() => go(article, nav)} role="button" tabIndex={0}>
-      <div className="sf-item-img">
-        <ArticleThumb src={article.featured_image} alt={t(article)} style={{ width: '100%', height: '100%' }} />
-      </div>
-      <div className="sf-item-body">
-        <h4 className="sf-item-h">{t(article)}</h4>
-      </div>
-    </div>
-  );
-
-  const GridItem = ({ article }) => (
-    <div className="sf-grid-item" onClick={() => go(article, nav)} role="button" tabIndex={0}>
-      <div className="sf-grid-img">
-        <ArticleThumb src={article.featured_image} alt={t(article)} style={{ width: '100%', height: '100%' }} />
-      </div>
-      <h4 className="sf-grid-item-h">{t(article)}</h4>
-    </div>
-  );
-
   return (
-    <div className="sf-section" style={sectionStyle}>
-      <SFHeader />
+    <div className="sf-section" style={{ background: cfg.section_bg }}>
+      <SFHeader title={title} badge={badge} cfg={cfg} />
 
-      {/* ── hero_list: large hero left + vertical list right ── */}
       {layout === 'hero_list' && (
         <div className="sf-body sf-layout-herolist">
-          {hero && <HeroCard article={hero} large />}
+          {hero && <SFHeroCard article={hero} large cfg={cfg} lang={lang} nav={nav} />}
           <div className="sf-list">
-            {rest.map((a, i) => <ListItem key={a.id} article={a} i={i} />)}
+            {rest.map((a, i) => <SFListItem key={a.id} article={a} i={i} lang={lang} nav={nav} />)}
           </div>
         </div>
       )}
 
-      {/* ── hero_grid: large hero left + 2×2 grid right ── */}
       {layout === 'hero_grid' && (
         <div className="sf-body sf-layout-herogrid">
-          {hero && <HeroCard article={hero} large />}
+          {hero && <SFHeroCard article={hero} large cfg={cfg} lang={lang} nav={nav} />}
           <div className="sf-grid-2x2">
-            {rest.slice(0, 4).map(a => <GridItem key={a.id} article={a} />)}
+            {rest.slice(0, 4).map(a => <SFGridItem key={a.id} article={a} lang={lang} nav={nav} />)}
           </div>
         </div>
       )}
 
-      {/* ── full_grid: equal-column grid of all articles ── */}
       {layout === 'full_grid' && (
         <div className="sf-body sf-layout-fullgrid">
-          {items.map(a => <GridItem key={a.id} article={a} />)}
+          {items.map(a => <SFGridItem key={a.id} article={a} lang={lang} nav={nav} />)}
         </div>
       )}
 
-      {/* ── big_hero: full-width hero top + strip below ── */}
       {layout === 'big_hero' && (
         <div className="sf-body sf-layout-bighero">
           {hero && (
-            <div className="sf-bighero" onClick={() => go(hero, nav)} role="button" tabIndex={0}>
+            <div
+              className="sf-bighero"
+              onClick={() => go(hero, nav)}
+              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && go(hero, nav)}
+              role="button" tabIndex={0}
+            >
               <div className="sf-bighero-img">
-                <ArticleThumb src={hero.featured_image} alt={t(hero)} style={{ width: '100%', height: '100%' }} />
+                <ArticleThumb src={hero.featured_image} alt={lang === 'bn' ? hero.title : (hero.title_en || hero.title)} style={{ width: '100%', height: '100%' }} />
               </div>
               <div className="sf-bighero-body">
-                <h2 className="sf-bighero-h">{t(hero)}</h2>
-                {cfg.show_excerpt !== false && ex(hero) && (
-                  <p className="sf-hero-p">{ex(hero)}</p>
+                <h2 className="sf-bighero-h">{lang === 'bn' ? hero.title : (hero.title_en || hero.title)}</h2>
+                {cfg.show_excerpt !== false && (lang === 'bn' ? hero.excerpt : (hero.excerpt_en || hero.excerpt)) && (
+                  <p className="sf-hero-p">{lang === 'bn' ? hero.excerpt : (hero.excerpt_en || hero.excerpt)}</p>
                 )}
               </div>
             </div>
           )}
           <div className="sf-strip">
-            {rest.map(a => <GridItem key={a.id} article={a} />)}
+            {rest.map(a => <SFGridItem key={a.id} article={a} lang={lang} nav={nav} />)}
           </div>
         </div>
       )}

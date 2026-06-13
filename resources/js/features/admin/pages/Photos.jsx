@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Head } from '@inertiajs/react';
 import { Camera, Plus, Trash2, Edit3, Search, X, Loader2, Image as ImageIcon, Save } from 'lucide-react';
 import { Badge } from '../components/feedback/Badge';
 import { useLanguage } from '../hooks/useLanguage';
@@ -161,6 +162,7 @@ export default function Photos({ initialPhotos = [], pagination = {}, filters = 
 
   return (
     <div className="font-['Noto_Sans_Bengali']">
+      <Head title={lang === 'bn' ? 'ফটো গ্যালারি' : 'Photo Gallery'} />
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -196,9 +198,10 @@ export default function Photos({ initialPhotos = [], pagination = {}, filters = 
 
       {/* Gallery grid */}
       {photos.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <Camera size={48} className="mx-auto mb-4 opacity-30" />
-          <p className="text-lg font-semibold">{lang === 'bn' ? 'কোনো ফটো গ্যালারি নেই' : 'No photo galleries yet'}</p>
+        <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-12 text-center text-gray-400">
+          <Camera size={40} className="mx-auto mb-3 text-gray-200" />
+          <p className="font-medium text-gray-500">{lang === 'bn' ? 'কোনো ফটো গ্যালারি নেই' : 'No photo galleries yet'}</p>
+          <p className="text-sm mt-1">{lang === 'bn' ? '"নতুন গ্যালারি" বাটনে ক্লিক করুন' : 'Click "New Gallery" to get started'}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">

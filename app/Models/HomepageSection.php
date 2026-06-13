@@ -48,8 +48,7 @@ class HomepageSection extends Model
             return $this->title_en
                 ?: ($this->type === 'special_feature'
                     ? ($this->title_bn ?: 'Special Feature')
-                    : ($this->category ? ($this->category->name_en ?: $this->category->name_bn) : 'Latest'))
-                ?: 'Latest';
+                    : ($this->category ? ($this->category->name_en ?: $this->category->name_bn) : 'Latest'));
         }
         return $this->title_bn
             ?: ($this->category ? $this->category->name_bn : 'সর্বশেষ')

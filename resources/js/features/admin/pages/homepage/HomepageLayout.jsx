@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { LayoutDashboard, Plus, Edit3, Trash2, X, Save, ChevronUp, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
@@ -69,7 +69,21 @@ const EMPTY_FORM = () => ({
 });
 
 // ─── ColorPicker ─────────────────────────────────────────────────────────────
+const HEX6 = /^#[0-9a-fA-F]{6}$/;
+
 function ColorPicker({ label, value, onChange }) {
+  const [text, setText] = useState(value || '#ffffff');
+
+  // Keep local text in sync when prop changes from outside (e.g. config reset)
+  useEffect(() => { setText(value || '#ffffff'); }, [value]);
+
+  const handleTextChange = (v) => {
+    setText(v);
+    if (HEX6.test(v)) onChange(v); // only propagate valid 6-digit hex
+  };
+
+  const displayColor = HEX6.test(text) ? text : (HEX6.test(value) ? value : '#ffffff');
+
   return (
     <div>
       <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">{label}</label>
@@ -77,19 +91,19 @@ function ColorPicker({ label, value, onChange }) {
         <div className="relative w-7 h-7 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 cursor-pointer">
           <input
             type="color"
-            value={value || '#ffffff'}
-            onChange={e => onChange(e.target.value)}
+            value={displayColor}
+            onChange={e => { setText(e.target.value); onChange(e.target.value); }}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             style={{ minWidth: 28, minHeight: 28 }}
           />
-          <div className="w-full h-full rounded-lg" style={{ background: value || '#ffffff' }} />
+          <div className="w-full h-full rounded-lg" style={{ background: displayColor }} />
         </div>
         <input
           type="text"
-          value={value || '#ffffff'}
-          onChange={e => onChange(e.target.value)}
+          value={text}
+          onChange={e => handleTextChange(e.target.value)}
           maxLength={7}
-          className="flex-1 text-sm font-mono outline-none bg-transparent min-w-0"
+          className={`flex-1 text-sm font-mono outline-none bg-transparent min-w-0 ${text && !HEX6.test(text) ? 'text-red-500' : ''}`}
           placeholder="#ffffff"
         />
       </div>
@@ -362,7 +376,16 @@ export default function HomepageLayout({ sections: initialSections = [], categor
     });
   };
 
+  // Close modal on Escape
+  useEffect(() => {
+    if (!showModal) return;
+    const onEsc = (e) => { if (e.key === 'Escape') setShowModal(false); };
+    window.addEventListener('keydown', onEsc);
+    return () => window.removeEventListener('keydown', onEsc);
+  }, [showModal]);
+
   const handleMove = (index, direction) => {
+    const originalSections = sections; // capture before mutation for rollback
     const newSections = [...sections];
     const swapIndex = direction === 'up' ? index - 1 : index + 1;
     if (swapIndex < 0 || swapIndex >= newSections.length) return;
@@ -371,7 +394,7 @@ export default function HomepageLayout({ sections: initialSections = [], categor
     const orders = {};
     newSections.forEach((s, i) => { orders[s.id] = i + 1; });
     router.post(route('admin.homepage-layout.reorder'), { orders }, {
-      onError: () => { setSections(sections); showToast('Reorder failed', 'error'); },
+      onError: () => { setSections(originalSections); showToast('Reorder failed', 'error'); },
     });
   };
 
