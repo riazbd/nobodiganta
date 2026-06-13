@@ -90,7 +90,7 @@ export default function AuthorBio({ article }) {
             </p>
           )}
 
-          {!isGuest && slug && (
+          {/* {!isGuest && slug && (
             <button
               onClick={() => onNavigate('author', slug)}
               style={{
@@ -113,7 +113,7 @@ export default function AuthorBio({ article }) {
             >
               {t('article.view_all_by', lang)}
             </button>
-          )}
+          )} */}
         </div>
       </div>
     </div>
