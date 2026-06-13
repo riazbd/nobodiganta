@@ -71,7 +71,7 @@ export default function Photos({ initialPhotos = [], filters = {} }) {
     setShowModal(true);
   };
 
-  const closeModal = () => { setShowModal(false); setEditingId(null); };
+  const closeModal = () => { if (loading) return; setShowModal(false); setEditingId(null); };
 
   const setField = (key, val) => setForm(f => ({ ...f, [key]: val }));
 

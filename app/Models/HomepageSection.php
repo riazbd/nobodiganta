@@ -19,6 +19,12 @@ class HomepageSection extends Model
         'sort_order',
         'is_active',
         'edition',
+        'config',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'config'    => 'array',
     ];
 
     public function category()

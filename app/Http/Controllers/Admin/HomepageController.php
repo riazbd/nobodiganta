@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\HomepageSection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class HomepageController extends Controller
@@ -29,14 +30,15 @@ class HomepageController extends Controller
 
         $validated = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
-            'type' => 'required|string',
-            'layout' => 'required|string',
-            'item_count' => 'required|integer|min:1|max:20',
-            'edition' => 'required|in:bn,en,both',
-            'sort_order' => 'integer',
-            'is_active' => 'boolean',
-            'title_bn' => 'nullable|string|max:200',
-            'title_en' => 'nullable|string|max:200',
+            'type'        => 'required|in:category,special_feature,videos,stories,trending',
+            'layout'      => 'required|string',
+            'item_count'  => 'required|integer|min:1|max:20',
+            'edition'     => 'required|in:bn,en,both',
+            'sort_order'  => 'integer',
+            'is_active'   => 'boolean',
+            'title_bn'    => 'nullable|string|max:200',
+            'title_en'    => 'nullable|string|max:200',
+            'config'      => 'nullable|array',
         ]);
 
         if (empty($validated['sort_order'])) {
@@ -58,14 +60,15 @@ class HomepageController extends Controller
 
         $validated = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
-            'type' => 'required|string',
-            'layout' => 'required|string',
-            'item_count' => 'required|integer|min:1|max:20',
-            'edition' => 'required|in:bn,en,both',
-            'sort_order' => 'integer',
-            'is_active' => 'boolean',
-            'title_bn' => 'nullable|string|max:200',
-            'title_en' => 'nullable|string|max:200',
+            'type'        => 'required|in:category,special_feature,videos,stories,trending',
+            'layout'      => 'required|string',
+            'item_count'  => 'required|integer|min:1|max:20',
+            'edition'     => 'required|in:bn,en,both',
+            'sort_order'  => 'integer',
+            'is_active'   => 'boolean',
+            'title_bn'    => 'nullable|string|max:200',
+            'title_en'    => 'nullable|string|max:200',
+            'config'      => 'nullable|array',
         ]);
 
         if ($validated['type'] === 'special_feature') {
@@ -89,9 +92,11 @@ class HomepageController extends Controller
         if (!auth()->user()->hasPermission('system.settings')) abort(403);
 
         $orders = $request->input('orders', []);
-        foreach ($orders as $id => $order) {
-            HomepageSection::where('id', $id)->update(['sort_order' => $order]);
-        }
+        DB::transaction(function () use ($orders) {
+            foreach ($orders as $id => $order) {
+                HomepageSection::where('id', $id)->update(['sort_order' => $order]);
+            }
+        });
 
         return back()->with('success', 'Layout reordered');
     }

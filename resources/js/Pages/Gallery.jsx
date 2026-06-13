@@ -20,7 +20,7 @@ export default function Gallery() {
   // Lightbox state: { gallery, photoIndex }
   const [lightbox, setLightbox] = useState(null);
 
-  const edition = window.location.pathname.startsWith('/en') ? 'en' : 'bn';
+  const edition = lang === 'en' ? 'en' : 'bn';
 
   useEffect(() => {
     setLoading(true);
@@ -128,6 +128,7 @@ export default function Gallery() {
           id="lightbox"
           role="dialog"
           aria-modal="true"
+          aria-label={lightbox.gallery.title}
           onClick={closeLightbox}
           style={{ display: 'flex', flexDirection: 'column' }}
         >
@@ -157,30 +158,20 @@ export default function Gallery() {
               {lightbox.idx + 1} / {lightbox.gallery.photos.length}
             </div>
 
-            {/* Prev / Next */}
+            {/* Prev / Next — overlaid on the image so they stay on-screen on mobile */}
             {lightbox.gallery.photos.length > 1 && (
-              <>
+              <div style={{ position: 'relative' }}>
                 <button
                   onClick={e => { e.stopPropagation(); prevPhoto(); }}
-                  aria-label="Previous"
-                  style={{
-                    position: 'absolute', left: -48, top: '50%', transform: 'translateY(-50%)',
-                    background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%',
-                    width: 38, height: 38, color: '#fff', fontSize: 20, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}
+                  aria-label={lang === 'bn' ? 'আগের ছবি' : 'Previous photo'}
+                  className="lb-nav lb-nav-prev"
                 >‹</button>
                 <button
                   onClick={e => { e.stopPropagation(); nextPhoto(); }}
-                  aria-label="Next"
-                  style={{
-                    position: 'absolute', right: -48, top: '50%', transform: 'translateY(-50%)',
-                    background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%',
-                    width: 38, height: 38, color: '#fff', fontSize: 20, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}
+                  aria-label={lang === 'bn' ? 'পরের ছবি' : 'Next photo'}
+                  className="lb-nav lb-nav-next"
                 >›</button>
-              </>
+              </div>
             )}
 
             {/* Thumbnail strip */}

@@ -96,6 +96,7 @@ class PhotoController extends Controller
     public function update(Request $request, Article $article)
     {
         if (!auth()->user()->hasPermission('media.gallery.manage')) abort(403);
+        if ($article->article_type !== 'photo') abort(404);
 
         $validated = $request->validate([
             'title_bn'            => 'required|string|max:255',
@@ -129,6 +130,7 @@ class PhotoController extends Controller
     public function destroy(Article $article)
     {
         if (!auth()->user()->hasPermission('media.gallery.manage')) abort(403);
+        if ($article->article_type !== 'photo') abort(404);
         $article->delete();
         return back()->with('success', 'Photo gallery deleted');
     }

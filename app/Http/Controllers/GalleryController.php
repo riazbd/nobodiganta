@@ -26,7 +26,8 @@ class GalleryController extends Controller
         $paginated = $query->paginate($perPage);
 
         $items = $paginated->map(function ($article) use ($edition) {
-            $photos = $article->body_bn ? json_decode($article->body_bn, true) : [];
+            $raw    = $edition === 'en' ? ($article->body_en ?: $article->body_bn) : $article->body_bn;
+            $photos = $raw ? json_decode($raw, true) : [];
             if (!is_array($photos)) $photos = [];
             return [
                 'id'          => $article->id,

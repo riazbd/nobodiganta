@@ -162,7 +162,7 @@ class NewsController extends Controller
             } elseif ($section->type === 'special_feature') {
                 $data['items'] = Article::published()
                     ->forEdition($edition)
-                    ->where('article_type', 'feature')
+                    ->where('is_featured', true)
                     ->withRelations()
                     ->orderByDesc('published_at')
                     ->limit($section->item_count ?? 5)
@@ -442,7 +442,7 @@ class NewsController extends Controller
         $articles = Article::published()
             ->forEdition($edition)
             ->whereHas('tags', function ($q) use ($tag, $edition) {
-                $q->where('tag_id', $tag->id)->where('edition', $edition);
+                $q->where('tag_id', $tag->id)->whereIn('edition', [$edition, 'both']);
             })
             ->latest()
             ->paginate(20)

@@ -504,50 +504,126 @@ function TagsCloud({ tags, lang, nav }) {
 }
 
 // ─── SPECIAL FEATURE SECTION ─────────────────────────────────────────────────
+const SF_DEFAULTS = {
+  section_bg: '#ffffff', header_bg: '#1a56db', header_text_color: '#ffffff',
+  badge_bg: '#1a56db', badge_text_color: '#ffffff',
+  badge_label_bn: 'বিশেষ', badge_label_en: 'Special',
+  show_badge: true, show_excerpt: true,
+};
+
 function SpecialFeatureSection({ section, lang, nav }) {
-  const items = section.items || [];
+  const items  = section.items || [];
   if (!items.length) return null;
-  const title = lang === 'bn' ? (section.title || 'বিশেষ প্রতিবেদন') : (section.title_en || section.title || 'Special Feature');
-  const t  = (a) => lang === 'bn' ? a.title : (a.title_en || a.title);
-  const ex = (a) => lang === 'bn' ? a.excerpt : (a.excerpt_en || a.excerpt);
-  const hero = items[0];
-  const rest = items.slice(1);
+
+  const cfg    = { ...SF_DEFAULTS, ...(section.config || {}) };
+  const layout = section.layout || 'hero_list';
+  const title  = lang === 'bn' ? (section.title_bn || section.title || 'বিশেষ প্রতিবেদন') : (section.title_en || section.title_bn || 'Special Feature');
+  const t      = (a) => lang === 'bn' ? a.title : (a.title_en || a.title);
+  const ex     = (a) => lang === 'bn' ? a.excerpt : (a.excerpt_en || a.excerpt);
+  const badge  = lang === 'bn' ? (cfg.badge_label_bn || 'বিশেষ') : (cfg.badge_label_en || 'Special');
+  const hero   = items[0];
+  const rest   = items.slice(1);
+
+  const sectionStyle = { background: cfg.section_bg };
+  const headerStyle  = { background: cfg.header_bg };
+  const titleStyle   = { color: cfg.header_text_color };
+  const badgeStyle   = { background: cfg.badge_bg, color: cfg.badge_text_color };
+
+  const SFHeader = () => (
+    <div className="sf-hdr" style={headerStyle}>
+      {cfg.show_badge !== false && (
+        <span className="sf-badge" style={badgeStyle}>{badge}</span>
+      )}
+      <h2 className="sf-ttl" style={titleStyle}>{title}</h2>
+    </div>
+  );
+
+  const HeroCard = ({ article, large }) => (
+    <div className={large ? 'sf-hero' : 'sf-hero-sm'} onClick={() => go(article, nav)} role="button" tabIndex={0}>
+      <div className={large ? 'sf-hero-img' : 'sf-hero-sm-img'}>
+        <ArticleThumb src={article.featured_image} alt={t(article)} style={{ width: '100%', height: '100%' }} />
+      </div>
+      <div className="sf-hero-body">
+        <h2 className={large ? 'sf-hero-h' : 'sf-hero-sm-h'}>{t(article)}</h2>
+        {cfg.show_excerpt !== false && ex(article) && large && (
+          <p className="sf-hero-p">{ex(article)}</p>
+        )}
+      </div>
+    </div>
+  );
+
+  const ListItem = ({ article, i }) => (
+    <div className={`sf-item${i > 0 ? ' sf-item-sep' : ''}`} onClick={() => go(article, nav)} role="button" tabIndex={0}>
+      <div className="sf-item-img">
+        <ArticleThumb src={article.featured_image} alt={t(article)} style={{ width: '100%', height: '100%' }} />
+      </div>
+      <div className="sf-item-body">
+        <h4 className="sf-item-h">{t(article)}</h4>
+      </div>
+    </div>
+  );
+
+  const GridItem = ({ article }) => (
+    <div className="sf-grid-item" onClick={() => go(article, nav)} role="button" tabIndex={0}>
+      <div className="sf-grid-img">
+        <ArticleThumb src={article.featured_image} alt={t(article)} style={{ width: '100%', height: '100%' }} />
+      </div>
+      <h4 className="sf-grid-item-h">{t(article)}</h4>
+    </div>
+  );
 
   return (
-    <div className="sf-section">
-      <div className="p-sec-hdr-wrap">
-        <div className="p-sec-hdr sf-hdr">
-          <span className="sf-badge">{lang === 'bn' ? 'বিশেষ' : 'Special'}</span>
-          <h2 className="p-sec-ttl sf-ttl">{title}</h2>
-        </div>
-      </div>
+    <div className="sf-section" style={sectionStyle}>
+      <SFHeader />
 
-      <div className="sf-grid">
-        {/* Hero */}
-        <div className="sf-hero" onClick={() => go(hero, nav)} role="button" tabIndex={0}>
-          <div className="sf-hero-img">
-            <ArticleThumb src={hero.featured_image} alt={t(hero)} style={{ width: '100%', height: '100%' }} />
-          </div>
-          <div className="sf-hero-body">
-            <h2 className="sf-hero-h">{t(hero)}</h2>
-            {ex(hero) && <p className="sf-hero-p">{ex(hero)}</p>}
+      {/* ── hero_list: large hero left + vertical list right ── */}
+      {layout === 'hero_list' && (
+        <div className="sf-body sf-layout-herolist">
+          {hero && <HeroCard article={hero} large />}
+          <div className="sf-list">
+            {rest.map((a, i) => <ListItem key={a.id} article={a} i={i} />)}
           </div>
         </div>
+      )}
 
-        {/* Side list */}
-        <div className="sf-list">
-          {rest.map((a, i) => (
-            <div key={a.id} className={`sf-item${i > 0 ? ' sf-item-sep' : ''}`} onClick={() => go(a, nav)} role="button" tabIndex={0}>
-              <div className="sf-item-img">
-                <ArticleThumb src={a.featured_image} alt={t(a)} style={{ width: '100%', height: '100%' }} />
+      {/* ── hero_grid: large hero left + 2×2 grid right ── */}
+      {layout === 'hero_grid' && (
+        <div className="sf-body sf-layout-herogrid">
+          {hero && <HeroCard article={hero} large />}
+          <div className="sf-grid-2x2">
+            {rest.slice(0, 4).map(a => <GridItem key={a.id} article={a} />)}
+          </div>
+        </div>
+      )}
+
+      {/* ── full_grid: equal-column grid of all articles ── */}
+      {layout === 'full_grid' && (
+        <div className="sf-body sf-layout-fullgrid">
+          {items.map(a => <GridItem key={a.id} article={a} />)}
+        </div>
+      )}
+
+      {/* ── big_hero: full-width hero top + strip below ── */}
+      {layout === 'big_hero' && (
+        <div className="sf-body sf-layout-bighero">
+          {hero && (
+            <div className="sf-bighero" onClick={() => go(hero, nav)} role="button" tabIndex={0}>
+              <div className="sf-bighero-img">
+                <ArticleThumb src={hero.featured_image} alt={t(hero)} style={{ width: '100%', height: '100%' }} />
               </div>
-              <div className="sf-item-body">
-                <h4 className="sf-item-h">{t(a)}</h4>
+              <div className="sf-bighero-body">
+                <h2 className="sf-bighero-h">{t(hero)}</h2>
+                {cfg.show_excerpt !== false && ex(hero) && (
+                  <p className="sf-hero-p">{ex(hero)}</p>
+                )}
               </div>
             </div>
-          ))}
+          )}
+          <div className="sf-strip">
+            {rest.map(a => <GridItem key={a.id} article={a} />)}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
