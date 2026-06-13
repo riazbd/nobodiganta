@@ -23,9 +23,7 @@ class GalleryController extends Controller
             ->type('photo')
             ->latest('published_at');
 
-        $paginated = $query->paginate($perPage);
-
-        $items = $paginated->map(function ($article) use ($edition) {
+        $paginated = $query->paginate($perPage)->through(function ($article) use ($edition) {
             $raw    = $edition === 'en' ? ($article->body_en ?: $article->body_bn) : $article->body_bn;
             $photos = $raw ? json_decode($raw, true) : [];
             if (!is_array($photos)) $photos = [];
@@ -42,7 +40,7 @@ class GalleryController extends Controller
         });
 
         return response()->json([
-            'data' => $items,
+            'data' => $paginated->items(),
             'meta' => [
                 'current_page' => $paginated->currentPage(),
                 'last_page'    => $paginated->lastPage(),

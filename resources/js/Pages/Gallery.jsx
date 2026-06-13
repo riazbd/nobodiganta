@@ -1,5 +1,5 @@
 import { t } from '../translations';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { ListSkeleton } from '../Components/ui/Skeleton';
 import EmptyState from '../Components/ui/EmptyState';
@@ -18,7 +18,9 @@ export default function Gallery() {
   const [pagination, setPagination] = useState({ currentPage: 1, lastPage: 1 });
 
   // Lightbox state: { gallery, photoIndex }
-  const [lightbox, setLightbox] = useState(null);
+  const [lightbox, setLightbox]   = useState(null);
+  const lbCloseRef                = useRef(null);
+  const lbPrevFocusRef            = useRef(null);
 
   const edition = lang === 'en' ? 'en' : 'bn';
 
@@ -33,8 +35,14 @@ export default function Gallery() {
       .catch(() => setLoading(false));
   }, [edition]);
 
-  const openLightbox  = (gallery, idx = 0) => setLightbox({ gallery, idx });
-  const closeLightbox = () => setLightbox(null);
+  const openLightbox = (gallery, idx = 0) => {
+    lbPrevFocusRef.current = document.activeElement;
+    setLightbox({ gallery, idx });
+  };
+  const closeLightbox = () => {
+    setLightbox(null);
+    lbPrevFocusRef.current?.focus();
+  };
 
   const prevPhoto = useCallback(() => {
     if (!lightbox) return;
@@ -44,6 +52,10 @@ export default function Gallery() {
   const nextPhoto = useCallback(() => {
     if (!lightbox) return;
     setLightbox(lb => ({ ...lb, idx: (lb.idx + 1) % lb.gallery.photos.length }));
+  }, [lightbox]);
+
+  useEffect(() => {
+    if (lightbox && lbCloseRef.current) lbCloseRef.current.focus();
   }, [lightbox]);
 
   useEffect(() => {
@@ -131,10 +143,22 @@ export default function Gallery() {
           aria-label={lightbox.gallery.title}
           onClick={closeLightbox}
           style={{ display: 'flex', flexDirection: 'column' }}
+          onKeyDown={e => {
+            if (e.key !== 'Tab') return;
+            const lb = document.getElementById('lightbox');
+            if (!lb) return;
+            const focusable = Array.from(lb.querySelectorAll('button:not([disabled])'));
+            if (!focusable.length) return;
+            const first = focusable[0], last = focusable[focusable.length - 1];
+            if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+              e.preventDefault();
+              (e.shiftKey ? last : first).focus();
+            }
+          }}
         >
           <div className="lb-inner" onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
             {/* Close */}
-            <button className="lb-close" onClick={closeLightbox} aria-label={lang === 'bn' ? 'বন্ধ করুন' : 'Close'}>
+            <button ref={lbCloseRef} className="lb-close" onClick={closeLightbox} aria-label={lang === 'bn' ? 'বন্ধ করুন' : 'Close'}>
               ✕
             </button>
 

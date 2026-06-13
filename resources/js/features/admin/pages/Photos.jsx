@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Camera, Plus, Trash2, Edit3, Search, X, Loader2, Image as ImageIcon, Save } from 'lucide-react';
 import { Badge } from '../components/feedback/Badge';
 import { useLanguage } from '../hooks/useLanguage';
@@ -23,23 +23,42 @@ const EDITIONS = [
   { value: 'both', labelBn: 'দুই সংস্করণ', labelEn: 'Both' },
 ];
 
-export default function Photos({ initialPhotos = [], filters = {} }) {
+export default function Photos({ initialPhotos = [], pagination = {}, filters = {} }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
 
-  const [searchQuery, setSearchQuery]   = useState(filters.search || '');
+  const [searchQuery, setSearchQuery]     = useState(filters.search || '');
   const [editionFilter, setEditionFilter] = useState(filters.edition || 'all');
-  const [photos, setPhotos]             = useState(initialPhotos);
-  const [loading, setLoading]           = useState(false);
-  const [showModal, setShowModal]       = useState(false);
-  const [editingId, setEditingId]       = useState(null);
-  const [form, setForm]                 = useState(EMPTY_FORM());
-  const [errors, setErrors]             = useState({});
+  const [photos, setPhotos]               = useState(initialPhotos);
+  const [loading, setLoading]             = useState(false);
+  const [showModal, setShowModal]         = useState(false);
+  const [editingId, setEditingId]         = useState(null);
+  const [form, setForm]                   = useState(EMPTY_FORM());
+  const [errors, setErrors]               = useState({});
 
   // Media library modal state: null | 'cover' | number (photo index)
-  const [mediaTarget, setMediaTarget]   = useState(null);
+  const [mediaTarget, setMediaTarget] = useState(null);
+
+  // Refs for focus management and scroll-to-error
+  const modalBodyRef  = useRef(null);
+  const closeButtonRef = useRef(null);
 
   useEffect(() => { setPhotos(initialPhotos); }, [initialPhotos]);
+
+  // Scroll to first error field when validation fails
+  useEffect(() => {
+    if (Object.keys(errors).length > 0 && modalBodyRef.current) {
+      const firstErr = modalBodyRef.current.querySelector('.border-red-400, [data-error]');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [errors]);
+
+  // Focus the close button when modal opens
+  useEffect(() => {
+    if (showModal && closeButtonRef.current) {
+      closeButtonRef.current.focus();
+    }
+  }, [showModal]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -50,6 +69,14 @@ export default function Photos({ initialPhotos = [], filters = {} }) {
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery, editionFilter]);
+
+  const goToPage = (p) => {
+    router.get(route('admin.photos'), {
+      search:  searchQuery || undefined,
+      edition: editionFilter !== 'all' ? editionFilter : undefined,
+      page:    p > 1 ? p : undefined,
+    }, { preserveState: true, replace: true });
+  };
 
   const openCreate = () => {
     setEditingId(null);
@@ -141,7 +168,7 @@ export default function Photos({ initialPhotos = [], filters = {} }) {
             <Camera className="w-5 h-5" />
             {lang === 'bn' ? 'ফটো গ্যালারি' : 'Photo Gallery'}
           </h1>
-          <p className="text-[12.5px] text-gray-400 mt-0.5">{photos.length} {lang === 'bn' ? 'টি গ্যালারি' : 'galleries'}</p>
+          <p className="text-[12.5px] text-gray-400 mt-0.5">{pagination.total ?? photos.length} {lang === 'bn' ? 'টি গ্যালারি' : 'galleries'}</p>
         </div>
         <button onClick={openCreate} className="bg-[#263238] text-white rounded-lg px-4 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 hover:bg-[#1a2428] transition-colors">
           <Plus className="w-4 h-4" /> {lang === 'bn' ? 'নতুন গ্যালারি' : 'New Gallery'}
@@ -215,20 +242,61 @@ export default function Photos({ initialPhotos = [], filters = {} }) {
         </div>
       )}
 
+      {/* Pagination */}
+      {pagination.last_page > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-8">
+          <button
+            onClick={() => goToPage(pagination.current_page - 1)}
+            disabled={pagination.current_page <= 1}
+            className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            {lang === 'bn' ? '← আগের' : '← Prev'}
+          </button>
+          <span className="text-sm text-gray-500 font-medium">
+            {lang === 'bn'
+              ? `${pagination.current_page} / ${pagination.last_page}`
+              : `Page ${pagination.current_page} of ${pagination.last_page}`}
+          </span>
+          <button
+            onClick={() => goToPage(pagination.current_page + 1)}
+            disabled={pagination.current_page >= pagination.last_page}
+            className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            {lang === 'bn' ? 'পরের →' : 'Next →'}
+          </button>
+        </div>
+      )}
+
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4" onClick={closeModal}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4"
+          onClick={closeModal}
+          onKeyDown={e => {
+            if (e.key === 'Escape') { closeModal(); return; }
+            if (e.key !== 'Tab') return;
+            const modal = e.currentTarget.querySelector('.modal-trap');
+            if (!modal) return;
+            const focusable = Array.from(modal.querySelectorAll('button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])'));
+            if (!focusable.length) return;
+            const first = focusable[0], last = focusable[focusable.length - 1];
+            if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+              e.preventDefault();
+              (e.shiftKey ? last : first).focus();
+            }
+          }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-trap" onClick={e => e.stopPropagation()}>
             {/* Modal header */}
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
               <h2 className="text-lg font-bold flex items-center gap-2">
                 <Camera size={20} />
                 {editingId ? (lang === 'bn' ? 'গ্যালারি সম্পাদনা' : 'Edit Gallery') : (lang === 'bn' ? 'নতুন ফটো গ্যালারি' : 'New Photo Gallery')}
               </h2>
-              <button onClick={closeModal} className="p-1 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5 text-gray-500" /></button>
+              <button ref={closeButtonRef} onClick={closeModal} className="p-1 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5 text-gray-500" /></button>
             </div>
 
-            <div className="p-6 overflow-y-auto space-y-5">
+            <div ref={modalBodyRef} className="p-6 overflow-y-auto space-y-5">
               {/* Titles */}
               <div className="grid grid-cols-1 gap-4">
                 <div>

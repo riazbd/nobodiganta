@@ -19,7 +19,10 @@ class PhotoController extends Controller
         $search  = $request->input('search');
         $edition = $request->input('edition', 'all');
 
-        $query = Article::with(['category'])->where('article_type', 'photo')->latest();
+        $query = Article::with(['category'])
+            ->where('article_type', 'photo')
+            ->where('status', 'published')
+            ->latest();
 
         if ($edition && $edition !== 'all') {
             $query->where(function ($q) use ($edition) {
@@ -34,7 +37,8 @@ class PhotoController extends Controller
             });
         }
 
-        $photos = $query->get()->map(function ($article) {
+        $paginated = $query->paginate(24);
+        $photos    = $paginated->getCollection()->map(function ($article) {
             $photos = $article->body_bn ? json_decode($article->body_bn, true) : [];
             return [
                 'id'          => $article->id,
@@ -50,6 +54,11 @@ class PhotoController extends Controller
 
         return Inertia::render('features/admin/pages/Photos', [
             'initialPhotos' => $photos,
+            'pagination'    => [
+                'current_page' => $paginated->currentPage(),
+                'last_page'    => $paginated->lastPage(),
+                'total'        => $paginated->total(),
+            ],
             'filters'       => $request->only(['search', 'edition']),
         ]);
     }
