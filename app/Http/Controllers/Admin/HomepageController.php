@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\HomepageSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class HomepageController extends Controller
@@ -85,6 +86,32 @@ class HomepageController extends Controller
         if (!auth()->user()->hasPermission('system.settings')) abort(403);
         $section->delete();
         return back()->with('success', 'Section removed from homepage');
+    }
+
+    public function uploadBanner(Request $request)
+    {
+        if (!auth()->user()->hasPermission('system.settings')) abort(403);
+
+        $request->validate([
+            'file' => 'required|file|image|max:5120',
+        ]);
+
+        $path = $request->file('file')->store('homepage', 'public');
+
+        return response()->json(['url' => '/storage/' . $path]);
+    }
+
+    public function deleteBanner(Request $request)
+    {
+        if (!auth()->user()->hasPermission('system.settings')) abort(403);
+
+        $url = $request->input('url');
+        $path = preg_replace('#^/storage/#', '', (string) $url);
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
+
+        return response()->json(['ok' => true]);
     }
 
     public function reorder(Request $request)

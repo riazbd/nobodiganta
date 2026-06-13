@@ -280,6 +280,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/homepage-layout/{section}', [HomepageController::class, 'update'])->name('homepage-layout.update')->whereNumber('section');
         Route::delete('/homepage-layout/{section}', [HomepageController::class, 'destroy'])->name('homepage-layout.destroy')->whereNumber('section');
         Route::post('/homepage-layout/reorder', [HomepageController::class, 'reorder'])->name('homepage-layout.reorder');
+        Route::post('/homepage-layout/upload-banner', [HomepageController::class, 'uploadBanner'])->name('homepage-layout.upload-banner');
+        Route::delete('/homepage-layout/banner', [HomepageController::class, 'deleteBanner'])->name('homepage-layout.delete-banner');
 
         // User Management
         Route::get('/users', [UserController::class, 'index'])->name('users');

@@ -509,7 +509,17 @@ const SF_DEFAULTS = {
   badge_bg: '#1a56db', badge_text_color: '#ffffff',
   badge_label_bn: 'বিশেষ', badge_label_en: 'Special',
   show_badge: true, show_excerpt: true,
+  banner_image: null, show_banner: true, show_header: true, list_columns: 3,
 };
+
+// Splits items into N roughly-equal contiguous columns
+function chunkColumns(items, cols) {
+  const n = Math.max(1, cols);
+  const per = Math.ceil(items.length / n);
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(items.slice(i * per, (i + 1) * per));
+  return out;
+}
 
 // Sub-components defined at module scope so React doesn't remount them on every parent render
 function SFHeader({ title, badge, cfg }) {
@@ -563,6 +573,48 @@ function SFListItem({ article, i, lang, nav }) {
   );
 }
 
+function SFBanner({ src, alt }) {
+  if (!src) return null;
+  return (
+    <div className="sf-banner">
+      <img src={src} alt={alt || ''} loading="lazy" />
+    </div>
+  );
+}
+
+function SFBannerSplitHero({ article, cfg, lang, nav }) {
+  const label   = lang === 'bn' ? article.title : (article.title_en || article.title);
+  const excerpt = lang === 'bn' ? article.excerpt : (article.excerpt_en || article.excerpt);
+  return (
+    <div
+      className="sf-bs-hero"
+      onClick={() => go(article, nav)}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && go(article, nav)}
+      role="button" tabIndex={0}
+    >
+      <div className="sf-bs-hero-img">
+        <ArticleThumb src={article.featured_image} alt={label} style={{ width: '100%', height: '100%' }} />
+      </div>
+      <h3 className="sf-bs-hero-h">{label}</h3>
+      {cfg.show_excerpt !== false && excerpt && <p className="sf-bs-hero-p">{excerpt}</p>}
+    </div>
+  );
+}
+
+function SFColumnLink({ article, lang, nav }) {
+  const label = lang === 'bn' ? article.title : (article.title_en || article.title);
+  return (
+    <div
+      className="sf-col-link"
+      onClick={() => go(article, nav)}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && go(article, nav)}
+      role="button" tabIndex={0}
+    >
+      {label}
+    </div>
+  );
+}
+
 function SFGridItem({ article, lang, nav }) {
   const label = lang === 'bn' ? article.title : (article.title_en || article.title);
   return (
@@ -593,7 +645,21 @@ function SpecialFeatureSection({ section, lang, nav }) {
 
   return (
     <div className="sf-section" style={{ background: cfg.section_bg }}>
-      <SFHeader title={title} badge={badge} cfg={cfg} />
+      {cfg.show_banner !== false && <SFBanner src={cfg.banner_image} alt={title} />}
+      {cfg.show_header !== false && <SFHeader title={title} badge={badge} cfg={cfg} />}
+
+      {layout === 'banner_split' && (
+        <div className="sf-body sf-layout-bannersplit">
+          {hero && <SFBannerSplitHero article={hero} cfg={cfg} lang={lang} nav={nav} />}
+          <div className="sf-cols" style={{ gridTemplateColumns: `repeat(${cfg.list_columns || 3}, 1fr)` }}>
+            {chunkColumns(rest, cfg.list_columns || 3).map((col, i) => (
+              <div className="sf-col" key={i}>
+                {col.map(a => <SFColumnLink key={a.id} article={a} lang={lang} nav={nav} />)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {layout === 'hero_list' && (
         <div className="sf-body sf-layout-herolist">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
-import { LayoutDashboard, Plus, Edit3, Trash2, X, Save, ChevronUp, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { LayoutDashboard, Plus, Edit3, Trash2, X, Save, ChevronUp, ChevronDown, CheckCircle2, Upload, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -16,9 +16,19 @@ const SF_CONFIG_DEFAULTS = {
   badge_label_en:    'Special',
   show_badge:        true,
   show_excerpt:      true,
+  banner_image:      null,
+  show_banner:       true,
+  show_header:       true,
+  list_columns:      3,
 };
 
 const SF_LAYOUTS = [
+  {
+    value: 'banner_split',
+    label: 'ব্যানার + হিরো + কলাম',
+    labelEn: 'Banner + Hero + Columns',
+    preview: '╔══════════════╗\n║    BANNER    ║\n╠══════╦═╦═╦═╦═╣\n║ HERO ║▬║▬║▬║▬║\n║      ║▬║▬║▬║▬║\n╚══════╩═╩═╩═╩═╝',
+  },
   {
     value: 'hero_list',
     label: 'হিরো + তালিকা',
@@ -50,6 +60,7 @@ const LAYOUT_LABELS = {
   grid:          'Grid',
   list:          'List',
   video_grid:    'Video Grid',
+  banner_split:  'Banner + Hero + Columns',
   hero_list:     'Hero + List',
   hero_grid:     'Hero + Grid',
   full_grid:     'Full Grid',
@@ -128,9 +139,45 @@ function ToggleSwitch({ label, checked, onChange }) {
 
 // ─── SpecialFeatureConfigPanel ────────────────────────────────────────────────
 function SpecialFeatureConfigPanel({ formData, setFormData, lang }) {
+  const { showToast } = useToast();
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const cfg = formData.config || { ...SF_CONFIG_DEFAULTS };
   const setConfig = (key, val) => setFormData(f => ({ ...f, config: { ...(f.config || SF_CONFIG_DEFAULTS), [key]: val } }));
   const setLayout = (val) => setFormData(f => ({ ...f, layout: val }));
+
+  const handleBannerUpload = async (file) => {
+    if (!file) return;
+    setUploadingBanner(true);
+    const data = new FormData();
+    data.append('file', file);
+    try {
+      const res = await window.axios.post(route('admin.homepage-layout.upload-banner'), data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (res.data.url) {
+        setConfig('banner_image', res.data.url);
+        showToast(lang === 'bn' ? 'ব্যানার আপলোড হয়েছে' : 'Banner uploaded');
+      }
+    } catch {
+      showToast(lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed', 'error');
+    } finally {
+      setUploadingBanner(false);
+    }
+  };
+
+  const handleBannerRemove = async () => {
+    if (!cfg.banner_image) return;
+    if (!confirm(lang === 'bn' ? 'ব্যানার ছবি মুছে ফেলবেন?' : 'Remove banner image?')) return;
+    setUploadingBanner(true);
+    try {
+      await window.axios.delete(route('admin.homepage-layout.delete-banner'), { data: { url: cfg.banner_image } });
+    } catch {
+      // ignore — still clear locally so the section can be saved without the stale image
+    } finally {
+      setConfig('banner_image', null);
+      setUploadingBanner(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -164,6 +211,54 @@ function SpecialFeatureConfigPanel({ formData, setFormData, lang }) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* ── Banner Image ── */}
+      <div className="p-4 bg-gray-50 rounded-2xl space-y-3">
+        <ToggleSwitch
+          label={lang === 'bn' ? 'ব্যানার ছবি দেখাবে' : 'Show Banner Image'}
+          checked={cfg.show_banner !== false}
+          onChange={v => setConfig('show_banner', v)}
+        />
+        <p className="text-xs text-gray-400">
+          {lang === 'bn'
+            ? 'সেকশনের সবার উপরে একটি পূর্ণ-প্রস্থ ব্যানার ছবি (যেমন ইভেন্ট গ্রাফিক্স, লোগো, শিরোনাম সহ ডিজাইন)।'
+            : 'A full-width image shown at the very top of the section — e.g. an event graphic with title/branding baked in.'}
+        </p>
+        {cfg.show_banner !== false && (
+          <>
+            {cfg.banner_image ? (
+              <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white">
+                <img src={cfg.banner_image} alt="Banner" className="w-full h-auto block" />
+                <button
+                  type="button"
+                  onClick={handleBannerRemove}
+                  disabled={uploadingBanner}
+                  className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow disabled:opacity-50"
+                  title={lang === 'bn' ? 'মুছুন' : 'Remove'}
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-200 rounded-xl bg-white">
+                <ImageIcon size={24} className="text-gray-300" />
+                <span className="text-sm text-gray-400">{lang === 'bn' ? 'কোনো ব্যানার নেই' : 'No banner uploaded'}</span>
+              </div>
+            )}
+            <label className={`inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-xl border text-sm font-bold transition-all ${uploadingBanner ? 'opacity-50 cursor-not-allowed border-gray-200 text-gray-400' : 'border-[#1a56db] text-[#1a56db] hover:bg-[#1a56db] hover:text-white'}`}>
+              {uploadingBanner ? <RefreshCw size={14} className="animate-spin" /> : <Upload size={14} />}
+              {lang === 'bn' ? 'ব্যানার আপলোড করুন' : 'Upload Banner'}
+              <input
+                type="file"
+                className="sr-only"
+                accept="image/*"
+                disabled={uploadingBanner}
+                onChange={e => handleBannerUpload(e.target.files[0])}
+              />
+            </label>
+          </>
+        )}
       </div>
 
       {/* ── Titles ── */}
@@ -203,55 +298,94 @@ function SpecialFeatureConfigPanel({ formData, setFormData, lang }) {
         <ColorPicker label="" value={cfg.section_bg} onChange={v => setConfig('section_bg', v)} />
       </div>
 
-      {/* ── Header Colors ── */}
-      <div>
-        <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">
-          {lang === 'bn' ? 'হেডার রঙ' : 'Header Colors'}
-        </label>
-        <div className="grid grid-cols-2 gap-3">
-          <ColorPicker label={lang === 'bn' ? 'হেডার ব্যাকগ্রাউন্ড' : 'Background'} value={cfg.header_bg} onChange={v => setConfig('header_bg', v)} />
-          <ColorPicker label={lang === 'bn' ? 'হেডার লেখার রঙ' : 'Text Color'} value={cfg.header_text_color} onChange={v => setConfig('header_text_color', v)} />
-        </div>
-      </div>
-
-      {/* ── Badge ── */}
+      {/* ── Title Bar (header) ── */}
       <div className="p-4 bg-gray-50 rounded-2xl space-y-3">
         <ToggleSwitch
-          label={lang === 'bn' ? 'ব্যাজ দেখাবে' : 'Show Badge'}
-          checked={cfg.show_badge !== false}
-          onChange={v => setConfig('show_badge', v)}
+          label={lang === 'bn' ? 'শিরোনাম বার দেখাবে' : 'Show Title Bar'}
+          checked={cfg.show_header !== false}
+          onChange={v => setConfig('show_header', v)}
         />
-        {cfg.show_badge !== false && (
+        <p className="text-xs text-gray-400">
+          {lang === 'bn'
+            ? 'যদি ব্যানার ছবিতে আগেই শিরোনাম থাকে, এই বারটি বন্ধ রাখতে পারেন।'
+            : 'If your banner image already has a title baked in, you can turn this bar off.'}
+        </p>
+        {cfg.show_header !== false && (
           <>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">{lang === 'bn' ? 'ব্যাজ লেখা (বাংলা)' : 'Badge (Bangla)'}</label>
-                <input
-                  type="text"
-                  placeholder="বিশেষ"
-                  value={cfg.badge_label_bn || ''}
-                  onChange={e => setConfig('badge_label_bn', e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-[#1a56db] outline-none bg-white"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">{lang === 'bn' ? 'ব্যাজ লেখা (ইংরেজি)' : 'Badge (English)'}</label>
-                <input
-                  type="text"
-                  placeholder="Special"
-                  value={cfg.badge_label_en || ''}
-                  onChange={e => setConfig('badge_label_en', e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-[#1a56db] outline-none bg-white"
-                />
-              </div>
+              <ColorPicker label={lang === 'bn' ? 'হেডার ব্যাকগ্রাউন্ড' : 'Background'} value={cfg.header_bg} onChange={v => setConfig('header_bg', v)} />
+              <ColorPicker label={lang === 'bn' ? 'হেডার লেখার রঙ' : 'Text Color'} value={cfg.header_text_color} onChange={v => setConfig('header_text_color', v)} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <ColorPicker label={lang === 'bn' ? 'ব্যাজ ব্যাকগ্রাউন্ড' : 'Badge Background'} value={cfg.badge_bg} onChange={v => setConfig('badge_bg', v)} />
-              <ColorPicker label={lang === 'bn' ? 'ব্যাজ লেখার রঙ' : 'Badge Text'} value={cfg.badge_text_color} onChange={v => setConfig('badge_text_color', v)} />
+
+            {/* Badge */}
+            <div className="p-3 bg-white rounded-xl space-y-3">
+              <ToggleSwitch
+                label={lang === 'bn' ? 'ব্যাজ দেখাবে' : 'Show Badge'}
+                checked={cfg.show_badge !== false}
+                onChange={v => setConfig('show_badge', v)}
+              />
+              {cfg.show_badge !== false && (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">{lang === 'bn' ? 'ব্যাজ লেখা (বাংলা)' : 'Badge (Bangla)'}</label>
+                      <input
+                        type="text"
+                        placeholder="বিশেষ"
+                        value={cfg.badge_label_bn || ''}
+                        onChange={e => setConfig('badge_label_bn', e.target.value)}
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-[#1a56db] outline-none bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">{lang === 'bn' ? 'ব্যাজ লেখা (ইংরেজি)' : 'Badge (English)'}</label>
+                      <input
+                        type="text"
+                        placeholder="Special"
+                        value={cfg.badge_label_en || ''}
+                        onChange={e => setConfig('badge_label_en', e.target.value)}
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-[#1a56db] outline-none bg-white"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <ColorPicker label={lang === 'bn' ? 'ব্যাজ ব্যাকগ্রাউন্ড' : 'Badge Background'} value={cfg.badge_bg} onChange={v => setConfig('badge_bg', v)} />
+                    <ColorPicker label={lang === 'bn' ? 'ব্যাজ লেখার রঙ' : 'Badge Text'} value={cfg.badge_text_color} onChange={v => setConfig('badge_text_color', v)} />
+                  </div>
+                </>
+              )}
             </div>
           </>
         )}
       </div>
+
+      {/* ── Columns (banner_split only) ── */}
+      {formData.layout === 'banner_split' && (
+        <div>
+          <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">
+            {lang === 'bn' ? 'কলাম সংখ্যা' : 'Number of Columns'}
+          </label>
+          <div className="flex gap-2">
+            {[2, 3, 4].map(n => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setConfig('list_columns', n)}
+                className={`flex-1 py-2.5 rounded-xl border-2 text-sm font-bold transition-all ${
+                  (cfg.list_columns || 3) === n
+                    ? 'border-[#1a56db] bg-blue-50 text-[#1a56db]'
+                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 mt-1">
+            {lang === 'bn' ? 'হিরোর পাশে লেখার তালিকা কতটি কলামে ভাগ হবে' : 'How many text-link columns appear next to the hero card'}
+          </p>
+        </div>
+      )}
 
       {/* ── Content Options ── */}
       <div className="space-y-3">
@@ -279,7 +413,9 @@ function SpecialFeatureConfigPanel({ formData, setFormData, lang }) {
           className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#1a56db] outline-none"
         />
         <p className="text-xs text-gray-400 mt-1">
-          {lang === 'bn' ? 'হিরো লেআউটে ১টি হিরো + বাকিগুলো সাইডে' : 'In hero layouts: 1 hero + rest in side/grid'}
+          {lang === 'bn'
+            ? '১টি হিরো + বাকিগুলো লিস্ট/গ্রিড/কলামে। এই আর্টিকেলগুলো আর্টিকেল এডিটরে "ফিচার্ড" হিসেবে চিহ্নিত করা থেকে স্বয়ংক্রিয়ভাবে আসে।'
+            : '1 hero + the rest fill the list/grid/columns. These articles are pulled automatically from items marked "Featured" in the article editor.'}
         </p>
       </div>
 
@@ -289,21 +425,26 @@ function SpecialFeatureConfigPanel({ formData, setFormData, lang }) {
           {lang === 'bn' ? 'লাইভ প্রিভিউ' : 'Live Preview'}
         </label>
         <div className="rounded-xl overflow-hidden border border-gray-200" style={{ background: cfg.section_bg || '#fff' }}>
-          <div className="flex items-center gap-2 px-4 py-3" style={{ background: cfg.header_bg || '#1a56db' }}>
-            {cfg.show_badge !== false && (
-              <span
-                className="text-xs font-bold px-2 py-0.5 rounded"
-                style={{ background: cfg.badge_bg || '#1a56db', color: cfg.badge_text_color || '#fff' }}
-              >
-                {lang === 'bn' ? (cfg.badge_label_bn || 'বিশেষ') : (cfg.badge_label_en || 'Special')}
+          {cfg.show_banner !== false && cfg.banner_image && (
+            <img src={cfg.banner_image} alt="Banner" className="w-full h-auto block" />
+          )}
+          {cfg.show_header !== false && (
+            <div className="flex items-center gap-2 px-4 py-3" style={{ background: cfg.header_bg || '#1a56db' }}>
+              {cfg.show_badge !== false && (
+                <span
+                  className="text-xs font-bold px-2 py-0.5 rounded"
+                  style={{ background: cfg.badge_bg || '#1a56db', color: cfg.badge_text_color || '#fff' }}
+                >
+                  {lang === 'bn' ? (cfg.badge_label_bn || 'বিশেষ') : (cfg.badge_label_en || 'Special')}
+                </span>
+              )}
+              <span className="font-bold text-sm" style={{ color: cfg.header_text_color || '#fff' }}>
+                {lang === 'bn' ? (formData.title_bn || 'বিশেষ প্রতিবেদন') : (formData.title_en || 'Special Feature')}
               </span>
-            )}
-            <span className="font-bold text-sm" style={{ color: cfg.header_text_color || '#fff' }}>
-              {lang === 'bn' ? (formData.title_bn || 'বিশেষ প্রতিবেদন') : (formData.title_en || 'Special Feature')}
-            </span>
-          </div>
+            </div>
+          )}
           <div className="px-4 py-3 text-xs text-gray-400 text-center">
-            {lang === 'bn' ? `আর্টিকেল এখানে দেখাবে (${formData.layout || 'hero_list'} লেআউট)` : `Articles appear here (${formData.layout || 'hero_list'} layout)`}
+            {lang === 'bn' ? `আর্টিকেল এখানে দেখাবে (${LAYOUT_LABELS[formData.layout] || formData.layout} লেআউট)` : `Articles appear here (${LAYOUT_LABELS[formData.layout] || formData.layout} layout)`}
           </div>
         </div>
       </div>
@@ -333,7 +474,7 @@ export default function HomepageLayout({ sections: initialSections = [], categor
     setFormData({
       category_id: s.category_id || '',
       type:        s.type,
-      layout:      s.layout || (s.type === 'special_feature' ? 'hero_list' : 'grid'),
+      layout:      s.layout || (s.type === 'special_feature' ? 'banner_split' : 'grid'),
       item_count:  s.item_count,
       edition:     s.edition,
       is_active:   s.is_active,
@@ -509,22 +650,29 @@ export default function HomepageLayout({ sections: initialSections = [], categor
               {/* Type selector */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                  {lang === 'bn' ? 'কন্টেন্ট উৎস' : 'Source Type'}
+                  {lang === 'bn' ? 'সেকশনের ধরন' : 'Section Type'}
                 </label>
                 <select
                   value={formData.type}
                   onChange={e => {
                     const type = e.target.value;
-                    const layout = type === 'special_feature' ? 'hero_list' : 'grid';
+                    const layout = type === 'special_feature' ? 'banner_split' : 'grid';
                     setFormData(f => ({ ...f, type, category_id: '', layout, edition: type === 'special_feature' ? 'both' : f.edition }));
                   }}
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
                 >
                   <option value="category">{lang === 'bn' ? 'ক্যাটাগরি আর্টিকেল' : 'Category Articles'}</option>
-                  <option value="special_feature">{lang === 'bn' ? 'বিশেষ প্রতিবেদন' : 'Special Feature'}</option>
+                  <option value="special_feature">{lang === 'bn' ? 'বিশেষ প্রতিবেদন (ফিচার্ড আর্টিকেল)' : 'Special Feature (Featured Articles)'}</option>
                   <option value="videos">{lang === 'bn' ? 'সর্বশেষ ভিডিও' : 'Latest Videos'}</option>
                   <option value="trending">{lang === 'bn' ? 'ট্রেন্ডিং' : 'Trending'}</option>
                 </select>
+                {formData.type === 'special_feature' && (
+                  <p className="text-xs text-gray-400 mt-1.5">
+                    {lang === 'bn'
+                      ? 'এই সেকশনে সেই আর্টিকেলগুলো দেখাবে যেগুলো আর্টিকেল এডিটরে "ফিচার্ড" করে রাখা আছে।'
+                      : 'Shows articles that have been marked "Featured" in the article editor.'}
+                  </p>
+                )}
               </div>
 
               {/* Category selector */}

@@ -48,8 +48,8 @@ class HomepageSectionSeeder extends Seeder
             'type'       => 'special_feature',
             'title_bn'   => 'বিশেষ প্রতিবেদন',
             'title_en'   => 'Special Feature',
-            'layout'     => 'featured_left',
-            'item_count' => 6,
+            'layout'     => 'banner_split',
+            'item_count' => 10,
             'sort_order' => $sort++,
             'edition'    => 'both',
             'is_active'  => true,
@@ -63,6 +63,10 @@ class HomepageSectionSeeder extends Seeder
                 'badge_label_en'     => 'Special',
                 'show_badge'         => true,
                 'show_excerpt'       => true,
+                'banner_image'       => null,
+                'show_banner'        => true,
+                'show_header'        => true,
+                'list_columns'       => 3,
             ],
         ]);
 
