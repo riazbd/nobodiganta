@@ -152,11 +152,7 @@ article .card{padding:8px;}
 ══════════════════════════════════════════════════════ */
 :root { --header-h: 72px; }
 #header {
-  background:
-    url(/images/news-light-squares.png) calc(max(120px, min(26vw, 180px)) + max((100vw - 71.25rem - 0.25rem + 20px) / 2, 0px)) top/auto max(77%,51px) no-repeat,
-    url(/images/news-light-squares.png) right -200vw top/auto max(77%,51px) no-repeat,
-    url(/images/news-light-squares.png) left 200vw top/auto max(77%,51px) no-repeat,
-    linear-gradient(180deg,#fff,#eeeef0);
+  background: linear-gradient(180deg,#fff,#EEEED5);
   border-bottom: 1px solid #e8e8e8;
   position: sticky;
   top: 0;
