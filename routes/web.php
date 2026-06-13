@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OpinionController;
 use App\Http\Controllers\Admin\VideoController;
+use App\Http\Controllers\Admin\PhotoController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\UserController;
@@ -171,6 +172,12 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy')->whereNumber('media');
         Route::post('/media/bulk-delete', [MediaController::class, 'bulkDestroy'])->name('media.bulk-delete');
 
+        // Photos (Gallery)
+        Route::get('/photos', [PhotoController::class, 'index'])->name('photos');
+        Route::post('/photos', [PhotoController::class, 'store'])->name('photos.store');
+        Route::put('/photos/{article}', [PhotoController::class, 'update'])->name('photos.update')->whereNumber('article');
+        Route::delete('/photos/{article}', [PhotoController::class, 'destroy'])->name('photos.destroy')->whereNumber('article');
+
         // Videos & Opinion
         Route::get('/videos', [VideoController::class, 'index'])->name('videos');
         Route::post('/videos', [VideoController::class, 'store'])->name('videos.store');
@@ -249,6 +256,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/polls', [PollController::class, 'index'])->name('polls');
         Route::post('/polls', [PollController::class, 'store'])->name('polls.store');
+        Route::put('/polls/{poll}', [PollController::class, 'update'])->name('polls.update')->whereNumber('poll');
         Route::patch('/polls/{poll}/toggle', [PollController::class, 'toggle'])->name('polls.toggle')->whereNumber('poll');
         Route::delete('/polls/{poll}', [PollController::class, 'destroy'])->name('polls.destroy')->whereNumber('poll');
 

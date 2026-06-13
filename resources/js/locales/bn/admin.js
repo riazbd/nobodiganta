@@ -16,6 +16,7 @@ export const admin = {
   'admin.categories': 'বিভাগ',
   'admin.mediaLibrary': 'মিডিয়া লাইব্রেরি',
   'admin.videos': 'ভিডিও',
+  'admin.photoGallery': 'ফটো গ্যালারি',
   'admin.opinionColumn': 'মতামত কলাম',
   'admin.operations': 'পরিচালনা',
   'admin.reporters': 'সাংবাদিক / লেখক',

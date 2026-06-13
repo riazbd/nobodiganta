@@ -159,6 +159,16 @@ class NewsController extends Controller
                     ->get()
                     ->map(fn($s) => $s->toAPIArray($edition))
                     ->values();
+            } elseif ($section->type === 'special_feature') {
+                $data['items'] = Article::published()
+                    ->forEdition($edition)
+                    ->where('article_type', 'feature')
+                    ->withRelations()
+                    ->orderByDesc('published_at')
+                    ->limit($section->item_count ?? 5)
+                    ->get()
+                    ->map(fn($a) => $a->toAPIArray($edition))
+                    ->values();
             }
 
             return $data;
@@ -374,7 +384,7 @@ class NewsController extends Controller
             ]);
         }
 
-        // Related articles
+        // Related articles (sidebar – category-based)
         $relatedArticles = Article::published()
             ->forEdition($edition)
             ->where('category_id', $article->category_id)
@@ -384,10 +394,35 @@ class NewsController extends Controller
             ->get()
             ->map(fn($a) => $a->toAPIArray($edition));
 
+        // Tag-based related articles (সম্পর্কিত সংবাদ – below article)
+        $tagIds = $article->tags->pluck('id');
+        $tagRelatedArticles = $tagIds->isNotEmpty()
+            ? Article::published()
+                ->forEdition($edition)
+                ->whereHas('tags', fn($q) => $q->whereIn('tag_id', $tagIds))
+                ->where('id', '!=', $article->id)
+                ->latest()
+                ->limit(6)
+                ->get()
+                ->map(fn($a) => $a->toAPIArray($edition))
+            : collect();
+
+        // Category-based "আরো পড়ুন" section (below article)
+        $categoryMoreArticles = Article::published()
+            ->forEdition($edition)
+            ->where('category_id', $article->category_id)
+            ->where('id', '!=', $article->id)
+            ->latest()
+            ->limit(6)
+            ->get()
+            ->map(fn($a) => $a->toAPIArray($edition));
+
         return Inertia::render('Article', [
             'edition' => $edition,
             'article' => $article->toAPIArray($edition),
             'relatedArticles' => $relatedArticles,
+            'tagRelatedArticles' => $tagRelatedArticles,
+            'categoryMoreArticles' => $categoryMoreArticles,
             'ads' => $this->getAds($edition),
             'paywall' => false,
             'meterRemaining' => $meterRemaining,
@@ -950,8 +985,8 @@ class NewsController extends Controller
                     'title' => $data['title'],
                     'slug' => $data['slug'],
                     'excerpt' => $data['excerpt'] ?? null,
-                    'name' => $data['author']['name'] ?? 'Unknown',
-                    'desg' => $data['author']['designation'] ?? 'Columnist',
+                    'name' => $data['author']['name'] ?? ($edition === 'bn' ? 'নব দিগন্ত ডেস্ক' : 'Nobo Digonto Desk'),
+                    'desg' => $data['author']['designation'] ?? ($edition === 'bn' ? 'কলামিস্ট' : 'Columnist'),
                     'avatar' => $data['author']['image'] ?? null,
                     'categorySlug' => $data['category']['slug'] ?? 'opinion',
                 ];

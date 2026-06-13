@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
-import { BarChart2, Plus, Trash2, X, Save, RefreshCw, Activity, Calendar, Power, ImageIcon } from 'lucide-react';
+import { BarChart2, Plus, Trash2, X, Save, RefreshCw, Activity, Calendar, Power, ImageIcon, Pencil } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
+import MediaLibraryModal from '../../components/media/MediaLibraryModal';
 
-const EMPTY_OPTION = { option_bn: '', option_en: '', votes: '' };
+const EMPTY_OPTION = { id: null, option_bn: '', option_en: '', votes: '' };
 const EMPTY_FORM = () => ({
   question_bn: '', question_en: '',
   is_active: true,
@@ -19,13 +20,35 @@ export default function PollManagement({ polls = [] }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [saving, setSaving]       = useState(false);
   const [errors, setErrors]       = useState({});
   const [form, setForm]           = useState(EMPTY_FORM());
-  const [imgError, setImgError]   = useState(false);
+  const [imgError, setImgError]       = useState(false);
+  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
 
-  const openModal = () => { setForm(EMPTY_FORM()); setErrors({}); setImgError(false); setShowModal(true); };
-  const closeModal = () => setShowModal(false);
+  const openModal = () => { setEditingId(null); setForm(EMPTY_FORM()); setErrors({}); setImgError(false); setShowModal(true); };
+  const openEdit  = (poll) => {
+    setEditingId(poll.id);
+    setForm({
+      question_bn:    poll.question_bn,
+      question_en:    poll.question_en,
+      is_active:      poll.is_active,
+      start_date:     poll.start_date || new Date().toISOString().split('T')[0],
+      end_date:       poll.end_date || '',
+      featured_image: poll.featured_image || '',
+      options: (poll.options || []).map(o => ({
+        id:        o.id,
+        option_bn: o.option_bn,
+        option_en: o.option_en,
+        votes:     o.votes,
+      })),
+    });
+    setErrors({});
+    setImgError(false);
+    setShowModal(true);
+  };
+  const closeModal = () => { setShowModal(false); setEditingId(null); };
 
   const setField = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
@@ -44,10 +67,17 @@ export default function PollManagement({ polls = [] }) {
       ...form,
       options: form.options.map(o => ({ ...o, votes: o.votes === '' ? 0 : Number(o.votes) })),
     };
-    router.post(route('admin.polls.store'), payload, {
-      onSuccess: () => { setSaving(false); closeModal(); showToast(lang === 'bn' ? 'জরিপ তৈরি হয়েছে' : 'Poll created'); },
-      onError: (errs) => { setSaving(false); setErrors(errs); },
-    });
+    if (editingId) {
+      router.put(route('admin.polls.update', editingId), payload, {
+        onSuccess: () => { setSaving(false); closeModal(); showToast(lang === 'bn' ? 'জরিপ আপডেট হয়েছে' : 'Poll updated'); },
+        onError: (errs) => { setSaving(false); setErrors(errs); },
+      });
+    } else {
+      router.post(route('admin.polls.store'), payload, {
+        onSuccess: () => { setSaving(false); closeModal(); showToast(lang === 'bn' ? 'জরিপ তৈরি হয়েছে' : 'Poll created'); },
+        onError: (errs) => { setSaving(false); setErrors(errs); },
+      });
+    }
   };
 
   const handleToggle = (id) => {
@@ -118,6 +148,9 @@ export default function PollManagement({ polls = [] }) {
                     >
                       <Power size={18} />
                     </button>
+                    <button onClick={() => openEdit(poll)} title={lang === 'bn' ? 'সম্পাদনা করুন' : 'Edit'} className="p-2 text-gray-400 hover:text-blue-500 transition-colors rounded-lg hover:bg-blue-50">
+                      <Pencil size={18} />
+                    </button>
                     <button onClick={() => handleDelete(poll.id)} className="p-2 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50">
                       <Trash2 size={18} />
                     </button>
@@ -146,13 +179,20 @@ export default function PollManagement({ polls = [] }) {
         </div>
       )}
 
+      <MediaLibraryModal
+        isOpen={showMediaLibrary}
+        onClose={() => setShowMediaLibrary(false)}
+        onSelect={(m) => { setField('featured_image', m.url); setImgError(false); setShowMediaLibrary(false); }}
+        initialType="image"
+      />
+
       {showModal && (
         <div className="fixed inset-0 z-[9999] bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <BarChart2 className="text-[#263238]" size={22} />
-                {lang === 'bn' ? 'নতুন জরিপ তৈরি' : 'Create New Poll'}
+                {editingId ? (lang === 'bn' ? 'জরিপ সম্পাদনা' : 'Edit Poll') : (lang === 'bn' ? 'নতুন জরিপ তৈরি' : 'Create New Poll')}
               </h3>
               <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={20} /></button>
             </div>
@@ -176,14 +216,22 @@ export default function PollManagement({ polls = [] }) {
 
               {/* Featured image */}
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase flex items-center gap-1"><ImageIcon size={12} /> Featured Image URL</label>
-                <input type="url" value={form.featured_image} onChange={e => { setField('featured_image', e.target.value); setImgError(false); }}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#263238]" placeholder="https://..." />
-                {form.featured_image && !imgError && (
-                  <img src={form.featured_image} alt="preview" onError={() => setImgError(true)}
-                    className="mt-2 w-full h-28 object-cover rounded-xl border border-gray-100" />
-                )}
-                {imgError && <p className="text-orange-500 text-xs mt-1">{lang === 'bn' ? 'ছবি লোড হচ্ছে না' : 'Image failed to load'}</p>}
+                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase flex items-center gap-1"><ImageIcon size={12} /> {lang === 'bn' ? 'ফিচার্ড ছবি' : 'Featured Image'}</label>
+                {form.featured_image && !imgError ? (
+                  <div className="relative mt-1 mb-2">
+                    <img src={form.featured_image} alt="preview" onError={() => setImgError(true)}
+                      className="w-full h-36 object-cover rounded-xl border border-gray-100" />
+                    <button type="button" onClick={() => { setField('featured_image', ''); setImgError(false); }}
+                      className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-full p-1 shadow text-gray-500 hover:text-red-500 transition-colors">
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : null}
+                <button type="button" onClick={() => setShowMediaLibrary(true)}
+                  className="w-full border-2 border-dashed border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-500 hover:border-[#263238] hover:text-[#263238] transition-colors flex items-center justify-center gap-2">
+                  <ImageIcon size={16} />
+                  {form.featured_image ? (lang === 'bn' ? 'ছবি পরিবর্তন করুন' : 'Change Image') : (lang === 'bn' ? 'মিডিয়া লাইব্রেরি থেকে ছবি বেছে নিন' : 'Select from Media Library')}
+                </button>
               </div>
 
               {/* Dates + Active */}
@@ -245,7 +293,7 @@ export default function PollManagement({ polls = [] }) {
               <button onClick={handleSubmit} disabled={saving}
                 className="w-full bg-[#263238] text-white rounded-2xl py-4 text-base font-bold shadow-lg transition-all hover:bg-[#1a2428] active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70">
                 {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save size={18} />}
-                {lang === 'bn' ? 'জরিপ প্রকাশ করুন' : 'Launch Poll'}
+                {editingId ? (lang === 'bn' ? 'আপডেট করুন' : 'Update Poll') : (lang === 'bn' ? 'জরিপ প্রকাশ করুন' : 'Launch Poll')}
               </button>
             </div>
           </div>

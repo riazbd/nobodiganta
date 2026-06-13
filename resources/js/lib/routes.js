@@ -70,6 +70,7 @@ export const ROUTES = {
         categories:       '/admin/categories',
         media:            '/admin/media',
         videos:           '/admin/videos',
+        photos:           '/admin/photos',
         stories:          '/admin/stories',
         opinions:         '/admin/opinions',
         opinionsWrite:    '/admin/opinions/write',

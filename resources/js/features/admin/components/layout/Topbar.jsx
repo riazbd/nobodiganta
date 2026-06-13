@@ -55,6 +55,7 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
     categories: { bn: 'বিভাগ', en: 'Categories' },
     media: { bn: 'মিডিয়া লাইব্রেরি', en: 'Media Library' },
     videos: { bn: 'ভিডিও', en: 'Videos' },
+    photos: { bn: 'ফটো গ্যালারি', en: 'Photo Gallery' },
     stories: { bn: 'স্টোরিজ ম্যানেজমেন্ট', en: 'Stories Management' },
     opinions: { bn: 'মতামত কলাম', en: 'Opinion Column' },
     reporters: { bn: 'সাংবাদিক / লেখক', en: 'Reporters' },

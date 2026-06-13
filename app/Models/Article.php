@@ -327,8 +327,10 @@ class Article extends Model
         if (!$this->author) {
             return [
                 'id' => 0,
-                'name' => 'Nobo Digonto Desk',
+                'name' => $edition === 'bn' ? 'নব দিগন্ত ডেস্ক' : 'Nobo Digonto Desk',
                 'slug' => 'nobodigonto-desk',
+                'designation' => null,
+                'image' => null,
             ];
         }
 

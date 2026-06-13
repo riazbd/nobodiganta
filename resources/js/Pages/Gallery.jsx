@@ -1,116 +1,207 @@
 import { t } from '../translations';
-import Icon from '../Components/Icon';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { getGalleryItems, getGalleryCategories } from '../services/mediaService';
 import { ListSkeleton } from '../Components/ui/Skeleton';
 import EmptyState from '../Components/ui/EmptyState';
 
-const TABS = ['latest', 'bangladesh', 'nature', 'people', 'sports', 'special'];
+async function fetchGalleries(edition, page = 1) {
+  const params = new URLSearchParams({ edition, page, per_page: 12 });
+  const res = await fetch(`/api/gallery?${params}`);
+  if (!res.ok) throw new Error('Failed to fetch');
+  return res.json();
+}
 
 export default function Gallery() {
   const { lang } = useApp();
-  const [activeTab, setActiveTab] = useState(0);
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [lightboxItem, setLightboxItem] = useState(null);
+  const [galleries, setGalleries]   = useState([]);
+  const [loading, setLoading]       = useState(true);
   const [pagination, setPagination] = useState({ currentPage: 1, lastPage: 1 });
 
-  // Get current edition from URL (en/ prefix means English edition)
-  const currentEdition = window.location.pathname.startsWith('/en') ? 'en' : 'bn';
+  // Lightbox state: { gallery, photoIndex }
+  const [lightbox, setLightbox] = useState(null);
+
+  const edition = window.location.pathname.startsWith('/en') ? 'en' : 'bn';
 
   useEffect(() => {
     setLoading(true);
-    getGalleryItems(TABS[activeTab], currentEdition, 1)
-      .then((response) => { 
-        setItems(response.data); 
-        setPagination({
-          currentPage: response.meta.current_page,
-          lastPage: response.meta.last_page,
-        });
-        setLoading(false); 
+    fetchGalleries(edition, 1)
+      .then(res => {
+        setGalleries(res.data);
+        setPagination({ currentPage: res.meta.current_page, lastPage: res.meta.last_page });
+        setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [activeTab, currentEdition]);
+  }, [edition]);
 
-  const tabLabels = TABS.map((tab) => t(`gallery.tabs.${tab}`, lang));
+  const openLightbox  = (gallery, idx = 0) => setLightbox({ gallery, idx });
+  const closeLightbox = () => setLightbox(null);
+
+  const prevPhoto = useCallback(() => {
+    if (!lightbox) return;
+    setLightbox(lb => ({ ...lb, idx: (lb.idx - 1 + lb.gallery.photos.length) % lb.gallery.photos.length }));
+  }, [lightbox]);
+
+  const nextPhoto = useCallback(() => {
+    if (!lightbox) return;
+    setLightbox(lb => ({ ...lb, idx: (lb.idx + 1) % lb.gallery.photos.length }));
+  }, [lightbox]);
+
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e) => {
+      if (e.key === 'ArrowLeft')  prevPhoto();
+      if (e.key === 'ArrowRight') nextPhoto();
+      if (e.key === 'Escape')     closeLightbox();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightbox, prevPhoto, nextPhoto]);
+
+  const currentPhoto = lightbox ? lightbox.gallery.photos[lightbox.idx] : null;
+  const currentCaption = currentPhoto
+    ? (lang === 'en' ? (currentPhoto.caption_en || currentPhoto.caption_bn) : (currentPhoto.caption_bn || currentPhoto.caption_en))
+    : null;
 
   return (
     <div className="sec" style={{ marginBottom: 14 }}>
-      <div className="sec-hdr"><div className="sec-ttl">{t('gallery.title', lang)}</div></div>
-      <div className="gallery-tab-bar">
-        {tabLabels.map((tab, i) => (
-          <div
-            key={i}
-            className={`tbtn ${i === activeTab ? 'on' : ''}`}
-            style={{ textAlign: 'center', padding: '8px 5px', fontSize: 12, cursor: 'pointer' }}
-            onClick={() => setActiveTab(i)}
-            role="tab"
-            aria-selected={i === activeTab}
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && setActiveTab(i)}
-          >
-            {tab}
-          </div>
-        ))}
+      <div className="sec-hdr">
+        <div className="sec-ttl">{t('gallery.title', lang)}</div>
       </div>
 
       {loading ? (
         <ListSkeleton count={4} />
-      ) : items.length === 0 ? (
+      ) : galleries.length === 0 ? (
         <EmptyState
-          title={lang === 'bn' ? 'কোনো ছবি নেই' : 'No photos'}
-          message={lang === 'bn' ? 'এই বিভাগে এখনো কোনো ছবি যোগ করা হয়নি।' : 'No photos added to this category yet.'}
+          title={lang === 'bn' ? 'কোনো ফটো গ্যালারি নেই' : 'No photo galleries'}
+          message={lang === 'bn' ? 'এখনো কোনো ফটো গ্যালারি প্রকাশিত হয়নি।' : 'No photo galleries have been published yet.'}
         />
       ) : (
         <div className="gallery-grid">
-          {items.map((it, i) => (
+          {galleries.map((gallery, i) => (
             <div
-              key={it.id}
+              key={gallery.id}
               className={`gallery-item ${i === 0 ? 'big' : ''}`}
-              onClick={() => setLightboxItem(it)}
+              onClick={() => openLightbox(gallery, 0)}
               tabIndex={0}
               role="button"
-              aria-label={lang === 'bn' ? it.caption : it.captionEn}
-              onKeyDown={(e) => e.key === 'Enter' && setLightboxItem(it)}
+              aria-label={gallery.title}
+              onKeyDown={e => e.key === 'Enter' && openLightbox(gallery, 0)}
             >
-              <img
-                src={it.src}
-                alt={it.alt_text || it.caption || 'Gallery photo'}
-                className={i === 0 ? 'gl-img-big' : 'gl-img'}
-                style={{ width: '100%', objectFit: 'cover', display: 'block' }}
-                loading="lazy"
-              />
+              {gallery.cover ? (
+                <img
+                  src={gallery.cover}
+                  alt={gallery.title}
+                  className={i === 0 ? 'gl-img-big' : 'gl-img'}
+                  style={{ width: '100%', objectFit: 'cover', display: 'block' }}
+                  loading="lazy"
+                />
+              ) : gallery.photos[0]?.url ? (
+                <img
+                  src={gallery.photos[0].url}
+                  alt={gallery.title}
+                  className={i === 0 ? 'gl-img-big' : 'gl-img'}
+                  style={{ width: '100%', objectFit: 'cover', display: 'block' }}
+                  loading="lazy"
+                />
+              ) : (
+                <div className={i === 0 ? 'gl-img-big' : 'gl-img'} style={{ background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontSize: 32 }}>📷</span>
+                </div>
+              )}
+
               <div className="gl-overlay">
-                <h5>{it.caption || it.alt_text || 'Photo'}</h5>
+                <h5>{gallery.title}</h5>
+                {gallery.photo_count > 0 && (
+                  <span style={{ fontSize: 11, opacity: 0.85, display: 'block', marginTop: 2 }}>
+                    📷 {gallery.photo_count} {lang === 'bn' ? 'ছবি' : 'photos'}
+                  </span>
+                )}
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {lightboxItem && (
+      {/* Lightbox */}
+      {lightbox && currentPhoto && (
         <div
           id="lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label={lang === 'bn' ? lightboxItem.caption : lightboxItem.captionEn}
-          onClick={() => setLightboxItem(null)}
+          onClick={closeLightbox}
+          style={{ display: 'flex', flexDirection: 'column' }}
         >
-          <div className="lb-inner" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="lb-close"
-              onClick={() => setLightboxItem(null)}
-              aria-label={lang === 'bn' ? 'বন্ধ করুন' : 'Close'}
-            >
-              <Icon name="close" size={28} />
+          <div className="lb-inner" onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
+            {/* Close */}
+            <button className="lb-close" onClick={closeLightbox} aria-label={lang === 'bn' ? 'বন্ধ করুন' : 'Close'}>
+              ✕
             </button>
+
+            {/* Gallery title */}
+            <div style={{ color: '#fff', fontSize: 13, fontWeight: 700, padding: '0 0 8px', opacity: 0.7, textAlign: 'center' }}>
+              {lightbox.gallery.title}
+            </div>
+
+            {/* Main photo */}
             <img
-              src={lightboxItem.src}
-              alt={lightboxItem.alt_text || lightboxItem.caption}
-              style={{ width: '100%', maxHeight: '80vh', objectFit: 'contain', display: 'block' }}
+              src={currentPhoto.url}
+              alt={currentCaption || ''}
+              style={{ width: '100%', maxHeight: '70vh', objectFit: 'contain', display: 'block', borderRadius: 6 }}
             />
-            <div className="lb-cap">{lightboxItem.caption || lightboxItem.alt_text}</div>
+
+            {/* Caption */}
+            {currentCaption && <div className="lb-cap">{currentCaption}</div>}
+
+            {/* Counter */}
+            <div style={{ color: '#fff', fontSize: 12, textAlign: 'center', marginTop: 6, opacity: 0.6 }}>
+              {lightbox.idx + 1} / {lightbox.gallery.photos.length}
+            </div>
+
+            {/* Prev / Next */}
+            {lightbox.gallery.photos.length > 1 && (
+              <>
+                <button
+                  onClick={e => { e.stopPropagation(); prevPhoto(); }}
+                  aria-label="Previous"
+                  style={{
+                    position: 'absolute', left: -48, top: '50%', transform: 'translateY(-50%)',
+                    background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%',
+                    width: 38, height: 38, color: '#fff', fontSize: 20, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >‹</button>
+                <button
+                  onClick={e => { e.stopPropagation(); nextPhoto(); }}
+                  aria-label="Next"
+                  style={{
+                    position: 'absolute', right: -48, top: '50%', transform: 'translateY(-50%)',
+                    background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%',
+                    width: 38, height: 38, color: '#fff', fontSize: 20, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >›</button>
+              </>
+            )}
+
+            {/* Thumbnail strip */}
+            {lightbox.gallery.photos.length > 1 && (
+              <div style={{ display: 'flex', gap: 6, marginTop: 10, overflowX: 'auto', padding: '0 2px' }}>
+                {lightbox.gallery.photos.map((p, i) => (
+                  <img
+                    key={i}
+                    src={p.url}
+                    alt=""
+                    onClick={e => { e.stopPropagation(); setLightbox(lb => ({ ...lb, idx: i })); }}
+                    style={{
+                      width: 54, height: 38, objectFit: 'cover', borderRadius: 4, cursor: 'pointer', flexShrink: 0,
+                      border: i === lightbox.idx ? '2px solid #fff' : '2px solid transparent',
+                      opacity: i === lightbox.idx ? 1 : 0.55,
+                      transition: 'opacity 0.15s',
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

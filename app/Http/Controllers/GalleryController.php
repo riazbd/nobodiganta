@@ -2,62 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Media;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class GalleryController extends Controller
 {
     /**
-     * Get gallery items with optional filtering
-     * GET /api/gallery?tab=:tab&edition=:bn|en&page=:n
+     * Get photo articles for the public gallery page
+     * GET /api/gallery?edition=:bn|en&page=:n
      */
     public function index(Request $request)
     {
-        $tab = $request->input('tab', 'latest');
         $edition = $request->input('edition', 'bn');
         $perPage = $request->input('per_page', 12);
 
-        // Build query for images only
-        $query = Media::where('mime_type', 'like', 'image/%')
+        $query = Article::published()
             ->forEdition($edition)
-            ->latest();
+            ->type('photo')
+            ->latest('published_at');
 
-        // If not 'latest', filter by alt_text_bn/caption_bn as category
-        if ($tab !== 'latest') {
-            $query->where(function ($q) use ($tab) {
-                $q->where('alt_text_bn', 'like', '%' . $tab . '%')
-                  ->orWhere('alt_text_en', 'like', '%' . $tab . '%')
-                  ->orWhere('caption_bn', 'like', '%' . $tab . '%')
-                  ->orWhere('caption_en', 'like', '%' . $tab . '%');
-            });
-        }
+        $paginated = $query->paginate($perPage);
 
-        $media = $query->paginate($perPage);
-
-        // Transform to gallery format
-        $items = $media->map(function ($item) use ($edition) {
+        $items = $paginated->map(function ($article) use ($edition) {
+            $photos = $article->body_bn ? json_decode($article->body_bn, true) : [];
+            if (!is_array($photos)) $photos = [];
             return [
-                'id' => $item->id,
-                'src' => $item->url,
-                'thumbnail' => $item->thumbnail_url,
-                'caption' => $item->getCaption($edition),
-                'alt_text' => $item->getAltText($edition),
-                'date' => $item->created_at->toISOString(),
-                'width' => $item->width,
-                'height' => $item->height,
-                'edition' => $item->edition,
+                'id'          => $article->id,
+                'title'       => $edition === 'en' && $article->title_en ? $article->title_en : $article->title_bn,
+                'slug'        => $edition === 'en' && $article->slug_en ? $article->slug_en : $article->slug_bn,
+                'cover'       => $article->featured_image,
+                'photo_count' => count($photos),
+                'photos'      => $photos,
+                'date'        => $article->published_at?->toISOString(),
+                'edition'     => $article->edition,
             ];
         });
 
         return response()->json([
             'data' => $items,
             'meta' => [
-                'current_page' => $media->currentPage(),
-                'last_page' => $media->lastPage(),
-                'per_page' => $media->perPage(),
-                'total' => $media->total(),
+                'current_page' => $paginated->currentPage(),
+                'last_page'    => $paginated->lastPage(),
+                'per_page'     => $paginated->perPage(),
+                'total'        => $paginated->total(),
             ],
         ]);
     }

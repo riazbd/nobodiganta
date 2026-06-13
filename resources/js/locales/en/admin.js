@@ -4,7 +4,7 @@ export const admin = {
   'admin.allNews': 'All News', 'admin.writeNews': 'Write New',
   'admin.drafts': 'Drafts', 'admin.published': 'Published',
   'admin.pendingApproval': 'Pending Approval', 'admin.categories': 'Categories',
-  'admin.mediaLibrary': 'Media Library', 'admin.videos': 'Videos',
+  'admin.mediaLibrary': 'Media Library', 'admin.videos': 'Videos', 'admin.photoGallery': 'Photo Gallery',
   'admin.opinionColumn': 'Opinion Column', 'admin.operations': 'Operations',
   'admin.reporters': 'Reporters / Writers', 'admin.comments': 'Reader Comments',
   'admin.adsManagement': 'Ads Management', 'admin.subscriptions': 'Subscriptions',

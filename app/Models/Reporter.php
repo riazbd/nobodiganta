@@ -74,7 +74,10 @@ class Reporter extends Model
      */
     public function getDesignation(string $lang = 'bn'): ?string
     {
-        return $lang === 'en' ? $this->designation_en : $this->designation_bn;
+        if ($lang === 'en') {
+            return $this->designation_en ?: $this->designation_bn ?: null;
+        }
+        return $this->designation_bn ?: $this->designation_en ?: null;
     }
 
     /**

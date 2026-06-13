@@ -158,6 +158,7 @@ function urlToPageName(url) {
         'categories': 'categories',
         'media': 'media',
         'videos': 'videos',
+        'photos': 'photos',
         'stories': 'stories',
         'opinions': 'opinions',
         'reporters': 'reporters',

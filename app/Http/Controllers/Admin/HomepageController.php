@@ -35,10 +35,16 @@ class HomepageController extends Controller
             'edition' => 'required|in:bn,en,both',
             'sort_order' => 'integer',
             'is_active' => 'boolean',
+            'title_bn' => 'nullable|string|max:200',
+            'title_en' => 'nullable|string|max:200',
         ]);
 
         if (empty($validated['sort_order'])) {
             $validated['sort_order'] = (HomepageSection::max('sort_order') ?? 0) + 1;
+        }
+
+        if ($validated['type'] === 'special_feature') {
+            $validated['edition'] = 'both';
         }
 
         HomepageSection::create($validated);
@@ -58,7 +64,13 @@ class HomepageController extends Controller
             'edition' => 'required|in:bn,en,both',
             'sort_order' => 'integer',
             'is_active' => 'boolean',
+            'title_bn' => 'nullable|string|max:200',
+            'title_en' => 'nullable|string|max:200',
         ]);
+
+        if ($validated['type'] === 'special_feature') {
+            $validated['edition'] = 'both';
+        }
 
         $section->update($validated);
 

@@ -41,6 +41,8 @@ export const pages = {
   'article.share_li': 'LinkedIn',
   'article.tags_label': 'ট্যাগ:',
   'article.related': 'সম্পর্কিত সংবাদ',
+  'article.tag_related': 'সম্পর্কিত সংবাদ',
+  'article.read_more': 'আরো পড়ুন',
   'article.image_cap': 'ছবি: নবদিগন্ত',
   'article.reading_time': '{minutes} মিনিটে পড়ুন',
   'article.bookmark_add': 'সংরক্ষণ করুন',

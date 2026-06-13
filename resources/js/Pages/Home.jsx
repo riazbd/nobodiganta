@@ -503,6 +503,55 @@ function TagsCloud({ tags, lang, nav }) {
   );
 }
 
+// ─── SPECIAL FEATURE SECTION ─────────────────────────────────────────────────
+function SpecialFeatureSection({ section, lang, nav }) {
+  const items = section.items || [];
+  if (!items.length) return null;
+  const title = lang === 'bn' ? (section.title || 'বিশেষ প্রতিবেদন') : (section.title_en || section.title || 'Special Feature');
+  const t  = (a) => lang === 'bn' ? a.title : (a.title_en || a.title);
+  const ex = (a) => lang === 'bn' ? a.excerpt : (a.excerpt_en || a.excerpt);
+  const hero = items[0];
+  const rest = items.slice(1);
+
+  return (
+    <div className="sf-section">
+      <div className="p-sec-hdr-wrap">
+        <div className="p-sec-hdr sf-hdr">
+          <span className="sf-badge">{lang === 'bn' ? 'বিশেষ' : 'Special'}</span>
+          <h2 className="p-sec-ttl sf-ttl">{title}</h2>
+        </div>
+      </div>
+
+      <div className="sf-grid">
+        {/* Hero */}
+        <div className="sf-hero" onClick={() => go(hero, nav)} role="button" tabIndex={0}>
+          <div className="sf-hero-img">
+            <ArticleThumb src={hero.featured_image} alt={t(hero)} style={{ width: '100%', height: '100%' }} />
+          </div>
+          <div className="sf-hero-body">
+            <h2 className="sf-hero-h">{t(hero)}</h2>
+            {ex(hero) && <p className="sf-hero-p">{ex(hero)}</p>}
+          </div>
+        </div>
+
+        {/* Side list */}
+        <div className="sf-list">
+          {rest.map((a, i) => (
+            <div key={a.id} className={`sf-item${i > 0 ? ' sf-item-sep' : ''}`} onClick={() => go(a, nav)} role="button" tabIndex={0}>
+              <div className="sf-item-img">
+                <ArticleThumb src={a.featured_image} alt={t(a)} style={{ width: '100%', height: '100%' }} />
+              </div>
+              <div className="sf-item-body">
+                <h4 className="sf-item-h">{t(a)}</h4>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── SARADESH SECTION ────────────────────────────────────────────────────────
 function SaradeshSection({ articles, divisions, lang, nav }) {
   const [selDiv,  setSelDiv]  = useState('');
@@ -632,10 +681,11 @@ export default function Home({
   const heroGrid6   = leadArticles.slice(1, 7);
   const midMain     = leadArticles[7];
   const midList     = leadArticles.slice(8, 13);
-  const videoSec    = sections.find(s => s.type === 'videos');
-  const storiesSec  = sections.find(s => s.type === 'stories');
-  const catSecs     = sections.filter(s => s.type === 'category' && s.items?.length > 0);
-  const stripItems  = catSecs.map(s => ({ id: s.id, slug: s.slug, name: s.title }));
+  const videoSec          = sections.find(s => s.type === 'videos');
+  const storiesSec        = sections.find(s => s.type === 'stories');
+  const specialFeatureSec = sections.find(s => s.type === 'special_feature' && s.items?.length > 0);
+  const catSecs           = sections.filter(s => s.type === 'category' && s.items?.length > 0);
+  const stripItems        = catSecs.map(s => ({ id: s.id, slug: s.slug, name: s.title }));
 
   const heroStories   = storiesSec?.items ?? [];
 
@@ -669,6 +719,9 @@ export default function Home({
           </div>
         </div>
       )}
+
+      {/* ══ SPECIAL FEATURE BANNER (above hero, DB-toggled) ════════════════ */}
+      {specialFeatureSec && <SpecialFeatureSection section={specialFeatureSec} lang={lang} nav={onNavigate} />}
 
       {/* ══ TOP 3-COLUMN BLOCK (top.html design) ═══════════════════════════ */}
       <div className="p-top-wrap">

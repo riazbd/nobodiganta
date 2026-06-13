@@ -13,6 +13,7 @@ const LinkedInIcon  = () => <svg width="17" height="17" viewBox="0 0 24 24" fill
 const CopyIcon      = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>;
 const ShareIcon     = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>;
 const ShareTotalIcon = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>;
+const PrintIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>;
 
 const PLATFORMS = [
   { key: 'facebook', label: 'Facebook',  labelBn: 'ফেসবুক',   color: '#1877f2', Icon: FacebookIcon },
@@ -92,10 +93,6 @@ export default function ArticleShare({ url, title, total, platforms = {}, sharin
             : `${fmtCount(total, lang)} shares`}
         </span>
       </div>
-      <span className="art-share-sep">|</span>
-      <span className="art-share-label">
-        {lang === 'bn' ? 'শেয়ার করুন:' : 'Share:'}
-      </span>
 
       {/* Platform buttons */}
       <div className="art-share-btns">
@@ -136,6 +133,17 @@ export default function ArticleShare({ url, title, total, platforms = {}, sharin
           aria-label={lang === 'bn' ? 'লিঙ্ক কপি' : 'Copy link'}
         >
           <CopyIcon />
+        </button>
+
+        {/* Print */}
+        <button
+          className="art-share-btn art-share-btn--print"
+          style={{ '--share-color': '#546e7a' }}
+          onClick={() => window.print()}
+          aria-label={lang === 'bn' ? 'প্রিন্ট' : 'Print'}
+          title={lang === 'bn' ? 'প্রিন্ট' : 'Print'}
+        >
+          <PrintIcon />
         </button>
       </div>
     </div>

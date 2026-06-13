@@ -23,6 +23,7 @@ export const pages = {
   'article.share_tg': 'Telegram', 'article.share_tw': 'Twitter',
   'article.share_li': 'LinkedIn',
   'article.tags_label': 'Tags:', 'article.related': 'Related News',
+  'article.tag_related': 'Related News', 'article.read_more': 'Read More',
   'article.image_cap': 'Photo: NoboDiganta',
   'article.reading_time': '{minutes} min read',
   'article.bookmark_add': 'Save Article', 'article.bookmark_remove': 'Remove Saved',

@@ -193,6 +193,8 @@ function ArticleBodyWithAd({ html, ad, position = 4 }) {
 export default function Article({
   article,
   relatedArticles = [],
+  tagRelatedArticles = [],
+  categoryMoreArticles = [],
   ads = {},
   paywall = false,
   paywallReason = null,
@@ -477,11 +479,88 @@ export default function Article({
           <ArticleShare url={articleUrl} title={article.title} {...shareProps} />
 
           {/* Comments */}
-          {article.allow_comments && <ArticleComments articleId={article.id} />}
+          {article.allow_comments && (
+            <div className="art-comments-wrap">
+              <ArticleComments articleId={article.id} />
+            </div>
+          )}
         </article>
 
         <PageSidebar />
       </div>
+
+      {/* সম্পর্কিত সংবাদ – tag-based */}
+      {tagRelatedArticles.length > 0 && (
+        <div className="art-bottom-section">
+          <div className="art-bottom-sec-hdr">
+            <span className="art-bottom-sec-hdr-label">{t('article.tag_related', lang)}</span>
+          </div>
+          <div className="art-bottom-grid">
+            {tagRelatedArticles.slice(0, 6).map((item) => (
+              <div
+                key={item.id}
+                className="art-bottom-card"
+                onClick={() => onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
+              >
+                {item.featured_image && (
+                  <div className="art-bottom-card-img">
+                    <img src={item.featured_image} alt={item.title || ''} loading="lazy" />
+                  </div>
+                )}
+                <div className="art-bottom-card-body">
+                  {item.category?.name && <div className="art-bottom-card-cat">{item.category.name}</div>}
+                  <div className="art-bottom-card-title">{item.title}</div>
+                  {item.published_at && (
+                    <div className="art-bottom-card-date">{relativeTime(item.published_at, lang)}</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* আরো পড়ুন – category-based */}
+      {categoryMoreArticles.length > 0 && (
+        <div className="art-bottom-section">
+          <div className="art-bottom-sec-hdr">
+            <span className="art-bottom-sec-hdr-label">{t('article.read_more', lang)}</span>
+            {article.category?.name && (
+              <span style={{ fontSize: 13, color: '#666', fontFamily: "'SolaimanLipi',sans-serif" }}>
+                — {article.category.name}
+              </span>
+            )}
+          </div>
+          <div className="art-bottom-grid">
+            {categoryMoreArticles.slice(0, 6).map((item) => (
+              <div
+                key={item.id}
+                className="art-bottom-card"
+                onClick={() => onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
+              >
+                {item.featured_image && (
+                  <div className="art-bottom-card-img">
+                    <img src={item.featured_image} alt={item.title || ''} loading="lazy" />
+                  </div>
+                )}
+                <div className="art-bottom-card-body">
+                  {item.category?.name && <div className="art-bottom-card-cat">{item.category.name}</div>}
+                  <div className="art-bottom-card-title">{item.title}</div>
+                  {item.published_at && (
+                    <div className="art-bottom-card-date">{relativeTime(item.published_at, lang)}</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Paywall Overlay */}
       {showPaywall && (

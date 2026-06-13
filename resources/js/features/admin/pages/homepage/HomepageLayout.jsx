@@ -20,18 +20,13 @@ export default function HomepageLayout({ sections: initialSections = [], categor
   const [editingSection, setEditingSection] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  const [formData, setFormData] = useState({
-    category_id: '',
-    type: 'category',
-    layout: 'grid',
-    item_count: 8,
-    edition: 'both',
-    is_active: true,
-  });
+  const EMPTY_FORM = { category_id: '', type: 'category', layout: 'grid', item_count: 8, edition: 'both', is_active: true, title_bn: '', title_en: '' };
+
+  const [formData, setFormData] = useState(EMPTY_FORM);
 
   const openAddModal = () => {
     setEditingSection(null);
-    setFormData({ category_id: '', type: 'category', layout: 'grid', item_count: 8, edition: 'both', is_active: true });
+    setFormData(EMPTY_FORM);
     setShowModal(true);
   };
 
@@ -44,6 +39,8 @@ export default function HomepageLayout({ sections: initialSections = [], categor
       item_count: s.item_count,
       edition: s.edition,
       is_active: s.is_active,
+      title_bn: s.title_bn || '',
+      title_en: s.title_en || '',
     });
     setShowModal(true);
   };
@@ -101,6 +98,11 @@ export default function HomepageLayout({ sections: initialSections = [], categor
   const sectionTitle = (section) => {
     if (section.type === 'videos') return lang === 'bn' ? 'ভিডিও' : 'Videos';
     if (section.type === 'trending') return lang === 'bn' ? 'ট্রেন্ডিং' : 'Trending';
+    if (section.type === 'special_feature') {
+      return lang === 'bn'
+        ? (section.title_bn || 'বিশেষ প্রতিবেদন')
+        : (section.title_en || section.title_bn || 'Special Feature');
+    }
     if (section.category) return lang === 'bn' ? section.category.name_bn : (section.category.name_en || section.category.name_bn);
     return section.type.toUpperCase();
   };
@@ -214,14 +216,48 @@ export default function HomepageLayout({ sections: initialSections = [], categor
                 </label>
                 <select
                   value={formData.type}
-                  onChange={e => setFormData({ ...formData, type: e.target.value, category_id: '' })}
+                  onChange={e => {
+                    const type = e.target.value;
+                    setFormData({ ...formData, type, category_id: '', edition: type === 'special_feature' ? 'both' : formData.edition });
+                  }}
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
                 >
                   <option value="category">{lang === 'bn' ? 'ক্যাটাগরি আর্টিকেল' : 'Category Articles'}</option>
+                  <option value="special_feature">{lang === 'bn' ? 'বিশেষ প্রতিবেদন' : 'Special Feature'}</option>
                   <option value="videos">{lang === 'bn' ? 'সর্বশেষ ভিডিও' : 'Latest Videos'}</option>
                   <option value="trending">{lang === 'bn' ? 'ট্রেন্ডিং' : 'Trending'}</option>
                 </select>
               </div>
+
+              {/* Custom title for special_feature */}
+              {formData.type === 'special_feature' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
+                      শিরোনাম (বাংলা)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="বিশেষ প্রতিবেদন"
+                      value={formData.title_bn || ''}
+                      onChange={e => setFormData({ ...formData, title_bn: e.target.value })}
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
+                      Title (English)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Special Feature"
+                      value={formData.title_en || ''}
+                      onChange={e => setFormData({ ...formData, title_en: e.target.value })}
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Category selector (only for type=category) */}
               {formData.type === 'category' && (
@@ -245,22 +281,24 @@ export default function HomepageLayout({ sections: initialSections = [], categor
               )}
 
               <div className="grid grid-cols-2 gap-4">
-                {/* Layout */}
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
-                    {lang === 'bn' ? 'লেআউট স্টাইল' : 'Layout Style'}
-                  </label>
-                  <select
-                    value={formData.layout}
-                    onChange={e => setFormData({ ...formData, layout: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
-                  >
-                    <option value="featured_left">Featured Left</option>
-                    <option value="grid">Grid</option>
-                    <option value="list">List</option>
-                    <option value="video_grid">Video Grid</option>
-                  </select>
-                </div>
+                {/* Layout — hidden for special_feature (layout is fixed) */}
+                {formData.type !== 'special_feature' && (
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">
+                      {lang === 'bn' ? 'লেআউট স্টাইল' : 'Layout Style'}
+                    </label>
+                    <select
+                      value={formData.layout}
+                      onChange={e => setFormData({ ...formData, layout: e.target.value })}
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-[#263238] outline-none"
+                    >
+                      <option value="featured_left">Featured Left</option>
+                      <option value="grid">Grid</option>
+                      <option value="list">List</option>
+                      <option value="video_grid">Video Grid</option>
+                    </select>
+                  </div>
+                )}
 
                 {/* Item count */}
                 <div>
