@@ -128,6 +128,26 @@ class Category extends Model
     }
 
     /**
+     * All descendant category IDs at any depth below the given root.
+     */
+    public static function descendantIds(int $rootId): array
+    {
+        $ids = [];
+        $frontier = [$rootId];
+
+        while (!empty($frontier)) {
+            $children = static::whereIn('parent_id', $frontier)->pluck('id')->all();
+            if (empty($children)) {
+                break;
+            }
+            $ids = array_merge($ids, $children);
+            $frontier = $children;
+        }
+
+        return $ids;
+    }
+
+    /**
      * Scope: Exclude location categories (saradesh tree)
      */
     public function scopeEditorial($query)

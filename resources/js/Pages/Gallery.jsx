@@ -1,7 +1,9 @@
 import { t } from '../translations';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
+import { toBengaliNum } from '../lib/formatters';
 import EmptyState from '../Components/ui/EmptyState';
+import Pagination from '../Components/ui/Pagination';
 
 function GallerySkeleton() {
   return (
@@ -29,7 +31,9 @@ export default function Gallery() {
   const { lang } = useApp();
   const [galleries, setGalleries]   = useState([]);
   const [loading, setLoading]       = useState(true);
+  const [page, setPage]             = useState(1);
   const [pagination, setPagination] = useState({ currentPage: 1, lastPage: 1 });
+  const sectionRef                  = useRef(null);
 
   // Lightbox state: { gallery, photoIndex }
   const [lightbox, setLightbox]   = useState(null);
@@ -39,15 +43,24 @@ export default function Gallery() {
   const edition = lang === 'en' ? 'en' : 'bn';
 
   useEffect(() => {
+    setPage(1);
+  }, [edition]);
+
+  useEffect(() => {
     setLoading(true);
-    fetchGalleries(edition, 1)
+    fetchGalleries(edition, page)
       .then(res => {
         setGalleries(res.data);
         setPagination({ currentPage: res.meta.current_page, lastPage: res.meta.last_page });
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [edition]);
+  }, [edition, page]);
+
+  const handlePageChange = (p) => {
+    setPage(p);
+    sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const openLightbox = (gallery, idx = 0) => {
     lbPrevFocusRef.current = document.activeElement;
@@ -89,7 +102,7 @@ export default function Gallery() {
     : null;
 
   return (
-    <div className="sec" style={{ marginBottom: 14 }}>
+    <div className="sec gallery-sec" style={{ marginBottom: 14 }} ref={sectionRef}>
       <div className="sec-hdr">
         <div className="sec-ttl">{t('gallery.title', lang)}</div>
       </div>
@@ -102,50 +115,58 @@ export default function Gallery() {
           message={lang === 'bn' ? 'এখনো কোনো ফটো গ্যালারি প্রকাশিত হয়নি।' : 'No photo galleries have been published yet.'}
         />
       ) : (
-        <div className="gallery-grid">
-          {galleries.map((gallery, i) => (
-            <div
-              key={gallery.id}
-              className={`gallery-item ${i === 0 ? 'big' : ''}`}
-              onClick={() => openLightbox(gallery, 0)}
-              tabIndex={0}
-              role="button"
-              aria-label={gallery.title}
-              onKeyDown={e => e.key === 'Enter' && openLightbox(gallery, 0)}
-            >
-              {gallery.cover ? (
-                <img
-                  src={gallery.cover}
-                  alt={gallery.title}
-                  className={i === 0 ? 'gl-img-big' : 'gl-img'}
-                  style={{ width: '100%', objectFit: 'cover', display: 'block' }}
-                  loading="lazy"
-                />
-              ) : gallery.photos[0]?.url ? (
-                <img
-                  src={gallery.photos[0].url}
-                  alt={gallery.title}
-                  className={i === 0 ? 'gl-img-big' : 'gl-img'}
-                  style={{ width: '100%', objectFit: 'cover', display: 'block' }}
-                  loading="lazy"
-                />
-              ) : (
-                <div className={i === 0 ? 'gl-img-big' : 'gl-img'} style={{ background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontSize: 32 }}>📷</span>
-                </div>
-              )}
+        <>
+          <div className="gallery-grid">
+            {galleries.map((gallery, i) => (
+              <div
+                key={gallery.id}
+                className={`gallery-item ${i === 0 ? 'big' : ''}`}
+                onClick={() => openLightbox(gallery, 0)}
+                tabIndex={0}
+                role="button"
+                aria-label={gallery.title}
+                onKeyDown={e => e.key === 'Enter' && openLightbox(gallery, 0)}
+              >
+                {gallery.cover ? (
+                  <img
+                    src={gallery.cover}
+                    alt={gallery.title}
+                    className={i === 0 ? 'gl-img-big' : 'gl-img'}
+                    loading="lazy"
+                  />
+                ) : gallery.photos[0]?.url ? (
+                  <img
+                    src={gallery.photos[0].url}
+                    alt={gallery.title}
+                    className={i === 0 ? 'gl-img-big' : 'gl-img'}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className={`gl-placeholder ${i === 0 ? 'gl-img-big' : 'gl-img'}`}>
+                    <span>📷</span>
+                  </div>
+                )}
 
-              <div className="gl-overlay">
-                <h5>{gallery.title}</h5>
                 {gallery.photo_count > 0 && (
-                  <span style={{ fontSize: 11, opacity: 0.85, display: 'block', marginTop: 2 }}>
-                    📷 {gallery.photo_count} {lang === 'bn' ? 'ছবি' : 'photos'}
+                  <span className="gl-badge">
+                    📷 {lang === 'bn' ? toBengaliNum(String(gallery.photo_count)) : gallery.photo_count}
                   </span>
                 )}
+
+                <div className="gl-overlay">
+                  <h5>{gallery.title}</h5>
+                  {gallery.photo_count > 0 && (
+                    <span className="gl-overlay-meta">
+                      {lang === 'bn' ? toBengaliNum(String(gallery.photo_count)) : gallery.photo_count} {lang === 'bn' ? 'টি ছবি' : `photo${gallery.photo_count > 1 ? 's' : ''}`}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          <Pagination meta={pagination} onPageChange={handlePageChange} />
+        </>
       )}
 
       {/* Lightbox */}
@@ -156,7 +177,6 @@ export default function Gallery() {
           aria-modal="true"
           aria-label={lightbox.gallery.title}
           onClick={closeLightbox}
-          style={{ display: 'flex', flexDirection: 'column' }}
           onKeyDown={e => {
             if (e.key !== 'Tab') return;
             const lb = document.getElementById('lightbox');
@@ -170,30 +190,28 @@ export default function Gallery() {
             }
           }}
         >
-          <div className="lb-inner" onClick={e => e.stopPropagation()} style={{ position: 'relative' }}>
+          <div className="lb-inner" onClick={e => e.stopPropagation()}>
             {/* Close */}
             <button ref={lbCloseRef} className="lb-close" onClick={closeLightbox} aria-label={lang === 'bn' ? 'বন্ধ করুন' : 'Close'}>
               ✕
             </button>
 
             {/* Gallery title */}
-            <div style={{ color: '#fff', fontSize: 13, fontWeight: 700, padding: '0 0 8px', opacity: 0.7, textAlign: 'center' }}>
-              {lightbox.gallery.title}
-            </div>
+            <div className="lb-title">{lightbox.gallery.title}</div>
 
             {/* Main photo */}
             <img
               src={currentPhoto.url}
               alt={currentCaption || ''}
-              style={{ width: '100%', maxHeight: '70vh', objectFit: 'contain', display: 'block', borderRadius: 6 }}
+              className="lb-photo"
             />
 
             {/* Caption */}
             {currentCaption && <div className="lb-cap">{currentCaption}</div>}
 
             {/* Counter */}
-            <div style={{ color: '#fff', fontSize: 12, textAlign: 'center', marginTop: 6, opacity: 0.6 }}>
-              {lightbox.idx + 1} / {lightbox.gallery.photos.length}
+            <div className="lb-counter">
+              {lang === 'bn' ? toBengaliNum(String(lightbox.idx + 1)) : lightbox.idx + 1} / {lang === 'bn' ? toBengaliNum(String(lightbox.gallery.photos.length)) : lightbox.gallery.photos.length}
             </div>
 
             {/* Prev / Next — absolute inside lb-inner (position:relative) so top:50% works correctly */}
@@ -212,19 +230,14 @@ export default function Gallery() {
 
             {/* Thumbnail strip */}
             {lightbox.gallery.photos.length > 1 && (
-              <div style={{ display: 'flex', gap: 6, marginTop: 10, overflowX: 'auto', padding: '0 2px' }}>
+              <div className="lb-thumbs">
                 {lightbox.gallery.photos.map((p, i) => (
                   <img
                     key={i}
                     src={p.url}
                     alt=""
+                    className={`lb-thumb ${i === lightbox.idx ? 'active' : ''}`}
                     onClick={e => { e.stopPropagation(); setLightbox(lb => ({ ...lb, idx: i })); }}
-                    style={{
-                      width: 54, height: 38, objectFit: 'cover', borderRadius: 4, cursor: 'pointer', flexShrink: 0,
-                      border: i === lightbox.idx ? '2px solid #fff' : '2px solid transparent',
-                      opacity: i === lightbox.idx ? 1 : 0.55,
-                      transition: 'opacity 0.15s',
-                    }}
                   />
                 ))}
               </div>

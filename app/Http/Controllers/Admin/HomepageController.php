@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Article;
 use App\Models\Category;
 use App\Models\HomepageSection;
 use Illuminate\Http\Request;
@@ -14,20 +15,102 @@ class HomepageController extends Controller
 {
     public function index()
     {
-        if (!auth()->user()->hasPermission('system.settings')) abort(403);
+        if (!auth()->user()->hasPermission('homepage.layout.edit')) abort(403);
 
+        return Inertia::render('features/admin/pages/homepage/HomepageLayout', $this->indexProps());
+    }
+
+    /**
+     * Shared props for the homepage layout page — used by index() and by the
+     * mutating endpoints (store/update/destroy/reorder) so they can render the
+     * page directly instead of round-tripping through a redirect + GET.
+     */
+    private function indexProps(): array
+    {
         $sections = HomepageSection::with('category')->orderBy('sort_order')->get();
-        $categories = Category::whereNull('parent_id')->orderBy('sort_order')->get();
 
-        return Inertia::render('features/admin/pages/homepage/HomepageLayout', [
+        $allCategories = Category::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get(['id', 'parent_id', 'name_bn', 'name_en']);
+
+        return [
             'sections' => $sections,
-            'categories' => $categories,
+            'categories' => $this->flattenCategoryTree($allCategories),
+        ];
+    }
+
+    /**
+     * Flatten the category tree (any depth) into an ordered list with a depth marker
+     * and parent_id, so the admin UI can render a collapsible/searchable tree.
+     */
+    private function flattenCategoryTree($all): array
+    {
+        $byParent = $all->groupBy(fn($cat) => $cat->parent_id ?? 0);
+
+        $out = [];
+        $visit = function (?int $parentId, int $depth) use (&$visit, &$out, $byParent) {
+            foreach ($byParent->get($parentId ?? 0, collect()) as $cat) {
+                $out[] = [
+                    'id'        => $cat->id,
+                    'parent_id' => $cat->parent_id,
+                    'name_bn'   => $cat->name_bn,
+                    'name_en'   => $cat->name_en,
+                    'depth'     => $depth,
+                ];
+                $visit($cat->id, $depth + 1);
+            }
+        };
+        $visit(null, 0);
+
+        return $out;
+    }
+
+    /**
+     * Articles for the special-feature picker grid — filtered by category
+     * (including all descendants) and/or a title search.
+     */
+    public function articles(Request $request)
+    {
+        if (!auth()->user()->hasPermission('homepage.layout.edit')) abort(403);
+
+        $query = Article::published()->with('category');
+
+        if ($request->filled('category_id')) {
+            $categoryIds = Category::descendantIds((int) $request->category_id);
+            $categoryIds[] = (int) $request->category_id;
+            $query->whereIn('category_id', $categoryIds);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title_bn', 'like', '%' . $search . '%')
+                  ->orWhere('title_en', 'like', '%' . $search . '%');
+            });
+        }
+
+        $perPage = min((int) $request->input('per_page', 24), 50);
+        $articles = $query->orderByDesc('published_at')->paginate($perPage);
+
+        return response()->json([
+            'data' => $articles->getCollection()->map(fn($a) => [
+                'id'             => $a->id,
+                'title_bn'       => $a->title_bn,
+                'title_en'       => $a->title_en,
+                'excerpt_bn'     => $a->excerpt_bn,
+                'excerpt_en'     => $a->excerpt_en,
+                'featured_image' => $a->featured_image,
+                'category_bn'    => $a->category?->name_bn,
+                'category_en'    => $a->category?->name_en,
+            ])->values(),
+            'current_page' => $articles->currentPage(),
+            'has_more'     => $articles->hasMorePages(),
         ]);
     }
 
     public function store(Request $request)
     {
-        if (!auth()->user()->hasPermission('system.settings')) abort(403);
+        if (!auth()->user()->hasPermission('homepage.layout.edit')) abort(403);
 
         $validated = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
@@ -52,12 +135,12 @@ class HomepageController extends Controller
 
         HomepageSection::create($validated);
 
-        return back()->with('success', 'Section added to homepage');
+        return Inertia::render('features/admin/pages/homepage/HomepageLayout', $this->indexProps());
     }
 
     public function update(Request $request, HomepageSection $section)
     {
-        if (!auth()->user()->hasPermission('system.settings')) abort(403);
+        if (!auth()->user()->hasPermission('homepage.layout.edit')) abort(403);
 
         $validated = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
@@ -78,19 +161,19 @@ class HomepageController extends Controller
 
         $section->update($validated);
 
-        return back()->with('success', 'Homepage section updated');
+        return Inertia::render('features/admin/pages/homepage/HomepageLayout', $this->indexProps());
     }
 
     public function destroy(HomepageSection $section)
     {
-        if (!auth()->user()->hasPermission('system.settings')) abort(403);
+        if (!auth()->user()->hasPermission('homepage.layout.edit')) abort(403);
         $section->delete();
-        return back()->with('success', 'Section removed from homepage');
+        return Inertia::render('features/admin/pages/homepage/HomepageLayout', $this->indexProps());
     }
 
     public function uploadBanner(Request $request)
     {
-        if (!auth()->user()->hasPermission('system.settings')) abort(403);
+        if (!auth()->user()->hasPermission('homepage.layout.edit')) abort(403);
 
         $request->validate([
             'file' => 'required|file|image|max:5120',
@@ -103,7 +186,7 @@ class HomepageController extends Controller
 
     public function deleteBanner(Request $request)
     {
-        if (!auth()->user()->hasPermission('system.settings')) abort(403);
+        if (!auth()->user()->hasPermission('homepage.layout.edit')) abort(403);
 
         $url = $request->input('url');
         $path = preg_replace('#^/storage/#', '', (string) $url);
@@ -116,7 +199,7 @@ class HomepageController extends Controller
 
     public function reorder(Request $request)
     {
-        if (!auth()->user()->hasPermission('system.settings')) abort(403);
+        if (!auth()->user()->hasPermission('homepage.layout.edit')) abort(403);
 
         $orders = $request->input('orders', []);
         DB::transaction(function () use ($orders) {
@@ -125,6 +208,6 @@ class HomepageController extends Controller
             }
         });
 
-        return back()->with('success', 'Layout reordered');
+        return Inertia::render('features/admin/pages/homepage/HomepageLayout', $this->indexProps());
     }
 }

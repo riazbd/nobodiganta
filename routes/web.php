@@ -276,6 +276,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/newsletter/{newsletter}', [NewsletterController::class, 'destroy'])->name('newsletter.destroy')->whereNumber('newsletter');
 
         Route::get('/homepage-layout', [HomepageController::class, 'index'])->name('homepage-layout');
+        Route::get('/homepage-layout/articles', [HomepageController::class, 'articles'])->name('homepage-layout.articles');
         Route::post('/homepage-layout', [HomepageController::class, 'store'])->name('homepage-layout.store');
         Route::put('/homepage-layout/{section}', [HomepageController::class, 'update'])->name('homepage-layout.update')->whereNumber('section');
         Route::delete('/homepage-layout/{section}', [HomepageController::class, 'destroy'])->name('homepage-layout.destroy')->whereNumber('section');

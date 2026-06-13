@@ -93,6 +93,7 @@ class NewsController extends Controller
                 'title'         => $section->getTitle($edition),
                 'type'          => $section->type,
                 'layout'        => $section->layout,
+                'config'        => $section->config,
                 'subcategories' => [],
                 'slug'          => null,
                 'items'         => [],
@@ -160,13 +161,44 @@ class NewsController extends Controller
                     ->map(fn($s) => $s->toAPIArray($edition))
                     ->values();
             } elseif ($section->type === 'special_feature') {
-                $data['items'] = Article::published()
-                    ->forEdition($edition)
-                    ->where('is_featured', true)
-                    ->withRelations()
-                    ->orderByDesc('published_at')
-                    ->limit($section->item_count ?? 5)
-                    ->get()
+                $manualIds = array_values(array_filter(array_map(
+                    fn($m) => $m['id'] ?? null,
+                    (array) ($section->config['manual_articles'] ?? [])
+                )));
+
+                if (!empty($manualIds)) {
+                    // Hand-picked articles — exact order, first item is the hero
+                    $order = array_flip($manualIds);
+                    $articles = Article::published()
+                        ->forEdition($edition)
+                        ->whereIn('id', $manualIds)
+                        ->withRelations()
+                        ->get()
+                        ->sortBy(fn($a) => $order[$a->id] ?? PHP_INT_MAX)
+                        ->values();
+                } elseif ($section->category_id) {
+                    // Latest articles from the selected category and all its subcategories
+                    $categoryIds = \App\Models\Category::descendantIds($section->category_id);
+                    $categoryIds[] = $section->category_id;
+
+                    $articles = Article::published()
+                        ->forEdition($edition)
+                        ->whereIn('category_id', $categoryIds)
+                        ->withRelations()
+                        ->orderByDesc('published_at')
+                        ->limit($section->item_count ?? 10)
+                        ->get();
+                } else {
+                    // No selection — fall back to latest published articles site-wide
+                    $articles = Article::published()
+                        ->forEdition($edition)
+                        ->withRelations()
+                        ->orderByDesc('published_at')
+                        ->limit($section->item_count ?? 10)
+                        ->get();
+                }
+
+                $data['items'] = $articles
                     ->map(fn($a) => $a->toAPIArray($edition))
                     ->values();
             }

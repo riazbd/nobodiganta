@@ -67,6 +67,7 @@ class HomepageSectionSeeder extends Seeder
                 'show_banner'        => true,
                 'show_header'        => true,
                 'list_columns'       => 3,
+                'manual_articles'    => [],
             ],
         ]);
 
