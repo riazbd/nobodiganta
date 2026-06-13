@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
             EpaperSeeder::class,
             NewsletterSeeder::class,
             MoreArticlesSeeder::class,
+            PhotoGallerySeeder::class,
             HomepageSectionSeeder::class,
             StoriesSeeder::class,
             LocationSeeder::class,

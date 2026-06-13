@@ -43,6 +43,29 @@ class HomepageSectionSeeder extends Seeder
 
         $sort = 1;
 
+        // Special feature section — sources from articles where is_featured = true
+        HomepageSection::create([
+            'type'       => 'special_feature',
+            'title_bn'   => 'বিশেষ প্রতিবেদন',
+            'title_en'   => 'Special Feature',
+            'layout'     => 'featured_left',
+            'item_count' => 6,
+            'sort_order' => $sort++,
+            'edition'    => 'both',
+            'is_active'  => true,
+            'config'     => [
+                'section_bg'         => '#ffffff',
+                'header_bg'          => '#1a56db',
+                'header_text_color'  => '#ffffff',
+                'badge_bg'           => '#ef4444',
+                'badge_text_color'   => '#ffffff',
+                'badge_label_bn'     => 'বিশেষ',
+                'badge_label_en'     => 'Special',
+                'show_badge'         => true,
+                'show_excerpt'       => true,
+            ],
+        ]);
+
         // First 2 sections before video carousel
         foreach ($categories->take(2) as $i => $cat) {
             [$layout, $count] = $cycle[$i % count($cycle)];
