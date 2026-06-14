@@ -45,6 +45,7 @@ class DatabaseSeeder extends Seeder
             LocationSeeder::class,
             SaradeshCategorySeeder::class,
             SaradeshArticleSeeder::class,
+            PhotocardTemplateSeeder::class,
         ]);
     }
 }

@@ -182,6 +182,7 @@ function urlToPageName(url) {
         'epaper-manager': 'epaper',
         'newsletter': 'newsletter',
         'homepage-layout': 'homepage-layout',
+        'photocard-templates': 'photocard-templates',
         'locations': 'locations',
         'profile': 'profile',
         'pitch-board': 'pitch-board',

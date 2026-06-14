@@ -270,6 +270,10 @@ export default function AdsManagement({ ads = [], filters = {} }) {
                        <option value="article_bottom">Article Bottom</option>
                        <option value="mid_home">Mid Home</option>
                        <option value="home_bottom">Home Bottom</option>
+                       <optgroup label={lang === 'bn' ? 'ফটোকার্ড' : 'Photocard'}>
+                         <option value="photocard_top">{lang === 'bn' ? 'ফটোকার্ড — উপরে' : 'Photocard — Top'}</option>
+                         <option value="photocard_bottom">{lang === 'bn' ? 'ফটোকার্ড — নিচে' : 'Photocard — Bottom'}</option>
+                       </optgroup>
                     </select>
                   </div>
                   <div>

@@ -100,6 +100,7 @@ export const ROUTES = {
         horoscope:        '/admin/horoscope',
         prayerTimes:      '/admin/prayer-times',
         homepageLayout:   '/admin/homepage-layout',
+        photocardTemplates: '/admin/photocard-templates',
         locations:        '/admin/locations',
     },
 };

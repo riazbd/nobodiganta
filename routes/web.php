@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\HoroscopeController;
 use App\Http\Controllers\Admin\EpaperController;
 use App\Http\Controllers\Admin\NewsletterController;
 use App\Http\Controllers\Admin\HomepageController;
+use App\Http\Controllers\Admin\PhotocardTemplateController;
 use App\Http\Controllers\Admin\LocationController as AdminLocationController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BreakingNewsController;
@@ -283,6 +284,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/homepage-layout/reorder', [HomepageController::class, 'reorder'])->name('homepage-layout.reorder');
         Route::post('/homepage-layout/upload-banner', [HomepageController::class, 'uploadBanner'])->name('homepage-layout.upload-banner');
         Route::delete('/homepage-layout/banner', [HomepageController::class, 'deleteBanner'])->name('homepage-layout.delete-banner');
+
+        // Photocard Studio
+        Route::get('/photocard-templates', [PhotocardTemplateController::class, 'index'])->name('photocard-templates');
+        Route::get('/photocard-templates/list', [PhotocardTemplateController::class, 'apiList'])->name('photocard-templates.list');
+        Route::get('/photocard-templates/ads', [PhotocardTemplateController::class, 'ads'])->name('photocard-templates.ads');
+        Route::post('/photocard-templates/import-url', [PhotocardTemplateController::class, 'importUrl'])->name('photocard-templates.import-url');
+        Route::post('/photocard-templates', [PhotocardTemplateController::class, 'store'])->name('photocard-templates.store');
+        Route::put('/photocard-templates/{template}', [PhotocardTemplateController::class, 'update'])->name('photocard-templates.update')->whereNumber('template');
+        Route::delete('/photocard-templates/{template}', [PhotocardTemplateController::class, 'destroy'])->name('photocard-templates.destroy')->whereNumber('template');
+        Route::post('/photocard-templates/{template}/duplicate', [PhotocardTemplateController::class, 'duplicate'])->name('photocard-templates.duplicate')->whereNumber('template');
+        Route::post('/photocard-templates/upload-asset', [PhotocardTemplateController::class, 'uploadAsset'])->name('photocard-templates.upload-asset');
 
         // User Management
         Route::get('/users', [UserController::class, 'index'])->name('users');
