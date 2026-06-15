@@ -8,11 +8,13 @@ use Illuminate\Database\Seeder;
 
 /**
  * Adds the dedicated `photocard.manage` permission (separate from the media
- * gallery) and grants it to every role that can currently reach the studio.
+ * gallery) and keeps it ADMIN-ONLY: only supreme_admin / super_admin hold it.
+ * (Those roles also bypass permission checks in code, but we attach it so the
+ * Roles UI stays consistent.)
  *
- * This seeder is ADDITIVE and IDEMPOTENT — it only firstOrCreate's the
- * permission and syncWithoutDetaching's it onto the relevant roles, so it
- * never wipes existing role permissions and is safe to run on production:
+ * Idempotent and safe to run on production — it converges to the admin-only
+ * state every run (attaches to admins, detaches from everyone else) without
+ * touching any other permission:
  *
  *     php artisan db:seed --class=PhotocardPermissionSeeder --force
  */
@@ -20,28 +22,20 @@ class PhotocardPermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        $perm = Permission::firstOrCreate(
+        $perm = Permission::updateOrCreate(
             ['name' => 'photocard.manage'],
-            ['group' => 'media']
+            ['group' => 'photocard']
         );
 
-        // Keep current behaviour: any role that already reaches the studio via
-        // `media.gallery.manage` keeps access (this also covers custom roles).
-        $roleIds = collect();
-        $gallery = Permission::where('name', 'media.gallery.manage')->first();
-        if ($gallery) {
-            $roleIds = $gallery->roles()->pluck('roles.id');
-        }
-
-        // Plus the standard editorial + photographer roles, by name, as a fallback.
-        $byName = Role::whereIn('name', [
-            'editor_in_chief', 'managing_editor', 'section_editor', 'photographer',
-        ])->pluck('id');
-
-        $roleIds = $roleIds->merge($byName)->unique();
-
-        foreach ($roleIds as $id) {
+        // Grant only to the admin-level roles.
+        $adminRoleIds = Role::whereIn('name', ['supreme_admin', 'super_admin'])->pluck('id');
+        foreach ($adminRoleIds as $id) {
             Role::find($id)?->permissions()->syncWithoutDetaching([$perm->id]);
         }
+
+        // Remove it from every non-admin role (corrects any earlier grant).
+        $perm->roles()->detach(
+            Role::whereNotIn('name', ['supreme_admin', 'super_admin'])->pluck('id')->toArray()
+        );
     }
 }
