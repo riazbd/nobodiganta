@@ -156,7 +156,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
               {visibleItems.map(item => (
                 <div key={item.id}>
                   <div
-                    className={`flex items-center gap-2.5 py-2.25 mx-2 rounded-md text-[12.5px] font-medium cursor-pointer transition-all relative ${
+                    className={`flex items-center gap-2.5 py-2.25 mx-2 rounded-md text-[13.5px] font-medium cursor-pointer transition-all relative ${
                       activeItem === item.id
                         ? 'bg-[#1e2538] text-white border-l-[3px] border-[#e8001e] pl-[13px] pr-4'
                         : 'text-[#8b92a5] hover:bg-[#1c1f2e] hover:text-[#e0e0e0] px-4'
@@ -188,7 +188,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
                       {item.children.filter(sub => !sub.permission || hasPermission(sub.permission)).map(sub => (
                         <div
                           key={sub.id}
-                          className={`flex items-center gap-2 py-1.75 mx-2 rounded-md text-[12px] cursor-pointer transition-all ${
+                          className={`flex items-center gap-2 py-1.75 mx-2 rounded-md text-[13px] cursor-pointer transition-all ${
                             activeItem === sub.id
                               ? 'bg-[#1e2538] text-white border-l-[3px] border-[#e8001e] pl-[13px] pr-4'
                               : 'text-[#8b92a5] hover:bg-[#1c1f2e] hover:text-[#ddd] px-4'
@@ -225,7 +225,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
       {/* Logout */}
       <div className="px-2 pb-4">
         <div
-          className="flex items-center gap-2.5 px-4 py-2.25 mx-2 rounded-md text-[12.5px] font-medium cursor-pointer text-[#ff6b6b] hover:bg-[#1c1f2e] transition-all"
+          className="flex items-center gap-2.5 px-4 py-2.25 mx-2 rounded-md text-[13.5px] font-medium cursor-pointer text-[#ff6b6b] hover:bg-[#1c1f2e] transition-all"
           onClick={handleLogout}
         >
           <LogOut className="w-4 h-4" />
