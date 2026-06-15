@@ -16,6 +16,9 @@ export function Toast({ toast }) {
       const timer = setTimeout(() => setVisible(false), 3000);
       return () => clearTimeout(timer);
     }
+    // Context flipped the toast off (after its own timer) — hide locally too,
+    // otherwise the toast would stay on screen forever.
+    setVisible(false);
   }, [toast]);
 
   if (!toast || !visible) return null;
