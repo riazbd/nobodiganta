@@ -115,7 +115,7 @@ export function makeLayer(type) {
   if (type === 'social') {
     return { id, type: 'social', x: 0, y: 980, width: 1080, height: 90,
              bg: '#f5f5f5', style: 'badge', iconColor: '', glyphColor: '#ffffff',
-             labelColor: '#333333', showLabels: true,
+             labelColor: '#333333', showLabels: true, labels: {}, labelCase: 'none', labelSize: 0,
              size: 34, gap: 36, font: 'SolaimanLipi', align: 'center', opacity: 100,
              source: 'manual', platforms: ['facebook', 'instagram', 'tiktok', 'linkedin'] };
   }

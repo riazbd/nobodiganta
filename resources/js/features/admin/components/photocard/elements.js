@@ -145,18 +145,32 @@ function socialPlatformsFor(el, context) {
   return el.platforms || [];
 }
 
+// Apply a text-case style (mainly affects Latin; Bengali is unchanged).
+function transformCase(s, mode) {
+  s = String(s || '');
+  switch (mode) {
+    case 'upper':    return s.toUpperCase();
+    case 'lower':    return s.toLowerCase();
+    case 'title':    return s.replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+    case 'sentence': return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    default:         return s;
+  }
+}
+
 function drawSocial(ctx, el, context) {
   const b = { x: el.x, y: el.y, w: el.width, h: el.height };
   if (el.bg && el.bg !== 'transparent') { ctx.fillStyle = el.bg; ctx.fillRect(b.x, b.y, b.w, b.h); }
   const r = (el.size || 34) / 2;
-  const labelSize = Math.round((el.size || 34) * 0.62);
+  const labelSize = el.labelSize || Math.round((el.size || 34) * 0.62); // independent label size
   const style = el.style || 'badge';            // 'badge' = circle + white icon · 'plain' = icon only
   const glyphColor = el.glyphColor || '#ffffff';
   ctx.textBaseline = 'middle';
 
-  const items = socialPlatformsFor(el, context).map(p => SOCIAL_PLATFORMS[p]).filter(Boolean);
+  const items = socialPlatformsFor(el, context).map(p => ({ key: p, ...SOCIAL_PLATFORMS[p] })).filter(it => it.path);
+  // Label = custom override (per platform) or the brand default, then case-transformed.
+  const labelOf = (it) => transformCase((el.labels && el.labels[it.key]) || it.label, el.labelCase);
   ctx.font = `700 ${labelSize}px ${fontStack(el.font)}`;
-  const widths = items.map(it => (r * 2) + (el.showLabels ? 8 + ctx.measureText(it.label).width : 0));
+  const widths = items.map(it => (r * 2) + (el.showLabels ? 8 + ctx.measureText(labelOf(it)).width : 0));
   const gap = el.gap ?? 36;
   const total = widths.reduce((a, w) => a + w, 0) + gap * Math.max(0, items.length - 1);
 
@@ -177,7 +191,7 @@ function drawSocial(ctx, el, context) {
       ctx.fillStyle = el.labelColor || '#333';
       ctx.font = `700 ${labelSize}px ${fontStack(el.font)}`;
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.fillText(it.label, cx + r * 2 + 8, cy + 1);
+      ctx.fillText(labelOf(it), cx + r * 2 + 8, cy + 1);
     }
     cx += widths[i] + gap;
   });

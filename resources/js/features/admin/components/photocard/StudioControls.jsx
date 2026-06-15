@@ -562,7 +562,37 @@ export default function StudioControls({ config, set, onUpload, lang, selectedKe
                 <Row label={(l.style || 'badge') === 'plain' ? (lang === 'bn' ? 'আইকন রঙ' : 'Icon color') : (lang === 'bn' ? 'ব্যাজ রঙ (খালি=ব্র্যান্ড)' : 'Badge color (empty=brand)')}><Color value={l.iconColor} onChange={v => setLayer(i, 'iconColor', v)} /></Row>
                 {(l.style || 'badge') === 'badge' && <Row label={lang === 'bn' ? 'আইকন রঙ' : 'Glyph color'}><Color value={l.glyphColor} onChange={v => setLayer(i, 'glyphColor', v)} /></Row>}
                 <Row label={lang === 'bn' ? 'লেবেল দেখাও' : 'Show labels'}><Toggle checked={l.showLabels} onChange={v => setLayer(i, 'showLabels', v)} /></Row>
-                {l.showLabels && <Row label={lang === 'bn' ? 'লেবেল রঙ' : 'Label color'}><Color value={l.labelColor} onChange={v => setLayer(i, 'labelColor', v)} /></Row>}
+                {l.showLabels && (
+                  <>
+                    <Row label={lang === 'bn' ? 'লেবেল ফন্ট' : 'Label font'}><FontSelect value={l.font} onChange={v => setLayer(i, 'font', v)} /></Row>
+                    <Row label={lang === 'bn' ? 'লেবেল সাইজ' : 'Label size'}>
+                      <button type="button" onClick={() => setLayer(i, 'labelSize', 0)} title={lang === 'bn' ? 'আইকনের সাথে বাঁধা' : 'Tied to icon size'}
+                        className={`text-[9px] px-1.5 py-0.5 rounded border flex-shrink-0 ${!l.labelSize ? 'bg-[#1a56db] text-white border-[#1a56db]' : 'border-gray-300 text-gray-500'}`}>{lang === 'bn' ? 'অটো' : 'Auto'}</button>
+                      <Slider value={l.labelSize || Math.round((l.size || 34) * 0.62)} min={8} max={120} onChange={v => setLayer(i, 'labelSize', v)} />
+                    </Row>
+                    <Row label={lang === 'bn' ? 'লেবেল রঙ' : 'Label color'}><Color value={l.labelColor} onChange={v => setLayer(i, 'labelColor', v)} /></Row>
+                    <Row label={lang === 'bn' ? 'লেবেল কেস (ইংরেজি)' : 'Label case (English)'}>
+                      <Select value={l.labelCase || 'none'} onChange={v => setLayer(i, 'labelCase', v)} options={[
+                        { value: 'none', label: lang === 'bn' ? 'যেমন আছে' : 'As typed' },
+                        { value: 'upper', label: 'UPPERCASE' },
+                        { value: 'lower', label: 'lowercase' },
+                        { value: 'title', label: 'Title Case' },
+                        { value: 'sentence', label: 'Sentence case' },
+                      ]} />
+                    </Row>
+                    <div className="py-1">
+                      <div className="text-[11px] text-gray-500 mb-1">{lang === 'bn' ? 'কাস্টম লেবেল (খালি = ডিফল্ট)' : 'Custom labels (empty = default)'}</div>
+                      {(l.source === 'auto' ? ['facebook', 'instagram', 'tiktok', 'linkedin', 'youtube', 'x', 'whatsapp'] : (l.platforms || [])).map(p => (
+                        <div key={p} className="flex items-center gap-2 py-0.5">
+                          <span className="text-[10px] text-gray-400 w-14 flex-shrink-0 truncate">{p}</span>
+                          <input value={(l.labels && l.labels[p]) || ''} placeholder={p}
+                            onChange={e => setLayer(i, 'labels', { ...(l.labels || {}), [p]: e.target.value })}
+                            className="flex-1 min-w-0 text-xs border border-gray-200 rounded px-2 py-1" />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
                 <Row label={lang === 'bn' ? 'আইকন সাইজ' : 'Icon size'}><Slider value={l.size} min={16} max={80} onChange={v => setLayer(i, 'size', v)} /></Row>
                 <Row label={lang === 'bn' ? 'গ্যাপ' : 'Gap'}><Slider value={l.gap} min={4} max={120} onChange={v => setLayer(i, 'gap', v)} /></Row>
                 <Row label={lang === 'bn' ? 'অ্যালাইন' : 'Align'}><AlignSelect value={l.align} onChange={v => setLayer(i, 'align', v)} /></Row>
