@@ -13,7 +13,7 @@ use Inertia\Inertia;
 
 class PhotocardTemplateController extends Controller
 {
-    private const PERMISSION = 'media.gallery.manage';
+    private const PERMISSION = 'photocard.manage';
 
     private function authorizeAccess(): void
     {

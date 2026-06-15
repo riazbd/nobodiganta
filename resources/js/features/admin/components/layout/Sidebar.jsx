@@ -53,7 +53,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
         { id: 'opinions', icon: 'PenLine',    label: 'opinionColumn', permission: PERMISSIONS.OPINION_VIEW },
         { id: 'videos',   icon: 'Video',      label: 'videos',        permission: PERMISSIONS.VIDEO_VIEW },
         { id: 'photos',   icon: 'Camera',     label: 'photoGallery',  permission: PERMISSIONS.MEDIA_GALLERY_MANAGE },
-        { id: 'photocard-templates', icon: 'Palette', label: 'photocardStudio', permission: PERMISSIONS.MEDIA_GALLERY_MANAGE },
+        { id: 'photocard-templates', icon: 'Palette', label: 'photocardStudio', permission: PERMISSIONS.PHOTOCARD_MANAGE },
         { id: 'stories',  icon: 'PlaySquare', label: 'stories',       permission: PERMISSIONS.STORIES_VIEW_ANY },
         { id: 'media',    icon: 'Image',      label: 'mediaLibrary',  permission: PERMISSIONS.MEDIA_VIEW },
         { id: 'categories', icon: 'FolderTree', label: 'categories',  permission: PERMISSIONS.CATEGORY_VIEW },

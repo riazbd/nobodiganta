@@ -27,8 +27,16 @@ stores a JSON config per template; uploaded assets live in `/storage`.
 
 ## 3. Backend
 
-`App\Http\Controllers\Admin\PhotocardTemplateController` — gated on permission
-`media.gallery.manage`. Mutations redirect to the index route (clean URL, no 404 on reload).
+`App\Http\Controllers\Admin\PhotocardTemplateController` — gated on the dedicated
+permission `photocard.manage` (group `photocard`). Mutations redirect to the index
+route (clean URL, no 404 on reload).
+
+> **Granting access:** `photocard.manage` is its own permission, separate from the
+> media gallery. By default it's seeded onto the same roles that previously reached
+> the studio (editor_in_chief, managing_editor, section_editor, photographer); the
+> client can toggle it per-role from **Roles → Photocard** in the admin UI. To add
+> it on an existing/live install without touching anything else, run the additive,
+> idempotent `PhotocardPermissionSeeder` (see Deploy notes).
 
 | Method | Route (`admin.` prefix) | Purpose |
 |---|---|---|
@@ -167,6 +175,10 @@ Bengali stack on Bengali text.
 ## 12. Deploy notes
 
 - Run the migration (`php artisan migrate`) and `php artisan db:seed --class=PhotocardTemplateSeeder`.
+- Run `php artisan db:seed --class=PhotocardPermissionSeeder --force` once to create the
+  `photocard.manage` permission and grant it to the current studio roles. It's additive &
+  idempotent (only `firstOrCreate` + `syncWithoutDetaching`) — safe on production, no truncation,
+  no need to re-run the full `RolePermissionSeeder`.
 - `npm run build`. Requires `guzzlehttp/guzzle` (already present) for `importUrl`.
 - Dynamic `{{ad:position}}` pointing at external ad URLs may taint the canvas on download —
   prefer ads whose images live on `/storage` (or localize them).
