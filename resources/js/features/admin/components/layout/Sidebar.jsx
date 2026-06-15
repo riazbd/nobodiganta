@@ -65,7 +65,8 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
         { id: 'reporters', icon: 'Users',         label: 'reporters',      permission: PERMISSIONS.REPORTER_VIEW },
         { id: 'comments',  icon: 'MessageSquare', label: 'comments',       permission: PERMISSIONS.COMMENT_VIEW },
         { id: 'ads',       icon: 'Megaphone',     label: 'adsManagement',  permission: PERMISSIONS.BUSINESS_ADS_VIEW },
-        { id: 'newsletter',icon: 'Mail',          label: 'newsletter',     permission: PERMISSIONS.NEWSLETTER_CREATE },
+        // newsletter hidden from client for now — future feature
+        // { id: 'newsletter',icon: 'Mail',          label: 'newsletter',     permission: PERMISSIONS.NEWSLETTER_CREATE },
         { id: 'polls',     icon: 'BarChart3',     label: 'polls',          permission: PERMISSIONS.WIDGETS_POLLS_MANAGE },
         { id: 'locations', icon: 'MapPin', label: 'locations', permission: null },
       ]

@@ -53,7 +53,7 @@ export default function Privacy() {
                 <ul>
                   <li>আমাদের সেবা প্রদান ও উন্নত করা</li>
                   <li>আপনার অ্যাকাউন্ট পরিচালনা করা</li>
-                  <li>ব্রেকিং নিউজ ও নিউজলেটার পাঠানো (আপনার সম্মতিক্রমে)</li>
+                  <li>ব্রেকিং নিউজ পাঠানো (আপনার সম্মতিক্রমে)</li>{/* newsletter hidden — future feature */}
                   <li>আপনার অভিজ্ঞতা ব্যক্তিগতকৃত করা</li>
                   <li>আইনি বাধ্যবাধকতা পূরণ করা</li>
                   <li>প্রতারণা ও নিরাপত্তা লঙ্ঘন প্রতিরোধ করা</li>
@@ -85,7 +85,7 @@ export default function Privacy() {
                   <li>আপনার সম্পর্কে সংরক্ষিত তথ্য দেখার অধিকার</li>
                   <li>ভুল তথ্য সংশোধনের অনুরোধ করার অধিকার</li>
                   <li>তথ্য মুছে ফেলার অনুরোধ করার অধিকার</li>
-                  <li>নিউজলেটার বা মার্কেটিং যোগাযোগ থেকে বেরিয়ে যাওয়ার অধিকার</li>
+                  <li>মার্কেটিং যোগাযোগ থেকে বেরিয়ে যাওয়ার অধিকার</li>{/* newsletter hidden — future feature */}
                 </ul>
                 <p>এই অধিকারগুলো প্রয়োগ করতে আমাদের সাথে যোগাযোগ করুন: <strong>{contactEmail}</strong></p>
 
@@ -136,7 +136,7 @@ export default function Privacy() {
                 <ul>
                   <li>Provide and improve our services</li>
                   <li>Manage your account</li>
-                  <li>Send breaking news alerts and newsletters (with your consent)</li>
+                  <li>Send breaking news alerts (with your consent)</li>{/* newsletter hidden — future feature */}
                   <li>Personalise your experience</li>
                   <li>Fulfil legal obligations</li>
                   <li>Prevent fraud and security breaches</li>
@@ -168,7 +168,7 @@ export default function Privacy() {
                   <li>Access the personal data we hold about you</li>
                   <li>Request correction of inaccurate information</li>
                   <li>Request deletion of your data</li>
-                  <li>Opt out of newsletters or marketing communications</li>
+                  <li>Opt out of marketing communications</li>{/* newsletter hidden — future feature */}
                 </ul>
                 <p>To exercise these rights, contact us at: <strong>{contactEmail}</strong></p>
 

@@ -40,14 +40,14 @@ const PLANS = {
       'সীমাহীন ডিজিটাল অ্যাক্সেস',
       'কম বিজ্ঞাপন',
       'ব্রেকিং নিউজ',
-      'নিউজলেটার',
+      // 'নিউজলেটার', // newsletter hidden — future feature
       'মোবাইল অ্যাক্সেস',
     ],
     featuresEn: [
       'Unlimited digital access',
       'Reduced advertisements',
       'Breaking news alerts',
-      'Newsletter subscription',
+      // 'Newsletter subscription', // newsletter hidden — future feature
       'Mobile access',
     ],
     icon: Zap,
@@ -65,7 +65,7 @@ const PLANS = {
       'ই-পেপার অন্তর্ভুক্ত',
       'সম্পূর্ণ বিজ্ঞাপনমুক্ত',
       'ব্রেকিং নিউজ',
-      'নিউজলেটার',
+      // 'নিউজলেটার', // newsletter hidden — future feature
       'প্রিমিয়াম কন্টেন্ট',
       'অগ্রাধিকার সাপোর্ট',
     ],
@@ -74,7 +74,7 @@ const PLANS = {
       'E-paper included',
       'Completely ad-free',
       'Breaking news alerts',
-      'Newsletter subscription',
+      // 'Newsletter subscription', // newsletter hidden — future feature
       'Premium content access',
       'Priority support',
     ],

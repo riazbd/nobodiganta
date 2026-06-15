@@ -5,7 +5,8 @@ const quickActions = [
   { id: 'upload', icon: Camera, labelBn: 'ছবি আপলোড', labelEn: 'Upload Photo', toastBn: 'মিডিয়া আপলোড খুলছে...', toastEn: 'Opening media upload...' },
   { id: 'breaking', icon: Megaphone, labelBn: 'ব্রেকিং নিউজ', labelEn: 'Breaking News', toastBn: 'ব্রেকিং নিউজ সেটার...', toastEn: 'Opening breaking news setter...' },
   { id: 'push', icon: Smartphone, labelBn: 'পুশ নোটিফ', labelEn: 'Push Notif', toastBn: 'পুশ নোটিফিকেশন পাঠানো হচ্ছে...', toastEn: 'Sending push notification...' },
-  { id: 'newsletter', icon: Mail, labelBn: 'নিউজলেটার', labelEn: 'Newsletter', toastBn: 'নিউজলেটার কম্পোজার...', toastEn: 'Opening newsletter composer...' },
+  // newsletter hidden from client for now — future feature
+  // { id: 'newsletter', icon: Mail, labelBn: 'নিউজলেটার', labelEn: 'Newsletter', toastBn: 'নিউজলেটার কম্পোজার...', toastEn: 'Opening newsletter composer...' },
   { id: 'seo', icon: Search, labelBn: 'SEO চেক', labelEn: 'SEO Check', toastBn: 'SEO চেকার টুল...', toastEn: 'Opening SEO checker...' },
   { id: 'ads', icon: Bullhorn, labelBn: 'বিজ্ঞাপন স্লট', labelEn: 'Ad Slots', toastBn: 'বিজ্ঞাপন স্লট ম্যানেজার...', toastEn: 'Opening ad slot manager...' },
   { id: 'cache', icon: Trash2, labelBn: 'ক্যাশ ক্লিয়ার', labelEn: 'Clear Cache', toastBn: 'ক্যাশ পরিষ্কার হচ্ছে...', toastEn: 'Clearing cache...' },
