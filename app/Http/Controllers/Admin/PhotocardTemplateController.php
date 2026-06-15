@@ -104,16 +104,18 @@ class PhotocardTemplateController extends Controller
     {
         $this->authorizeAccess();
 
+        // Active image-banner ads. The active() scope treats a missing (NULL) start/end
+        // date as "no limit", so date-less ads are included; only real out-of-range excluded.
+        $imageAds = Ad::active()
+            ->where('type', 'image')
+            ->whereNotNull('image')->where('image', '!=', '')
+            ->orderBy('sort_order')
+            ->get(['id', 'title_bn', 'title_en', 'image', 'position', 'link']);
+
         return response()->json([
-            'ads' => Ad::active()
-                ->where('type', 'image')
-                ->whereNotNull('image')
-                ->orderBy('sort_order')
-                ->get(['id', 'title_bn', 'title_en', 'image', 'position', 'link']),
+            'ads' => $imageAds,
             // position => active ad image, for the dynamic {{ad:position}} token
-            'byPosition' => Ad::active()->where('type', 'image')->whereNotNull('image')
-                ->orderBy('sort_order')->get(['position', 'image'])
-                ->groupBy('position')->map(fn($g) => $g->first()->image),
+            'byPosition' => $imageAds->groupBy('position')->map(fn($g) => $g->first()->image),
         ]);
     }
 
