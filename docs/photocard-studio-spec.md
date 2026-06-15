@@ -83,8 +83,9 @@ layers: [  // z-order = array order (later = front)
   image { id,type, imageUrl, x,y,width,height, radius, fit,zoom,offsetX,offsetY, rotation,opacity, hidden,locked }
   rect  { id,type, color, x,y,width,height, radius, rotation,opacity, hidden,locked }
   icon  { id,type, icon, color, x,y,width,height, rotation,opacity, hidden,locked }
-  social{ id,type, x,y,width,height, bg, style:badge|plain, iconColor, glyphColor, labelColor,
-          showLabels, size, gap, font, align, source:manual|auto, platforms[], hidden,locked }
+  social{ id,type, x,y,width,height, bg, style:badge|plain, iconColor, glyphColor,
+          showLabels, labelColor, labelCase:none|upper|lower|title|sentence, labelSize(0=auto),
+          labels:{platform:override}, font, size, gap, align, source:manual|auto, platforms[], hidden,locked }
 ]
 ```
 
@@ -99,6 +100,9 @@ layers: [  // z-order = array order (later = front)
 - **Flicker fix:** images cached module-wide; editor redraws synchronously on every drag tick (no reload).
 - **Image fit:** `drawImageFit` supports `cover | contain | stretch` + zoom/offset.
 - **Card radius:** `drawConfig` clips the whole canvas to `canvas.radius` (rounded, transparent corners on PNG).
+- **Social bar:** real vector brand icons (`SOCIAL_PLATFORMS`); per-platform label override
+  (`labels`, empty = brand default), `labelCase` text-transform (Latin only), selectable label
+  `font`, and `labelSize` (0 = auto, tied to icon size) — via `transformCase`/`labelOf` in `drawSocial`.
 
 ## 7. Dynamic fields (tokens)
 
