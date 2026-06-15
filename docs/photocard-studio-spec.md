@@ -58,17 +58,19 @@ Page: `resources/js/features/admin/pages/photocard/PhotocardStudio.jsx`.
 
 ## 5. Config schema (per template)
 
-Top-left coordinate boxes everywhere `{x, y, width, height}` (logo/icon keep square
-via width/height; legacy `size` migrates). Shape:
+Top-left coordinate boxes everywhere `{x, y, width, height}`. **Every image element
+(photo, ad banner, image layer, logo, icon) is a free box** — independent width &
+height, drag any side (legacy logo/icon `size` auto-migrates to width/height). Only
+the background image is full-canvas. Colors may be hex or `rgba()` (per-color opacity).
 
 ```
-canvas:    { width, height }
+canvas:    { width, height, radius }   // radius rounds the whole card (transparent corners on PNG)
 background:{ type:solid|gradient|image, color, gradient*, imageUrl, imageOpacity, fit }
 photo:     { enabled, x,y,width,height, radius, fit, zoom, offsetX, offsetY,
              overlayColor, overlayOpacity, fade:{enabled,color,opacity,height} }
 panel:     { enabled, x,y,width,height, type, color, gradient*, feather:{enabled,height} }
 logo:      { enabled, source:site|custom, imageUrl, x,y,width,height,
-             shape:square|circle, fit, zoom, offsetX, offsetY, borderColor, borderWidth, radius }
+             shape:square(=rectangle)|circle(=oval), fit, zoom, offsetX, offsetY, borderColor, borderWidth, radius }
 headline:  { enabled, source:title|title_en|custom, customText, font,size,weight,color,
              align, x,y,width, lineHeight, maxLines, shadow:{…} }
 cta:       { enabled, text, font,size,weight,color, align, x,y,width }
@@ -96,6 +98,7 @@ layers: [  // z-order = array order (later = front)
   background → photo → panel (+feather blend) → adBanner → logo → headline → cta → url → date → layers.
 - **Flicker fix:** images cached module-wide; editor redraws synchronously on every drag tick (no reload).
 - **Image fit:** `drawImageFit` supports `cover | contain | stretch` + zoom/offset.
+- **Card radius:** `drawConfig` clips the whole canvas to `canvas.radius` (rounded, transparent corners on PNG).
 
 ## 7. Dynamic fields (tokens)
 
@@ -109,22 +112,39 @@ Any text/image value may contain `{{token}}`, resolved at render from
 Images can bind to a system image via `ImageSourceField` (custom upload / `{{site_logo}}` /
 `{{featured_image}}` / `{{og_default_image}}`).
 
+**Ad banner — static vs dynamic** (`AdManagerPicker`, fed by `ads()` = active image ads,
+treating a NULL start/end date as "no limit"; Ad Manager has `photocard_top`/`photocard_bottom`
+positions):
+- **Pick specific ad** → stores that ad's image URL in the config (a snapshot; external URLs
+  are localized via `importUrl` to avoid canvas CORS taint). Stays even if the ad later expires.
+- **Dynamic `{{ad:position}}`** → resolves to the current active ad for that position at render
+  time; if none active, the banner shows no image (just its background).
+
 ## 8. Editor UX
 
 Direct manipulation on the canvas; the side panel is styling-only.
-- Select (click element or chip or Layer-panel row) · drag to move · 8 handles to resize · Esc to deselect.
-- Rulers (px) + snap-to-guides (canvas center/edges + other elements) + live `x,y · w×h` readout.
-- Canvas (document) resizable via the "Canvas" chip (right/bottom/corner).
+- Select: click topmost element (or chip / Layer-panel row); **Alt+click (or right-click) cycles
+  through stacked elements**. Drag to move · 8 small handles to resize · Esc to deselect.
+- Rulers (px) with the selected element's extent highlighted + snap-to-guides (canvas center/edges
+  + other elements) + live `x,y · w×h` readout.
+- Canvas (document) resizable via the "Canvas" chip (right/bottom/corner) or W/H number inputs.
+- Boxes also have **W/H number inputs** (precise/thin sizes; min 2px). Every color has an **opacity** slider.
 - Undo/Redo (Ctrl+Z / Ctrl+Shift+Z), arrow-nudge, Delete, Ctrl+D.
 - Layer panel: reorder / show-hide / lock. Locked elements render but aren't draggable.
-- Unsaved-changes badge + `beforeunload` guard. Sticky canvas + pinned save section; preview
-  height is capped to the viewport so the canvas never scrolls away.
+- Unsaved-changes badge + `beforeunload` guard.
+- **Viewport-locked layout:** the studio fills the screen (measured grid height); only the
+  controls/template columns scroll — the page itself never scrolls and the canvas stays put.
+- **New template:** the "New" button offers **Default** (photo/panel/logo/headline on) or
+  **Blank** (all elements off, plain white canvas). After a create, the studio selects the
+  newest template by **id** (not name) so the next save UPDATEs it — no duplicate rows. A
+  `savingRef` guard also blocks double-submit. CRUD redirects to the index route (clean URL).
 
 ## 9. Consumer (download from news list)
 
 `PhotoCardModal.jsx` on the **All News** page (purple image icon per row): fetches active
 templates via `apiList`, shows thumbnail picker, renders the chosen template with the real
-article, downloads PNG/JPG. Article list (`ArticleController@index`) already supplies
+article, downloads PNG/JPG. The card downloads with whatever corner radius the template
+defines (no per-download toggle). Article list (`ArticleController@index`) already supplies
 `title`, `title_en`, `slug`, `featured_image`, `published_at`.
 
 ## 10. Key design decision

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useReducer, useMemo } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Plus, Copy, Trash2, Download, Save, FilePlus, Image as ImageIcon, Eye, Undo2, Redo2 } from 'lucide-react';
+import { Plus, Copy, Trash2, Download, Save, FilePlus, Image as ImageIcon, Eye, Undo2, Redo2, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import PhotocardEditor from '../../components/photocard/PhotocardEditor.jsx';
@@ -77,6 +77,8 @@ export default function PhotocardStudio() {
   const [selectedKey, setSelectedKey] = useState(null);
   const [saving, setSaving]   = useState(false);
   const pendingSelect = useRef(null);
+  const savingRef = useRef(false); // synchronous guard against double-submit (duplicate rows)
+  const [newMenu, setNewMenu] = useState(false);
 
   // Lock the studio to the viewport so the PAGE never scrolls — only the inner
   // columns scroll. Height is measured (works whatever the topbar/header height is).
@@ -101,12 +103,13 @@ export default function PhotocardStudio() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // After a create, the props refresh — select the just-created template by name.
+  // After a create, the props refresh — select the just-created template (newest id),
+  // so the editor switches to "edit" mode and further saves UPDATE instead of re-creating.
   useEffect(() => {
-    if (pendingSelect.current) {
-      const match = [...templates].reverse().find(t => t.name_bn === pendingSelect.current);
-      pendingSelect.current = null;
-      if (match) loadTemplate(match);
+    if (pendingSelect.current && templates.length) {
+      pendingSelect.current = false;
+      const newest = templates.reduce((m, t) => (t.id > m.id ? t : m), templates[0]);
+      loadTemplate(newest);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templates]);
@@ -122,13 +125,19 @@ export default function PhotocardStudio() {
     setSelectedKey(null);
   }
 
-  function newTemplate() {
+  function newTemplate(blank = false) {
     setSelectedId(null);
-    setNameBn(lang === 'bn' ? 'নতুন ফটোকার্ড' : 'New Photocard');
-    setNameEn('New Photocard');
+    setNameBn(blank ? (lang === 'bn' ? 'খালি ফটোকার্ড' : 'Blank Photocard') : (lang === 'bn' ? 'নতুন ফটোকার্ড' : 'New Photocard'));
+    setNameEn(blank ? 'Blank Photocard' : 'New Photocard');
     setIsActive(true);
     const cfg = defaultConfig();
     cfg._preset = 'square';
+    if (blank) {
+      // Empty canvas — every element off, plain white background, no layers.
+      cfg.background = { type: 'solid', color: '#ffffff', gradientFrom: '#ffffff', gradientMid: null, gradientMidPos: 50, gradientTo: '#eeeeee', gradientAngle: 180, imageUrl: null, imageOpacity: 100, fit: 'cover' };
+      ['photo', 'panel', 'logo', 'headline', 'cta', 'urlText', 'dateText', 'adBanner'].forEach(k => { cfg[k].enabled = false; });
+      cfg.layers = [];
+    }
     resetConfig(cfg);
     setSelectedKey(null);
   }
@@ -226,38 +235,43 @@ export default function PhotocardStudio() {
   }
 
   function save() {
-    if (saving) return;
+    if (savingRef.current) return;     // block re-entry (double-click → duplicate rows)
+    savingRef.current = true;
     setSaving(true);
     const opts = {
       preserveScroll: true,
       preserveState: true,
       onSuccess: () => { showToast(lang === 'bn' ? 'সংরক্ষিত হয়েছে' : 'Saved'); setDirty(false); },
       onError:   () => showToast(lang === 'bn' ? 'সংরক্ষণ ব্যর্থ' : 'Save failed', 'error'),
-      onFinish:  () => setSaving(false),
+      onFinish:  () => { savingRef.current = false; setSaving(false); },
     };
     if (selectedId) router.put(route('admin.photocard-templates.update', selectedId), payload(), opts);
-    else { pendingSelect.current = nameBn; router.post(route('admin.photocard-templates.store'), payload(), opts); }
+    else { pendingSelect.current = true; router.post(route('admin.photocard-templates.store'), payload(), opts); }
   }
 
   function saveAsNew() {
-    if (saving) return;
+    if (savingRef.current) return;
+    savingRef.current = true;
     setSaving(true);
     setSelectedId(null);
-    pendingSelect.current = nameBn;
+    pendingSelect.current = true;
     router.post(route('admin.photocard-templates.store'), payload(), {
       preserveScroll: true,
       preserveState: true,
       onSuccess: () => { showToast(lang === 'bn' ? 'নতুন কপি সংরক্ষিত' : 'Saved as new'); setDirty(false); },
       onError:   () => showToast(lang === 'bn' ? 'সংরক্ষণ ব্যর্থ' : 'Save failed', 'error'),
-      onFinish:  () => setSaving(false),
+      onFinish:  () => { savingRef.current = false; setSaving(false); },
     });
   }
 
   function duplicate(t) {
+    if (savingRef.current) return;
+    savingRef.current = true;
     router.post(route('admin.photocard-templates.duplicate', t.id), {}, {
       preserveScroll: true,
       preserveState: true,
       onSuccess: () => showToast(lang === 'bn' ? 'কপি তৈরি হয়েছে' : 'Duplicated'),
+      onFinish:  () => { savingRef.current = false; },
     });
   }
 
@@ -292,9 +306,26 @@ export default function PhotocardStudio() {
             {lang === 'bn' ? 'নিজের মতো ফটোকার্ড ডিজাইন করুন — ফন্ট, রঙ, গ্রেডিয়েন্ট, অ্যাড ব্যানার, সবকিছু।' : 'Design your own photocards — fonts, colors, gradients, ad banners, everything.'}
           </p>
         </div>
-        <button onClick={newTemplate} className="flex items-center gap-1.5 text-sm font-bold bg-[#1a56db] text-white rounded-xl px-4 py-2 hover:bg-[#1648b8]">
-          <Plus size={16} /> {lang === 'bn' ? 'নতুন' : 'New'}
-        </button>
+        <div className="relative">
+          <button onClick={() => setNewMenu(o => !o)} className="flex items-center gap-1.5 text-sm font-bold bg-[#1a56db] text-white rounded-xl px-4 py-2 hover:bg-[#1648b8]">
+            <Plus size={16} /> {lang === 'bn' ? 'নতুন' : 'New'} <ChevronDown size={14} />
+          </button>
+          {newMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setNewMenu(false)} />
+              <div className="absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                <button onClick={() => { newTemplate(false); setNewMenu(false); }} className="w-full text-left px-3 py-2.5 text-sm hover:bg-gray-50">
+                  <div className="font-bold text-gray-800">{lang === 'bn' ? 'ডিফল্ট' : 'Default'}</div>
+                  <div className="text-[11px] text-gray-400">{lang === 'bn' ? 'ছবি, প্যানেল, লোগো, শিরোনাম সহ' : 'With photo, panel, logo, headline'}</div>
+                </button>
+                <button onClick={() => { newTemplate(true); setNewMenu(false); }} className="w-full text-left px-3 py-2.5 text-sm hover:bg-gray-50 border-t border-gray-100">
+                  <div className="font-bold text-gray-800">{lang === 'bn' ? 'খালি' : 'Blank'}</div>
+                  <div className="text-[11px] text-gray-400">{lang === 'bn' ? 'একদম খালি ক্যানভাস' : 'Empty canvas'}</div>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <div ref={gridRef} className="grid grid-cols-1 lg:grid-cols-[220px_1fr_340px] gap-4" style={gridH ? { height: gridH, overflow: 'hidden' } : undefined}>
