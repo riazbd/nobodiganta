@@ -192,7 +192,7 @@ function AdManagerPicker({ onPick, lang }) {
           )}
           <div>
             <div className="text-[10px] text-gray-400 mb-1">{lang === 'bn' ? 'নির্দিষ্ট অ্যাড বাছুন:' : 'Pick a specific ad:'}</div>
-            <div className="grid grid-cols-3 gap-1 max-h-40 overflow-y-auto">
+            <div className="grid grid-cols-3 gap-1">
               {(data.ads || []).map(ad => (
                 <button key={ad.id} type="button" onClick={() => pickStatic(ad)} title={ad.title_bn || ad.title_en || ad.position}
                   className="border border-gray-200 rounded overflow-hidden hover:border-[#1a56db]">

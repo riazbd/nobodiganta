@@ -78,6 +78,22 @@ export default function PhotocardStudio() {
   const [saving, setSaving]   = useState(false);
   const pendingSelect = useRef(null);
 
+  // Lock the studio to the viewport so the PAGE never scrolls — only the inner
+  // columns scroll. Height is measured (works whatever the topbar/header height is).
+  const gridRef = useRef(null);
+  const [gridH, setGridH] = useState(null);
+  useEffect(() => {
+    const measure = () => {
+      if (typeof window === 'undefined' || window.innerWidth < 1024 || !gridRef.current) { setGridH(null); return; }
+      const top = gridRef.current.getBoundingClientRect().top;
+      // subtract space below the grid (studio + main bottom padding) so the page itself never scrolls
+      setGridH(Math.max(360, Math.round(window.innerHeight - top - 48)));
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
   // Load the first template (or a blank one) on mount.
   useEffect(() => {
     if (templates.length) loadTemplate(templates[0]);
@@ -281,10 +297,10 @@ export default function PhotocardStudio() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_340px] gap-4">
+      <div ref={gridRef} className="grid grid-cols-1 lg:grid-cols-[220px_1fr_340px] gap-4" style={gridH ? { height: gridH, overflow: 'hidden' } : undefined}>
 
         {/* ── Template list ── */}
-        <div className="space-y-2 order-2 lg:order-1 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto pr-1">
+        <div className="space-y-2 order-2 lg:order-1 lg:h-full lg:min-h-0 lg:overflow-y-auto pr-1">
           <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide px-1">{lang === 'bn' ? 'টেমপ্লেট' : 'Templates'}</div>
           {templates.map(t => (
             <div key={t.id}
@@ -311,8 +327,8 @@ export default function PhotocardStudio() {
         </div>
 
         {/* ── Live preview (stays in place while side tools scroll) ── */}
-        <div className="order-1 lg:order-2 lg:sticky lg:top-4 lg:self-start">
-          <div className="bg-gray-100 rounded-2xl p-4">
+        <div className="order-1 lg:order-2 lg:h-full lg:overflow-hidden">
+          <div className="bg-gray-100 rounded-2xl p-4 lg:h-full flex flex-col justify-center">
             {/* Cap preview by viewport height (using the card's aspect ratio) so the
                 canvas column never exceeds the screen — keeps it sticky, no page jump. */}
             <div className="mx-auto w-full" style={{ maxWidth: `min(460px, calc((100vh - 17rem) * ${config.canvas?.width || 1080} / ${config.canvas?.height || 1080}))` }}>
@@ -339,7 +355,7 @@ export default function PhotocardStudio() {
         </div>
 
         {/* ── Controls (meta/save pinned at top; only the tool list scrolls) ── */}
-        <div className="order-3 flex flex-col gap-3 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)]">
+        <div className="order-3 flex flex-col gap-3 lg:h-full lg:min-h-0">
           {/* Meta — stays in place */}
           <div className="border border-gray-200 rounded-xl p-3 space-y-2 bg-white flex-shrink-0">
             <input value={nameBn} onChange={e => { setNameBn(e.target.value); setDirty(true); }} placeholder={lang === 'bn' ? 'নাম (বাংলা)' : 'Name (Bangla)'}
@@ -367,7 +383,7 @@ export default function PhotocardStudio() {
             </div>
           </div>
 
-          <div className="overflow-y-auto pr-1 -mr-1 flex-1">
+          <div className="overflow-y-auto pr-1 -mr-1 flex-1 min-h-0">
             <StudioControls config={config} set={set} onUpload={uploadAsset} lang={lang} selectedKey={selectedKey} onSelect={setSelectedKey} />
           </div>
         </div>
