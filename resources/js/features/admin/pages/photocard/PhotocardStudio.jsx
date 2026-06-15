@@ -76,7 +76,6 @@ export default function PhotocardStudio() {
   const canRedo = hist.future.length > 0;
   const [selectedKey, setSelectedKey] = useState(null);
   const [saving, setSaving]   = useState(false);
-  const [roundDl, setRoundDl] = useState(true);   // keep card corner-radius on download
   const pendingSelect = useRef(null);
 
   // Load the first template (or a blank one) on mount.
@@ -258,7 +257,7 @@ export default function PhotocardStudio() {
   async function download(type = 'png') {
     try {
       const { _preset, ...clean } = config;
-      await downloadConfig(clean, SAMPLE_DATA, settings, nameEn || nameBn || 'photocard', { type, radius: roundDl ? undefined : 0 });
+      await downloadConfig(clean, SAMPLE_DATA, settings, nameEn || nameBn || 'photocard', { type });
     } catch {
       showToast(lang === 'bn' ? 'ডাউনলোড ব্যর্থ' : 'Download failed', 'error');
     }
@@ -333,11 +332,7 @@ export default function PhotocardStudio() {
                 <Download size={15} /> JPG
               </button>
             </div>
-            <label className="flex items-center justify-center gap-1.5 mt-2 text-[11px] text-gray-600 cursor-pointer">
-              <input type="checkbox" checked={roundDl} onChange={e => setRoundDl(e.target.checked)} className="accent-[#1a56db]" />
-              {lang === 'bn' ? 'গোল কোণা সহ ডাউনলোড (কোণ রেডিয়াস)' : 'Download with rounded corners'}
-            </label>
-            <p className="text-[10px] text-gray-400 text-center mt-1 flex items-center justify-center gap-1">
+            <p className="text-[10px] text-gray-400 text-center mt-2 flex items-center justify-center gap-1">
               <Eye size={11} /> {lang === 'bn' ? 'ক্লিক করে সিলেক্ট/সরান · নিচের এলিমেন্ট পেতে Alt+ক্লিক · কোণ/পাশ টেনে রিসাইজ · Esc আনসিলেক্ট' : 'Click to select/move · Alt+click to reach elements underneath · drag corners/sides to resize · Esc to deselect'}
             </p>
           </div>

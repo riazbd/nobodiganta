@@ -8,7 +8,6 @@ import TemplateThumb from './TemplateThumb.jsx';
 export default function PhotoCardModal({ article, onClose }) {
   const { props } = usePage();
   const [adsByPos, setAdsByPos] = useState({});
-  const [rounded, setRounded] = useState(true);
   const settings  = { ...(props.settings || {}), ads: adsByPos };
 
   const [templates,    setTemplates]    = useState([]);
@@ -60,7 +59,7 @@ export default function PhotoCardModal({ article, onClose }) {
     if (downloading || !selected) return;
     setDownloading(true);
     try {
-      await downloadConfig(normalizeConfig(selected.config), article, settings, article.slug || 'photocard', { type, radius: rounded ? undefined : 0 });
+      await downloadConfig(normalizeConfig(selected.config), article, settings, article.slug || 'photocard', { type });
     } catch (err) {
       console.error('PhotoCard download failed:', err);
     } finally {
@@ -153,14 +152,8 @@ export default function PhotoCardModal({ article, onClose }) {
           <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">{article.title}</p>
         </div>
 
-        {/* Options + footer actions */}
-        {templates.length > 0 && (
-          <label className="flex items-center gap-1.5 px-5 text-xs text-gray-600 cursor-pointer">
-            <input type="checkbox" checked={rounded} onChange={e => setRounded(e.target.checked)} className="accent-[#263238]" />
-            গোল কোণা সহ (বর্ডার রেডিয়াস)
-          </label>
-        )}
-        <div className="px-5 py-4 border-t border-gray-100 mt-2 flex gap-3">
+        {/* Footer actions */}
+        <div className="px-5 py-4 border-t border-gray-100 flex gap-3">
           <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
             বাতিল
           </button>
