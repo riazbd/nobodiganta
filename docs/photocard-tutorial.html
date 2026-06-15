@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ফটোকার্ড স্টুডিও — ব্যবহার নির্দেশিকা</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#1a56db; --brand-soft:#eaf0fe; --ink:#1f2933; --muted:#6b7280;
+    --line:#e5e7eb; --soft:#f7f9fc; --ok:#0f766e; --warn:#b45309; --tip:#7c3aed;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  body{
+    font-family:'Hind Siliguri','SolaimanLipi',system-ui,sans-serif;
+    color:var(--ink); line-height:1.8; margin:0; background:#eef1f6;
+  }
+  .page{
+    max-width:840px; margin:28px auto; background:#fff;
+    padding:48px 56px; border-radius:10px; box-shadow:0 4px 30px rgba(0,0,0,.07);
+  }
+  /* Cover */
+  .cover{border-bottom:3px solid var(--brand); padding-bottom:22px; margin-bottom:30px;}
+  .cover .kicker{color:var(--brand); font-weight:700; font-size:13px; letter-spacing:.12em; text-transform:uppercase;}
+  .cover h1{font-size:34px; line-height:1.3; margin:6px 0 8px; font-weight:700;}
+  .cover p{margin:0; color:var(--muted); font-size:16px;}
+  /* Headings */
+  h2{
+    display:flex; align-items:center; gap:10px; font-size:23px; font-weight:700;
+    margin:42px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line);
+  }
+  h2 svg{width:24px; height:24px; color:var(--brand); flex:none;}
+  h3{font-size:17px; font-weight:700; margin:26px 0 8px; color:#111827;}
+  p{margin:10px 0;}
+  a{color:var(--brand);}
+  /* Numbered steps */
+  ol.steps{list-style:none; counter-reset:s; padding:0; margin:14px 0;}
+  ol.steps>li{
+    counter-increment:s; position:relative; padding:4px 0 14px 46px; margin:0;
+  }
+  ol.steps>li::before{
+    content:counter(s); position:absolute; left:0; top:2px;
+    width:30px; height:30px; border-radius:50%; background:var(--brand); color:#fff;
+    font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:center;
+  }
+  ol.steps>li:not(:last-child)::after{
+    content:''; position:absolute; left:14px; top:34px; bottom:2px; width:2px; background:var(--brand-soft);
+  }
+  /* Tables */
+  table{width:100%; border-collapse:collapse; margin:16px 0; font-size:15px;}
+  th,td{text-align:right; padding:10px 14px; border:1px solid var(--line); vertical-align:top;}
+  thead th{background:var(--brand); color:#fff; font-weight:600; border-color:var(--brand);}
+  tbody tr:nth-child(even){background:var(--soft);}
+  td:first-child,th:first-child{font-weight:600;}
+  /* Callouts */
+  .note{
+    display:flex; gap:12px; align-items:flex-start; margin:18px 0; padding:14px 16px;
+    border-radius:8px; border-inline-start:4px solid var(--brand); background:var(--brand-soft);
+  }
+  .note svg{width:20px; height:20px; flex:none; margin-top:3px; color:var(--brand);}
+  .note.tip{border-color:var(--tip); background:#f5f0fe;} .note.tip svg{color:var(--tip);}
+  .note.warn{border-color:var(--warn); background:#fff7ed;} .note.warn svg{color:var(--warn);}
+  .note p{margin:0;}
+  .note b{color:inherit;}
+  code{
+    font-family:'Courier New',monospace; background:#eef1f6; border:1px solid var(--line);
+    padding:1px 6px; border-radius:5px; font-size:13.5px; direction:ltr; display:inline-block;
+  }
+  .layout{display:flex; gap:10px; margin:16px 0;}
+  .layout .col{flex:1; border:1px solid var(--line); border-radius:8px; padding:12px; text-align:center; background:var(--soft);}
+  .layout .col b{display:block; color:var(--brand); margin-bottom:4px;}
+  .layout .col span{font-size:13.5px; color:var(--muted);}
+  hr{border:none; border-top:1px solid var(--line); margin:34px 0;}
+  /* Print */
+  .toolbar{position:fixed; top:16px; left:16px;}
+  .toolbar button{
+    font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+    background:var(--brand); color:#fff; border:none; border-radius:8px; padding:9px 16px;
+    display:inline-flex; align-items:center; gap:7px; box-shadow:0 2px 10px rgba(26,86,219,.35);
+  }
+  .toolbar button svg{width:16px; height:16px;}
+  @media print{
+    body{background:#fff;}
+    .page{box-shadow:none; margin:0; max-width:none; padding:0; border-radius:0;}
+    .toolbar{display:none;}
+    h2{break-after:avoid;} table,.note,ol.steps>li{break-inside:avoid;}
+    a{color:var(--ink); text-decoration:none;}
+  }
+  @page{size:A4; margin:18mm 16mm;}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button onclick="window.print()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    PDF হিসেবে সংরক্ষণ
+  </button>
+</div>
+
+<div class="page">
+
+  <header class="cover">
+    <div class="kicker">ব্যবহার নির্দেশিকা</div>
+    <h1>ফটোকার্ড স্টুডিও</h1>
+    <p>সোশ্যাল মিডিয়ার জন্য সুন্দর সংবাদ-কার্ড নিজে নিজে তৈরি ও ডাউনলোড করার সম্পূর্ণ গাইড।</p>
+  </header>
+
+  <p>এই নির্দেশিকাটি একদম সহজ ভাষায় সাজানো হয়েছে, যাতে টেকনিক্যাল জ্ঞান ছাড়াই যে কেউ ব্যবহার করতে পারেন। প্রতিটি অংশ ধাপে ধাপে পড়ুন, আর পাশে স্ক্রিন খুলে নিজে চেষ্টা করতে করতে এগোলে কয়েক মিনিটেই পুরো ব্যাপারটা আয়ত্তে এসে যাবে।</p>
+
+  <h2>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    ফটোকার্ড আসলে কী
+  </h2>
+  <p>ফটোকার্ড হলো একটি ছবি (ছবি ফাইল), যা ফেসবুক, ইনস্টাগ্রাম, টিকটক বা যেকোনো সোশ্যাল মিডিয়ায় শেয়ার করার জন্য বানানো হয়। একটি কার্ডে সাধারণত থাকে সংবাদের ছবি, শিরোনাম, আপনার পত্রিকার লোগো ও নাম, প্রকাশের তারিখ এবং প্রয়োজনে সোশ্যাল আইকন বা বিজ্ঞাপন।</p>
+  <p>স্টুডিওতে দুই ধরনের কাজ করা যায় — একবার ডিজাইন বানিয়ে রাখা, এবং সেই ডিজাইন দিয়ে প্রতিদিন এক ক্লিকে কার্ড নামানো:</p>
+
+  <table>
+    <thead><tr><th>কাজ</th><th>কোথায়</th><th>কাদের জন্য</th></tr></thead>
+    <tbody>
+      <tr><td>রেডি ডিজাইন দিয়ে কার্ড ডাউনলোড</td><td>সংবাদ তালিকা (সব সংবাদ)</td><td>প্রতিদিনের ব্যবহার — খুব সহজ</td></tr>
+      <tr><td>কার্ডের ডিজাইন তৈরি বা পরিবর্তন</td><td>ফটোকার্ড স্টুডিও</td><td>একবার সাজিয়ে রাখার জন্য</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note tip">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2Z"/></svg>
+    <p>মূল ধারণাটা সহজ — ডিজাইন একবার বানিয়ে রাখুন, এরপর প্রতিদিন শুধু সংবাদ তালিকা থেকে কার্ড নামান। সেই সংবাদের ছবি, শিরোনাম ও তারিখ নিজে নিজেই কার্ডে বসে যাবে।</p>
+  </div>
+
+  <h2>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    অংশ ১ — সংবাদ তালিকা থেকে ডাউনলোড
+  </h2>
+  <p>এটি দৈনন্দিন কাজ এবং সবচেয়ে সহজ। ডিজাইন নিয়ে ভাবতে হয় না — শুধু একটি টেমপ্লেট বেছে নিয়ে ডাউনলোড করলেই হয়।</p>
+  <ol class="steps">
+    <li>অ্যাডমিন প্যানেলে <b>“সব সংবাদ”</b> পেজে যান।</li>
+    <li>যে সংবাদের কার্ড বানাতে চান, সেই সারির অপশনগুলোর মধ্যে <b>ছবির আইকনে</b> ক্লিক করুন (মাউস রাখলে “ফটো কার্ড” লেখা দেখাবে)।</li>
+    <li>একটি উইন্ডো খুলবে। উপরে কয়েকটি টেমপ্লেট থাম্বনেইল দেখবেন — যেকোনো একটিতে ক্লিক করুন।</li>
+    <li>নিচে প্রিভিউতে দেখবেন, ওই সংবাদের আসল ছবি ও শিরোনাম দিয়ে কার্ডটি কেমন দেখাচ্ছে।</li>
+    <li>পছন্দ হলে <b>“PNG ডাউনলোড”</b> বা <b>“JPG”</b> বোতামে ক্লিক করুন। ছবিটি কম্পিউটারে নেমে যাবে — এবার সোশ্যাল মিডিয়ায় পোস্ট করুন।</li>
+  </ol>
+  <div class="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <p>প্রিভিউতে ছবি না এলে সম্ভবত ওই সংবাদে কোনো ছবি (featured image) দেওয়া নেই। সংবাদে একটি ছবি যোগ করলেই সেটি কার্ডে বসবে।</p>
+  </div>
+
+  <h2>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+    অংশ ২ — স্টুডিওতে ডিজাইন তৈরি
+  </h2>
+  <p>এখানেই আপনি নিজের মনের মতো কার্ড সাজাবেন — ফন্ট, রঙ, ছবি, লোগো, সোশ্যাল আইকন, সবকিছু। বাঁ দিকের মেনুতে “কন্টেন্ট” অংশে <b>ফটোকার্ড স্টুডিও</b> তে ক্লিক করলে স্টুডিও খুলবে।</p>
+
+  <h3>স্ক্রিনের তিনটি অংশ</h3>
+  <div class="layout">
+    <div class="col"><b>বাঁ দিক</b><span>আপনার সব সেভ করা টেমপ্লেটের তালিকা।</span></div>
+    <div class="col"><b>মাঝখানে</b><span>লাইভ প্রিভিউ — এখানেই জিনিস টেনে সরানো ও রিসাইজ করা হয়।</span></div>
+    <div class="col"><b>ডান দিক</b><span>স্টাইল কন্ট্রোল — রঙ, ফন্ট, চালু/বন্ধ।</span></div>
+  </div>
+  <div class="note tip">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2Z"/></svg>
+    <p>সবচেয়ে দরকারি নিয়মটি মনে রাখুন — <b>সরানো ও সাইজ বদলানোর কাজ মাঝখানের ক্যানভাসে</b>, আর <b>রঙ ও ফন্ট বদলানোর কাজ ডান দিকের প্যানেলে</b>।</p>
+  </div>
+
+  <h3>ক্যানভাসে যেভাবে কাজ করবেন</h3>
+  <p>এটি অনেকটা ক্যানভা (Canva)-র মতো — সরাসরি ছবির উপরেই কাজ করবেন।</p>
+  <table>
+    <thead><tr><th>আপনি যা করবেন</th><th>যা ঘটবে</th></tr></thead>
+    <tbody>
+      <tr><td>কোনো জিনিসে এক ক্লিক</td><td>সেটি সিলেক্ট হবে — চারপাশে নীল বর্ডার ও ছোট হ্যান্ডল আসবে।</td></tr>
+      <tr><td>সিলেক্ট করা জিনিস টেনে নেওয়া</td><td>জায়গা বদলাবে।</td></tr>
+      <tr><td>কোণা বা পাশের হ্যান্ডল টানা</td><td>সাইজ বড় বা ছোট হবে।</td></tr>
+      <tr><td>Alt চেপে ক্লিক (বা রাইট-ক্লিক)</td><td>নিচে চাপা পড়া জিনিস সিলেক্ট হবে — বারবার করলে ঘুরে ঘুরে নিচে যাবে।</td></tr>
+      <tr><td>Esc চাপা</td><td>সিলেকশন বাতিল হবে।</td></tr>
+    </tbody>
+  </table>
+  <p>ক্যানভাসের উপরে ও বাঁয়ে <b>রুলার</b> আছে; সিলেক্ট করা জিনিস রুলারে নীল হয়ে দেখায়, যাতে নিখুঁতভাবে সাজানো যায়। টানার সময় লাল গাইড-লাইন দেখা যায় এবং জিনিসটি মাঝবরাবর বা অন্য জিনিসের সাথে নিজে থেকেই লাইন মিলিয়ে নেয়।</p>
+
+  <h3>ডান দিকের কন্ট্রোল — কোনটির কী কাজ</h3>
+
+  <p><b>নাম ও সেভ —</b> উপরে কার্ডের বাংলা ও ইংরেজি নাম দেওয়ার ঘর, “সক্রিয়” সুইচ (চালু থাকলে ডাউনলোড উইন্ডোতে দেখাবে), আর সেভ বোতাম।</p>
+
+  <p><b>ক্যানভাস —</b> কার্ডের আকার ঠিক করার জায়গা।</p>
+  <table>
+    <thead><tr><th>অপশন</th><th>কাজ</th></tr></thead>
+    <tbody>
+      <tr><td>ফরম্যাট</td><td>Square, Story, Portrait, Landscape অথবা Custom আকার।</td></tr>
+      <tr><td>প্রস্থ / উচ্চতা</td><td>নিজের ইচ্ছেমতো মাপ (পিক্সেলে)।</td></tr>
+      <tr><td>কোণ রেডিয়াস</td><td>পুরো কার্ডের কোণা কতটা গোল হবে (ডাউনলোডেও তা-ই থাকবে)।</td></tr>
+    </tbody>
+  </table>
+
+  <p><b>ব্যাকগ্রাউন্ড —</b> কার্ডের পেছনের রঙ বা ছবি — এক রঙ (Solid), রঙের মিশ্রণ (Gradient) অথবা ছবি। ছবির ক্ষেত্রে ফিট মোড ও অপাসিটিও ঠিক করা যায়।</p>
+
+  <p><b>আর্টিকেল ছবি —</b> সংবাদের মূল ছবি। সাইজ ও অবস্থান ক্যানভাসে বদলান; এখানে কোণা গোল করা, উপরে হালকা পর্দা (ওভারলে), নিচে ফেইড, আর ছবির কোন অংশ দেখাবে তার জন্য ফিট/জুম/অবস্থান ঠিক করা যায়।</p>
+
+  <p><b>নিচের প্যানেল —</b> ছবির নিচের রঙিন অংশ, যেখানে সাধারণত শিরোনাম বসে। এক রঙ বা গ্রেডিয়েন্ট দেওয়া যায়, এবং “ছবির সাথে ব্লেন্ড” চালু করলে প্যানেলের রঙ ছবির মধ্যে ধীরে ধীরে মিশে যায়।</p>
+
+  <p><b>লোগো —</b> সাইট লোগো (নিজে নিজে আপনার পত্রিকার লোগো) অথবা কাস্টম আপলোড। আকৃতি চারকোনা/রেক্ট্যাঙ্গেল বা গোল/ওভাল; সাথে বর্ডার ও ফিট। সাইজ ক্যানভাসে টেনে বদলান।</p>
+
+  <p><b>শিরোনাম, CTA, সাইট URL, তারিখ —</b> এগুলো আলাদা আলাদা লেখা, প্রতিটির ফন্ট, সাইজ, রঙ, অ্যালাইন আলাদা করে ঠিক করা যায়। শিরোনাম সংবাদ থেকে নিজে নিজে আসে; তারিখও নিজে বসে।</p>
+
+  <p><b>অ্যাড ব্যানার —</b> কার্ডের কোনো অংশে বিজ্ঞাপন বসানোর জন্য (বিস্তারিত নিচে)।</p>
+
+  <h3>কাস্টম লেয়ার — নিজের মতো যা খুশি যোগ করা</h3>
+  <p>উপরের নির্দিষ্ট অংশগুলো ছাড়াও ইচ্ছেমতো নতুন জিনিস যোগ করা যায়:</p>
+  <table>
+    <thead><tr><th>লেয়ার</th><th>কী যোগ হয়</th></tr></thead>
+    <tbody>
+      <tr><td>টেক্সট</td><td>যেকোনো লেখা।</td></tr>
+      <tr><td>ছবি</td><td>যেকোনো ছবি (আপলোড বা সিস্টেমের ছবি)।</td></tr>
+      <tr><td>শেপ</td><td>রঙিন বক্স, বার বা পাতলা লাইন (ডিভাইডার)।</td></tr>
+      <tr><td>আইকন</td><td>আসল ভেক্টর আইকন — গ্লোব, ফোন, মেইল, লোকেশন সহ অনেক; যেকোনো রঙ ও সাইজে।</td></tr>
+      <tr><td>সোশ্যাল</td><td>সোশ্যাল মিডিয়া আইকনের সারি (বিস্তারিত নিচে)।</td></tr>
+    </tbody>
+  </table>
+  <p>ডান দিকের <b>“লেয়ার সমূহ”</b> তালিকা থেকে যেকোনো জিনিস সিলেক্ট করা যায়, চোখের আইকনে দেখানো/লুকানো, তালা দিয়ে নড়াচড়া বন্ধ, আর তীর দিয়ে সামনে/পেছনে আনা যায়।</p>
+
+  <h2>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+    ডাইনামিক ফিল্ড — লেখা নিজে নিজে বসা
+  </h2>
+  <p>যেকোনো লেখার ভেতরে দুই বন্ধনীর ফিল্ড বসালে, কার্ড তৈরির সময় সেখানে সিস্টেম থেকে আসল মান বসে যায়। ফলে একটি টেমপ্লেট প্রতিটি সংবাদে আলাদা তথ্য নিয়ে কাজ করে — বারবার বানাতে হয় না।</p>
+  <table>
+    <thead><tr><th>লিখবেন</th><th>বসবে</th></tr></thead>
+    <tbody>
+      <tr><td><code>{{title}}</code></td><td>সংবাদের বাংলা শিরোনাম</td></tr>
+      <tr><td><code>{{title_en}}</code></td><td>ইংরেজি শিরোনাম</td></tr>
+      <tr><td><code>{{date}}</code></td><td>প্রকাশের তারিখ (বাংলায়)</td></tr>
+      <tr><td><code>{{category}}</code></td><td>সংবাদের বিভাগ</td></tr>
+      <tr><td><code>{{site_name}}</code> · <code>{{site_url}}</code></td><td>সাইটের নাম ও ঠিকানা</td></tr>
+      <tr><td><code>{{facebook_url}}</code> · <code>{{contact_phone}}</code></td><td>সেটিংস থেকে ফেসবুক লিংক, যোগাযোগ নম্বর</td></tr>
+    </tbody>
+  </table>
+  <p>উদাহরণ — CTA লেখায় <code>আরও পড়ুন {{site_url}}</code> দিলে কার্ডে দেখাবে “আরও পড়ুন nobodigonto.news”। ছবির ক্ষেত্রেও ব্যাকগ্রাউন্ড/লেয়ারে সিস্টেমের ছবি (সাইট লোগো, আর্টিকেল ছবি) বেছে নেওয়া যায়।</p>
+
+  <h2>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+    ফন্ট সম্পর্কে জরুরি কথা
+  </h2>
+  <p>ফন্ট দুই ভাগে সাজানো:</p>
+  <table>
+    <thead><tr><th>গ্রুপ</th><th>ব্যবহার</th></tr></thead>
+    <tbody>
+      <tr><td>বাংলা</td><td>SolaimanLipi, Kalpurush, Noto Sans Bengali, Hind Siliguri, Anek Bangla, Baloo Da 2, Tiro Bangla, Galada — বাংলা লেখার জন্য (ইংরেজিও দেখাতে পারে)।</td></tr>
+      <tr><td>English only</td><td>Playfair Display, Merriweather, Montserrat, Poppins, Roboto, Oswald — শুধু ইংরেজি লেখার জন্য।</td></tr>
+    </tbody>
+  </table>
+  <div class="note warn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p>সহজ নিয়ম — বাংলা সংবাদের জন্য সবসময় “বাংলা” গ্রুপ থেকে ফন্ট বাছুন। ইংরেজি-অনলি ফন্ট বাংলা লেখায় কাজ করে না।</p>
+  </div>
+
+  <h2>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3Z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+    অ্যাড ব্যানার ও বিজ্ঞাপন
+  </h2>
+  <p>অ্যাড ব্যানারে ছবি বসানো যায় নিজে আপলোড করে, অথবা সরাসরি Ad Manager থেকে। “Ad Manager থেকে বাছুন” বোতামে সক্রিয় image-banner বিজ্ঞাপনগুলো দেখাবে। বসানোর দুটি ধরন আছে:</p>
+  <table>
+    <thead><tr><th>ধরন</th><th>আচরণ</th></tr></thead>
+    <tbody>
+      <tr><td>নির্দিষ্ট অ্যাড</td><td>ছবিটি কার্ডে স্থির বসে। পরে অ্যাডের মেয়াদ শেষ হলেও ছবিটি থেকে যায়।</td></tr>
+      <tr><td>ডাইনামিক <code>{{ad:position}}</code></td><td>রেন্ডারের সময় ওই পজিশনের চলতি সক্রিয় অ্যাড নিজে বসে; কোনো সক্রিয় অ্যাড না থাকলে কিছু দেখায় না।</td></tr>
+    </tbody>
+  </table>
+  <p>Ad Manager-এ ফটোকার্ডের জন্য আলাদা পজিশন আছে — “ফটোকার্ড — উপরে” ও “ফটোকার্ড — নিচে”।</p>
+
+  <h2>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+    সোশ্যাল আইকন বার
+  </h2>
+  <p>এগুলো আসল ব্র্যান্ড আইকন, পুরোপুরি নিয়ন্ত্রণযোগ্য:</p>
+  <table>
+    <thead><tr><th>অপশন</th><th>কাজ</th></tr></thead>
+    <tbody>
+      <tr><td>স্টাইল</td><td>ব্যাজ (গোল + আইকন) অথবা শুধু আইকন।</td></tr>
+      <tr><td>প্ল্যাটফর্ম</td><td>facebook, instagram, tiktok, linkedin, youtube, x, whatsapp — যেগুলো লাগবে বাছুন।</td></tr>
+      <tr><td>রঙ</td><td>বার ব্যাকগ্রাউন্ড, ব্যাজ রঙ (খালি = ব্র্যান্ডের রঙ), আইকন রঙ।</td></tr>
+      <tr><td>কাস্টম লেবেল</td><td>প্রতি প্ল্যাটফর্মে নিজের লেখা (বাংলা/ইংরেজি); খালি রাখলে ডিফল্ট নাম।</td></tr>
+      <tr><td>লেবেল কেস</td><td>ইংরেজির জন্য — যেমন আছে, UPPERCASE, lowercase, Title Case, Sentence case।</td></tr>
+      <tr><td>লেবেল ফন্ট ও সাইজ</td><td>আলাদা ফন্ট; সাইজ ডিফল্টে আইকনের সাথে বাঁধা (অটো), চাইলে নির্দিষ্ট করা যায়।</td></tr>
+      <tr><td>উৎস</td><td>হাতে বাছাই, অথবা সেটিংস থেকে অটো (যেসব সোশ্যাল লিংক আছে শুধু সেগুলো)।</td></tr>
+    </tbody>
+  </table>
+
+  <h2>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    টেমপ্লেট সেভ, নতুন ও কপি
+  </h2>
+  <table>
+    <thead><tr><th>কাজ</th><th>যেভাবে</th></tr></thead>
+    <tbody>
+      <tr><td>নতুন বানানো</td><td>উপরে-ডানে “নতুন” বোতাম — দুটি অপশন: <b>ডিফল্ট</b> (ছবি/প্যানেল/লোগো/শিরোনাম সহ শুরুর কার্ড) অথবা <b>খালি</b> (একদম খালি ক্যানভাস)।</td></tr>
+      <tr><td>সেভ করা</td><td>নাম দিয়ে “তৈরি করুন” — প্রথমবার তৈরি হয়, এরপর বোতামটি “সংরক্ষণ” হয় এবং পরে সেই টেমপ্লেটই আপডেট হয় (নতুন তৈরি হয় না)।</td></tr>
+      <tr><td>কপি</td><td>বাঁ পাশের তালিকায় টেমপ্লেটের উপর মাউস নিলে কপি আইকন।</td></tr>
+      <tr><td>মুছে ফেলা</td><td>তালিকায় ডিলিট আইকন।</td></tr>
+    </tbody>
+  </table>
+
+  <h2>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+    সাধারণ প্রশ্ন
+  </h2>
+  <p><b>ক্যানভাসে কোনো জিনিস টেনে ধরতে পারছি না।</b> সম্ভবত সেটি অন্য কিছুর নিচে চাপা পড়েছে। Alt চেপে ক্লিক করুন, অথবা “লেয়ার সমূহ” তালিকা থেকে সিলেক্ট করুন।</p>
+  <p><b>লেখা বা তারিখ কি নিজে নিজে বদলায়?</b> হ্যাঁ। ছবি, শিরোনাম ও তারিখ প্রতিটি সংবাদের নিজস্বটি বসে; লোগো ও সাইটের ঠিকানা সিস্টেমের সেটিংস থেকে আসে।</p>
+  <p><b>কার্ডে ছবি আসছে না।</b> ওই সংবাদে featured image দেওয়া আছে কিনা দেখে নিন।</p>
+
+  <hr>
+  <p style="color:var(--muted); font-size:14px;">প্রক্রিয়াটি এক নজরে — স্টুডিওতে একবার ডিজাইন তৈরি করে সেভ ও সক্রিয় করুন; এরপর প্রতিদিন “সব সংবাদ” পেজ থেকে কার্ড নামিয়ে সোশ্যাল মিডিয়ায় পোস্ট করুন।</p>
+
+</div>
+</body>
+</html>

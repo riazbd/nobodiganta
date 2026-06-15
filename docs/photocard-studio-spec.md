@@ -1,8 +1,8 @@
 # Photocard Studio — Technical Spec
 
 > Developer-facing spec of the Photocard Studio feature. Companion to the
-> client tutorial in [`photocard-tutorial-bn.md`](./photocard-tutorial-bn.md).
-> Last updated: 2026-06-15.
+> client tutorial in [`photocard-tutorial.html`](./photocard-tutorial.html)
+> (print-to-PDF deliverable). Last updated: 2026-06-15.
 
 ## 1. Purpose
 
