@@ -129,21 +129,52 @@ export default function Navigation() {
     const mc  = measureRef.current;
     const nav = navRef.current;
     if (!mc || !nav) return;
-    const items = mc.querySelectorAll('.nav-measure-item');
-    if (!items.length) return;
-    const available = nav.offsetWidth;
-    let total = 0, count = items.length;
-    for (let i = 0; i < items.length; i++) {
-      total += items[i].offsetWidth;
-      if (total > available) { count = i; break; }
+    // Measure order: [Home, ...categories, More, ...MENU_ITEMS]
+    const all = mc.querySelectorAll('.nav-measure-item');
+    if (!all.length) return;
+
+    // Real content width: clientWidth minus horizontal padding, minus a small
+    // safety buffer. Using offsetWidth here (the old bug) counted the 32px
+    // padding as usable space, so an item too many fit and overflowed/clipped.
+    const cs   = getComputedStyle(nav);
+    const padX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+    const available = nav.clientWidth - padX - 8;
+
+    const catCount = Math.max(0, all.length - 2 - MENU_ITEMS.length);
+    const widthAt  = (i) => all[i]?.offsetWidth || 0;
+    const homeW    = widthAt(0);
+    const moreW    = widthAt(1 + catCount);
+
+    // How many categories fit alongside Home.
+    let used = homeW, fitCats = 0;
+    for (let i = 0; i < catCount; i++) {
+      const w = widthAt(1 + i);
+      if (used + w <= available) { used += w; fitCats++; } else break;
     }
-    setVisibleCount(Math.max(2, count));
+
+    if (fitCats < catCount) {
+      // Some categories overflow → reserve room for the "More" button, dropping
+      // trailing categories until Home + categories + More all fit.
+      while (fitCats > 0 && used + moreW > available) { used -= widthAt(fitCats); fitCats--; }
+      setVisibleCount(Math.max(2, fitCats + 1));
+      return;
+    }
+
+    // Everything fits → see how many quick-links (Stories/Gallery/Video) fit too.
+    let fitMenus = 0;
+    for (let i = 0; i < MENU_ITEMS.length; i++) {
+      const w = widthAt(1 + catCount + 1 + i);
+      if (used + w <= available) { used += w; fitMenus++; } else break;
+    }
+    setVisibleCount(catCount + 1 + fitMenus);
   }, []);
 
   useEffect(() => {
     const t1 = setTimeout(calculateVisible, 100);
     const t2 = setTimeout(calculateVisible, 300);
     window.addEventListener('resize', calculateVisible);
+    // Bengali web fonts widen the items after they load — re-measure then too.
+    if (document.fonts?.ready) document.fonts.ready.then(calculateVisible);
     return () => { clearTimeout(t1); clearTimeout(t2); window.removeEventListener('resize', calculateVisible); };
   }, [calculateVisible, categories]);
 
