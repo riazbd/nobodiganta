@@ -13,11 +13,22 @@ use Inertia\Inertia;
 
 class PhotocardTemplateController extends Controller
 {
-    private const PERMISSION = 'photocard.manage';
+    private const PERMISSION = 'photocard.manage';            // build / edit templates (admin)
+    private const DOWNLOAD_PERMISSION = 'photocard.download'; // download a card from a saved template
 
+    /** Full studio access (create/edit/delete templates). */
     private function authorizeAccess(): void
     {
         if (!auth()->user()->hasPermission(self::PERMISSION)) {
+            abort(403);
+        }
+    }
+
+    /** Read-only consumer access (download from the news list). Studio managers qualify too. */
+    private function authorizeDownload(): void
+    {
+        $user = auth()->user();
+        if (!$user->hasPermission(self::DOWNLOAD_PERMISSION) && !$user->hasPermission(self::PERMISSION)) {
             abort(403);
         }
     }
@@ -40,7 +51,7 @@ class PhotocardTemplateController extends Controller
     /** Lightweight JSON list of active templates — consumed by the PhotoCard modal. */
     public function apiList()
     {
-        $this->authorizeAccess();
+        $this->authorizeDownload();
 
         return response()->json([
             'templates' => PhotocardTemplate::active()
@@ -102,7 +113,7 @@ class PhotocardTemplateController extends Controller
     /** Active image ads from the Ad Manager — for the photocard ad-banner picker. */
     public function ads()
     {
-        $this->authorizeAccess();
+        $this->authorizeDownload();
 
         // Active image-banner ads. The active() scope treats a missing (NULL) start/end
         // date as "no limit", so date-less ads are included; only real out-of-range excluded.

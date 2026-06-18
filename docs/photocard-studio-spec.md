@@ -159,6 +159,13 @@ article, downloads PNG/JPG. The card downloads with whatever corner radius the t
 defines (no per-download toggle). Article list (`ArticleController@index`) already supplies
 `title`, `title_en`, `slug`, `featured_image`, `published_at`.
 
+**Download permission:** the consumer endpoints (`apiList`, `ads`) and the All News button are
+gated on `photocard.download` (the studio's `photocard.manage` also qualifies, via
+`authorizeDownload()`). Unlike admin-only `photocard.manage`, `photocard.download` is seeded as a
+baseline onto the content roles (editor_in_chief, managing_editor, section_editor, reporter,
+photographer) so they can download cards without building templates; the client can toggle it
+per-role from **Roles → Photocard**.
+
 ## 10. Key design decision
 
 **Hybrid, not full free-form Canva.** Structured, data-bound blocks (headline/photo/logo/date

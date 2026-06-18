@@ -11,6 +11,7 @@ import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { usePermission } from '../../hooks/usePermission';
+import { PERMISSIONS } from '../../api/permissions';
 
 const STATUS_MAP = {
   published: { bn: 'প্রকাশিত',         en: 'Published', variant: 'green'  },
@@ -430,13 +431,15 @@ export default function AllNews({ articles, categories, authors = [], divisions 
                           <ArrowDown className="w-4 h-4" />
                         </button>
                       )}
-                      <button
-                        onClick={() => setPhotoCardArticle(article)}
-                        className="p-1.5 rounded-lg hover:bg-purple-50 text-gray-400 hover:text-purple-600 transition-all"
-                        title={l('ফটো কার্ড', 'Photo Card')}
-                      >
-                        <ImageIcon className="w-4 h-4" />
-                      </button>
+                      {(hasPermission(PERMISSIONS.PHOTOCARD_DOWNLOAD) || hasPermission(PERMISSIONS.PHOTOCARD_MANAGE)) && (
+                        <button
+                          onClick={() => setPhotoCardArticle(article)}
+                          className="p-1.5 rounded-lg hover:bg-purple-50 text-gray-400 hover:text-purple-600 transition-all"
+                          title={l('ফটো কার্ড', 'Photo Card')}
+                        >
+                          <ImageIcon className="w-4 h-4" />
+                        </button>
+                      )}
                       <button onClick={() => setDeleteConfirm(article)}
                         className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all" title={l('মুছুন', 'Delete')}>
                         <Trash2 className="w-4 h-4" />
