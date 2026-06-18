@@ -430,7 +430,7 @@ article .card{padding:8px;}
   transform:scaleX(0);
   transition:transform .18s ease;
 }
-.nav-item:hover{color:var(--red);background-color:#f4f4f5;}
+.nav-item:hover{color:var(--red);background-color:#f3f1e6;}
 .nav-item:hover::after,.nav-item.nav-active::after{transform:scaleX(1);}
 .nav-item.nav-active{color:var(--red);}
 .nav-home{color:var(--red);}
