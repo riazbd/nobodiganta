@@ -6,6 +6,7 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -41,6 +42,7 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+        $this->ensureTurnstilePassed();
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
@@ -51,6 +53,44 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+    }
+
+    /**
+     * Verify the Cloudflare Turnstile token. Skipped entirely when no secret is
+     * configured, so login keeps working until the keys are set in .env.
+     *
+     * @throws ValidationException
+     */
+    public function ensureTurnstilePassed(): void
+    {
+        $secret = config('services.turnstile.secret');
+        if (empty($secret)) {
+            return;
+        }
+
+        $token = (string) $this->input('cf_turnstile_response');
+
+        $verified = false;
+        if ($token !== '') {
+            try {
+                $response = Http::asForm()
+                    ->timeout(8)
+                    ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                        'secret'   => $secret,
+                        'response' => $token,
+                        'remoteip' => $this->ip(),
+                    ]);
+                $verified = $response->ok() && $response->json('success') === true;
+            } catch (\Throwable $e) {
+                $verified = false;
+            }
+        }
+
+        if (! $verified) {
+            throw ValidationException::withMessages([
+                'captcha' => 'মানব যাচাই ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
+            ]);
+        }
     }
 
     /**

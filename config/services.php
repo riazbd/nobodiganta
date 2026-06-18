@@ -90,4 +90,16 @@ return [
         'vapid_private_key' => env('WEBPACK_VAPID_PRIVATE_KEY'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cloudflare Turnstile (login captcha)
+    |--------------------------------------------------------------------------
+    | Leave both empty to disable — login then works without a captcha. Set
+    | both (from the Cloudflare dashboard → Turnstile) to enable verification.
+    */
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret'   => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];

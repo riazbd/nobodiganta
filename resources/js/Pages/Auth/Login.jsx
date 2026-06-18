@@ -1,18 +1,73 @@
 ﻿import { Head, Link, useForm } from '@inertiajs/react';
+import { useEffect, useRef } from 'react';
 
-export default function Login({ status, canResetPassword }) {
+export default function Login({ status, canResetPassword, turnstileSiteKey }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
         remember: false,
+        cf_turnstile_response: '',
     });
+
+    const turnstileRef = useRef(null);
+    const widgetIdRef = useRef(null);
+
+    // Load & render the Cloudflare Turnstile widget (only when a site key is configured).
+    useEffect(() => {
+        if (!turnstileSiteKey) return;
+
+        const renderWidget = () => {
+            if (!window.turnstile || !turnstileRef.current || widgetIdRef.current !== null) return;
+            widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+                sitekey: turnstileSiteKey,
+                callback: (token) => setData('cf_turnstile_response', token),
+                'expired-callback': () => setData('cf_turnstile_response', ''),
+                'error-callback': () => setData('cf_turnstile_response', ''),
+            });
+        };
+
+        const scriptId = 'cf-turnstile-script';
+        if (window.turnstile) {
+            renderWidget();
+        } else {
+            let script = document.getElementById(scriptId);
+            if (!script) {
+                script = document.createElement('script');
+                script.id = scriptId;
+                script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+            }
+            script.addEventListener('load', renderWidget);
+        }
+
+        return () => {
+            if (widgetIdRef.current !== null && window.turnstile) {
+                window.turnstile.remove(widgetIdRef.current);
+                widgetIdRef.current = null;
+            }
+        };
+    }, [turnstileSiteKey]);
+
+    const resetTurnstile = () => {
+        if (widgetIdRef.current !== null && window.turnstile) {
+            window.turnstile.reset(widgetIdRef.current);
+        }
+        setData('cf_turnstile_response', '');
+    };
 
     const submit = (e) => {
         e.preventDefault();
         post(route('login'), {
             onFinish: () => reset('password'),
+            // Tokens are single-use — refresh the widget after any submit.
+            onError: () => resetTurnstile(),
         });
     };
+
+    const captchaRequired = !!turnstileSiteKey;
+    const captchaSolved = !!data.cf_turnstile_response;
 
     return (
         <>
@@ -68,9 +123,14 @@ export default function Login({ status, canResetPassword }) {
                         )}
 
                         {/* Error Messages */}
-                        {(errors.email || errors.password) && (
+                        {(errors.email || errors.password) && !errors.captcha && (
                             <div className="mb-6 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
                                 Invalid credentials. Please try again.
+                            </div>
+                        )}
+                        {errors.captcha && (
+                            <div className="mb-6 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                                {errors.captcha}
                             </div>
                         )}
 
@@ -149,10 +209,15 @@ export default function Login({ status, canResetPassword }) {
                                 </label>
                             </div>
 
+                            {/* Cloudflare Turnstile (only when configured) */}
+                            {captchaRequired && (
+                                <div ref={turnstileRef} className="flex justify-center" />
+                            )}
+
                             {/* Submit */}
                             <button
                                 type="submit"
-                                disabled={processing}
+                                disabled={processing || (captchaRequired && !captchaSolved)}
                                 className="w-full bg-[#263238] text-white font-semibold py-3 rounded-xl hover:bg-[#1a2428] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#263238]/20 hover:shadow-[#263238]/20"
                             >
                                 {processing ? (
@@ -168,11 +233,13 @@ export default function Login({ status, canResetPassword }) {
                         </form>
 
                         {/* Footer */}
-                        <div className="mt-8 text-center">
-                            <p className="text-xs text-gray-400">
-                                Protected by reCAPTCHA and subject to the Privacy Policy
-                            </p>
-                        </div>
+                        {captchaRequired && (
+                            <div className="mt-8 text-center">
+                                <p className="text-xs text-gray-400">
+                                    Protected by Cloudflare Turnstile
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
