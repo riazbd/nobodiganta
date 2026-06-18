@@ -32,11 +32,11 @@ permission `photocard.manage` (group `photocard`). Mutations redirect to the ind
 route (clean URL, no 404 on reload).
 
 > **Granting access:** `photocard.manage` is its own permission, separate from the
-> media gallery, and is **admin-only by default** — only `supreme_admin` / `super_admin`
-> hold it (they also bypass permission checks in code). To open the studio to any other
-> role, toggle it per-role from **Roles → Photocard** in the admin UI. The
-> `PhotocardPermissionSeeder` converges to this admin-only state every run (idempotent;
-> attaches to admins, detaches from everyone else) — see Deploy notes.
+> media gallery, and is granted to `supreme_admin` / `super_admin` **by default** (they
+> also bypass permission checks in code). To open the studio to any other role, toggle it
+> per-role from **Roles → Photocard** in the admin UI. The `PhotocardPermissionSeeder`
+> grant is additive (`syncWithoutDetaching`) — re-running it never strips a manual UI
+> grant, so editor access you assign in the UI sticks across deploys — see Deploy notes.
 
 | Method | Route (`admin.` prefix) | Purpose |
 |---|---|---|
