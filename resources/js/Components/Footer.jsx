@@ -20,7 +20,7 @@ export default function Footer() {
     ? (settings.site_name    || 'নব দিগন্ত')
     : (settings.site_name_en || settings.site_name || 'Nobo Digonto');
   const tagline  = settings.site_tagline || (lang === 'bn' ? 'সঠিক সংবাদ সবার আগে' : 'Trusted News First');
-  const logoUrl  = settings.site_logo    || null;
+  const logoUrl  = (lang === 'en' ? settings.site_logo_en : null) || settings.site_logo || null;
   const metaDesc = lang === 'bn'
     ? (settings.meta_description    || 'নব দিগন্ত বাংলাদেশের অন্যতম শীর্ষস্থানীয় অনলাইন সংবাদ মাধ্যম।')
     : (settings.meta_description_en || "Nobo Digonto is one of Bangladesh's leading online news portals.");

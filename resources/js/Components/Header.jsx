@@ -157,7 +157,8 @@ export default function Header() {
     ? 'নবদিগন্ত'
     : 'NOBODIGONTO';
   const tagline  = settings.site_tagline || (lang === 'bn' ? 'সঠিক সংবাদ সবার আগে' : 'Trusted News First');
-  const logoUrl  = settings.site_logo    || null;
+  // English edition uses its own logo when set; otherwise falls back to the Bangla logo.
+  const logoUrl  = (lang === 'en' ? settings.site_logo_en : null) || settings.site_logo || null;
 
   // Scroll-aware header shrink + nav hide/show
   const lastY = useRef(0);

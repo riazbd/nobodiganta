@@ -84,7 +84,7 @@ export default function Settings({ settings = {}, groups = [] }) {
       link.href = url ? (url + '?t=' + Date.now()) : '/favicon.ico';
       link.type = url && url.endsWith('.png') ? 'image/png' : 'image/x-icon';
     }
-    if (key === 'site_logo') {
+    if (key === 'site_logo' || key === 'site_logo_en') {
       const logoImg = document.querySelector('.bbc-logo-img');
       if (logoImg) {
         logoImg.src = url ? (url + '?t=' + Date.now()) : '';
