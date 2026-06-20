@@ -67,6 +67,7 @@ export default function Author({ author, articles }) {
                   <Icon name="mail" size={14} /> {author.email}
                 </span>
               )}
+              {/* Social media links hidden from the public author profile.
               {author?.social_links?.facebook && (
                 <a className="author-social" href={author.social_links.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                   <Icon name="facebook" size={16} />
@@ -77,6 +78,7 @@ export default function Author({ author, articles }) {
                   <Icon name="twitter" size={16} />
                 </a>
               )}
+              */}
             </div>
           </div>
         </div>
