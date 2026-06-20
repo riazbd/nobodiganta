@@ -24,7 +24,7 @@ function Select({ value, onChange, children, className = '' }) {
   );
 }
 
-function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, fixedStatus }) {
+function NewsTable({ articles, categories = [], authors = [], filters, pageTitle, pageLabel, fixedStatus }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
   const searchTimer = useRef(null);
@@ -32,6 +32,7 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
   const [search,    setSearch]    = useState(filters?.search   || '');
   const [category,  setCategory]  = useState(filters?.category || 'all');
   const [edition,   setEdition]   = useState(filters?.edition  || 'all');
+  const [author,    setAuthor]    = useState(filters?.author   || 'all');
   const [perPage,   setPerPage]   = useState(filters?.per_page || '20');
   const [selected,  setSelected]  = useState([]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -42,7 +43,7 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
 
 
   const applyFilters = (overrides = {}) => {
-    const p = { search, category, edition, per_page: perPage, page: 1, ...overrides };
+    const p = { search, category, edition, author, per_page: perPage, page: 1, ...overrides };
     Object.keys(p).forEach(k => { if (p[k] === 'all' || p[k] === '' || p[k] == null) delete p[k]; });
     router.get(window.location.pathname, p, { preserveState: true, preserveScroll: true });
   };
@@ -85,7 +86,7 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
 
   const toggleSelect = (id) => setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   const toggleAll = () => setSelected(selected.length === articles.data.length ? [] : articles.data.map(a => a.id));
-  const hasActiveFilters = category !== 'all' || edition !== 'all' || search;
+  const hasActiveFilters = category !== 'all' || edition !== 'all' || author !== 'all' || search;
 
   return (
     <div className="p-6">
@@ -127,8 +128,15 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
             </Select>
           )}
 
+          {authors.length > 0 && (
+            <Select value={author} onChange={v => { setAuthor(v); applyFilters({ author: v }); }} className="min-w-[140px]">
+              <option value="all">{l('সব লেখক', 'All Authors')}</option>
+              {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+            </Select>
+          )}
+
           {hasActiveFilters && (
-            <button onClick={() => { setSearch(''); setCategory('all'); setEdition('all'); applyFilters({ search: '', category: 'all', edition: 'all' }); }}
+            <button onClick={() => { setSearch(''); setCategory('all'); setEdition('all'); setAuthor('all'); applyFilters({ search: '', category: 'all', edition: 'all', author: 'all' }); }}
               className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600">
               <RotateCcw className="w-3.5 h-3.5" /> {l('রিসেট', 'Reset')}
             </button>
@@ -309,23 +317,23 @@ function NewsTable({ articles, categories = [], filters, pageTitle, pageLabel, f
   );
 }
 
-export default function Drafts({ articles, categories, filters }) {
+export default function Drafts({ articles, categories, authors, filters }) {
   const { lang } = useLanguage();
-  return <NewsTable articles={articles} categories={categories} filters={filters} fixedStatus="draft"
+  return <NewsTable articles={articles} categories={categories} authors={authors} filters={filters} fixedStatus="draft"
     pageTitle={lang === 'bn' ? 'খসড়া সংবাদ' : 'Draft Articles'}
     pageLabel={lang === 'bn' ? 'খসড়া সংবাদ' : 'Drafts'} />;
 }
 
-export function PendingApproval({ articles, categories, filters }) {
+export function PendingApproval({ articles, categories, authors, filters }) {
   const { lang } = useLanguage();
-  return <NewsTable articles={articles} categories={categories} filters={filters} fixedStatus="pending"
+  return <NewsTable articles={articles} categories={categories} authors={authors} filters={filters} fixedStatus="pending"
     pageTitle={lang === 'bn' ? 'অনুমোদন অপেক্ষায়' : 'Pending Approval'}
     pageLabel={lang === 'bn' ? 'অনুমোদন অপেক্ষায়' : 'Pending Approval'} />;
 }
 
-export function Published({ articles, categories, filters }) {
+export function Published({ articles, categories, authors, filters }) {
   const { lang } = useLanguage();
-  return <NewsTable articles={articles} categories={categories} filters={filters} fixedStatus="published"
+  return <NewsTable articles={articles} categories={categories} authors={authors} filters={filters} fixedStatus="published"
     pageTitle={lang === 'bn' ? 'প্রকাশিত সংবাদ' : 'Published Articles'}
     pageLabel={lang === 'bn' ? 'প্রকাশিত সংবাদ' : 'Published'} />;
 }

@@ -117,12 +117,14 @@ Route::middleware(['auth'])->group(function () {
                 $perPage  = in_array((int) $request->per_page, [10, 20, 50, 100]) ? (int) $request->per_page : 20;
                 $edition  = $request->input('edition');
                 $category = $request->input('category');
+                $author   = $request->input('author');
 
                 $articles = \App\Models\Article::with(['category', 'author'])
                     ->where('status', $status)
-                    ->when($request->search, fn($q, $s) => $q->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%"))
+                    ->when($request->search, fn($q, $s) => $q->where(fn($q2) => $q2->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%")))
                     ->when($edition && $edition !== 'all', fn($q) => $q->where(fn($q2) => $q2->where('edition', 'both')->orWhere('edition', $edition)))
                     ->when($category && $category !== 'all', fn($q) => $q->whereHas('category', fn($q2) => is_numeric($category) ? $q2->where('id', (int)$category) : $q2->where('slug', $category)))
+                    ->when($author && $author !== 'all', fn($q) => $q->where('author_id', $author))
                     ->latest()->paginate($perPage)->withQueryString()
                     ->through(fn($a) => [
                         'id' => $a->id, 'title' => $a->title_bn, 'title_en' => $a->title_en,
@@ -136,7 +138,8 @@ Route::middleware(['auth'])->group(function () {
                 return Inertia::render("features/admin/pages/content/{$component}", [
                     'articles'   => $articles,
                     'categories' => \App\Models\Category::active()->editorial()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
-                    'filters'    => $request->only(['search', 'edition', 'category', 'per_page']),
+                    'authors'    => \App\Models\User::whereIn('role', ['admin', 'editor', 'reporter'])->orderBy('name')->get(['id', 'name']),
+                    'filters'    => $request->only(['search', 'edition', 'category', 'author', 'per_page']),
                 ]);
             };
         };
