@@ -122,7 +122,7 @@ Route::middleware(['auth'])->group(function () {
                 $articles = \App\Models\Article::with(['category', 'author'])
                     ->where('status', $status)
                     ->when($request->search, fn($q, $s) => $q->where(fn($q2) => $q2->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%")))
-                    ->when($edition && $edition !== 'all', fn($q) => $q->where(fn($q2) => $q2->where('edition', 'both')->orWhere('edition', $edition)))
+                    ->when($edition && $edition !== 'all', fn($q) => $q->where('edition', $edition))
                     ->when($category && $category !== 'all', fn($q) => $q->whereHas('category', fn($q2) => is_numeric($category) ? $q2->where('id', (int)$category) : $q2->where('slug', $category)))
                     ->when($author && $author !== 'all', fn($q) => $q->where('author_id', $author))
                     ->latest()->paginate($perPage)->withQueryString()

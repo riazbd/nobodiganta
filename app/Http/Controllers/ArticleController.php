@@ -50,10 +50,10 @@ class ArticleController extends Controller
             $query->where('article_type', $articleType);
         }
 
+        // Exact edition match so each option is distinct and matches its label:
+        // "Bangla Only" = bn, "English Only" = en, "Both" = both (use "All" for everything).
         if ($edition && $edition !== 'all') {
-            $query->where(function ($q) use ($edition) {
-                $q->where('edition', 'both')->orWhere('edition', $edition);
-            });
+            $query->where('edition', $edition);
         }
 
         if ($category && $category !== 'all') {

@@ -15,7 +15,9 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
   const { lang } = useLanguage();
   const { showToast } = useToast();
   const [searchQuery, setSearchQuery] = useState(filters.search || '');
+  const [activeDivision, setActiveDivision] = useState(filters.division_id || '');
   const [activeDistrict, setActiveDistrict] = useState(filters.district_id || '');
+  const [showDivisionDropdown, setShowDivisionDropdown] = useState(false);
   const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingReporter, setEditingReporter] = useState(null);
@@ -36,26 +38,36 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
 
   const [formData, setFormData] = useState(emptyForm);
 
-  const applyFilters = (search, districtId) => {
+  const applyFilters = (search, districtId, divisionId = activeDivision) => {
     const params = {};
     if (search) params.search = search;
+    if (divisionId) params.division_id = divisionId;
     if (districtId) params.district_id = districtId;
     router.get(route('admin.reporters'), params, { preserveState: true });
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    applyFilters(searchQuery, activeDistrict);
+    applyFilters(searchQuery, activeDistrict, activeDivision);
+  };
+
+  const handleDivisionFilter = (divisionId) => {
+    setActiveDivision(divisionId);
+    // Reset district when division changes so the two filters stay consistent.
+    setActiveDistrict('');
+    setShowDivisionDropdown(false);
+    applyFilters(searchQuery, '', divisionId);
   };
 
   const handleDistrictFilter = (districtId) => {
     setActiveDistrict(districtId);
     setShowDistrictDropdown(false);
-    applyFilters(searchQuery, districtId);
+    applyFilters(searchQuery, districtId, activeDivision);
   };
 
   const clearFilters = () => {
     setSearchQuery('');
+    setActiveDivision('');
     setActiveDistrict('');
     router.get(route('admin.reporters'));
   };
@@ -152,6 +164,15 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
     ? (districts.find(d => d.id == activeDistrict)?.[lang === 'bn' ? 'name_bn' : 'name_en'] || '')
     : '';
 
+  const activeDivisionName = activeDivision
+    ? (divisions.find(dv => dv.id == activeDivision)?.[lang === 'bn' ? 'name_bn' : 'name_en'] || '')
+    : '';
+
+  // District dropdown only lists districts inside the selected division.
+  const filteredDistricts = activeDivision
+    ? districts.filter(d => d.division_id == activeDivision)
+    : districts;
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -189,6 +210,43 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
           )}
         </form>
 
+        {/* Division filter */}
+        <div className="relative">
+          <button
+            onClick={() => setShowDivisionDropdown(v => !v)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all shadow-sm ${activeDivision ? 'bg-[#263238] text-white border-[#263238]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#263238]'}`}
+          >
+            <MapPin className="w-4 h-4" />
+            {activeDivision ? activeDivisionName : (lang === 'bn' ? 'সব বিভাগ' : 'All Divisions')}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showDivisionDropdown ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showDivisionDropdown && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowDivisionDropdown(false)} />
+              <div className="absolute top-full mt-2 left-0 z-50 bg-white border border-gray-100 rounded-2xl shadow-xl w-56 max-h-72 overflow-y-auto py-2">
+                <button
+                  onClick={() => handleDivisionFilter('')}
+                  className={`w-full text-left px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-gray-50 ${!activeDivision ? 'text-[#263238] bg-red-50/50' : 'text-gray-700'}`}
+                >
+                  {lang === 'bn' ? 'সব বিভাগ' : 'All Divisions'}
+                </button>
+                <div className="border-t border-gray-100 my-1" />
+                {divisions.map(dv => (
+                  <button
+                    key={dv.id}
+                    onClick={() => handleDivisionFilter(dv.id)}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-gray-50 flex items-center justify-between ${activeDivision == dv.id ? 'text-[#263238] font-bold bg-red-50/50' : 'text-gray-700'}`}
+                  >
+                    <span>{lang === 'bn' ? dv.name_bn : dv.name_en}</span>
+                    {activeDivision == dv.id && <CheckCircle className="w-3.5 h-3.5 text-[#263238]" />}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
         {/* District filter */}
         <div className="relative">
           <button
@@ -211,7 +269,7 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
                   {lang === 'bn' ? 'সব জেলা' : 'All Districts'}
                 </button>
                 <div className="border-t border-gray-100 my-1" />
-                {districts.map(d => (
+                {filteredDistricts.map(d => (
                   <button
                     key={d.id}
                     onClick={() => handleDistrictFilter(d.id)}
@@ -226,7 +284,7 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
           )}
         </div>
 
-        {(activeDistrict || searchQuery) && (
+        {(activeDivision || activeDistrict || searchQuery) && (
           <button
             onClick={clearFilters}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs text-gray-500 hover:text-red-500 hover:border-red-200 transition-all"

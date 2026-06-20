@@ -187,7 +187,8 @@ function NewsTable({ articles, categories = [], authors = [], filters, pageTitle
                   </td>
                   <td className="px-4 py-3.5 max-w-xs">
                     <div className="font-semibold text-gray-800 text-sm line-clamp-2 group-hover:text-[#263238] transition-colors leading-snug">
-                      {l(article.title, article.title_en || article.title)}
+                      {/* Stable article identity (Bangla primary, English fallback) — independent of UI toggle. */}
+                      {article.title || article.title_en}
                     </div>
                   </td>
                   <td className="px-4 py-3.5">
@@ -297,7 +298,7 @@ function NewsTable({ articles, categories = [], authors = [], filters, pageTitle
               <p className="text-sm text-gray-400 mt-1">{l('এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না', 'This action cannot be undone')}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-3.5 mb-5 text-sm font-semibold text-gray-700 line-clamp-2">
-              {l(deleteConfirm.title, deleteConfirm.title_en || deleteConfirm.title)}
+              {deleteConfirm.title || deleteConfirm.title_en}
             </div>
             <div className="flex gap-3">
               <button onClick={() => handleDelete(deleteConfirm.id)} disabled={submitting}

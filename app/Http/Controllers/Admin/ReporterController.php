@@ -32,6 +32,10 @@ class ReporterController extends Controller
             });
         }
 
+        if ($request->division_id) {
+            $query->whereHas('district', fn($q) => $q->where('division_id', $request->division_id));
+        }
+
         if ($request->district_id) {
             $query->where('district_id', $request->district_id);
         }
@@ -84,7 +88,7 @@ class ReporterController extends Controller
             }),
             'districts' => $districts,
             'divisions' => $divisions,
-            'filters' => $request->only(['search', 'district_id']),
+            'filters' => $request->only(['search', 'district_id', 'division_id']),
         ]);
     }
 

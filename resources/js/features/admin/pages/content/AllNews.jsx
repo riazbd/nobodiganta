@@ -348,7 +348,9 @@ export default function AllNews({ articles, categories, authors = [], divisions 
                   {/* Article */}
                   <td className="px-4 py-3.5 max-w-xs">
                     <div className="font-semibold text-[#1a1d2e] text-sm group-hover:text-[#263238] transition-colors line-clamp-2 leading-snug">
-                      {l(article.title, article.title_en || article.title)}
+                      {/* Article identity stays stable (Bangla primary, English fallback) — the UI
+                          language toggle translates chrome, not the article's edition/content. */}
+                      {article.title || article.title_en}
                     </div>
                     <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                       <span className="text-[10px] text-gray-400 flex items-center gap-1">
@@ -412,7 +414,13 @@ export default function AllNews({ articles, categories, authors = [], divisions 
                       </Link>
                       {article.category?.slug && article.slug && (
                         <a
-                          href={ROUTES.article(article.category.slug, article.slug, lang === 'en' ? 'en' : 'bn')}
+                          // Open the article in its OWN edition (not the admin UI language):
+                          // English-only → /en with the English slug; bn/both → Bangla edition.
+                          href={ROUTES.article(
+                            article.category.slug,
+                            article.edition === 'en' ? (article.slug_en || article.slug) : article.slug,
+                            article.edition === 'en' ? 'en' : 'bn'
+                          )}
                           target="_blank" rel="noopener noreferrer"
                           className="p-1.5 rounded-lg hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 transition-all"
                           title={article.status === 'published' ? l('সাইটে দেখুন', 'Open on site') : l('সাইটে প্রিভিউ', 'Preview on site')}
@@ -511,7 +519,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
               <p className="text-sm text-gray-400 mt-1">{l('এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না', 'This action cannot be undone')}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-3.5 mb-5 text-sm font-semibold text-gray-700 line-clamp-2 border border-gray-100">
-              {l(deleteConfirm.title, deleteConfirm.title_en || deleteConfirm.title)}
+              {deleteConfirm.title || deleteConfirm.title_en}
             </div>
             <div className="flex gap-3">
               <button onClick={() => handleDelete(deleteConfirm.id)} disabled={submitting}
