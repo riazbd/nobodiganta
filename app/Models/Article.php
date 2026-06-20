@@ -419,8 +419,9 @@ class Article extends Model
                 'image' => $this->secondaryAuthor->profile_photo_url ?? null,
             ] : null,
             'approver' => $this->approver ? [
-                'id'   => $this->approver->id,
-                'name' => $this->approver->name,
+                'id'        => $this->approver->id,
+                'name'      => $this->approver->name,
+                'code_name' => $this->approver->code_name,
             ] : null,
             'featured_image' => $this->featured_image,
             'featured_image_alt' => $this->getFeaturedImageAlt($edition),

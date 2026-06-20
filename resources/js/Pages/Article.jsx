@@ -385,12 +385,12 @@ export default function Article({
               <Icon name="book" size={13} style={{ marginTop: 2, color: '#888', flexShrink: 0 }} />
               <span>{readingTimeLabel}</span>
             </div>
-            {article.approver?.name && (
+            {(article.approver?.code_name || article.approver?.name) && (
               <div className="art-left-meta-row">
                 <Icon name="checkCircle" size={13} style={{ marginTop: 2, color: '#888', flexShrink: 0 }} />
                 <span>
                   <span style={{ color: '#888', fontSize: 12 }}>{t('article.approved_by', lang)}{' '}</span>
-                  {article.approver.name}
+                  {article.approver.code_name || article.approver.name}
                 </span>
               </div>
             )}

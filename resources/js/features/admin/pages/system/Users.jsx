@@ -103,7 +103,7 @@ export default function Users({ users, roles, filters }) {
 
   // Form state
   const [formData, setFormData] = useState({
-    name: '', email: '', password: '', password_confirmation: '', role: 'reporter',
+    name: '', code_name: '', email: '', password: '', password_confirmation: '', role: 'reporter',
   });
   const [photoUploading, setPhotoUploading] = useState(false);
   const [createPhotoFile, setCreatePhotoFile] = useState(null);
@@ -251,12 +251,12 @@ export default function Users({ users, roles, filters }) {
 
   // Modal helpers
   const openCreate = () => {
-    setFormData({ name: '', email: '', password: '', password_confirmation: '', role: 'reporter' });
+    setFormData({ name: '', code_name: '', email: '', password: '', password_confirmation: '', role: 'reporter' });
     setFormErrors({}); setShowPassword(false); setCreatePhotoFile(null); setCreatePhotoPreview(null); setShowCreateModal(true);
   };
   const openEdit = (user) => {
     setEditingUser(user);
-    setFormData({ name: user.name, email: user.email, password: '', password_confirmation: '', role: user.role, profile_photo_url: user.profile_photo_url });
+    setFormData({ name: user.name, code_name: user.code_name || '', email: user.email, password: '', password_confirmation: '', role: user.role, profile_photo_url: user.profile_photo_url });
     setFormErrors({}); setShowPassword(false); setShowEditModal(true);
   };
   const handleCreate = async (e) => {
@@ -728,6 +728,7 @@ export default function Users({ users, roles, filters }) {
               </div>
             </div>
             <FormField label={t('name')} error={formErrors.name}><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className={inputClass('name')} required autoFocus /></FormField>
+            <FormField label="কোড নেম (Code name)" error={formErrors.code_name}><input type="text" value={formData.code_name} onChange={(e) => setFormData({ ...formData, code_name: e.target.value })} className={inputClass('code_name')} placeholder="যেমন: NDM-07" /></FormField>
             <FormField label={t('email')} error={formErrors.email}><input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className={inputClass('email')} required /></FormField>
             <FormField label={t('role')} error={formErrors.role}>
               <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className={inputClass('role')} required>
@@ -774,6 +775,7 @@ export default function Users({ users, roles, filters }) {
               </div>
             </div>
             <FormField label={t('name')} error={formErrors.name}><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className={inputClass('name')} required autoFocus /></FormField>
+            <FormField label="কোড নেম (Code name)" error={formErrors.code_name}><input type="text" value={formData.code_name} onChange={(e) => setFormData({ ...formData, code_name: e.target.value })} className={inputClass('code_name')} placeholder="যেমন: NDM-07" /></FormField>
             <FormField label={t('email')} error={formErrors.email}><input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className={inputClass('email')} required /></FormField>
             <FormField label={t('role')} error={formErrors.role}>
               <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className={inputClass('role')} required>
