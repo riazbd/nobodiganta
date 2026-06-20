@@ -121,7 +121,7 @@ function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings, prayer,
         )}
 
         <div className="hp-h3-grid">
-          {[grid6.slice(0, 3), grid6.slice(3, 6)].map((row, ri) => (
+          {Array.from({ length: Math.ceil(grid6.length / 3) }, (_, i) => grid6.slice(i * 3, i * 3 + 3)).map((row, ri) => (
             <div key={ri}>
               {ri > 0 && <div className="hp-h3-divider" />}
               <div className="hp-h3-grid-row">
@@ -155,7 +155,7 @@ function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings, prayer,
           </div>
         )}
         <div>
-          {midList.slice(0, 5).map(a => (
+          {midList.slice(0, 8).map(a => (
             <div key={a.id} className="hp-h3-row" onClick={() => go(a, nav)} role="button" tabIndex={0}>
               {a.featured_image && (
                 <div className="hp-h3-row-thumb">
@@ -629,11 +629,13 @@ export default function Home({
   const { lang, settings } = useApp();
   const { onNavigate } = useNavigation();
 
-  // Data distribution — top.html hero layout
+  // Data distribution — top.html hero layout.
+  // Left grid and middle list are sized larger so the editorial columns roughly
+  // match the right rail (ad + prayer/weather + trending) and don't leave a gap.
   const heroFeat    = leadArticles[0];
-  const heroGrid6   = leadArticles.slice(1, 7);
-  const midMain     = leadArticles[7];
-  const midList     = leadArticles.slice(8, 13);
+  const heroGrid6   = leadArticles.slice(1, 10);   // up to 9 cards (3 rows)
+  const midMain     = leadArticles[10];
+  const midList     = leadArticles.slice(11, 19);  // up to 8 list rows
   const videoSec          = sections.find(s => s.type === 'videos');
   const storiesSec        = sections.find(s => s.type === 'stories');
   const specialFeatureSec = sections.find(s => s.type === 'special_feature' && s.items?.length > 0);

@@ -65,7 +65,7 @@ class NewsController extends Controller
             ->withRelations()
             ->orderByDesc('is_featured')
             ->orderByDesc('published_at')
-            ->limit(15)
+            ->limit(19)
             ->get()
             ->map(fn($a) => $a->toAPIArray($edition))
             ->values();
