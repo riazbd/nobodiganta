@@ -202,6 +202,8 @@ function VideoSection({ items, lang, nav }) {
   const [slide, setSlide]       = useState(0);
   const [perSlide, setPerSlide] = useState(4);
 
+  const [paused, setPaused] = useState(false);
+
   useEffect(() => {
     // Narrower than before — the prayer/weather aside now sits to the right.
     const upd = () => setPerSlide(window.innerWidth < 600 ? 1 : window.innerWidth < 980 ? 2 : 3);
@@ -210,8 +212,19 @@ function VideoSection({ items, lang, nav }) {
     return () => window.removeEventListener('resize', upd);
   }, []);
 
+  const pages = items?.length ? Math.ceil(items.length / perSlide) : 0;
+
+  // Keep the active slide in range when the page count changes (resize).
+  useEffect(() => { setSlide(s => Math.min(s, Math.max(0, pages - 1))); }, [pages]);
+
+  // Auto-advance (loops); pauses on hover.
+  useEffect(() => {
+    if (pages <= 1 || paused) return;
+    const id = setInterval(() => setSlide(s => (s + 1) % pages), 4500);
+    return () => clearInterval(id);
+  }, [pages, paused]);
+
   if (!items?.length) return null;
-  const pages = Math.ceil(items.length / perSlide);
 
   return (
     <div className="p-section">
@@ -221,7 +234,7 @@ function VideoSection({ items, lang, nav }) {
           <span className="p-sec-more" onClick={() => nav('video')}>{lang === 'bn' ? 'আরও »' : 'More »'}</span>
         </div>
       </div>
-      <div className="p-carousel">
+      <div className="p-carousel" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
         <button className="p-car-btn" onClick={() => setSlide(s => Math.max(0, s - 1))} disabled={slide === 0}>‹</button>
         <div className="p-car-viewport">
           <div className="p-car-track" style={{ transform: `translateX(-${slide * 100}%)` }}>
