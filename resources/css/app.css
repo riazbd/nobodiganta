@@ -2570,6 +2570,14 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 .p-subcat.on,.p-subcat:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
 
 /* ── VIDEO CAROUSEL ── */
+/* Video section + prayer/weather aside — two cards side by side */
+.p-vid-row{display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start;}
+.p-vid-row > .p-section{margin-bottom:0;min-width:0;}
+.p-vid-aside{min-width:0;}
+@media(max-width:980px){
+  .p-vid-row{grid-template-columns:1fr;}
+}
+
 .p-carousel{display:flex;align-items:center;gap:4px;margin-bottom:8px;}
 .p-car-viewport{flex:1;overflow:hidden;}
 .p-car-track{display:flex;transition:transform .35s ease;}
