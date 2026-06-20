@@ -11,7 +11,7 @@ import { router } from '@inertiajs/react';
 import MediaLibraryModal from '../components/media/MediaLibraryModal';
 import Icon from '../../../Components/Icon';
 
-export default function Reporters({ reporters = [], districts = [], filters = {} }) {
+export default function Reporters({ reporters = [], districts = [], divisions = [], filters = {} }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
   const [searchQuery, setSearchQuery] = useState(filters.search || '');
@@ -27,7 +27,7 @@ export default function Reporters({ reporters = [], districts = [], filters = {}
     bioBn: '', bioEn: '',
     phone: '', image: '',
     isFeatured: false, sortOrder: 0,
-    districtId: '',
+    divisionId: '', districtId: '',
     facebook: '', twitter: '', linkedin: '',
     status: 'active',
     createLogin: false, password: '', password_confirmation: '',
@@ -79,6 +79,7 @@ export default function Reporters({ reporters = [], districts = [], filters = {}
       image: reporter.image || '',
       isFeatured: reporter.is_featured || false,
       sortOrder: reporter.sort_order || 0,
+      divisionId: districts.find(d => d.id == reporter.district_id)?.division_id || '',
       districtId: reporter.district_id || '',
       facebook: reporter.social_links?.facebook || '',
       twitter: reporter.social_links?.twitter || '',
@@ -426,24 +427,47 @@ export default function Reporters({ reporters = [], districts = [], filters = {}
                     </div>
                   </div>
 
-                  {/* District selector */}
-                  <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5 flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#263238]" />
-                      {lang === 'bn' ? 'জেলা প্রতিনিধি (যদি প্রযোজ্য)' : 'District Representative (if applicable)'}
-                    </label>
-                    <select
-                      value={formData.districtId}
-                      onChange={e => setFormData({...formData, districtId: e.target.value})}
-                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none bg-white"
-                    >
-                      <option value="">{lang === 'bn' ? '— জেলা বাছুন —' : '— Select District —'}</option>
-                      {districts.map(d => (
-                        <option key={d.id} value={d.id}>
-                          {lang === 'bn' ? `${d.name_bn} (${d.division_bn || ''})` : `${d.name_en} (${d.division_en || ''})`}
-                        </option>
-                      ))}
-                    </select>
+                  {/* Division → District selector */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-[#263238]" />
+                        {lang === 'bn' ? 'বিভাগ' : 'Division'}
+                      </label>
+                      <select
+                        value={formData.divisionId}
+                        onChange={e => setFormData({...formData, divisionId: e.target.value, districtId: ''})}
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none bg-white"
+                      >
+                        <option value="">{lang === 'bn' ? '— বিভাগ বাছুন —' : '— Select Division —'}</option>
+                        {divisions.map(dv => (
+                          <option key={dv.id} value={dv.id}>
+                            {lang === 'bn' ? dv.name_bn : dv.name_en}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-[#263238]" />
+                        {lang === 'bn' ? 'জেলা প্রতিনিধি' : 'District Representative'}
+                      </label>
+                      <select
+                        value={formData.districtId}
+                        onChange={e => setFormData({...formData, districtId: e.target.value})}
+                        disabled={!formData.divisionId}
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400"
+                      >
+                        <option value="">{lang === 'bn' ? '— জেলা বাছুন —' : '— Select District —'}</option>
+                        {districts
+                          .filter(d => !formData.divisionId || d.division_id == formData.divisionId)
+                          .map(d => (
+                            <option key={d.id} value={d.id}>
+                              {lang === 'bn' ? d.name_bn : d.name_en}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
                   </div>
 
                   <div>

@@ -42,9 +42,12 @@ class ReporterController extends Controller
             'id' => $d->id,
             'name_bn' => $d->name_bn,
             'name_en' => $d->name_en,
+            'division_id' => $d->division_id,
             'division_bn' => $d->division?->name_bn,
             'division_en' => $d->division?->name_en,
         ]);
+
+        $divisions = \App\Models\Division::orderBy('name_bn')->get(['id', 'name_bn', 'name_en']);
 
         return Inertia::render('features/admin/pages/Reporters', [
             'reporters' => $reporters->map(function($r) {
@@ -78,6 +81,7 @@ class ReporterController extends Controller
                 ];
             }),
             'districts' => $districts,
+            'divisions' => $divisions,
             'filters' => $request->only(['search', 'district_id']),
         ]);
     }
