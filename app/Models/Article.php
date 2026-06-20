@@ -421,7 +421,8 @@ class Article extends Model
             'approver' => $this->approver ? [
                 'id'        => $this->approver->id,
                 'name'      => $this->approver->name,
-                'code_name' => $this->approver->code_name,
+                // Edition-specific code name (falls back to name on the frontend).
+                'code_name' => $edition === 'en' ? $this->approver->code_name_en : $this->approver->code_name_bn,
             ] : null,
             'featured_image' => $this->featured_image,
             'featured_image_alt' => $this->getFeaturedImageAlt($edition),

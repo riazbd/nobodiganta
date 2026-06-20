@@ -96,7 +96,8 @@ class UserController extends Controller
         $users->getCollection()->transform(fn ($user) => [
             'id' => $user->id,
             'name' => $user->name,
-            'code_name' => $user->code_name,
+            'code_name_bn' => $user->code_name_bn,
+            'code_name_en' => $user->code_name_en,
             'email' => $user->email,
             'role' => $user->role,
             'role_label' => $user->roleRelation?->label_en ?? $user->role,
@@ -132,7 +133,8 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'code_name' => ['nullable', 'string', 'max:100'],
+            'code_name_bn' => ['nullable', 'string', 'max:100'],
+            'code_name_en' => ['nullable', 'string', 'max:100'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'exists:roles,name'],
@@ -152,7 +154,8 @@ class UserController extends Controller
 
         $user = User::create([
             'name' => $validated['name'],
-            'code_name' => $validated['code_name'] ?? null,
+            'code_name_bn' => $validated['code_name_bn'] ?? null,
+            'code_name_en' => $validated['code_name_en'] ?? null,
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
@@ -179,7 +182,8 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'code_name' => ['nullable', 'string', 'max:100'],
+            'code_name_bn' => ['nullable', 'string', 'max:100'],
+            'code_name_en' => ['nullable', 'string', 'max:100'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'role' => ['required', 'string', 'exists:roles,name'],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
@@ -190,7 +194,8 @@ class UserController extends Controller
         }
 
         $user->name = $validated['name'];
-        $user->code_name = $validated['code_name'] ?? null;
+        $user->code_name_bn = $validated['code_name_bn'] ?? null;
+        $user->code_name_en = $validated['code_name_en'] ?? null;
         $user->email = $validated['email'];
         $user->role = $validated['role'];
 
