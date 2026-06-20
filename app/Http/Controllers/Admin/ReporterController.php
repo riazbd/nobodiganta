@@ -72,6 +72,8 @@ class ReporterController extends Controller
                     'social_links' => $r->social_links,
                     'sort_order' => $r->sort_order,
                     'user_id' => $r->user_id,
+                    'code_name_bn' => $r->user?->code_name_bn,
+                    'code_name_en' => $r->user?->code_name_en,
                     'district_id' => $r->district_id,
                     'district' => $r->district ? [
                         'id' => $r->district->id,
@@ -111,6 +113,8 @@ class ReporterController extends Controller
             'socialLinks' => 'nullable|array',
             'createLogin' => 'boolean',
             'password' => 'nullable|string|min:8|confirmed',
+            'codeNameBn' => 'nullable|string|max:100',
+            'codeNameEn' => 'nullable|string|max:100',
         ]);
 
         if (!empty($validated['createLogin']) && !empty($validated['email'])) {
@@ -132,6 +136,8 @@ class ReporterController extends Controller
                     'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
                     'role' => 'reporter',
                     'role_id' => $reporterRole?->id,
+                    'code_name_bn' => $validated['codeNameBn'] ?? null,
+                    'code_name_en' => $validated['codeNameEn'] ?? null,
                     'email_verified_at' => now(),
                 ]);
 
@@ -187,6 +193,8 @@ class ReporterController extends Controller
             'socialLinks' => 'nullable|array',
             'createLogin' => 'boolean',
             'password' => 'nullable|string|min:8|confirmed',
+            'codeNameBn' => 'nullable|string|max:100',
+            'codeNameEn' => 'nullable|string|max:100',
         ]);
 
         // Check email conflicts before starting transaction
@@ -218,6 +226,14 @@ class ReporterController extends Controller
                     ]);
                     $userId = $user->id;
                 }
+            }
+
+            // Code name lives on the linked user account; keep it in sync whenever one exists.
+            if ($userId) {
+                User::where('id', $userId)->update([
+                    'code_name_bn' => $validated['codeNameBn'] ?? null,
+                    'code_name_en' => $validated['codeNameEn'] ?? null,
+                ]);
             }
 
             $reporter->update([

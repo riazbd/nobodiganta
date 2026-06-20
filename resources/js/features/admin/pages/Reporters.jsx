@@ -31,6 +31,7 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
     facebook: '', twitter: '', linkedin: '',
     status: 'active',
     createLogin: false, password: '', password_confirmation: '',
+    codeNameBn: '', codeNameEn: '',
   };
 
   const [formData, setFormData] = useState(emptyForm);
@@ -88,6 +89,8 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
       createLogin: false,
       password: '',
       password_confirmation: '',
+      codeNameBn: reporter.code_name_bn || '',
+      codeNameEn: reporter.code_name_en || '',
     });
     setShowModal(true);
   };
@@ -118,6 +121,11 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
       ...formData,
       socialLinks: { facebook: formData.facebook, twitter: formData.twitter, linkedin: formData.linkedin },
     };
+    // Code name lives on the linked login account — only send it when one exists/will exist.
+    if (!(editingReporter?.user_id || formData.createLogin)) {
+      payload.codeNameBn = '';
+      payload.codeNameEn = '';
+    }
 
     if (editingReporter) {
       router.put(route('admin.reporters.update', editingReporter.id), payload, {
@@ -530,6 +538,41 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
                         </div>
                       </div>
                     )}
+
+                    {/* Code name — stored on the linked login account, used on the approver byline */}
+                    {(() => {
+                      const hasLogin = !!(editingReporter?.user_id || formData.createLogin);
+                      return (
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-xs font-bold text-gray-700">{lang === 'bn' ? 'কোড নেম (অনুমোদন বাইলাইন)' : 'Code Name (approver byline)'}</label>
+                            {!hasLogin && (
+                              <span className="text-[10px] text-gray-400 font-medium">
+                                {lang === 'bn' ? 'লগইন অ্যাকাউন্ট থাকলে দেওয়া যাবে' : 'Available once a login account exists'}
+                              </span>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input
+                              type="text"
+                              value={formData.codeNameBn}
+                              onChange={e => setFormData({...formData, codeNameBn: e.target.value})}
+                              disabled={!hasLogin}
+                              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none disabled:bg-gray-50 disabled:text-gray-400"
+                              placeholder={lang === 'bn' ? 'কোড নেম — বাংলা' : 'Code name — Bangla'}
+                            />
+                            <input
+                              type="text"
+                              value={formData.codeNameEn}
+                              onChange={e => setFormData({...formData, codeNameEn: e.target.value})}
+                              disabled={!hasLogin}
+                              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none disabled:bg-gray-50 disabled:text-gray-400"
+                              placeholder={lang === 'bn' ? 'কোড নেম — English' : 'Code name — English'}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
