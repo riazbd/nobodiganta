@@ -464,6 +464,11 @@ export default function Article({
             position={article.in_article_ad_position ?? 4}
           />
 
+          {/* Approver code name at the end of the article — just "— CODE", no label */}
+          {article.approver?.code_name && (
+            <div className="art-codename">— {article.approver.code_name}</div>
+          )}
+
           <div style={{ margin: '20px 0' }}>
             <AdSlot size="leaderboard" position="article_bottom" />
           </div>

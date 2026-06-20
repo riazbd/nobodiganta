@@ -1041,6 +1041,9 @@ article .card{padding:8px;}
 .art-approver-label{color:#2c6fb0;font-weight:800;white-space:nowrap;}
 .art-approver-sep{color:#bbb;}
 .art-approver-name{color:#111;}
+/* Approver code name at the end of the article body — clean, no label */
+.art-codename{font-family:'SolaimanLipi',sans-serif;font-size:17px;font-weight:800;color:#222;text-align:right;letter-spacing:.02em;margin:22px 0 6px;}
+html[lang="en"] .art-codename{font-family:'Merriweather','Georgia',serif;}
 .art-body{font-family:'SolaimanLipi',sans-serif;font-size:19px;line-height:1.9;color:#2a2a2a;}
 .art-body p{margin-bottom:18px;}
 .art-body h3{font-size:27.3px;font-weight:800;margin:24px 0 10px;color:var(--black);}
@@ -2774,7 +2777,7 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 .cs-grid-item:nth-child(3n){border-right:none;}
 .cs-grid-item:nth-last-child(-n+3){border-bottom:none;}
 .cs-grid-item:hover .cs-grid-h{color:var(--primary);}
-.cs-grid-img{overflow:hidden;flex-shrink:0;aspect-ratio:4/3;padding: 8px;}
+.cs-grid-img{overflow:hidden;flex-shrink:0;aspect-ratio:3/2;padding: 8px;}
 .cs-grid-img img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .3s;}
 .cs-grid-item:hover .cs-grid-img img{transform:scale(1.04);}
 .cs-grid-body{padding:9px 11px 12px;flex:1;}
