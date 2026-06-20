@@ -1256,17 +1256,7 @@ export default function WriteNews() {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">অনুমোদন কারী (Approver)</label>
-                <select
-                  value={form.data.approverId}
-                  onChange={(e) => form.setData('approverId', e.target.value)}
-                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
-                >
-                  <option value="">None</option>
-                  {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
-              </div>
+              {/* Approver is set automatically from the logged-in user on publish — no manual selection. */}
 
               <div className="pt-3 border-t border-[var(--card-border,#e8ebf4)]">
                 <label className="flex items-center gap-3 cursor-pointer group mb-3">

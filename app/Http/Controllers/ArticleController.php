@@ -282,7 +282,8 @@ class ArticleController extends Controller
             'category_id' => $primaryId,
             'author_id' => $validated['authorId'] ?? Auth::id(),
             'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
-            'approver_id' => $validated['approverId'] ?? null,
+            // Approver is whoever publishes it — taken from the logged-in user, never selected.
+            'approver_id' => $validated['status'] === 'published' ? Auth::id() : null,
             'is_guest_author' => $validated['isGuestAuthor'] ?? false,
             'guest_author_name_bn' => $validated['guestAuthorNameBn'] ?? null,
             'guest_author_name_en' => $validated['guestAuthorNameEn'] ?? null,
@@ -518,7 +519,8 @@ class ArticleController extends Controller
             'category_id' => $primaryId,
             'author_id' => $validated['authorId'] ?? $article->author_id,
             'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
-            'approver_id' => $validated['approverId'] ?? null,
+            // Approver = whoever publishes it (logged-in user); keep the original once set.
+            'approver_id' => $validated['status'] === 'published' ? ($article->approver_id ?? Auth::id()) : null,
             'is_guest_author' => $validated['isGuestAuthor'] ?? false,
             'guest_author_name_bn' => $validated['guestAuthorNameBn'] ?? null,
             'guest_author_name_en' => $validated['guestAuthorNameEn'] ?? null,
@@ -777,6 +779,7 @@ class ArticleController extends Controller
         $updateData = ['status' => $validated['status']];
         if ($validated['status'] === 'published') {
             $updateData['published_at'] = now();
+            $updateData['approver_id'] = Auth::id(); // approver = the publisher
         }
 
         Article::whereIn('id', $validated['article_ids'])->update($updateData);

@@ -148,6 +148,14 @@ class ArticleStatusWorkflow
             }
         }
 
+        // Approver = whoever approves/publishes (the logged-in user); keep the
+        // original once set, and clear it when sent back to draft.
+        if ($newStatus === 'published') {
+            $updateData['approver_id'] = $article->approver_id ?? $user->id;
+        } elseif ($newStatus === 'draft') {
+            $updateData['approver_id'] = null;
+        }
+
         // Handle scheduled_at
         if ($newStatus !== 'scheduled') {
             $updateData['scheduled_at'] = null;
