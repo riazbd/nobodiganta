@@ -367,20 +367,34 @@ class NewsController extends Controller
         $edition = $this->getEdition($request);
 
         // Find article by slug (try both bn and en slugs)
+        $slugMatch = function ($q) use ($articleSlug) {
+            $q->where('slug_bn', $articleSlug)->orWhere('slug_en', $articleSlug);
+        };
+
         $article = Article::published()
             ->forEdition($edition)
-            ->where(function ($q) use ($articleSlug) {
-                $q->where('slug_bn', $articleSlug)
-                  ->orWhere('slug_en', $articleSlug);
-            })
+            ->where($slugMatch)
             ->withRelations()
-            ->firstOrFail();
+            ->first();
 
-        // Increment view count
-        $article->incrementViews();
+        // Not published yet? Logged-in staff may preview it
+        // (draft / pending / scheduled / archived) on the real article page.
+        $isPreview = false;
+        if (! $article) {
+            $candidate = Article::where($slugMatch)->withRelations()->first();
+            if ($candidate && $this->canPreview($request->user(), $candidate)) {
+                $article   = $candidate;
+                $isPreview = true;
+            }
+        }
 
-        // Record article view for meter
-        ArticleMeter::recordView($article->id);
+        abort_if(! $article, 404);
+
+        if (! $isPreview) {
+            // Increment view count + record for the meter (not while previewing).
+            $article->incrementViews();
+            ArticleMeter::recordView($article->id);
+        }
 
         // Check paywall for premium articles
         $isPremium = $article->is_premium;
@@ -392,8 +406,8 @@ class NewsController extends Controller
             $hasSubscription = $request->user()->hasPremiumSubscription();
         }
 
-        // If premium article and no subscription, show paywall
-        if ($isPremium && !$hasSubscription) {
+        // If premium article and no subscription, show paywall (skip while previewing)
+        if ($isPremium && !$hasSubscription && !$isPreview) {
             return Inertia::render('Article', [
                 'edition' => $edition,
                 'article' => $article->toAPIArray($edition),
@@ -405,7 +419,7 @@ class NewsController extends Controller
         }
 
         // If meter exceeded and no subscription, show paywall
-        if ($meterExceeded && !$hasSubscription) {
+        if ($meterExceeded && !$hasSubscription && !$isPreview) {
             return Inertia::render('Article', [
                 'edition' => $edition,
                 'article' => $article->toAPIArray($edition),
@@ -459,7 +473,22 @@ class NewsController extends Controller
             'paywall' => false,
             'meterRemaining' => $meterRemaining,
             'meterExceeded' => false,
+            'preview' => $isPreview,
         ]);
+    }
+
+    /**
+     * Whether the given (logged-in) user may preview a non-published article.
+     */
+    private function canPreview(?User $user, Article $article): bool
+    {
+        if (! $user) {
+            return false;
+        }
+        if ($user->hasPermission('news.view')) {
+            return true;
+        }
+        return $article->author_id === $user->id && $user->hasPermission('news.view.own');
     }
 
     /**

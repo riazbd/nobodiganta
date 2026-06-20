@@ -200,7 +200,8 @@ export default function Article({
   paywallReason = null,
   meterRemaining = 0,
   meterExceeded = false,
-  edition = 'bn'
+  edition = 'bn',
+  preview = false,
 }) {
   const { lang, settings } = useApp();
   const { showToast } = useToast();
@@ -287,6 +288,20 @@ export default function Article({
     <div className="art-page-wrap">
       <MetaTags seo={seoData} />
       <NewsArticleJsonLd article={article} edition={lang} />
+
+      {/* Staff preview banner — shown when viewing a not-yet-published article */}
+      {preview && (
+        <div style={{
+          position: 'sticky', top: 0, zIndex: 1200,
+          background: '#b45309', color: '#fff', textAlign: 'center',
+          fontFamily: 'SolaimanLipi, sans-serif', fontWeight: 700, fontSize: 13.5,
+          padding: '7px 14px', letterSpacing: '.01em',
+        }}>
+          {lang === 'bn'
+            ? `প্রিভিউ — এই সংবাদটি এখনও প্রকাশিত হয়নি (${article?.status || 'draft'})। শুধু আপনি দেখছেন।`
+            : `Preview — this article is not published yet (${article?.status || 'draft'}). Only you can see this.`}
+        </div>
+      )}
 
       {/* Reading progress bar */}
       <div

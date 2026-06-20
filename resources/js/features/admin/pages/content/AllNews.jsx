@@ -5,13 +5,14 @@ import { Head, Link, router } from '@inertiajs/react';
 import {
   Search, Plus, Eye, Edit3, Trash2, Send, ChevronDown, X, Loader2,
   AlertTriangle, Globe, CheckCircle, User, ArrowUpDown, ArrowUp, ArrowDown,
-  Filter, RotateCcw, Image as ImageIcon
+  Filter, RotateCcw, Image as ImageIcon, ExternalLink
 } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { usePermission } from '../../hooks/usePermission';
 import { PERMISSIONS } from '../../api/permissions';
+import { ROUTES } from '../../../../lib/routes';
 
 const STATUS_MAP = {
   published: { bn: 'প্রকাশিত',         en: 'Published', variant: 'green'  },
@@ -409,6 +410,16 @@ export default function AllNews({ articles, categories, authors = [], divisions 
                         className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-all" title={l('দেখুন', 'View')}>
                         <Eye className="w-4 h-4" />
                       </Link>
+                      {article.category?.slug && article.slug && (
+                        <a
+                          href={ROUTES.article(article.category.slug, article.slug, lang === 'en' ? 'en' : 'bn')}
+                          target="_blank" rel="noopener noreferrer"
+                          className="p-1.5 rounded-lg hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 transition-all"
+                          title={article.status === 'published' ? l('সাইটে দেখুন', 'Open on site') : l('সাইটে প্রিভিউ', 'Preview on site')}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      )}
                       <Link href={route('admin.news.edit', { article: article.id })}
                         className="p-1.5 rounded-lg hover:bg-green-50 text-gray-400 hover:text-green-600 transition-all" title={l('সম্পাদনা', 'Edit')}>
                         <Edit3 className="w-4 h-4" />

@@ -433,6 +433,7 @@ class Article extends Model
             'meta_title' => $this->getMetaTitle($edition),
             'meta_description' => $this->getMetaDescription($edition),
             'published_at' => $this->published_at?->toIso8601String(),
+            'status' => $this->status,
             'in_article_ad' => $this->resolveInArticleAd($edition),
             'in_article_ad_position' => $this->in_article_ad_position ?? 4,
             'tags' => $this->tags
