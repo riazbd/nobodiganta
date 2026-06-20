@@ -8,6 +8,7 @@ const NAMES = {
   Sunrise: { bn: 'সূর্যোদয়',       en: 'Sunrise'  },
   Dhuhr:   { bn: 'যোহর',           en: 'Dhuhr'    },
   Asr:     { bn: 'আসর',            en: 'Asr'      },
+  Sunset:  { bn: 'সূর্যাস্ত',       en: 'Sunset'   },
   Maghrib: { bn: 'মাগরিব',         en: 'Maghrib'  },
   Isha:    { bn: 'এশা',            en: 'Isha'     },
 };
@@ -24,6 +25,45 @@ export function prayerLabel(key, lang, isRamadan) {
   return lang === 'bn' ? (NAMES[key]?.bn ?? key) : (NAMES[key]?.en ?? key);
 }
 
+// The currently-active prayer, respecting each prayer's START and END time.
+// A prayer is "current" only while now is inside its valid window:
+//   Fajr    : Fajr    → Sunrise   (ends at sunrise — NOT at Dhuhr)
+//   Dhuhr   : Dhuhr   → Asr
+//   Asr     : Asr     → Sunset
+//   Maghrib : Maghrib → Isha
+//   Isha    : Isha    → next Fajr
+// Between Sunrise and Dhuhr no obligatory prayer is active — that's a gap, so
+// this returns null and the caller shows the upcoming (future) prayer instead.
+export function findCurrentPrayer(timings) {
+  if (!timings) return null;
+  const now = new Date();
+  const at = (str) => {
+    const [h, m] = str.split(':').map(Number);
+    const t = new Date(); t.setHours(h, m, 0, 0); return t;
+  };
+
+  const windows = [
+    ['Fajr',    'Fajr',    'Sunrise'],
+    ['Dhuhr',   'Dhuhr',   'Asr'],
+    ['Asr',     'Asr',     timings['Sunset'] ? 'Sunset' : 'Maghrib'],
+    ['Maghrib', 'Maghrib', 'Isha'],
+  ];
+  for (const [name, startKey, endKey] of windows) {
+    if (!timings[startKey] || !timings[endKey]) continue;
+    if (at(timings[startKey]) <= now && now < at(timings[endKey])) {
+      return { name, time: timings[startKey] };
+    }
+  }
+
+  // Isha runs from its start until the next day's Fajr (wraps past midnight).
+  if (timings['Isha']) {
+    if (at(timings['Isha']) <= now) return { name: 'Isha', time: timings['Isha'] };
+    if (timings['Fajr'] && now < at(timings['Fajr'])) return { name: 'Isha', time: timings['Isha'] };
+  }
+
+  return null; // gap (e.g. Sunrise → Dhuhr): no prayer is currently active
+}
+
 export function findNextPrayer(timings) {
   const now = new Date();
   for (const name of PRAYER_ORDER) {
@@ -36,6 +76,25 @@ export function findNextPrayer(timings) {
   const [h, m] = (timings['Fajr'] || '04:00').split(':').map(Number);
   const t = new Date(); t.setDate(t.getDate() + 1); t.setHours(h, m, 0, 0);
   return { name: 'Fajr', epochMs: t.getTime() };
+}
+
+// Returns the next upcoming sun event — Sunrise or Sunset, whichever comes first
+// from "now". After both have passed for today, the next event is tomorrow's Sunrise.
+// Falls back gracefully when Sunset is missing (e.g. stale cached timings).
+export function findNextSunEvent(timings) {
+  if (!timings) return null;
+  const now = new Date();
+  const events = [];
+  if (timings.Sunrise) events.push({ name: 'Sunrise', time: timings.Sunrise });
+  if (timings.Sunset)  events.push({ name: 'Sunset',  time: timings.Sunset });
+  events.sort((a, b) => a.time.localeCompare(b.time));
+  for (const ev of events) {
+    const [h, m] = ev.time.split(':').map(Number);
+    const t = new Date(); t.setHours(h, m, 0, 0);
+    if (t > now) return ev;
+  }
+  // Both passed → tomorrow's sunrise (same clock time is fine for a glance widget).
+  return timings.Sunrise ? { name: 'Sunrise', time: timings.Sunrise } : null;
 }
 
 export function isPassed(timeStr) {

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 class PrayerTimeService
 {
     private const METHOD = 1; // Muslim World League
+    private const SCHOOL = 1; // Hanafi (later Asr — shadow = 2× object length)
     private const BASE   = 'https://api.aladhan.com/v1';
 
     private array $hijriMonthsBn = [
@@ -58,6 +59,7 @@ class PrayerTimeService
                 'latitude'  => $city['lat'],
                 'longitude' => $city['lng'],
                 'method'    => self::METHOD,
+                'school'    => self::SCHOOL,
             ]);
             if (!$res->ok()) return [];
             $days = $res->json('data') ?? [];
@@ -90,6 +92,7 @@ class PrayerTimeService
                 'latitude'  => $lat,
                 'longitude' => $lng,
                 'method'    => self::METHOD,
+                'school'    => self::SCHOOL,
             ]);
             if (!$res->ok()) return null;
             $data   = $res->json('data');
@@ -123,7 +126,7 @@ class PrayerTimeService
 
     private function filterTimings(array $timings): array
     {
-        $keys = ['Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+        $keys = ['Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Sunset', 'Maghrib', 'Isha'];
         $out  = [];
         foreach ($keys as $k) {
             $out[$k] = isset($timings[$k]) ? substr(trim($timings[$k]), 0, 5) : null;

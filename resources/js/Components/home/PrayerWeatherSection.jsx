@@ -1,21 +1,35 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
-import { prayerLabel, findNextPrayer, isPassed, formatCountdown, toBn, formatTime12h, formatGregorian } from '../../lib/prayerUtils';
+import { prayerLabel, findNextPrayer, findCurrentPrayer, findNextSunEvent, formatCountdown, toBn, formatTime12h, PRAYER_ORDER } from '../../lib/prayerUtils';
 import { fetchWeatherDirect } from '../../lib/bangladeshCities';
-import { Sun, Cloud, CloudRain, CloudLightning, CloudFog, CloudDrizzle, CloudSun, MapPin, ArrowRight, Navigation as NavIcon } from 'lucide-react';
+import { Sun, Cloud, CloudRain, CloudLightning, CloudFog, CloudDrizzle, CloudSun, MapPin, ArrowRight, Navigation as NavIcon, Sunrise, Sunset } from 'lucide-react';
 
-const WMO_ICON = {
-  0: Sun, 1: Sun, 2: CloudSun, 3: Cloud,
-  45: CloudFog, 48: CloudFog,
-  51: CloudDrizzle, 53: CloudDrizzle, 55: CloudDrizzle,
-  61: CloudRain, 63: CloudRain, 65: CloudRain,
-  80: CloudRain, 81: CloudRain, 82: CloudRain,
-  95: CloudLightning, 96: CloudLightning, 99: CloudLightning,
+// Each weather code maps to an icon + a true-to-life colour so the widget reads
+// at a glance (sunny = amber, rain = blue, storm = violet, fog = slate).
+const WMO_META = {
+  0:  { Icon: Sun,            color: '#f59e0b' },
+  1:  { Icon: Sun,            color: '#f59e0b' },
+  2:  { Icon: CloudSun,       color: '#f59e0b' },
+  3:  { Icon: Cloud,          color: '#64748b' },
+  45: { Icon: CloudFog,       color: '#94a3b8' },
+  48: { Icon: CloudFog,       color: '#94a3b8' },
+  51: { Icon: CloudDrizzle,   color: '#0ea5e9' },
+  53: { Icon: CloudDrizzle,   color: '#0ea5e9' },
+  55: { Icon: CloudDrizzle,   color: '#0ea5e9' },
+  61: { Icon: CloudRain,      color: '#2563eb' },
+  63: { Icon: CloudRain,      color: '#2563eb' },
+  65: { Icon: CloudRain,      color: '#2563eb' },
+  80: { Icon: CloudRain,      color: '#2563eb' },
+  81: { Icon: CloudRain,      color: '#2563eb' },
+  82: { Icon: CloudRain,      color: '#2563eb' },
+  95: { Icon: CloudLightning, color: '#7c3aed' },
+  96: { Icon: CloudLightning, color: '#7c3aed' },
+  99: { Icon: CloudLightning, color: '#7c3aed' },
 };
 function WeatherIcon({ code, size = 24 }) {
-  const Icon = WMO_ICON[code] || Cloud;
-  return <Icon size={size} strokeWidth={1.5} />;
+  const { Icon, color } = WMO_META[code] || { Icon: Cloud, color: '#64748b' };
+  return <Icon size={size} strokeWidth={2} color={color} fill={color} fillOpacity={0.16} />;
 }
 
 function useCountdown(epochMs) {
@@ -124,9 +138,22 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
   };
 
   const next      = prayer ? findNextPrayer(prayer.timings) : null;
+  const current   = prayer ? findCurrentPrayer(prayer.timings) : null;
   const countdown = useCountdown(next?.epochMs);
   const isRamadan = prayer?.is_ramadan;
-  const rows      = ['Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].filter(k => isRamadan || k !== 'Imsak');
+  const sunEvent  = prayer ? findNextSunEvent(prayer.timings) : null;
+
+  // Hero shows the active prayer; during a gap (no prayer running, e.g. after
+  // sunrise before Dhuhr) it falls back to the upcoming/future prayer.
+  const heroPrayer = current
+    ?? (next && prayer ? { name: next.name, time: prayer.timings[next.name] } : null);
+
+  // Show the next 3 prayers starting with the upcoming one (wraps to tomorrow
+  // after Isha). The full daily schedule stays behind "সম্পূর্ণ সূচি".
+  const startIdx = next ? PRAYER_ORDER.indexOf(next.name) : 0;
+  const rows     = (startIdx >= 0
+    ? Array.from({ length: 3 }, (_, i) => PRAYER_ORDER[(startIdx + i) % PRAYER_ORDER.length])
+    : PRAYER_ORDER.slice(0, 3));
   const cityLabel = cityKey === '__location__'
     ? (lang === 'bn' ? 'আপনার অবস্থান' : 'Your location')
     : (CITY_OPTIONS.find(c => c.key === cityKey)?.[lang === 'bn' ? 'bn' : 'en']
@@ -162,20 +189,13 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
         </div>
       </div>
 
-      {/* Top — weather + next prayer countdown side by side */}
+      {/* Top — active prayer (left) + countdown to next (right).
+          During a gap between two prayers (no prayer running), the left side
+          shows the upcoming/future prayer instead. */}
       <div className="pw-top">
-        <div className="pw-wx">
-          {weather ? (
-            <>
-              <WeatherIcon code={weather.current.weather_code} size={30} />
-              <div className="pw-wx-info">
-                <div className="pw-wx-temp">
-                  {lang === 'bn' ? toBn(String(Math.round(weather.current.temp_c))) : Math.round(weather.current.temp_c)}<span className="pw-deg">°</span>
-                </div>
-                <div className="pw-wx-cond">{lang === 'bn' ? weather.current.condition_bn : weather.current.condition_en}</div>
-              </div>
-            </>
-          ) : <span className="pw-mini-load">···</span>}
+        <div className="pw-nextp">
+          <div className="pw-nextp-name">{heroPrayer ? prayerLabel(heroPrayer.name, lang, isRamadan) : '—'}</div>
+          <div className="pw-nextp-time">{heroPrayer ? formatTime12h(heroPrayer.time, lang) : '—'}</div>
         </div>
         <div className="pw-next">
           <div className="pw-next-label">{lang === 'bn' ? `${nextLabel} বাকি` : `${nextLabel} in`}</div>
@@ -186,15 +206,15 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
       {/* Prayer times — compact 3-column grid */}
       {prayer ? (
         <div className="pw-grid">
-          {rows.map(key => {
+          {rows.map((key, i) => {
             const time = prayer.timings[key];
             if (!time) return null;
-            const isNext  = next?.name === key;
-            const passed  = !isNext && key !== 'Imsak' && isPassed(time);
+            // Only the leading cell is the upcoming prayer; the rest are later
+            // today or tomorrow — none are "past" in a next-3 view.
+            const isNext  = i === 0;
             const isIftar = isRamadan && key === 'Maghrib';
-            const isSehri = isRamadan && key === 'Imsak';
             return (
-              <div key={key} className={`pw-cell${isNext ? ' is-next' : ''}${passed ? ' is-past' : ''}${isIftar ? ' is-iftar' : ''}${isSehri ? ' is-sehri' : ''}`}>
+              <div key={key} className={`pw-cell${isNext ? ' is-next' : ''}${isIftar ? ' is-iftar' : ''}`}>
                 <span className="pw-cell-name">{prayerLabel(key, lang, isRamadan)}</span>
                 <span className="pw-cell-time">{formatTime12h(time, lang)}</span>
               </div>
@@ -203,6 +223,26 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
         </div>
       ) : (
         <div className="pw-mini-load pw-grid-load">{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
+      )}
+
+      {/* Current weather — temp/condition (left) + humidity/wind (right) */}
+      {weather && (
+        <div className="pw-wx-row">
+          <div className="pw-wx">
+            <WeatherIcon code={weather.current.weather_code} size={30} />
+            <div className="pw-wx-info">
+              <div className="pw-wx-temp">
+                {lang === 'bn' ? toBn(String(Math.round(weather.current.temp_c))) : Math.round(weather.current.temp_c)}<span className="pw-deg">°</span>
+              </div>
+              <div className="pw-wx-cond">{lang === 'bn' ? weather.current.condition_bn : weather.current.condition_en}</div>
+            </div>
+          </div>
+          <div className="pw-wx-meta">
+            {lang === 'bn' ? 'আর্দ্রতা' : 'Hum'} {lang === 'bn' ? toBn(String(weather.current.humidity)) : weather.current.humidity}%
+            <span className="pw-dot">·</span>
+            {lang === 'bn' ? toBn(String(Math.round(weather.current.wind_kph))) : Math.round(weather.current.wind_kph)} {lang === 'bn' ? 'কিমি/ঘণ্টা' : 'km/h'}
+          </div>
+        </div>
       )}
 
       {/* 3-day forecast strip */}
@@ -221,13 +261,16 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
         </div>
       )}
 
-      {/* Footer — weather meta + full schedule link */}
+      {/* Footer — next sun event (left) + full schedule link (right) */}
       <div className="pw-foot">
-        {weather ? (
+        {sunEvent ? (
           <span className="pw-meta">
-            {lang === 'bn' ? 'আর্দ্রতা' : 'Hum'} {lang === 'bn' ? toBn(String(weather.current.humidity)) : weather.current.humidity}%
-            <span className="pw-dot">·</span>
-            {lang === 'bn' ? toBn(String(Math.round(weather.current.wind_kph))) : Math.round(weather.current.wind_kph)} {lang === 'bn' ? 'কিমি/ঘণ্টা' : 'km/h'}
+            <span className="pw-sun">
+              {sunEvent.name === 'Sunrise'
+                ? <Sunrise size={14} strokeWidth={2.2} color="#f59e0b" />
+                : <Sunset size={14} strokeWidth={2.2} color="#ea7317" />}
+              {prayerLabel(sunEvent.name, lang)} {formatTime12h(sunEvent.time, lang)}
+            </span>
           </span>
         ) : <span />}
         <button className="pw-link" onClick={() => onNavigate('prayerTimes')}>
