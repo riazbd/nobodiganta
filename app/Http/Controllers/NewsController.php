@@ -529,7 +529,7 @@ class NewsController extends Controller
         $edition = $this->getEdition($request);
 
         // Find reporter by slug
-        $reporter = Reporter::with('district')->where('slug', $slug)->first();
+        $reporter = Reporter::where('slug', $slug)->first();
         
         if (!$reporter) {
             // Fallback: search for user by name slug
@@ -558,9 +558,6 @@ class NewsController extends Controller
                 'bio' => $reporter->getBio($edition),
                 'image' => $reporter->image ?: null,
                 'social_links' => $reporter->social_links,
-                'district' => $reporter->district
-                    ? ($edition === 'en' ? $reporter->district->name_en : $reporter->district->name_bn)
-                    : null,
             ];
             $authorId = $reporter->user_id ?: 0; // If reporter has no user_id, use 0
         }

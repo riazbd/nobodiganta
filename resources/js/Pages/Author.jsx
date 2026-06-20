@@ -60,11 +60,6 @@ export default function Author({ author, articles }) {
           </div>
           <div className="author-info">
             <h1 className="author-name">{designation}</h1>
-            {author?.district && (
-              <p className="author-district" style={{ color: '#666', fontSize: 13, margin: '2px 0 0' }}>
-                {author.district} {lang === 'bn' ? 'প্রতিনিধি' : 'Correspondent'}
-              </p>
-            )}
             {bio && <p className="author-bio">{bio}</p>}
             {/* Contact details (email/phone) and social links are hidden from the public author profile.
             <div className="author-meta">

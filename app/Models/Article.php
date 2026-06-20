@@ -335,7 +335,7 @@ class Article extends Model
         }
 
         // Try to find reporter profile for this user
-        $reporter = Reporter::with('district')->where('user_id', $this->author_id)->first();
+        $reporter = Reporter::where('user_id', $this->author_id)->first();
 
         if ($reporter) {
             return [
@@ -344,9 +344,6 @@ class Article extends Model
                 'slug' => $reporter->slug,
                 'designation' => $reporter->getDesignation($edition),
                 'image' => $reporter->image ?: null,
-                'district' => $reporter->district
-                    ? ($edition === 'en' ? $reporter->district->name_en : $reporter->district->name_bn)
-                    : null,
             ];
         }
 
