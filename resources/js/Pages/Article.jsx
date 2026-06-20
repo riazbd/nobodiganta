@@ -366,9 +366,7 @@ export default function Article({
             )}
             {article.author?.district && (
               <div className="art-left-meta-row">
-                <span style={{ color: 'var(--red)', fontWeight: 600 }}>
-                  {article.author.district} {lang === 'bn' ? 'প্রতিনিধি' : 'Correspondent'}
-                </span>
+                <span>{article.author.district} {lang === 'bn' ? 'প্রতিনিধি' : 'Correspondent'}</span>
               </div>
             )}
             {article.secondary_author?.name && (

@@ -61,7 +61,7 @@ export default function Author({ author, articles }) {
           <div className="author-info">
             <h1 className="author-name">{designation}</h1>
             {author?.district && (
-              <p className="author-district" style={{ color: 'var(--red)', fontWeight: 600, fontSize: 13, margin: '2px 0 0' }}>
+              <p className="author-district" style={{ color: '#666', fontSize: 13, margin: '2px 0 0' }}>
                 {author.district} {lang === 'bn' ? 'প্রতিনিধি' : 'Correspondent'}
               </p>
             )}
