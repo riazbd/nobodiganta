@@ -2777,7 +2777,7 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 .cs-grid-item:nth-child(3n){border-right:none;}
 .cs-grid-item:nth-last-child(-n+3){border-bottom:none;}
 .cs-grid-item:hover .cs-grid-h{color:var(--primary);}
-.cs-grid-img{overflow:hidden;flex-shrink:0;padding: 8px;}
+.cs-grid-img{overflow:hidden;flex-shrink:0;aspect-ratio:5/3;padding: 8px;}
 .cs-grid-img img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .3s;}
 .cs-grid-item:hover .cs-grid-img img{transform:scale(1.04);}
 .cs-grid-body{padding:9px 11px 12px;flex:1;}
