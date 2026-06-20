@@ -96,48 +96,26 @@ function OpinionColumn({ lang, nav }) {
 }
 
 // ─── Stories Panel ─────────────────────────────────────────────────────────────
-function StoriesPanel({ stories, lang }) {
+// A story is just a story — it may hold photos, videos, or a mix. No photo/video
+// split; everything shows in one carousel (video-containing stories get a ▶ badge).
+function StoriesPanel({ stories, lang, nav }) {
   const [activeStory, setActiveStory] = useState(null);
-  const [tab, setTab]                 = useState('video');
-  const videoScrollRef = useRef(null);
-  const photoScrollRef = useRef(null);
-
-  const videoStories = stories.filter(s => s.slides?.some(sl => sl.is_video));
-  const photoStories = stories.filter(s => !s.slides?.some(sl => sl.is_video));
+  const scrollRef = useRef(null);
 
   return (
     <div className="htcs-col">
-      <div className="htcs-story-tabs">
-        <button
-          className={`htcs-story-tab${tab === 'video' ? ' on' : ''}`}
-          onClick={() => setTab('video')}
-        >
-          {lang === 'bn' ? 'ভিডিও স্টোরি' : 'Video Story'}
-        </button>
-        <button
-          className={`htcs-story-tab${tab === 'photo' ? ' on' : ''}`}
-          onClick={() => setTab('photo')}
-        >
-          {lang === 'bn' ? 'ফটো স্টোরি' : 'Photo Story'}
-        </button>
+      <div className="htcs-sec-hdr">
+        <span className="htcs-sec-ttl">{lang === 'bn' ? 'স্টোরি' : 'Story'}</span>
+        <span className="htcs-sec-more" onClick={() => nav('stories')}>
+          {lang === 'bn' ? 'আরও »' : 'More »'}
+        </span>
       </div>
 
-      {tab === 'video' && (
-        <StoryCarousel
-          items={videoStories}
-          isVideo={true}
-          onClickItem={(_, idx) => setActiveStory(stories.indexOf(videoStories[idx]))}
-          scrollRef={videoScrollRef}
-        />
-      )}
-      {tab === 'photo' && (
-        <StoryCarousel
-          items={photoStories}
-          isVideo={false}
-          onClickItem={(_, idx) => setActiveStory(stories.indexOf(photoStories[idx]))}
-          scrollRef={photoScrollRef}
-        />
-      )}
+      <StoryCarousel
+        items={stories}
+        onClickItem={(_, idx) => setActiveStory(idx)}
+        scrollRef={scrollRef}
+      />
 
       {activeStory !== null && (
         <StoryViewer
@@ -164,7 +142,7 @@ export default function ThreeColumnSection({ stories = [] }) {
         </div>
         <PollWidget />
       </div>
-      <StoriesPanel stories={stories} lang={lang} />
+      <StoriesPanel stories={stories} lang={lang} nav={onNavigate} />
     </div>
   );
 }

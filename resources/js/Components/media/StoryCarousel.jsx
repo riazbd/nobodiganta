@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Icon from '../Icon';
 
-export default function StoryCarousel({ label, items, isVideo, onClickItem, scrollRef }) {
+export default function StoryCarousel({ label, items, onClickItem, scrollRef }) {
   const [canScrollLeft,  setCanScrollLeft]  = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -38,7 +38,8 @@ export default function StoryCarousel({ label, items, isVideo, onClickItem, scro
                 ? <img src={item.cover_thumbnail || item.cover || item.featured_image} alt={item.title} loading="lazy" />
                 : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#3b82f6,#7c3aed)' }} />}
               <div className="hp-h3-scard-grad" />
-              {isVideo && <div className="hp-h3-scard-play"><Icon name="play" size={16} /></div>}
+              {/* Per-story badge: show ▶ only on stories that contain a video slide. */}
+              {item.slides?.some(sl => sl.is_video) && <div className="hp-h3-scard-play"><Icon name="play" size={16} /></div>}
               <div className="hp-h3-scard-title">{item.title}</div>
             </div>
           )) : (
