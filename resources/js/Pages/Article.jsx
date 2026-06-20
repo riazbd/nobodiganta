@@ -364,6 +364,14 @@ export default function Article({
                 <span className="art-left-meta-author">{article.author.designation || t('article.staff_reporter', lang)}</span>
               </div>
             )}
+            {article.author?.district && (
+              <div className="art-left-meta-row">
+                <Icon name="mapPin" size={13} style={{ marginTop: 2, color: 'var(--red)', flexShrink: 0 }} />
+                <span style={{ color: 'var(--red)', fontWeight: 600 }}>
+                  {article.author.district} {lang === 'bn' ? 'প্রতিনিধি' : 'Correspondent'}
+                </span>
+              </div>
+            )}
             {article.secondary_author?.name && (
               <div className="art-left-meta-row">
                 <Icon name="user" size={13} style={{ marginTop: 2, color: '#888', flexShrink: 0 }} />
