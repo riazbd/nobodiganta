@@ -366,7 +366,6 @@ export default function Article({
             )}
             {article.author?.district && (
               <div className="art-left-meta-row">
-                <Icon name="mapPin" size={13} style={{ marginTop: 2, color: 'var(--red)', flexShrink: 0 }} />
                 <span style={{ color: 'var(--red)', fontWeight: 600 }}>
                   {article.author.district} {lang === 'bn' ? 'প্রতিনিধি' : 'Correspondent'}
                 </span>
