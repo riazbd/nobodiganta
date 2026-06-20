@@ -132,29 +132,22 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
     : (CITY_OPTIONS.find(c => c.key === cityKey)?.[lang === 'bn' ? 'bn' : 'en']
        ?? (lang === 'bn' ? 'ঢাকা' : 'Dhaka'));
 
-  return (
-    <section className={`almnc${isRamadan ? ' is-ramadan' : ''}`}>
+  const nextLabel = next
+    ? (isRamadan && next.name === 'Maghrib'
+        ? (lang === 'bn' ? 'ইফতার' : 'Iftar')
+        : prayerLabel(next.name, lang, isRamadan))
+    : '—';
 
-      {/* Masthead */}
-      <div className="almnc-masthead">
-        <div className="almnc-mast-left">
-          <div className="almnc-eyebrow">
-            {lang === 'bn' ? 'নামাজ ও আবহাওয়া' : 'Prayers & Weather'}
-            <span className="almnc-bullet">·</span>
-            {cityLabel}
-          </div>
-          {prayer && (
-            <div className="almnc-dateline">
-              {formatGregorian(prayer.date.gregorian, lang)}
-              <span className="almnc-bullet">·</span>
-              {lang === 'bn' ? prayer.date.hijri_bn : (prayer.date.hijri_en ?? prayer.date.hijri_bn)}
-            </div>
-          )}
-        </div>
-        <div className="almnc-mast-right">
-          <div className="almnc-city-pill">
-            <MapPin size={12} strokeWidth={2} />
-            <select className="almnc-city-select" value={cityKey} onChange={e => handleCityChange(e.target.value)} disabled={loading}>
+  return (
+    <div className={`pw${isRamadan ? ' pw-ramadan' : ''}`}>
+
+      {/* Header */}
+      <div className="pw-head">
+        <span className="pw-head-title">{lang === 'bn' ? 'নামাজ ও আবহাওয়া' : 'Prayer & Weather'}</span>
+        <div className="pw-head-right">
+          <span className="pw-city">
+            <MapPin size={11} strokeWidth={2.2} />
+            <select className="pw-city-sel" value={cityKey} onChange={e => handleCityChange(e.target.value)} disabled={loading}>
               <option value="__location__" style={{ display: cityKey === '__location__' ? '' : 'none' }}>
                 {lang === 'bn' ? 'আপনার অবস্থান' : 'Your location'}
               </option>
@@ -162,101 +155,70 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
                 <option key={c.key} value={c.key}>{lang === 'bn' ? c.bn : c.en}</option>
               ))}
             </select>
-          </div>
-          <button className="almnc-icon-btn" onClick={handleLocate} disabled={loading} aria-label={lang === 'bn' ? 'অবস্থান' : 'Locate'}>
-            <NavIcon size={13} strokeWidth={2} />
-          </button>
-          <button className="almnc-link" onClick={() => onNavigate('prayerTimes')}>
-            {lang === 'bn' ? 'সম্পূর্ণ সূচি' : 'Full schedule'}
-            <ArrowRight size={12} strokeWidth={2.2} />
+          </span>
+          <button className="pw-loc" onClick={handleLocate} disabled={loading} aria-label={lang === 'bn' ? 'অবস্থান' : 'Locate'}>
+            <NavIcon size={12} strokeWidth={2.2} />
           </button>
         </div>
       </div>
 
-      {/* Body — 3 columns: countdown · prayer list · weather */}
-      <div className="almnc-body">
-        {/* COUNTDOWN */}
-        <div className="almnc-col almnc-col-countdown">
-          <div className="almnc-section-label">
-            {isRamadan && next?.name === 'Maghrib'
-              ? (lang === 'bn' ? 'ইফতার বাকি' : 'Iftar in')
-              : (lang === 'bn' && next ? `${prayerLabel(next.name, lang, isRamadan)} বাকি` : (next ? `${prayerLabel(next.name, lang, false)} in` : '—'))}
-          </div>
-          {next && prayer ? (
-            <>
-              <div className="almnc-countdown">{lang === 'bn' ? toBn(countdown) : countdown}</div>
-              <div className="almnc-countdown-at">
-                {lang === 'bn' ? 'সময়' : 'at'} {formatTime12h(prayer.timings[next.name], lang)}
-              </div>
-            </>
-          ) : (
-            <div className="almnc-loading">{lang === 'bn' ? '...' : '...'}</div>
-          )}
-        </div>
-
-        {/* PRAYER LIST */}
-        <div className="almnc-col almnc-col-list">
-          <div className="almnc-section-label">{lang === 'bn' ? 'আজকের সূচি' : "Today's Schedule"}</div>
-          {prayer ? (
-            <ul className="almnc-list">
-              {rows.map(key => {
-                const time = prayer.timings[key];
-                if (!time) return null;
-                const isNext  = next?.name === key;
-                const passed  = !isNext && key !== 'Imsak' && isPassed(time);
-                const isIftar = isRamadan && key === 'Maghrib';
-                const isSehri = isRamadan && key === 'Imsak';
-                return (
-                  <li key={key} className={`almnc-li${isNext ? ' is-next' : ''}${passed ? ' is-past' : ''}${isIftar ? ' is-iftar' : ''}${isSehri ? ' is-sehri' : ''}`}>
-                    <span className="almnc-li-name">{prayerLabel(key, lang, isRamadan)}</span>
-                    <span className="almnc-li-leader" />
-                    <span className="almnc-li-time">{formatTime12h(time, lang)}</span>
-                    {isNext && <span className="almnc-li-marker">{lang === 'bn' ? 'পরবর্তী' : 'NEXT'}</span>}
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <div className="almnc-loading">{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
-          )}
-        </div>
-
-        {/* WEATHER */}
-        <div className="almnc-col almnc-col-weather">
-          <div className="almnc-section-label">{lang === 'bn' ? 'আবহাওয়া' : 'Weather'}</div>
+      {/* Top — weather + next prayer countdown side by side */}
+      <div className="pw-top">
+        <div className="pw-wx">
           {weather ? (
             <>
-              <div className="almnc-wx-main">
-                <WeatherIcon code={weather.current.weather_code} size={40} />
-                <div className="almnc-wx-temp">
-                  {lang === 'bn' ? toBn(String(Math.round(weather.current.temp_c))) : Math.round(weather.current.temp_c)}<span className="almnc-deg">°</span>
+              <WeatherIcon code={weather.current.weather_code} size={30} />
+              <div className="pw-wx-info">
+                <div className="pw-wx-temp">
+                  {lang === 'bn' ? toBn(String(Math.round(weather.current.temp_c))) : Math.round(weather.current.temp_c)}<span className="pw-deg">°</span>
                 </div>
-              </div>
-              <div className="almnc-wx-cond">{lang === 'bn' ? weather.current.condition_bn : weather.current.condition_en}</div>
-              <div className="almnc-wx-meta">
-                {lang === 'bn' ? 'আর্দ্রতা' : 'Hum'} {lang === 'bn' ? toBn(String(weather.current.humidity)) : weather.current.humidity}%
-                <span className="almnc-bullet">·</span>
-                {lang === 'bn' ? toBn(String(Math.round(weather.current.wind_kph))) : Math.round(weather.current.wind_kph)} km/h
-              </div>
-
-              <div className="almnc-wx-forecast">
-                {weather.forecast.slice(1, 5).map(d => {
-                  const dt = new Date(d.date);
-                  return (
-                    <div key={d.date} className="almnc-wx-day">
-                      <div className="almnc-wx-day-name">{dt.toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { weekday: 'short' })}</div>
-                      <WeatherIcon code={d.weather_code} size={14} />
-                      <div className="almnc-wx-day-temp">{lang === 'bn' ? toBn(String(Math.round(d.max_c))) : Math.round(d.max_c)}°</div>
-                    </div>
-                  );
-                })}
+                <div className="pw-wx-cond">{lang === 'bn' ? weather.current.condition_bn : weather.current.condition_en}</div>
               </div>
             </>
-          ) : (
-            <div className="almnc-loading">{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
-          )}
+          ) : <span className="pw-mini-load">···</span>}
+        </div>
+        <div className="pw-next">
+          <div className="pw-next-label">{lang === 'bn' ? `${nextLabel} বাকি` : `${nextLabel} in`}</div>
+          <div className="pw-next-cd">{next ? (lang === 'bn' ? toBn(countdown) : countdown) : '—'}</div>
         </div>
       </div>
-    </section>
+
+      {/* Prayer times — compact 3-column grid */}
+      {prayer ? (
+        <div className="pw-grid">
+          {rows.map(key => {
+            const time = prayer.timings[key];
+            if (!time) return null;
+            const isNext  = next?.name === key;
+            const passed  = !isNext && key !== 'Imsak' && isPassed(time);
+            const isIftar = isRamadan && key === 'Maghrib';
+            const isSehri = isRamadan && key === 'Imsak';
+            return (
+              <div key={key} className={`pw-cell${isNext ? ' is-next' : ''}${passed ? ' is-past' : ''}${isIftar ? ' is-iftar' : ''}${isSehri ? ' is-sehri' : ''}`}>
+                <span className="pw-cell-name">{prayerLabel(key, lang, isRamadan)}</span>
+                <span className="pw-cell-time">{formatTime12h(time, lang)}</span>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="pw-mini-load pw-grid-load">{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
+      )}
+
+      {/* Footer — weather meta + full schedule link */}
+      <div className="pw-foot">
+        {weather ? (
+          <span className="pw-meta">
+            {lang === 'bn' ? 'আর্দ্রতা' : 'Hum'} {lang === 'bn' ? toBn(String(weather.current.humidity)) : weather.current.humidity}%
+            <span className="pw-dot">·</span>
+            {lang === 'bn' ? toBn(String(Math.round(weather.current.wind_kph))) : Math.round(weather.current.wind_kph)} km/h
+          </span>
+        ) : <span />}
+        <button className="pw-link" onClick={() => onNavigate('prayerTimes')}>
+          {lang === 'bn' ? 'সম্পূর্ণ সূচি' : 'Full schedule'}
+          <ArrowRight size={11} strokeWidth={2.4} />
+        </button>
+      </div>
+    </div>
   );
 }

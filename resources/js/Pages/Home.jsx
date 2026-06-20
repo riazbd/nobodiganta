@@ -172,9 +172,7 @@ function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings, prayer,
       <div className="hp-h3-right-col">
         <AdSlot size="mrec" position="hero_sidebar_top" />
         {/* Prayer & weather — compact sidebar card, high up so it's seen without scrolling */}
-        <div className="almnc-sb">
-          <PrayerWeatherSection initialPrayer={prayer} initialWeather={weather} />
-        </div>
+        <PrayerWeatherSection initialPrayer={prayer} initialWeather={weather} />
         <TrendingWidget />
       </div>
     </div>
