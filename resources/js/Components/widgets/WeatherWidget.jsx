@@ -41,7 +41,7 @@ export default function WeatherWidget() {
       </div>
       <div className="w-grid">
         <div>{lang === 'bn' ? 'আর্দ্রতা' : 'Humidity'}: {fmt(cur.humidity)}%</div>
-        <div>{lang === 'bn' ? 'বায়ু' : 'Wind'}: {fmt(Math.round(cur.wind_kph))} {lang === 'bn' ? 'কিমি/ঘণ্টা' : 'km/h'}</div>
+        <div>{lang === 'bn' ? 'বাতাস' : 'Wind'}: {fmt(Math.round(cur.wind_kph))} {lang === 'bn' ? 'কিমি/ঘণ্টা' : 'km/h'}</div>
         {todayFc && (
           <>
             <div>{lang === 'bn' ? 'সর্বোচ্চ' : 'Max'}: {fmt(Math.round(todayFc.max_c))}°</div>
