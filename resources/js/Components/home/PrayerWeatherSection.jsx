@@ -227,7 +227,7 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
           <span className="pw-meta">
             {lang === 'bn' ? 'আর্দ্রতা' : 'Hum'} {lang === 'bn' ? toBn(String(weather.current.humidity)) : weather.current.humidity}%
             <span className="pw-dot">·</span>
-            {lang === 'bn' ? toBn(String(Math.round(weather.current.wind_kph))) : Math.round(weather.current.wind_kph)} km/h
+            {lang === 'bn' ? toBn(String(Math.round(weather.current.wind_kph))) : Math.round(weather.current.wind_kph)} {lang === 'bn' ? 'কিমি/ঘণ্টা' : 'km/h'}
           </span>
         ) : <span />}
         <button className="pw-link" onClick={() => onNavigate('prayerTimes')}>

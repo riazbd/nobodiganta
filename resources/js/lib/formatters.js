@@ -94,7 +94,7 @@ export function formatPrayerTime(time, lang = 'bn') {
   const [h, m] = time.split(':');
   const hour = parseInt(h, 10);
   const min = m || '00';
-  const period = hour < 12 ? (lang === 'bn' ? 'AM' : 'AM') : (lang === 'bn' ? 'PM' : 'PM');
+  const period = hour < 12 ? (lang === 'bn' ? 'এএম' : 'AM') : (lang === 'bn' ? 'পিএম' : 'PM');
   const hour12 = hour % 12 || 12;
   const display = `${hour12}:${min} ${period}`;
   return lang === 'bn' ? toBengaliNum(display) : display;

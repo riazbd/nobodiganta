@@ -69,7 +69,8 @@ export function to12h(time24) {
 export function formatTime12h(time24, lang) {
   if (!time24) return '';
   const t = to12h(time24);
-  return lang === 'bn' ? toBn(t) : t;
+  if (lang !== 'bn') return t;
+  return toBn(t).replace('AM', 'এএম').replace('PM', 'পিএম');
 }
 
 const BN_MONTHS = ['','জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];

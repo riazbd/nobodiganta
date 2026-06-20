@@ -219,7 +219,7 @@ export default function PrayerTimes({ today: initialToday, calendar: initialCale
                   </div>
                   <dl className="almnc-wx-dl">
                     <div><dt>{lang === 'bn' ? 'আর্দ্রতা' : 'Humidity'}</dt><dd>{lang === 'bn' ? toBn(String(weather.current.humidity)) : weather.current.humidity}%</dd></div>
-                    <div><dt>{lang === 'bn' ? 'বায়ু' : 'Wind'}</dt><dd>{lang === 'bn' ? toBn(String(Math.round(weather.current.wind_kph))) : Math.round(weather.current.wind_kph)} km/h</dd></div>
+                    <div><dt>{lang === 'bn' ? 'বায়ু' : 'Wind'}</dt><dd>{lang === 'bn' ? toBn(String(Math.round(weather.current.wind_kph))) : Math.round(weather.current.wind_kph)} {lang === 'bn' ? 'কিমি/ঘণ্টা' : 'km/h'}</dd></div>
                     <div><dt>{lang === 'bn' ? 'অনুভূতি' : 'Feels'}</dt><dd>{lang === 'bn' ? toBn(String(Math.round(weather.current.feels_like_c))) : Math.round(weather.current.feels_like_c)}°</dd></div>
                   </dl>
                   <div className="almnc-wx-outlook">
