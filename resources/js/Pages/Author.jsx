@@ -61,13 +61,13 @@ export default function Author({ author, articles }) {
           <div className="author-info">
             <h1 className="author-name">{designation}</h1>
             {bio && <p className="author-bio">{bio}</p>}
+            {/* Contact details (email/phone) and social links are hidden from the public author profile.
             <div className="author-meta">
               {author?.email && (
                 <span className="author-meta-item">
                   <Icon name="mail" size={14} /> {author.email}
                 </span>
               )}
-              {/* Social media links hidden from the public author profile.
               {author?.social_links?.facebook && (
                 <a className="author-social" href={author.social_links.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                   <Icon name="facebook" size={16} />
@@ -78,8 +78,8 @@ export default function Author({ author, articles }) {
                   <Icon name="twitter" size={16} />
                 </a>
               )}
-              */}
             </div>
+            */}
           </div>
         </div>
 
