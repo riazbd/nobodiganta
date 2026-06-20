@@ -205,6 +205,22 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
         <div className="pw-mini-load pw-grid-load">{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
       )}
 
+      {/* 3-day forecast strip */}
+      {weather?.forecast?.length > 1 && (
+        <div className="pw-fc">
+          {weather.forecast.slice(1, 4).map(d => {
+            const dt = new Date(d.date);
+            return (
+              <div key={d.date} className="pw-fc-day">
+                <span className="pw-fc-name">{dt.toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { weekday: 'short' })}</span>
+                <WeatherIcon code={d.weather_code} size={16} />
+                <span className="pw-fc-temp">{lang === 'bn' ? toBn(String(Math.round(d.max_c))) : Math.round(d.max_c)}°</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* Footer — weather meta + full schedule link */}
       <div className="pw-foot">
         {weather ? (
