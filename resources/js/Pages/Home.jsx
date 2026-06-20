@@ -100,7 +100,7 @@ function SocialFollow({ settings, lang }) {
   );
 }
 
-function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings }) {
+function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings, prayer, weather }) {
   const t = (a) => lang === 'bn' ? a.title : (a.title_en || a.title);
 
   return (
@@ -168,12 +168,13 @@ function HeroBlock({ feat, grid6, midMain, midList, lang, nav, settings }) {
         </div>
       </div>
 
-      {/* ── RIGHT: Ad above, Trending below ── */}
+      {/* ── RIGHT: Ad · Prayer & Weather · Trending ── */}
       <div className="hp-h3-right-col">
         <AdSlot size="mrec" position="hero_sidebar_top" />
-        {/* <div className="hp-h3-right">
-          <TrendingWidget />
-        </div> */}
+        {/* Prayer & weather — compact sidebar card, high up so it's seen without scrolling */}
+        <div className="almnc-sb">
+          <PrayerWeatherSection initialPrayer={prayer} initialWeather={weather} />
+        </div>
         <TrendingWidget />
       </div>
     </div>
@@ -689,6 +690,8 @@ export default function Home({
           lang={lang}
           nav={onNavigate}
           settings={settings}
+          prayer={prayerTimes}
+          weather={weather}
         />
       </div>
 
@@ -729,8 +732,7 @@ export default function Home({
 
         <TagsCloud tags={popularTags} lang={lang} nav={onNavigate} />
 
-        {/* Prayer times & weather section */}
-        <PrayerWeatherSection initialPrayer={prayerTimes} initialWeather={weather} />
+        {/* Prayer & weather moved to the hero sidebar (above the fold) */}
 
         <div className="p-ad-bottom"><AdSlot size="billboard" position="home_bottom" /></div>
       </div>
