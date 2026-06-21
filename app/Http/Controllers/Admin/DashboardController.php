@@ -14,6 +14,7 @@ use App\Models\CricketMatch;
 use App\Models\Price;
 use App\Models\Poll;
 use App\Models\Horoscope;
+use App\Models\PageView;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -27,15 +28,15 @@ class DashboardController extends Controller
 
         // 1. Core Stats
         $totalPublished = Article::published()->count();
-        $todayVisitors = 324150; // Mock for now until analytics table implemented, but can count unique IPs from logs
+        $todayVisitors = PageView::whereDate('created_at', today())->distinct('visitor_hash')->count('visitor_hash');
         $weeklyComments = Comment::where('created_at', '>=', now()->subWeek())->count();
         $activeSubscribers = Subscription::active()->count();
 
         // 2. Mini Stats
         $reportersCount = User::where('role', 'reporter')->count();
         $pendingApproval = Article::where('status', 'pending')->count();
-        $adRevenue = 1240000; // Mock or from Ad model if we had payments
-        $avgReadTime = 4.8;
+        $totalViews = (int) Article::sum('views'); // replaces mock ad-revenue (no billing system)
+        $avgReadTime = $this->averageReadTimeMinutes();
 
         // 3. Category Breakdown
         $totalArticles = Article::count();
@@ -84,12 +85,38 @@ class DashboardController extends Controller
                 'status' => $a->status,
             ]);
 
-        // 6. Traffic Stats (Mocking labels for now)
+        // 6. Traffic Stats — real, from the page_views log (last 7 days)
+        $bnDay = ['Sun' => 'রবি', 'Mon' => 'সোম', 'Tue' => 'মঙ্গল', 'Wed' => 'বুধ', 'Thu' => 'বৃহঃ', 'Fri' => 'শুক্র', 'Sat' => 'শনি'];
+        $labels = $labelsEn = $pageViewsSeries = $uniqueSeries = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $day = today()->subDays($i);
+            $en = $day->format('D');
+            $labelsEn[] = $en;
+            $labels[] = $bnDay[$en] ?? $en;
+            $pageViewsSeries[] = PageView::whereDate('created_at', $day)->count();
+            $uniqueSeries[] = PageView::whereDate('created_at', $day)->distinct('visitor_hash')->count('visitor_hash');
+        }
         $traffic = [
-            'labels' => ['শনি', 'রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র'],
-            'labelsEn' => ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-            'pageViews' => [450, 520, 610, 480, 590, 680, 720],
-            'uniqueVisitors' => [310, 380, 420, 350, 410, 490, 550],
+            'labels' => $labels,
+            'labelsEn' => $labelsEn,
+            'pageViews' => $pageViewsSeries,
+            'uniqueVisitors' => $uniqueSeries,
+        ];
+
+        // Stat-card trends — real period-over-period change.
+        $visitorsYesterday = PageView::whereDate('created_at', today()->subDay())->distinct('visitor_hash')->count('visitor_hash');
+        $publishedThisMonth = Article::published()->whereBetween('published_at', [now()->startOfMonth(), now()])->count();
+        $publishedLastMonth = Article::published()->whereBetween('published_at', [now()->subMonthNoOverflow()->startOfMonth(), now()->subMonthNoOverflow()->endOfMonth()])->count();
+        $commentsThisWeek = Comment::whereBetween('created_at', [now()->startOfWeek(), now()])->count();
+        $commentsLastWeek = Comment::whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])->count();
+        $subsThisMonth = Subscription::whereBetween('created_at', [now()->startOfMonth(), now()])->count();
+        $subsLastMonth = Subscription::whereBetween('created_at', [now()->subMonthNoOverflow()->startOfMonth(), now()->subMonthNoOverflow()->endOfMonth()])->count();
+
+        $trends = [
+            'published'   => $this->trend($publishedThisMonth, $publishedLastMonth),
+            'visitors'    => $this->trend($todayVisitors, $visitorsYesterday),
+            'comments'    => $this->trend($commentsThisWeek, $commentsLastWeek),
+            'subscribers' => $this->trend($subsThisMonth, $subsLastMonth),
         ];
 
         // 7. Recent Activity from Audit Logs
@@ -105,14 +132,8 @@ class DashboardController extends Controller
                 'time' => $log->created_at->diffForHumans(),
             ]);
 
-        // 8. Server Health
-        $serverHealth = [
-            'cpu' => 24,
-            'ram' => 62,
-            'disk' => 45,
-            'uptime' => '12 days, 4 hours',
-            'db_size' => '1.2 GB',
-        ];
+        // 8. Server Health — real where PHP can read it reliably (disk, DB size, memory).
+        $serverHealth = $this->serverHealth();
 
         // 9. Widgets Data
         $stocks = Stock::orderBy('sort_order')->limit(5)->get();
@@ -131,9 +152,10 @@ class DashboardController extends Controller
             'miniStats' => [
                 'reportersCount' => $reportersCount,
                 'pendingApproval' => $pendingApproval,
-                'adRevenue' => $adRevenue,
+                'totalViews' => $totalViews,
                 'avgReadTime' => $avgReadTime,
             ],
+            'trends' => $trends,
             'categoryBreakdown' => $categoryBreakdown,
             'contentStatus' => $contentStatus,
             'recentArticles' => $recentArticles,
@@ -147,11 +169,104 @@ class DashboardController extends Controller
                 'poll' => $activePoll,
                 'horoscope' => $horoscopes,
             ],
-            'schedule' => [
-                ['time' => '10:00 AM', 'title' => 'Editorial Meeting', 'type' => 'meeting'],
-                ['time' => '02:30 PM', 'title' => 'Press Conference: Budget 2026', 'type' => 'event'],
-                ['time' => '05:00 PM', 'title' => 'Newspaper Deadline', 'type' => 'deadline'],
-            ]
+            'schedule' => $this->upcomingSchedule($edition),
         ]);
+    }
+
+    /**
+     * Percentage change between two periods, plus direction, for stat cards.
+     */
+    private function trend(int $current, int $previous): array
+    {
+        $pct = $previous > 0
+            ? round(abs($current - $previous) / $previous * 100, 1)
+            : ($current > 0 ? 100 : 0);
+
+        return ['change' => $pct . '%', 'up' => $current >= $previous];
+    }
+
+    /**
+     * Average estimated reading time (minutes) across recent published articles.
+     * Word count splits on whitespace, which works for Bangla and English alike.
+     */
+    private function averageReadTimeMinutes(): float
+    {
+        $bodies = Article::published()->latest('published_at')->limit(100)->pluck('body_bn');
+        $totalWords = 0;
+        $counted = 0;
+        foreach ($bodies as $body) {
+            $text = trim(strip_tags((string) $body));
+            if ($text === '') {
+                continue;
+            }
+            $totalWords += count(preg_split('/\s+/u', $text, -1, PREG_SPLIT_NO_EMPTY));
+            $counted++;
+        }
+        if ($counted === 0) {
+            return 0;
+        }
+        return max(1, round(($totalWords / $counted) / 180, 1)); // ~180 words/minute
+    }
+
+    /**
+     * Upcoming scheduled articles (what's queued to publish), as today's agenda.
+     */
+    private function upcomingSchedule(string $edition): array
+    {
+        return Article::where('status', 'scheduled')
+            ->whereNotNull('published_at')
+            ->where('published_at', '>=', now())
+            ->orderBy('published_at')
+            ->limit(6)
+            ->get()
+            ->map(fn($a) => [
+                'time' => $a->published_at->format('h:i A'),
+                'title' => $edition === 'en' ? ($a->title_en ?: $a->title_bn) : $a->title_bn,
+                'type' => 'deadline',
+            ])
+            ->all();
+    }
+
+    /**
+     * System health using values PHP can read reliably across platforms:
+     * disk usage of the app drive, database size, and current memory usage.
+     */
+    private function serverHealth(): array
+    {
+        $diskTotal = @disk_total_space(base_path()) ?: 0;
+        $diskFree  = @disk_free_space(base_path()) ?: 0;
+        $diskUsedPct = $diskTotal > 0 ? (int) round((1 - $diskFree / $diskTotal) * 100) : 0;
+
+        $dbSizeBytes = 0;
+        try {
+            $driver = DB::connection()->getDriverName();
+            if ($driver === 'pgsql') {
+                $dbSizeBytes = (int) (DB::selectOne('SELECT pg_database_size(current_database()) AS size')->size ?? 0);
+            } elseif ($driver === 'mysql') {
+                $row = DB::selectOne('SELECT SUM(data_length + index_length) AS size FROM information_schema.tables WHERE table_schema = database()');
+                $dbSizeBytes = (int) ($row->size ?? 0);
+            }
+        } catch (\Throwable) {
+            $dbSizeBytes = 0;
+        }
+
+        return [
+            'disk'      => $diskUsedPct,
+            'diskFree'  => $this->formatBytes($diskFree),
+            'diskTotal' => $this->formatBytes($diskTotal),
+            'dbSize'    => $this->formatBytes($dbSizeBytes),
+            'memory'    => $this->formatBytes(memory_get_usage(true)),
+            'phpVersion' => PHP_VERSION,
+        ];
+    }
+
+    private function formatBytes(int|float $bytes, int $precision = 1): string
+    {
+        if ($bytes <= 0) {
+            return '0 B';
+        }
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $pow = min((int) floor(log($bytes, 1024)), count($units) - 1);
+        return round($bytes / (1024 ** $pow), $precision) . ' ' . $units[$pow];
     }
 }

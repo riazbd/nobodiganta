@@ -16,15 +16,16 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
 
-export default function Dashboard({ 
-  stats = {}, 
-  miniStats = {}, 
-  contentStatus = {}, 
-  categoryBreakdown = [], 
-  recentArticles = [], 
-  traffic = {}, 
-  activities = [], 
-  serverHealth = {}, 
+export default function Dashboard({
+  stats = {},
+  miniStats = {},
+  trends = {},
+  contentStatus = {},
+  categoryBreakdown = [],
+  recentArticles = [],
+  traffic = {},
+  activities = [],
+  serverHealth = {},
   schedule = [],
   widgets = {}
 }) {
@@ -62,17 +63,17 @@ export default function Dashboard({
 
       {/* Stat Cards */}
       <div className="grid grid-cols-4 gap-4 mb-5 row-anim">
-        <StatCard icon={Newspaper} label={t('totalPublished')} value={s.totalPublished || '0'} change="12.4%" changeUp={true} linkText={t('viewAll')} onLinkClick={() => onNavigate?.('news')} color="red" />
-        <StatCard icon={Users} label={t('todayVisitors')} value={s.todayVisitors || '0'} change="8.7%" changeUp={true} linkText={t('analyzeLinkBn')} onLinkClick={() => onNavigate?.('traffic')} color="blue" />
-        <StatCard icon={MessageSquare} label={t('weeklyComments')} value={s.weeklyComments || '0'} change="5.2%" changeUp={true} linkText={t('approveLinkBn')} onLinkClick={() => onNavigate?.('dashboard')} color="green" />
-        <StatCard icon={CreditCard} label={t('activeSubscribers')} value={s.activeSubscribers || '0'} change="3.8%" changeUp={true} linkText={t('viewMembersLinkBn')} onLinkClick={() => onNavigate?.('subscriptions')} color="orange" />
+        <StatCard icon={Newspaper} label={t('totalPublished')} value={s.totalPublished || '0'} change={trends.published?.change} changeUp={trends.published?.up} linkText={t('viewAll')} onLinkClick={() => onNavigate?.('news')} color="red" />
+        <StatCard icon={Users} label={t('todayVisitors')} value={s.todayVisitors || '0'} change={trends.visitors?.change} changeUp={trends.visitors?.up} linkText={t('analyzeLinkBn')} onLinkClick={() => onNavigate?.('traffic')} color="blue" />
+        <StatCard icon={MessageSquare} label={t('weeklyComments')} value={s.weeklyComments || '0'} change={trends.comments?.change} changeUp={trends.comments?.up} linkText={t('approveLinkBn')} onLinkClick={() => onNavigate?.('dashboard')} color="green" />
+        <StatCard icon={CreditCard} label={t('activeSubscribers')} value={s.activeSubscribers || '0'} change={trends.subscribers?.change} changeUp={trends.subscribers?.up} linkText={t('viewMembersLinkBn')} onLinkClick={() => onNavigate?.('subscriptions')} color="orange" />
       </div>
 
       {/* Mini Stats */}
       <div className="grid grid-cols-4 gap-4 mb-5 row-anim">
         <MiniStat icon={PenLine} value={String(ms.reportersCount || 0)} label={t('reportersWriters')} change={t('newThisMonth')} changeColor="green" iconBg="bg-[#f5f3ff]" />
         <MiniStat icon={Upload} value={String(ms.pendingApproval || 0)} label={t('pendingApproval')} change={t('urgentItems')} changeColor="red" iconBg="bg-[#ecfeff]" />
-        <MiniStat icon={TrendingUp} value={lang === 'bn' ? `৳ ${(ms.adRevenue / 100000).toFixed(1)} লাখ` : `৳ ${(ms.adRevenue / 100000).toFixed(1)}L`} label={t('adRevenueMonth')} change={t('revenueGrowth')} changeColor="green" iconBg="bg-[#ecfdf5]" />
+        <MiniStat icon={BarChart3} value={Number(ms.totalViews || 0).toLocaleString(lang === 'bn' ? 'bn-BD' : 'en-IN')} label={lang === 'bn' ? 'মোট পাঠ' : 'Total Views'} change={lang === 'bn' ? 'সব সংবাদে' : 'across all articles'} changeColor="blue" iconBg="bg-[#eff6ff]" />
         <MiniStat icon={Flame} value={lang === 'bn' ? `${ms.avgReadTime} মিনিট` : `${ms.avgReadTime} min`} label={t('avgReadTime')} change={t('readTimeIncrease')} changeColor="green" iconBg="bg-[#eceff1]" />
       </div>
 
