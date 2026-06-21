@@ -67,6 +67,7 @@ class BreakingNewsController extends Controller
             abort(403);
         }
 
+        $this->syncArticleFlag($breaking, false);
         $breaking->delete();
 
         return back()->with('success', 'Breaking item deleted');
@@ -80,6 +81,7 @@ class BreakingNewsController extends Controller
         }
 
         $breaking->update(['is_active' => false, 'expires_at' => now()]);
+        $this->syncArticleFlag($breaking, false);
 
         return back()->with('success', 'Breaking item expired');
     }
@@ -92,9 +94,22 @@ class BreakingNewsController extends Controller
         }
 
         $breaking->update(['is_active' => true, 'expires_at' => null]);
+        $this->syncArticleFlag($breaking, true);
         $this->maybeQueuePush($breaking->fresh());
 
         return back()->with('success', 'Breaking item reactivated');
+    }
+
+    /**
+     * Keep a linked article's is_breaking flag in step with its breaking item,
+     * so the All-News chip reflects reality and a re-save can't resurrect a
+     * retired item. Uses a mass update to avoid re-triggering the observer.
+     */
+    private function syncArticleFlag(BreakingNews $breaking, bool $value): void
+    {
+        if ($breaking->article_id) {
+            Article::where('id', $breaking->article_id)->update(['is_breaking' => $value]);
+        }
     }
 
     /**
