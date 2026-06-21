@@ -57,8 +57,12 @@ class ArticleController extends Controller
         }
 
         if ($category && $category !== 'all') {
+            // The dropdown sends a slug; guard against Postgres rejecting a
+            // non-numeric value compared against the integer id column.
             $query->whereHas('category', function ($q) use ($category) {
-                $q->where('slug', $category)->orWhere('id', $category);
+                is_numeric($category)
+                    ? $q->where('id', (int) $category)
+                    : $q->where('slug', $category);
             });
         }
 
