@@ -88,6 +88,45 @@ class User extends Authenticatable
     }
 
     /**
+     * Articles this user is the primary author of.
+     */
+    public function articlesAuthored(): HasMany
+    {
+        return $this->hasMany(Article::class, 'author_id');
+    }
+
+    /**
+     * How much bylined editorial work (articles) would be orphaned if this user
+     * were deleted. Drives whether a reassignment successor is required. Only
+     * articles count: they carry public authorship. Everything else — stories,
+     * media, photocard templates — is preserved and detached via null-on-delete,
+     * not reassigned.
+     */
+    public function contentCount(): int
+    {
+        return $this->articlesAuthored()->count();
+    }
+
+    /**
+     * Reassign this user's authored work to a successor before deletion.
+     *
+     * Only articles are transferred — they are publicly bylined and carry
+     * ongoing editorial responsibility (and author_id is cascade-delete, so a
+     * successor is required). Co-author (secondary) credit is cleared to avoid
+     * the same user being both primary and secondary author. Stories, media and
+     * photocard templates are intentionally left alone — their FKs null-on-delete,
+     * preserving the content without faking authorship.
+     */
+    public function reassignContent(?User $target): void
+    {
+        Article::where('secondary_author_id', $this->id)->update(['secondary_author_id' => null]);
+
+        if ($target) {
+            Article::where('author_id', $this->id)->update(['author_id' => $target->id]);
+        }
+    }
+
+    /**
      * Get permissions through the user's role.
      */
     public function getPermissionsAttribute(): array

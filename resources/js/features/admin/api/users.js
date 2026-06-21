@@ -40,9 +40,10 @@ export function updateUser(userId, data) {
 /**
  * Delete a user.
  */
-export function deleteUser(userId) {
+export function deleteUser(userId, data = {}) {
   return new Promise((resolve, reject) => {
     router.delete(`/admin/users/${userId}`, {
+      data,
       onSuccess: () => resolve(),
       onError: (errors) => reject(errors),
     });

@@ -53,6 +53,11 @@ class ReporterController extends Controller
 
         $divisions = \App\Models\Division::orderBy('name_bn')->get(['id', 'name_bn', 'name_en']);
 
+        // Candidate users a deleted reporter's posts can be reassigned to.
+        $reassignTargets = User::where('role', '!=', 'supreme_admin')
+            ->orderBy('name')
+            ->get(['id', 'name', 'role']);
+
         return Inertia::render('features/admin/pages/Reporters', [
             'reporters' => $reporters->map(function($r) {
                 return [
@@ -69,6 +74,9 @@ class ReporterController extends Controller
                     'image' => $r->image ?: ($r->user ? $r->user->profile_photo_url : null),
                     'avatar' => mb_substr($r->name_bn, 0, 1),
                     'articles' => $r->articles_count,
+                    // Articles needing a successor if this reporter's account is deleted.
+                    // Stories, media and templates detach automatically, so aren't counted.
+                    'posts_count' => $r->articles_count,
                     'performance' => rand(70, 98),
                     'joined' => $r->created_at->format('Y-m-d'),
                     'status' => $r->is_active ? 'active' : 'inactive',
@@ -88,6 +96,7 @@ class ReporterController extends Controller
             }),
             'districts' => $districts,
             'divisions' => $divisions,
+            'reassignTargets' => $reassignTargets,
             'filters' => $request->only(['search', 'district_id', 'division_id']),
         ]);
     }
@@ -271,7 +280,35 @@ class ReporterController extends Controller
             abort(403);
         }
 
-        $reporter->delete();
+        // Deleting a reporter also removes its linked login account. If that
+        // account has authored content, it must be reassigned to another user.
+        $linkedUser = $reporter->user_id ? User::find($reporter->user_id) : null;
+
+        if ($linkedUser && $linkedUser->role === 'supreme_admin') {
+            return back()->with('error', __('This reporter is linked to the Supreme Admin account and cannot be deleted.'));
+        }
+        if ($linkedUser && $linkedUser->id === $request->user()->id) {
+            return back()->with('error', __('You cannot delete a reporter linked to your own account.'));
+        }
+
+        $target = null;
+        if ($linkedUser && $linkedUser->contentCount() > 0) {
+            $validated = $request->validate([
+                'reassign_to' => ['required', 'integer', 'exists:users,id', 'different:' . $linkedUser->id],
+            ], [
+                'reassign_to.required' => __('Please choose a user to reassign this reporter\'s posts to.'),
+                'reassign_to.different' => __('Posts cannot be reassigned to the account being deleted.'),
+            ]);
+            $target = User::find($validated['reassign_to']);
+        }
+
+        DB::transaction(function () use ($reporter, $linkedUser, $target) {
+            if ($linkedUser) {
+                $linkedUser->reassignContent($target);
+            }
+            $reporter->delete();
+            $linkedUser?->delete();
+        });
 
         return back()->with('success', 'Reporter deleted successfully');
     }

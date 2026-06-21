@@ -11,7 +11,7 @@ import { router } from '@inertiajs/react';
 import MediaLibraryModal from '../components/media/MediaLibraryModal';
 import Icon from '../../../Components/Icon';
 
-export default function Reporters({ reporters = [], districts = [], divisions = [], filters = {} }) {
+export default function Reporters({ reporters = [], districts = [], divisions = [], filters = {}, reassignTargets = [] }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
   const [searchQuery, setSearchQuery] = useState(filters.search || '');
@@ -22,6 +22,10 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
   const [showModal, setShowModal] = useState(false);
   const [editingReporter, setEditingReporter] = useState(null);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [reassignTo, setReassignTo] = useState('');
+  const [reassignError, setReassignError] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   const emptyForm = {
     nameBn: '', nameEn: '', email: '',
@@ -152,12 +156,30 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
     }
   };
 
-  const handleDelete = (id) => {
-    if (confirm(lang === 'bn' ? 'আপনি কি নিশ্চিত?' : 'Are you sure?')) {
-      router.delete(route('admin.reporters.destroy', id), {
-        onSuccess: () => showToast(lang === 'bn' ? 'সাংবাদিক মুছে ফেলা হয়েছে' : 'Reporter deleted'),
-      });
+  const openDelete = (reporter) => {
+    setReassignTo('');
+    setReassignError('');
+    setDeleteTarget(reporter);
+  };
+
+  const confirmDelete = () => {
+    const needsReassign = (deleteTarget?.posts_count || 0) > 0;
+    if (needsReassign && !reassignTo) {
+      setReassignError(lang === 'bn' ? 'পোস্টগুলো কাকে দেওয়া হবে তা নির্বাচন করুন।' : 'Please choose who to reassign the posts to.');
+      return;
     }
+    setDeleting(true);
+    router.delete(route('admin.reporters.destroy', deleteTarget.id), {
+      data: needsReassign ? { reassign_to: reassignTo } : {},
+      preserveScroll: true,
+      onSuccess: () => {
+        setDeleteTarget(null);
+        setReassignTo('');
+        showToast(lang === 'bn' ? 'সাংবাদিক মুছে ফেলা হয়েছে' : 'Reporter deleted');
+      },
+      onError: (errors) => setReassignError(errors?.reassign_to || (lang === 'bn' ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred')),
+      onFinish: () => setDeleting(false),
+    });
   };
 
   const activeDistrictName = activeDistrict
@@ -378,7 +400,7 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
                       <button onClick={() => openEditModal(r)} className="p-2.5 rounded-xl hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-all" title={lang === 'bn' ? 'সম্পাদনা' : 'Edit'}>
                         <Edit3 className="w-4.5 h-4.5" />
                       </button>
-                      <button onClick={() => handleDelete(r.id)} className="p-2.5 rounded-xl hover:bg-red-50 text-gray-400 hover:text-[#263238] transition-all" title={lang === 'bn' ? 'মুছে ফেলুন' : 'Delete'}>
+                      <button onClick={() => openDelete(r)} className="p-2.5 rounded-xl hover:bg-red-50 text-gray-400 hover:text-[#263238] transition-all" title={lang === 'bn' ? 'মুছে ফেলুন' : 'Delete'}>
                         <Trash2 className="w-4.5 h-4.5" />
                       </button>
                     </div>
@@ -657,6 +679,58 @@ export default function Reporters({ reporters = [], districts = [], divisions = 
         onSelect={(m) => { setFormData({...formData, image: m.url}); setShowMediaLibrary(false); }}
         initialType="image"
       />
+
+      {/* Delete confirmation + post reassignment */}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={() => setDeleteTarget(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-col items-center text-center mb-4">
+              <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-3">
+                <Trash2 className="w-7 h-7 text-red-500" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">{lang === 'bn' ? 'সাংবাদিক মুছে ফেলবেন?' : 'Delete reporter?'}</h3>
+              <p className="text-sm text-gray-500 mt-1">
+                {deleteTarget.user_id
+                  ? (lang === 'bn' ? 'এর সাথে যুক্ত লগইন অ্যাকাউন্টটিও মুছে যাবে।' : 'The linked login account will also be deleted.')
+                  : (lang === 'bn' ? 'এই কাজটি ফেরানো যাবে না।' : 'This action cannot be undone.')}
+              </p>
+            </div>
+
+            {(deleteTarget.posts_count || 0) > 0 && (
+              <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs font-semibold text-amber-800 mb-2">
+                  {lang === 'bn'
+                    ? `এই সাংবাদিকের ${deleteTarget.posts_count}টি সংবাদ রয়েছে। মুছে ফেলার আগে এগুলো অন্য একজনকে দিন।`
+                    : `This reporter has ${deleteTarget.posts_count} article(s). Reassign them to another user before deleting.`}
+                </p>
+                <select
+                  value={reassignTo}
+                  onChange={e => { setReassignTo(e.target.value); setReassignError(''); }}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238] bg-white"
+                >
+                  <option value="">{lang === 'bn' ? 'ব্যবহারকারী নির্বাচন করুন...' : 'Select a user...'}</option>
+                  {reassignTargets.filter(u => u.id !== deleteTarget.user_id).map(u => (
+                    <option key={u.id} value={u.id}>{u.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {reassignError && <p className="text-xs text-red-600 mb-3 text-center">{reassignError}</p>}
+
+            <div className="flex gap-3">
+              <button onClick={confirmDelete} disabled={deleting}
+                className="flex-1 bg-red-600 text-white rounded-xl py-2.5 text-sm font-bold hover:bg-red-700 transition-all disabled:opacity-50">
+                {lang === 'bn' ? 'হ্যাঁ, মুছুন' : 'Yes, delete'}
+              </button>
+              <button onClick={() => setDeleteTarget(null)}
+                className="flex-1 bg-white border border-gray-200 text-gray-600 rounded-xl py-2.5 text-sm font-bold hover:bg-gray-50 transition-all">
+                {lang === 'bn' ? 'বাতিল' : 'Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

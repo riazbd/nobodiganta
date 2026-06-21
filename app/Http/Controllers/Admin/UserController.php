@@ -22,7 +22,8 @@ class UserController extends Controller
             abort(403);
         }
 
-        $query = User::with(['roleRelation', 'reporter']);
+        $query = User::with(['roleRelation', 'reporter'])
+            ->withCount('articlesAuthored');
 
         if (auth()->user()->role !== 'supreme_admin') {
             $query->where('role', '!=', 'supreme_admin');
@@ -104,6 +105,7 @@ class UserController extends Controller
             'role_label_bn' => $user->roleRelation?->label_bn ?? $user->role,
             'status' => $user->email_verified_at ? 'active' : 'inactive',
             'last_login' => $user->last_login_at?->diffForHumans(),
+            'posts_count' => $user->articles_authored_count ?? 0,
             'created_at' => $user->created_at?->format('Y-m-d H:i'),
             'profile_photo_url' => $user->profile_photo_path
                 ? asset('storage/' . $user->profile_photo_path)
@@ -115,9 +117,15 @@ class UserController extends Controller
             $rolesQuery->where('name', '!=', 'supreme_admin');
         }
 
+        // Candidate users that a deleted user's posts can be reassigned to.
+        $reassignTargets = User::where('role', '!=', 'supreme_admin')
+            ->orderBy('name')
+            ->get(['id', 'name', 'role']);
+
         return Inertia::render('features/admin/pages/system/Users', [
             'users' => $users,
             'roles' => $rolesQuery->get(['id', 'name', 'label_en', 'label_bn', 'level']),
+            'reassignTargets' => $reassignTargets,
             'filters' => request()->only(['search', 'role', 'status', 'date_from', 'date_to', 'last_login', 'per_page', 'sort']),
         ]);
     }
@@ -214,7 +222,7 @@ class UserController extends Controller
     /**
      * Delete a user.
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
         if (!auth()->user()->hasPermission('user.delete')) {
             abort(403);
@@ -229,7 +237,23 @@ class UserController extends Controller
             return back()->with('error', __('You cannot delete your own account.'));
         }
 
-        $user->delete();
+        // If the user has authored content, it must be reassigned to another user
+        // (otherwise articles would be cascade-deleted / stories would block delete).
+        $target = null;
+        if ($user->contentCount() > 0) {
+            $validated = $request->validate([
+                'reassign_to' => ['required', 'integer', 'exists:users,id', 'different:' . $user->id],
+            ], [
+                'reassign_to.required' => __('Please choose a user to reassign this user\'s posts to.'),
+                'reassign_to.different' => __('Posts cannot be reassigned to the user being deleted.'),
+            ]);
+            $target = User::find($validated['reassign_to']);
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($user, $target) {
+            $user->reassignContent($target);
+            $user->delete();
+        });
 
         return back()->with('success', __('User deleted successfully.'));
     }

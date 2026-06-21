@@ -49,7 +49,7 @@ const DEFAULT_FILTERS = {
   per_page: 15,
 };
 
-export default function Users({ users, roles, filters }) {
+export default function Users({ users, roles, filters, reassignTargets = [] }) {
   const { lang, t } = useLanguage();
   const { showToast } = useToast();
   const searchTimeout = useRef(null);
@@ -98,6 +98,9 @@ export default function Users({ users, roles, filters }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [reassignTo, setReassignTo] = useState('');
+  const [reassignError, setReassignError] = useState('');
+  const [deleting, setDeleting] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -278,9 +281,29 @@ export default function Users({ users, roles, filters }) {
       await updateUser(editingUser.id, data); setShowEditModal(false); showToast(t('userUpdated'));
     } catch (errors) { setFormErrors(errors); } finally { setSubmitting(false); }
   };
+  const openDeleteConfirm = (user) => {
+    setReassignTo('');
+    setReassignError('');
+    setShowDeleteConfirm(user);
+  };
+
   const handleDelete = async (user) => {
-    try { await deleteUser(user.id); setShowDeleteConfirm(null); showToast(t('userDeleted')); }
-    catch { showToast(t('errorOccurred'), 'error'); }
+    const needsReassign = (user.posts_count || 0) > 0;
+    if (needsReassign && !reassignTo) {
+      setReassignError(lang === 'bn' ? 'পোস্টগুলো কাকে দেওয়া হবে তা নির্বাচন করুন।' : 'Please choose who to reassign the posts to.');
+      return;
+    }
+    setDeleting(true);
+    try {
+      await deleteUser(user.id, needsReassign ? { reassign_to: reassignTo } : {});
+      setShowDeleteConfirm(null);
+      setReassignTo('');
+      showToast(t('userDeleted'));
+    } catch (errors) {
+      setReassignError(errors?.reassign_to || (lang === 'bn' ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred'));
+    } finally {
+      setDeleting(false);
+    }
   };
   const handleToggleStatus = async (user) => {
     try { await toggleUserStatus(user.id); showToast(t('statusUpdated')); }
@@ -682,7 +705,7 @@ export default function Users({ users, roles, filters }) {
                       <button onClick={() => openEdit(user)} className="p-1.5 rounded-md hover:bg-gray-100 transition-colors" title={t('edit')}>
                         <Edit3 className="w-3.5 h-3.5 text-[var(--text-muted,#9ca3af)]" />
                       </button>
-                      <button onClick={() => setShowDeleteConfirm(user)} className="p-1.5 rounded-md hover:bg-[#eceff1] transition-colors" title={t('delete')}>
+                      <button onClick={() => openDeleteConfirm(user)} className="p-1.5 rounded-md hover:bg-[#eceff1] transition-colors" title={t('delete')}>
                         <Trash2 className="w-3.5 h-3.5 text-[#263238]" />
                       </button>
                     </div>
@@ -801,12 +824,35 @@ export default function Users({ users, roles, filters }) {
 
       {/* Delete Confirmation */}
       {showDeleteConfirm && (
-        <Modal title={t('deleteUser')} onClose={() => setShowDeleteConfirm(null)}>
+        <Modal title={t('deleteUser')} onClose={() => { setShowDeleteConfirm(null); setReassignError(''); }}>
           <div className="py-4">
             <p className="text-sm text-[var(--text-secondary,#6b7280)] mb-4">{t('confirmDeleteUser').replace('{name}', showDeleteConfirm.name)}</p>
+
+            {(showDeleteConfirm.posts_count || 0) > 0 && (
+              <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs font-semibold text-amber-800 mb-2">
+                  {lang === 'bn'
+                    ? `এই ব্যবহারকারীর ${showDeleteConfirm.posts_count}টি সংবাদ রয়েছে। মুছে ফেলার আগে এগুলো অন্য একজন ব্যবহারকারীকে দিন।`
+                    : `This user has ${showDeleteConfirm.posts_count} article(s). Reassign them to another user before deleting.`}
+                </p>
+                <select
+                  value={reassignTo}
+                  onChange={e => { setReassignTo(e.target.value); setReassignError(''); }}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238] bg-white"
+                >
+                  <option value="">{lang === 'bn' ? 'ব্যবহারকারী নির্বাচন করুন...' : 'Select a user...'}</option>
+                  {reassignTargets.filter(u => u.id !== showDeleteConfirm.id).map(u => (
+                    <option key={u.id} value={u.id}>{u.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {reassignError && <p className="text-xs text-red-600 mb-3">{reassignError}</p>}
+
             <div className="flex justify-end gap-2">
-              <button onClick={() => setShowDeleteConfirm(null)} className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 transition-colors">{t('cancel')}</button>
-              <button onClick={() => handleDelete(showDeleteConfirm)} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">{t('delete')}</button>
+              <button onClick={() => { setShowDeleteConfirm(null); setReassignError(''); }} className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 transition-colors">{t('cancel')}</button>
+              <button onClick={() => handleDelete(showDeleteConfirm)} disabled={deleting} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50">{t('delete')}</button>
             </div>
           </div>
         </Modal>
