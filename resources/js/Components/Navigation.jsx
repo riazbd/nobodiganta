@@ -372,29 +372,34 @@ export default function Navigation() {
             );
           })}
 
-          {/* "আরও / More" — always last */}
-          {overflowCats.length > 0 && (
-            <div className="nav-cat-wrap nav-more-wrap"
-              onMouseEnter={handleMoreEnter} onMouseLeave={handleMoreLeave}>
-              <a className="nav-item nav-more-btn" role="button" tabIndex={0}
-                onKeyDown={e => e.key === 'Enter' && setMoreOpen(o => !o)}>
-                {moreLabel}
-                <svg className="nav-arrow" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
-                  style={{ transition: 'transform .2s', transform: moreOpen ? 'rotate(180deg)' : 'none' }}>
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
-              </a>
-              {moreOpen && (
-                <div className="nav-sub-dropdown nav-more-dropdown nav-sub-dropdown--flip" role="menu"
-                  onMouseEnter={handleMoreEnter} onMouseLeave={handleMoreLeave}>
-                  {renderDropdownItems(overflowCats.map(cat => ({
-                    ...cat,
-                    children: cat.children ?? [],
-                  })), 0, [])}
+          {/* "আরও / More" — always last; holds the Breaking link + overflow categories */}
+          <div className="nav-cat-wrap nav-more-wrap"
+            onMouseEnter={handleMoreEnter} onMouseLeave={handleMoreLeave}>
+            <a className="nav-item nav-more-btn" role="button" tabIndex={0}
+              onKeyDown={e => e.key === 'Enter' && setMoreOpen(o => !o)}>
+              {moreLabel}
+              <svg className="nav-arrow" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                style={{ transition: 'transform .2s', transform: moreOpen ? 'rotate(180deg)' : 'none' }}>
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </a>
+            {moreOpen && (
+              <div className="nav-sub-dropdown nav-more-dropdown nav-sub-dropdown--flip" role="menu"
+                onMouseEnter={handleMoreEnter} onMouseLeave={handleMoreLeave}>
+                <div className="nav-sub-items">
+                  <a className="nav-sub-link" role="menuitem" tabIndex={0}
+                    onClick={() => { setMoreOpen(false); onNavigate('breaking'); }}
+                    onKeyDown={e => e.key === 'Enter' && (setMoreOpen(false), onNavigate('breaking'))}>
+                    {lang === 'bn' ? 'ব্রেকিং নিউজ' : 'Breaking News'}
+                  </a>
                 </div>
-              )}
-            </div>
-          )}
+                {overflowCats.length > 0 && renderDropdownItems(overflowCats.map(cat => ({
+                  ...cat,
+                  children: cat.children ?? [],
+                })), 0, [])}
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -495,6 +500,9 @@ export default function Navigation() {
 
           {/* Quick links */}
           <div className="drw-divider" />
+          <button className="drw-item" onClick={() => go('breaking')}>
+            {lang === 'bn' ? 'ব্রেকিং নিউজ' : 'Breaking News'}
+          </button>
           {MENU_ITEMS.map(item => (
             <button key={item.key} className="drw-item" onClick={() => go(item.page)}>
               {lang === 'bn' ? item.bn : item.en}
