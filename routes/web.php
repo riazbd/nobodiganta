@@ -218,6 +218,16 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/ads/{ad}', [AdController::class, 'destroy'])->name('ads.destroy')->whereNumber('ad');
         Route::patch('/ads/{ad}/toggle', [AdController::class, 'toggleStatus'])->name('ads.toggle')->whereNumber('ad');
 
+        // Ad clients (advertisers)
+        Route::post('/ad-clients', [\App\Http\Controllers\Admin\AdClientController::class, 'store'])->name('ad-clients.store');
+        Route::put('/ad-clients/{client}', [\App\Http\Controllers\Admin\AdClientController::class, 'update'])->name('ad-clients.update')->whereNumber('client');
+        Route::delete('/ad-clients/{client}', [\App\Http\Controllers\Admin\AdClientController::class, 'destroy'])->name('ad-clients.destroy')->whereNumber('client');
+
+        // Ad slots (inventory)
+        Route::post('/ad-slots', [\App\Http\Controllers\Admin\AdSlotController::class, 'store'])->name('ad-slots.store');
+        Route::put('/ad-slots/{slot}', [\App\Http\Controllers\Admin\AdSlotController::class, 'update'])->name('ad-slots.update')->whereNumber('slot');
+        Route::delete('/ad-slots/{slot}', [\App\Http\Controllers\Admin\AdSlotController::class, 'destroy'])->name('ad-slots.destroy')->whereNumber('slot');
+
         // Subscription Management
         Route::get('/subscriptions', [AdminSubscriptionController::class, 'index'])->name('subscriptions');
         Route::post('/subscriptions', [AdminSubscriptionController::class, 'store'])->name('subscriptions.store');

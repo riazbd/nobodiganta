@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ad extends Model
@@ -11,12 +12,17 @@ class Ad extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'client_id',
+        'slot_id',
         'title_bn',
         'title_en',
         'image',
         'video_url',
         'link',
         'position',
+        'pricing_model',
+        'price',
+        'cpm_rate',
         'type',
         'code',
         'start_date',
@@ -34,7 +40,31 @@ class Ad extends Model
         'impressions' => 'integer',
         'clicks' => 'integer',
         'sort_order' => 'integer',
+        'price' => 'decimal:2',
+        'cpm_rate' => 'decimal:2',
     ];
+
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(AdClient::class, 'client_id');
+    }
+
+    public function slot(): BelongsTo
+    {
+        return $this->belongsTo(AdSlot::class, 'slot_id');
+    }
+
+    /**
+     * Monetary value of this booking. Flat = agreed price; CPM = delivered
+     * impressions / 1000 × agreed CPM rate.
+     */
+    public function bookingValue(): float
+    {
+        if ($this->pricing_model === 'cpm') {
+            return round(($this->impressions / 1000) * (float) $this->cpm_rate, 2);
+        }
+        return (float) ($this->price ?? 0);
+    }
 
     /**
      * Scope: Only active ads
