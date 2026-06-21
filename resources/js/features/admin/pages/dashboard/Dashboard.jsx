@@ -1,4 +1,4 @@
-﻿import { usePage } from '@inertiajs/react';
+﻿import { usePage, router } from '@inertiajs/react';
 import { Newspaper, Users, MessageSquare, CreditCard, PenLine, Upload, TrendingUp, Flame, BarChart3, Globe, Zap, Clock, Activity, Calendar } from 'lucide-react';
 import { StatCard, MiniStat } from '../../components/widgets/StatCard';
 import { LineChart } from '../../components/charts/LineChart';
@@ -110,7 +110,18 @@ export default function Dashboard({
             <h3 className="text-sm font-bold">{t('quickActions')}</h3>
           </div>
           <div className="p-4.5">
-            <QuickActions onAction={(id) => { if (id === 'write') onNavigate?.('news-write'); }} showToast={showToast} lang={lang} />
+            <QuickActions onAction={(id) => {
+              if (id === 'cache') {
+                router.post(route('admin.cache.clear'), {}, {
+                  preserveScroll: true,
+                  onSuccess: () => showToast(lang === 'bn' ? 'ক্যাশ পরিষ্কার হয়েছে' : 'Cache cleared'),
+                  onError: () => showToast(lang === 'bn' ? 'অনুমতি নেই' : 'Not allowed', 'error'),
+                });
+                return;
+              }
+              const targets = { write: 'news-write', upload: 'media', breaking: 'breaking', seo: 'seo', ads: 'ads' };
+              if (targets[id]) onNavigate?.(targets[id]);
+            }} showToast={showToast} lang={lang} />
           </div>
         </div>
       </div>

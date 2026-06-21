@@ -191,7 +191,22 @@ export default function Navigation() {
     ? (settings?.nav_more_label_bn || 'আরও')
     : (settings?.nav_more_label_en || 'More');
 
-  const handleCatEnter = slug => { clearTimeout(hoverTimer.current); setHoveredCat(slug); };
+  // Flip a dropdown (and its nested submenus) leftward when it would otherwise
+  // overflow the right edge of the viewport, so menus always stay on screen.
+  const [flip, setFlip] = useState(false);
+  const estDropWidth = (cat) => {
+    const kids = cat.children || [];
+    const grid = kids.length > 6 && !kids.some(i => i.children?.length > 0);
+    if (grid) return kids.length > 10 ? 680 : 460;
+    return 240;
+  };
+  const handleCatEnter = (cat, e) => {
+    clearTimeout(hoverTimer.current);
+    setHoveredCat(cat.slug);
+    const left = e?.currentTarget?.getBoundingClientRect().left ?? 0;
+    // +220 leaves room for a nested submenu that would open to the right.
+    setFlip(left + estDropWidth(cat) + 220 > window.innerWidth - 8);
+  };
   const handleCatLeave = ()   => { hoverTimer.current = setTimeout(() => setHoveredCat(null), 130); };
   const handleDropEnter = ()  => clearTimeout(hoverTimer.current);
   const handleDropLeave = ()  => { hoverTimer.current = setTimeout(() => setHoveredCat(null), 130); };
@@ -324,7 +339,7 @@ export default function Navigation() {
             const nav         = makeCatNav(cat);
             return (
               <div key={cat.slug} className="nav-cat-wrap"
-                onMouseEnter={() => hasChildren && handleCatEnter(cat.slug)}
+                onMouseEnter={(e) => hasChildren && handleCatEnter(cat, e)}
                 onMouseLeave={handleCatLeave}>
                 <a className={`nav-item${hasChildren ? ' nav-has-sub' : ''}`}
                   onClick={nav} role="menuitem" tabIndex={0}
@@ -337,7 +352,7 @@ export default function Navigation() {
                   )}
                 </a>
                 {hasChildren && isHovered && (
-                  <div className="nav-sub-dropdown" role="menu"
+                  <div className={`nav-sub-dropdown${flip ? ' nav-sub-dropdown--flip' : ''}`} role="menu"
                     onMouseEnter={handleDropEnter} onMouseLeave={handleDropLeave}>
                     {renderDropdownItems(cat.children, 0, [cat])}
                   </div>
@@ -370,7 +385,7 @@ export default function Navigation() {
                 </svg>
               </a>
               {moreOpen && (
-                <div className="nav-sub-dropdown nav-more-dropdown" role="menu"
+                <div className="nav-sub-dropdown nav-more-dropdown nav-sub-dropdown--flip" role="menu"
                   onMouseEnter={handleMoreEnter} onMouseLeave={handleMoreLeave}>
                   {renderDropdownItems(overflowCats.map(cat => ({
                     ...cat,

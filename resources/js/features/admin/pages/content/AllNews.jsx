@@ -57,6 +57,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
   const [division,     setDivision]     = useState(filters.division     || '');
   const [district,     setDistrict]     = useState(filters.district     || '');
   const [locCategory,  setLocCategory]  = useState(filters.location_category || '');
+  const [flag,         setFlag]         = useState(filters.flag          || 'all');
   const [dateFrom,     setDateFrom]     = useState(filters.date_from    || '');
   const [dateTo,       setDateTo]       = useState(filters.date_to      || '');
   const [perPage,      setPerPage]      = useState(filters.per_page     || '20');
@@ -81,7 +82,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
     const p = {
       search, status, category, edition,
       article_type: articleType, author,
-      division, district, location_category: locCategory,
+      division, district, location_category: locCategory, flag,
       date_from: dateFrom, date_to: dateTo,
       per_page: perPage, sort_by: sortBy, sort_dir: sortDir,
       page: 1,
@@ -93,7 +94,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
 
   const applyFilters = useCallback((overrides = {}) => {
     router.get(route('admin.news'), buildParams(overrides), { preserveState: true, preserveScroll: true });
-  }, [search, status, category, edition, articleType, author, division, district, locCategory, dateFrom, dateTo, perPage, sortBy, sortDir]);
+  }, [search, status, category, edition, articleType, author, division, district, locCategory, flag, dateFrom, dateTo, perPage, sortBy, sortDir]);
 
   const handleSearch = (val) => {
     setSearch(val);
@@ -122,13 +123,13 @@ export default function AllNews({ articles, categories, authors = [], divisions 
   const resetFilters = () => {
     setSearch(''); setStatus('all'); setCategory('all'); setEdition('all');
     setArticleType('all'); setAuthor('all'); setDivision(''); setDistrict(''); setDists([]);
-    setLocCategory(''); setDateFrom(''); setDateTo('');
+    setLocCategory(''); setFlag('all'); setDateFrom(''); setDateTo('');
     setPerPage('20'); setSortBy('created_at'); setSortDir('desc');
     router.get(route('admin.news'), {}, { preserveState: true });
   };
 
   const hasActiveFilters = status !== 'all' || category !== 'all' || edition !== 'all' ||
-    articleType !== 'all' || author !== 'all' || division || district || locCategory || dateFrom || dateTo;
+    articleType !== 'all' || author !== 'all' || division || district || locCategory || flag !== 'all' || dateFrom || dateTo;
 
   const handleDelete = (id) => {
     setSubmitting(true);
@@ -142,6 +143,13 @@ export default function AllNews({ articles, categories, authors = [], divisions 
     router.patch(route('admin.news.transition-status', { article: id }), { status: newStatus }, {
       preserveScroll: true,
       onSuccess: () => showToast(lang === 'bn' ? 'অবস্থা আপডেট হয়েছে' : 'Status updated'),
+    });
+  };
+
+  const toggleFlag = (id, flagName) => {
+    router.patch(route('admin.news.toggle-flag', { article: id }), { flag: flagName }, {
+      preserveScroll: true, preserveState: true,
+      onSuccess: () => showToast(lang === 'bn' ? 'আপডেট হয়েছে' : 'Updated'),
     });
   };
 
@@ -253,6 +261,14 @@ export default function AllNews({ articles, categories, authors = [], divisions 
               {TYPE_OPTIONS.map(o => <option key={o.value} value={o.value}>{l(o.bn, o.en)}</option>)}
             </Select>
 
+            {/* Flag */}
+            <Select value={flag} onChange={v => { setFlag(v); applyFilters({ flag: v }); }}>
+              <option value="all">{l('সব ফ্ল্যাগ', 'All Flags')}</option>
+              <option value="breaking">{l('ব্রেকিং', 'Breaking')}</option>
+              <option value="featured">{l('ফিচার্ড', 'Featured')}</option>
+              <option value="premium">{l('প্রিমিয়াম', 'Premium')}</option>
+            </Select>
+
             {/* Author */}
             <Select value={author} onChange={v => { setAuthor(v); applyFilters({ author: v }); }} className="min-w-[150px]">
               <option value="all">{l('সব লেখক', 'All Authors')}</option>
@@ -359,9 +375,9 @@ export default function AllNews({ articles, categories, authors = [], divisions 
                       {article.article_type && article.article_type !== 'news' && (
                         <span className="text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-bold uppercase">{article.article_type}</span>
                       )}
-                      {article.is_breaking && <span className="text-[8px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold">BREAKING</span>}
-                      {article.is_featured && <span className="text-[8px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded font-bold">FEATURED</span>}
-                      {article.is_premium  && <span className="text-[8px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded font-bold">PREMIUM</span>}
+                      <FlagChip active={article.is_breaking} onClick={() => toggleFlag(article.id, 'breaking')} onClass="bg-red-100 text-red-600" label={l('ব্রেকিং', 'BREAKING')} title={l('ব্রেকিং টগল', 'Toggle breaking')} />
+                      <FlagChip active={article.is_featured} onClick={() => toggleFlag(article.id, 'featured')} onClass="bg-blue-100 text-blue-600" label={l('ফিচার্ড', 'FEATURED')} title={l('ফিচার্ড টগল', 'Toggle featured')} />
+                      <FlagChip active={article.is_premium} onClick={() => toggleFlag(article.id, 'premium')} onClass="bg-yellow-100 text-yellow-700" label={l('প্রিমিয়াম', 'PREMIUM')} title={l('প্রিমিয়াম টগল', 'Toggle premium')} />
                     </div>
                   </td>
 
@@ -562,6 +578,19 @@ function Select({ value, onChange, children, className = '' }) {
       </select>
       <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
     </div>
+  );
+}
+
+function FlagChip({ active, onClick, onClass, label, title }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide transition-colors ${active ? onClass : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+    >
+      {label}
+    </button>
   );
 }
 

@@ -3,9 +3,19 @@
 namespace App\Observers;
 
 use App\Models\Article;
+use App\Models\BreakingNews;
 
 class ArticleObserver
 {
+    /**
+     * Handle the Article "saved" event — keep the breaking-news entry in sync
+     * with the article's is_breaking flag (covers editor, All-News toggle, etc.).
+     */
+    public function saved(Article $article): void
+    {
+        BreakingNews::syncForArticle($article);
+    }
+
     /**
      * Handle the Article "saving" event.
      */

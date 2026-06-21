@@ -11,6 +11,7 @@ export const ROUTES = {
     gallery:     (ed = 'bn') => ed === 'en' ? '/en/gallery'      : '/gallery',
     video:       (ed = 'bn') => ed === 'en' ? '/en/video'        : '/video',
     stories:     (ed = 'bn') => ed === 'en' ? '/en/stories'      : '/stories',
+    breaking:    (ed = 'bn') => ed === 'en' ? '/en/breaking'     : '/breaking',
     epaper:      (ed = 'bn') => ed === 'en' ? '/en/epaper'       : '/epaper',
     about:       (ed = 'bn') => ed === 'en' ? '/en/about'        : '/about',
     contact:     (ed = 'bn') => ed === 'en' ? '/en/contact'      : '/contact',
@@ -62,6 +63,7 @@ export const ROUTES = {
     admin: {
         dashboard:        '/admin/dashboard',
         news:             '/admin/news',
+        breaking:         '/admin/breaking',
         newsAll:          '/admin/news',
         newsWrite:        '/admin/news/write',
         newsDrafts:       '/admin/news/drafts',

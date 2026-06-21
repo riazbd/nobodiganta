@@ -2,117 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Article;
+use App\Models\BreakingNews;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Inertia\Inertia;
 
 class BreakingNewsController extends Controller
 {
     /**
-     * Server-Sent Events stream for breaking news.
-     * Pushes updates every 30 seconds to connected clients.
-     */
-    public function stream(Request $request): StreamedResponse
-    {
-        $edition = str_starts_with($request->path(), 'en') ? 'en' : 'bn';
-
-        $response = new StreamedResponse(function () use ($edition) {
-            // Disable output buffering for real-time streaming
-            if (ob_get_level()) {
-                ob_end_clean();
-            }
-
-            $lastCount = 0;
-
-            while (true) {
-                // Check if client is still connected
-                if (connection_aborted()) {
-                    break;
-                }
-
-                // Fetch latest breaking news
-                $breakingNews = Article::published()
-                    ->forEdition($edition)
-                    ->where('is_breaking', true)
-                    ->latest('published_at')
-                    ->limit(5)
-                    ->get()
-                    ->map(fn($article) => [
-                        'id' => $article->id,
-                        'title' => $edition === 'en' 
-                            ? ($article->title_en ?? $article->title_bn) 
-                            : $article->title_bn,
-                        'slug' => $edition === 'en' && $article->slug_en 
-                            ? $article->slug_en 
-                            : $article->slug_bn,
-                        'category_slug' => $article->category->slug,
-                        'published_at' => $article->published_at?->toIso8601String(),
-                    ]);
-
-                // Only send if there are changes
-                if ($breakingNews->count() !== $lastCount || $breakingNews->pluck('id')->toArray() !== $lastCount) {
-                    echo "data: " . json_encode([
-                        'success' => true,
-                        'news' => $breakingNews,
-                        'count' => $breakingNews->count(),
-                    ]) . "\n\n";
-
-                    $lastCount = $breakingNews->count();
-                }
-
-                // Flush output immediately
-                if (ob_get_level()) {
-                    ob_flush();
-                }
-                flush();
-
-                // Wait 30 seconds before next update
-                sleep(30);
-            }
-        }, 200, [
-            'Content-Type' => 'text/event-stream',
-            'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
-            'X-Accel-Buffering' => 'no', // Disable Nginx buffering
-        ]);
-
-        return $response;
-    }
-
-    /**
-     * Get current breaking news (REST endpoint).
+     * Live breaking items for the current edition (polled by the public ticker).
+     * Cheap + cacheable via ETag so unchanged polls return 304.
      */
     public function index(Request $request)
     {
         $edition = str_starts_with($request->path(), 'en') ? 'en' : 'bn';
 
-        $breakingNews = Article::published()
-            ->forEdition($edition)
-            ->where('is_breaking', true)
-            ->latest('published_at')
-            ->limit(10)
+        $news = BreakingNews::active($edition)
+            ->ordered()
+            ->with('article.category')
+            ->limit(15)
             ->get()
-            ->map(fn($article) => [
-                'id' => $article->id,
-                'title' => $edition === 'en' 
-                    ? ($article->title_en ?? $article->title_bn) 
-                    : $article->title_bn,
-                'excerpt' => $edition === 'en' 
-                    ? ($article->excerpt_en ?? $article->excerpt_bn) 
-                    : $article->excerpt_bn,
-                'slug' => $edition === 'en' && $article->slug_en 
-                    ? $article->slug_en 
-                    : $article->slug_bn,
-                'category_slug' => $article->category->slug,
-                'category_name' => $edition === 'en' 
-                    ? ($article->category->name_en ?? $article->category->name_bn) 
-                    : $article->category->name_bn,
-                'published_at' => $article->published_at?->toIso8601String(),
-            ]);
+            ->map(fn($b) => $b->toPublicArray($edition))
+            ->values();
 
-        return response()->json([
-            'success' => true,
-            'news' => $breakingNews,
+        $etag = '"' . md5($news->toJson()) . '"';
+        if (trim($request->headers->get('If-None-Match', '')) === $etag) {
+            return response('', 304)->header('ETag', $etag)->header('Cache-Control', 'public, max-age=15');
+        }
+
+        return response()
+            ->json(['success' => true, 'news' => $news])
+            ->header('ETag', $etag)
+            ->header('Cache-Control', 'public, max-age=15');
+    }
+
+    /**
+     * Public breaking-news archive page (recent items for the edition).
+     */
+    public function page(Request $request)
+    {
+        $edition = str_starts_with($request->path(), 'en') ? 'en' : 'bn';
+
+        $items = BreakingNews::with('article.category')
+            ->whereIn('edition', [$edition, 'both'])
+            ->orderByDesc('created_at')
+            ->paginate(30)
+            ->through(fn($b) => array_merge($b->toPublicArray($edition), [
+                'created_at' => $b->created_at?->toIso8601String(),
+                'is_active' => $b->is_active && !$b->isExpired(),
+            ]));
+
+        return Inertia::render('Breaking', [
+            'items' => $items,
+            'edition' => $edition,
         ]);
     }
 }

@@ -78,7 +78,6 @@ Route::get('/live/{slug}', [NewsController::class, 'liveblog'])->name('liveblog'
 // PUBLIC API ROUTES (BEFORE catch-all article route)
 // ══════════════════════════════════════
 Route::get('/api/categories', [CategoryController::class, 'publicIndex'])->name('api.categories');
-Route::get('/api/breaking-news/stream', [BreakingNewsController::class, 'stream'])->name('breaking-news.stream');
 Route::get('/api/breaking-news', [BreakingNewsController::class, 'index'])->name('breaking-news.index');
 
 // Gallery & Media API
@@ -105,6 +104,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/api/media', [MediaController::class, 'apiIndex'])->name('api.media.index');
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::post('/cache/clear', [DashboardController::class, 'clearCache'])->name('cache.clear');
 
         // Content - Article Management
         Route::get('/news', [ArticleController::class, 'index'])->name('news');
@@ -155,7 +155,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/news/bulk-status', [ArticleController::class, 'bulkUpdateStatus'])->name('news.bulk-status');
         Route::post('/news/bulk-delete', [ArticleController::class, 'bulkDestroy'])->name('news.bulk-delete');
         Route::patch('/news/{article}/status', [ArticleController::class, 'transitionStatus'])->name('news.transition-status')->whereNumber('article');
+        Route::patch('/news/{article}/flag', [ArticleController::class, 'toggleFlag'])->name('news.toggle-flag')->whereNumber('article');
         Route::get('/news/{article}/allowed-transitions', [ArticleController::class, 'getAllowedTransitions'])->name('news.allowed-transitions')->whereNumber('article');
+
+        // Breaking News control center
+        Route::get('/breaking', [\App\Http\Controllers\Admin\BreakingNewsController::class, 'index'])->name('breaking');
+        Route::post('/breaking', [\App\Http\Controllers\Admin\BreakingNewsController::class, 'store'])->name('breaking.store');
+        Route::post('/breaking/reorder', [\App\Http\Controllers\Admin\BreakingNewsController::class, 'reorder'])->name('breaking.reorder');
+        Route::put('/breaking/{breaking}', [\App\Http\Controllers\Admin\BreakingNewsController::class, 'update'])->name('breaking.update')->whereNumber('breaking');
+        Route::delete('/breaking/{breaking}', [\App\Http\Controllers\Admin\BreakingNewsController::class, 'destroy'])->name('breaking.destroy')->whereNumber('breaking');
+        Route::patch('/breaking/{breaking}/expire', [\App\Http\Controllers\Admin\BreakingNewsController::class, 'expire'])->name('breaking.expire')->whereNumber('breaking');
+        Route::patch('/breaking/{breaking}/reactivate', [\App\Http\Controllers\Admin\BreakingNewsController::class, 'reactivate'])->name('breaking.reactivate')->whereNumber('breaking');
 
         // Categories
         Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
@@ -416,6 +426,9 @@ Route::post('/api/comments/{comment}/flag', [CommentController::class, 'flag'])-
 Route::get('/stories', [\App\Http\Controllers\StoriesController::class, 'index'])->name('stories');
 Route::get('/api/stories', [\App\Http\Controllers\StoriesController::class, 'apiIndex'])->name('api.stories');
 
+// Breaking news archive (public)
+Route::get('/breaking', [BreakingNewsController::class, 'page'])->name('breaking');
+
 // ══════════════════════════════════════
 // ENGLISH EDITION — mirrors all public routes under /en prefix
 // MUST be declared before the /{category}/{slug} catch-all
@@ -449,6 +462,7 @@ Route::prefix('en')->group(function () {
     Route::get('/author/{slug}', [NewsController::class, 'author'])->name('en.author');
     Route::get('/live/{slug}', [NewsController::class, 'liveblog'])->name('en.liveblog');
     Route::get('/stories', [\App\Http\Controllers\StoriesController::class, 'index'])->name('en.stories');
+    Route::get('/breaking', [BreakingNewsController::class, 'page'])->name('en.breaking');
     Route::get('/{category}/{slug}', [NewsController::class, 'article'])->name('en.article');
 });
 

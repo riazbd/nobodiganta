@@ -155,6 +155,7 @@ function urlToPageName(url) {
         '': 'dashboard',
         'dashboard': 'dashboard',
         'news': 'news-all',
+        'breaking': 'breaking',
         'categories': 'categories',
         'media': 'media',
         'videos': 'videos',

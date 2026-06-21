@@ -88,6 +88,9 @@ return [
         'vapid_subject' => env('WEBPACK_VAPID_SUBJECT', 'mailto:admin@nobodigonto.com'),
         'vapid_public_key' => env('WEBPACK_VAPID_PUBLIC_KEY'),
         'vapid_private_key' => env('WEBPACK_VAPID_PRIVATE_KEY'),
+        // Master switch for breaking-news web-push. Implementation is complete
+        // but DORMANT by default — set BREAKING_PUSH_ENABLED=true to activate later.
+        'breaking_push_enabled' => env('BREAKING_PUSH_ENABLED', false),
     ],
 
     /*

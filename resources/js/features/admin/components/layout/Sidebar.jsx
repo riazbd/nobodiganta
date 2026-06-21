@@ -50,6 +50,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
             { id: 'news-pending',   label: 'pendingApproval', permission: PERMISSIONS.NEWS_REVIEW },
           ]
         },
+        { id: 'breaking', icon: 'Zap',        label: 'breakingNews',  permission: PERMISSIONS.NEWS_VIEW },
         { id: 'opinions', icon: 'PenLine',    label: 'opinionColumn', permission: PERMISSIONS.OPINION_VIEW },
         { id: 'videos',   icon: 'Video',      label: 'videos',        permission: PERMISSIONS.VIDEO_VIEW },
         { id: 'photos',   icon: 'Camera',     label: 'photoGallery',  permission: PERMISSIONS.MEDIA_GALLERY_MANAGE },

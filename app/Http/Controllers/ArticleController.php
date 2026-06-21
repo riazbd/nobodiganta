@@ -33,6 +33,7 @@ class ArticleController extends Controller
         $division    = $request->input('division');
         $district    = $request->input('district');
         $locCategory = $request->input('location_category');
+        $flag        = $request->input('flag');
         $dateFrom    = $request->input('date_from');
         $dateTo      = $request->input('date_to');
         $sortBy      = in_array($request->input('sort_by'), ['created_at', 'published_at', 'views', 'title_bn']) ? $request->input('sort_by') : 'created_at';
@@ -98,6 +99,10 @@ class ArticleController extends Controller
             $query->whereHas('categories', fn($q) => $q->where('slug', $locCategory));
         }
 
+        if (in_array($flag, ['breaking', 'featured', 'premium'], true)) {
+            $query->where('is_' . $flag, true);
+        }
+
         $articles = $query->paginate($perPage)->withQueryString();
 
         $articles->getCollection()->transform(function ($article) {
@@ -159,7 +164,7 @@ class ArticleController extends Controller
                 ])
                 ->toArray(),
             'locationTree'  => $saradeshCat,
-            'filters'       => $request->only(['status', 'edition', 'category', 'search', 'article_type', 'author', 'date_from', 'date_to', 'sort_by', 'sort_dir', 'per_page', 'division', 'district', 'location_category']),
+            'filters'       => $request->only(['status', 'edition', 'category', 'search', 'article_type', 'author', 'date_from', 'date_to', 'sort_by', 'sort_dir', 'per_page', 'division', 'district', 'location_category', 'flag']),
         ]);
     }
 
@@ -802,6 +807,25 @@ class ArticleController extends Controller
     /**
      * Transition article status (with workflow validation)
      */
+    /**
+     * Toggle a boolean flag (breaking / featured / premium) straight from the list.
+     */
+    public function toggleFlag(Request $request, Article $article)
+    {
+        if (!$request->user()->hasPermission('news.edit')) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'flag' => 'required|in:breaking,featured,premium',
+        ]);
+
+        $column = 'is_' . $validated['flag'];
+        $article->update([$column => !$article->{$column}]);
+
+        return back()->with('success', 'Flag updated');
+    }
+
     public function transitionStatus(Request $request, Article $article)
     {
         $validated = $request->validate([

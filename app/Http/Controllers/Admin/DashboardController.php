@@ -174,6 +174,21 @@ class DashboardController extends Controller
     }
 
     /**
+     * Clear the application + view cache (Quick Actions → Clear Cache).
+     */
+    public function clearCache(Request $request)
+    {
+        if (!$request->user()->hasPermission('system.settings')) {
+            abort(403);
+        }
+
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+
+        return back()->with('success', 'Cache cleared');
+    }
+
+    /**
      * Percentage change between two periods, plus direction, for stat cards.
      */
     private function trend(int $current, int $previous): array

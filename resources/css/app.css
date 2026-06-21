@@ -648,6 +648,17 @@ article .card{padding:8px;}
   animation:brkScroll 60s linear infinite;
   will-change:transform;
 }
+/* Severity variants */
+.brk-sev-just_in .brk-label{background:#475569;}
+.brk-sev-live .brk-label{background:#059669;}
+.brk-sev-urgent .brk-label{background:#ea580c;}
+.brk-sev-urgent{animation:brkFlash 1.2s steps(1,end) infinite;}
+@keyframes brkFlash{0%,100%{background:#111;}50%{background:#3a0d0d;}}
+.brk-sev-live .brk-label::before{content:'';width:8px;height:8px;border-radius:50%;background:#fff;margin-right:7px;animation:brkPulse 1s ease-in-out infinite;}
+@keyframes brkPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.5);}}
+/* Dismiss button */
+.brk-dismiss{flex-shrink:0;background:transparent;border:none;color:rgba(255,255,255,.55);font-size:22px;line-height:1;padding:0 14px;cursor:pointer;transition:color .15s;}
+.brk-dismiss:hover{color:#fff;}
 .brk-track:hover{animation-play-state:paused;}
 @keyframes brkScroll{
   0%   { transform:translateX(0); }
@@ -1534,13 +1545,27 @@ html[lang="en"] .art-codename{font-family:'Merriweather','Georgia',serif;}
 .nav-sub-sub .nav-sub-sub{
   border-radius:0 8px 8px 8px;
   z-index:10001;
-  max-height:420px;
+  max-height:calc(100vh - 140px);
   overflow-y:auto;
 }
 
 /* "আরও / More" overflow dropdown — right-aligned so it doesn't clip viewport */
 .nav-more-wrap{position:relative;display:flex;align-items:stretch;}
 .nav-more-dropdown{left:auto;right:0;border-radius:8px 0 8px 8px;}
+
+/* Edge flip — keep dropdowns (and their nested submenus) on screen near the
+   right edge: right-align the panel and open child menus to the left. */
+.nav-sub-dropdown--flip{left:auto;right:0;border-radius:10px 0 10px 10px;}
+.nav-sub-dropdown--flip .nav-sub-sub{left:auto;right:100%;border-radius:8px 0 8px 8px;}
+.nav-sub-dropdown--flip .nav-sub-sub .nav-sub-sub{left:auto;right:100%;}
+/* Safety net: never let any nav dropdown exceed the viewport width */
+.nav-sub-dropdown{max-width:96vw;}
+
+/* Vertical overflow — cap menus to the viewport height and scroll. Only leaf
+   lists (grids, upazila lists) scroll; levels that contain flyout submenus
+   (:has(.nav-sub-wrap)) stay overflow-visible so their children aren't clipped. */
+.nav-sub-dropdown:not(:has(.nav-sub-wrap)){max-height:calc(100vh - 110px);overflow-y:auto;}
+.nav-sub-sub:not(:has(.nav-sub-wrap)){max-height:calc(100vh - 90px);overflow-y:auto;}
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    ARTICLE BODY â€” Rich Text (Quill HTML)

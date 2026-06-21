@@ -43,18 +43,14 @@ class HandleInertiaRequests extends Middleware
             return [$setting->key => $setting->value];
         });
 
-        // Load breaking news globally
-        $globalBreakingNews = Article::published()
-            ->forEdition($edition)
-            ->breaking()
-            ->latest()
-            ->limit(5)
+        // Load breaking news globally from the dedicated breaking-news system
+        // (active items only; the ticker hydrates from this then polls for updates).
+        $globalBreakingNews = \App\Models\BreakingNews::active($edition)
+            ->ordered()
+            ->with('article.category')
+            ->limit(15)
             ->get()
-            ->map(fn($article) => [
-                'title' => $edition === 'en' ? $article->title_en : $article->title_bn,
-                'slug' => $edition === 'en' ? $article->slug_en : $article->slug_bn,
-                'category_slug' => $article->category->slug ?? 'news',
-            ]);
+            ->map(fn($b) => $b->toPublicArray($edition));
 
         // Load header ad globally
         $headerAd = \App\Models\Ad::active()->position('header')->first();
