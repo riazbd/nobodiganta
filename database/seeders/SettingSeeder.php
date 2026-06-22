@@ -235,15 +235,9 @@ class SettingSeeder extends Seeder
                 'label_en' => 'Maintenance Mode',
                 'is_public' => false,
             ],
-            [
-                'key' => 'allow_registration',
-                'value' => 'false',
-                'group' => 'system',
-                'type' => 'boolean',
-                'label_bn' => 'রেজিস্ট্রেশন অনুমোদন',
-                'label_en' => 'Allow Registration',
-                'is_public' => false,
-            ],
+            // 'allow_registration' intentionally removed — public registration is
+            // hard-disabled at the route level (routes/auth.php), so a dashboard
+            // toggle for it would be a no-op and misleading.
             [
                 'key' => 'comment_approval',
                 'value' => 'true',

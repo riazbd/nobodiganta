@@ -22,7 +22,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        if (!Setting::get('allow_registration', true)) {
+        // Fail-safe: registration is disabled by default (routes are removed too).
+        if (!Setting::get('allow_registration', false)) {
             abort(404);
         }
         return Inertia::render('Auth/Register');
@@ -35,7 +36,7 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if (!Setting::get('allow_registration', true)) {
+        if (!Setting::get('allow_registration', false)) {
             abort(403);
         }
 
