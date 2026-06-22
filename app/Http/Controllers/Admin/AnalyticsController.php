@@ -87,10 +87,13 @@ class AnalyticsController extends Controller
             ])
             ->sortByDesc('count')->values();
 
-        // Device breakdown
-        $deviceRows = (clone $pvInRange)
-            ->selectRaw("COALESCE(device, 'unknown') as d, count(*) as c")
-            ->groupBy('d')->pluck('c', 'd');
+        // Device breakdown — guarded so a missing column (e.g. migration not yet
+        // run on a fresh deploy) degrades to "no data" instead of erroring the page.
+        $deviceRows = \Illuminate\Support\Facades\Schema::hasColumn('page_views', 'device')
+            ? (clone $pvInRange)
+                ->selectRaw("COALESCE(device, 'unknown') as d, count(*) as c")
+                ->groupBy('d')->pluck('c', 'd')
+            : collect();
         $devTotal = max(1, $deviceRows->sum());
         $devMeta = [
             'mobile'  => ['bn' => 'মোবাইল', 'en' => 'Mobile', 'color' => '#263238'],
