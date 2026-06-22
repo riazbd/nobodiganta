@@ -65,6 +65,27 @@ const syncCsrf = (page) => {
 router.on('navigate', (e) => syncCsrf(e.detail?.page));
 router.on('success',  (e) => syncCsrf(e.detail?.page));
 
+// Google Analytics — send a page_view on the initial load and on every Inertia
+// navigation, so client-side (SPA) route changes are counted. Public site only:
+// gtag isn't loaded on /admin, and we also skip admin paths defensively. The
+// dedupe guard prevents counting the same URL twice (initial + navigate event).
+let gaLastUrl = null;
+const gaTrackPageView = () => {
+    if (typeof window.gtag !== 'function') return;
+    const path = window.location.pathname;
+    if (path === '/admin' || path.startsWith('/admin/')) return;
+    const url = path + window.location.search;
+    if (url === gaLastUrl) return;
+    gaLastUrl = url;
+    window.gtag('event', 'page_view', {
+        page_path: url,
+        page_location: window.location.href,
+        page_title: document.title,
+    });
+};
+router.on('navigate', gaTrackPageView);
+gaTrackPageView(); // initial page load
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: async (name) => {

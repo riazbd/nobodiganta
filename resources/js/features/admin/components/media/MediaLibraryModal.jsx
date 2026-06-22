@@ -177,10 +177,17 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
         showToast(errMsg, 'error');
       }
     } catch (err) {
-      const msg = err.response?.data?.errors?.file?.[0]
-        || err.response?.data?.message
-        || err.message
-        || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed');
+      // 413 = the whole POST exceeded the server's post_max_size (the file is
+      // bigger than PHP allows) — give a clear, actionable message instead of a
+      // cryptic one.
+      const msg = err.response?.status === 413
+        ? (lang === 'bn'
+            ? 'ফাইলটি সার্ভারের অনুমোদিত সীমার চেয়ে বড়। সার্ভারের আপলোড লিমিট (php.ini) বাড়াতে হবে।'
+            : 'File is larger than the server allows. The server upload limit (php.ini) needs to be raised.')
+        : (err.response?.data?.errors?.file?.[0]
+          || err.response?.data?.message
+          || err.message
+          || (lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed'));
       showToast(msg, 'error');
     } finally {
       setUploading(false);

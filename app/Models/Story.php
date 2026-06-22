@@ -49,6 +49,19 @@ class Story extends Model
         return $query->where('status', 'published');
     }
 
+    /**
+     * Publicly visible right now: published AND not past its expiry. Guards the
+     * gap between a story's expires_at and the hourly stories:expire cron, so an
+     * expired story never lingers on the site in real time.
+     */
+    public function scopeLive($query)
+    {
+        return $query->where('status', 'published')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            });
+    }
+
     public function scopeForEdition($query, string $edition)
     {
         if ($edition === 'bn' || $edition === 'en') {

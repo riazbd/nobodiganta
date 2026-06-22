@@ -5,6 +5,31 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        {{-- Tracking & custom code — dashboard-managed (Settings → Integrations),
+             public site only so admin-panel activity doesn't pollute analytics. --}}
+        @unless(request()->is('admin') || request()->is('admin/*'))
+            @php
+                $gaId = \App\Models\Setting::where('key', 'google_analytics_id')->value('value');
+                $customHeadCode = \App\Models\Setting::where('key', 'custom_head_code')->value('value');
+            @endphp
+            @if($gaId)
+            <!-- Google tag (gtag.js) -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+            <script>
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              // SPA: send_page_view:false — page views are sent manually on every
+              // Inertia navigation (resources/js/app.jsx) so client-side route
+              // changes are tracked too, without double-counting the first load.
+              gtag('config', '{{ $gaId }}', { send_page_view: false });
+            </script>
+            @endif
+            @if($customHeadCode)
+            {!! $customHeadCode !!}
+            @endif
+        @endunless
+
         @php
             // Server-side OG tags for social crawlers (Facebook, Twitter, WhatsApp etc.)
             // These must be in the raw HTML before JS loads.
@@ -104,5 +129,11 @@
     </head>
     <body class="font-sans antialiased">
         @inertia
+
+        {{-- Custom body code (chat widgets, pixels) — dashboard-managed, public only. --}}
+        @unless(request()->is('admin') || request()->is('admin/*'))
+            @php($customBodyCode = \App\Models\Setting::where('key', 'custom_body_code')->value('value'))
+            @if($customBodyCode){!! $customBodyCode !!}@endif
+        @endunless
     </body>
 </html>

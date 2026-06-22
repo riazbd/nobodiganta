@@ -12,9 +12,8 @@ class ArticleStatusWorkflow
      * Valid status transitions
      */
     const TRANSITIONS = [
-        'draft' => ['pending', 'scheduled', 'published'],
+        'draft' => ['pending', 'published'],
         'pending' => ['draft', 'published', 'archived'],
-        'scheduled' => ['draft', 'published', 'archived'],
         'published' => ['archived', 'draft'],
         'archived' => ['published', 'draft'],
     ];
@@ -27,35 +26,30 @@ class ArticleStatusWorkflow
         'reporter' => [
             'draft' => ['pending'], // Can only submit for review
             'pending' => [], // Cannot change once submitted
-            'scheduled' => [],
             'published' => [],
             'archived' => [],
         ],
         'editor_in_chief' => [
-            'draft' => ['pending', 'published', 'scheduled'],
+            'draft' => ['pending', 'published'],
             'pending' => ['published', 'draft'],
-            'scheduled' => ['published', 'draft'],
             'published' => ['archived', 'draft'],
             'archived' => ['published'],
         ],
         'managing_editor' => [
-            'draft' => ['pending', 'published', 'scheduled'],
+            'draft' => ['pending', 'published'],
             'pending' => ['published', 'draft'],
-            'scheduled' => ['published', 'draft'],
             'published' => ['archived', 'draft'],
             'archived' => ['published'],
         ],
         'section_editor' => [
-            'draft' => ['pending', 'published', 'scheduled'],
+            'draft' => ['pending', 'published'],
             'pending' => ['published', 'draft'],
-            'scheduled' => ['published', 'draft'],
             'published' => ['archived'],
             'archived' => ['published'],
         ],
         'photographer' => [
             'draft' => ['pending'],
             'pending' => [],
-            'scheduled' => [],
             'published' => [],
             'archived' => [],
         ],
@@ -156,11 +150,6 @@ class ArticleStatusWorkflow
             $updateData['approver_id'] = null;
         }
 
-        // Handle scheduled_at
-        if ($newStatus !== 'scheduled') {
-            $updateData['scheduled_at'] = null;
-        }
-
         // Update article
         $article->update($updateData);
 
@@ -181,14 +170,12 @@ class ArticleStatusWorkflow
             'bn' => [
                 'draft' => 'ড্রাফট',
                 'pending' => 'অনুমোদন অপেক্ষায়',
-                'scheduled' => 'নির্ধারিত',
                 'published' => 'প্রকাশিত',
                 'archived' => 'সংরক্ষিত',
             ],
             'en' => [
                 'draft' => 'Draft',
                 'pending' => 'Pending Approval',
-                'scheduled' => 'Scheduled',
                 'published' => 'Published',
                 'archived' => 'Archived',
             ],
@@ -205,7 +192,6 @@ class ArticleStatusWorkflow
         $colors = [
             'draft' => '#6b7280', // Gray
             'pending' => '#f59e0b', // Yellow/Orange
-            'scheduled' => '#3b82f6', // Blue
             'published' => '#10b981', // Green
             'archived' => '#8b5cf6', // Purple
         ];

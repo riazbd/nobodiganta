@@ -33,6 +33,7 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
       >
         <ArticleThumb src={imgSrc} alt={title} isVideo={isVideo} width={100} height={imgH || 70} />
         <div>
+          {article.is_exclusive && <span className="excl-tag excl-tag-sm">{lang === 'bn' ? 'এক্সক্লুসিভ' : 'Exclusive'}</span>}
           <h4>{title}</h4>
           {excerpt && <p>{excerpt}</p>}
         </div>
@@ -79,6 +80,7 @@ export default function NewsCard({ article, variant = 'featured', imgH }) {
     >
       <ArticleThumb src={imgSrc} alt={title} isVideo={isVideo} height={imgH || 185} />
       <div className="cb">
+        {article.is_exclusive && <span className="excl-tag">{lang === 'bn' ? 'এক্সক্লুসিভ' : 'Exclusive'}</span>}
         <h3>{title}</h3>
         {excerpt && <p>{excerpt}</p>}
       </div>

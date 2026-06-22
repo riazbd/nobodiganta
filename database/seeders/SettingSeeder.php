@@ -237,7 +237,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'allow_registration',
-                'value' => 'true',
+                'value' => 'false',
                 'group' => 'system',
                 'type' => 'boolean',
                 'label_bn' => 'রেজিস্ট্রেশন অনুমোদন',
@@ -425,6 +425,42 @@ class SettingSeeder extends Seeder
                 'label_bn' => 'কপিরাইট নোটিশ (ইংরেজি)',
                 'label_en' => 'Copyright Notice (EN)',
                 'is_public' => true,
+            ],
+
+            // Integrations / Tracking — managed from the dashboard, injected into
+            // the public <head>/<body>. Kept out of the admin panel itself.
+            [
+                'key' => 'google_analytics_id',
+                'value' => null,
+                'group' => 'integrations',
+                'type' => 'text',
+                'label_bn' => 'Google Analytics ID (G-XXXXXXX)',
+                'label_en' => 'Google Analytics ID (G-XXXXXXX)',
+                'description_bn' => 'GA4 Measurement ID দিন। SPA পেজভিউ ট্র্যাকিং স্বয়ংক্রিয়ভাবে কাজ করবে। খালি রাখলে বন্ধ থাকবে।',
+                'description_en' => 'GA4 Measurement ID. SPA page-view tracking is handled automatically. Leave blank to disable.',
+                'is_public' => false,
+            ],
+            [
+                'key' => 'custom_head_code',
+                'value' => null,
+                'group' => 'integrations',
+                'type' => 'textarea',
+                'label_bn' => 'কাস্টম হেড কোড (<head>)',
+                'label_en' => 'Custom Head Code (<head>)',
+                'description_bn' => 'ভেরিফিকেশন মেটা ট্যাগ বা অন্যান্য স্ক্রিপ্ট। পাবলিক সাইটের <head>-এ যুক্ত হবে। সতর্ক থাকুন — এখানে যা দেবেন তা হুবহু রেন্ডার হবে।',
+                'description_en' => 'Verification meta tags or other scripts. Injected raw into the public site <head>. Caution: rendered exactly as entered (trusted admins only).',
+                'is_public' => false,
+            ],
+            [
+                'key' => 'custom_body_code',
+                'value' => null,
+                'group' => 'integrations',
+                'type' => 'textarea',
+                'label_bn' => 'কাস্টম বডি কোড (</body>-এর আগে)',
+                'label_en' => 'Custom Body Code (before </body>)',
+                'description_bn' => 'চ্যাট উইজেট বা পিক্সেলের মতো স্ক্রিপ্ট। পাবলিক সাইটের </body>-এর আগে যুক্ত হবে।',
+                'description_en' => 'Scripts like chat widgets or pixels. Injected before </body> on the public site.',
+                'is_public' => false,
             ],
         ];
 

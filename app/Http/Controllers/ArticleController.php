@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ManagesArticleContent;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Tag;
@@ -15,6 +16,8 @@ use Inertia\Inertia;
 
 class ArticleController extends Controller
 {
+    use ManagesArticleContent;
+
     /**
      * Display a listing of articles (admin)
      */
@@ -213,10 +216,9 @@ class ArticleController extends Controller
             'excerptEn' => 'nullable|string',
             'edition' => 'required|in:both,bn,en',
             'articleType' => 'required|in:news,feature,opinion,interview,explainer,video,photo,liveblog,sponsored',
-            'status' => 'required|in:draft,pending,scheduled,published,archived',
+            'status' => 'required|in:draft,pending,published,archived',
             'isBreaking' => 'boolean',
             'isFeatured' => 'boolean',
-            'isPremium' => 'boolean',
             'isExclusive' => 'boolean',
             'categories' => 'required|array|min:1',
             'categories.*' => 'integer|exists:categories,id',
@@ -239,12 +241,10 @@ class ArticleController extends Controller
             'metaTitleEn' => 'nullable|string|max:255',
             'metaDescBn' => 'nullable|string|max:500',
             'metaDescEn' => 'nullable|string|max:500',
-            'scheduledAt' => 'nullable|date',
             'tags_bn' => 'nullable|array',
             'tags_bn.*' => 'string|max:100',
             'tags_en' => 'nullable|array',
             'tags_en.*' => 'string|max:100',
-            'sendPushNotification' => 'boolean',
             'allowComments' => 'boolean',
             'videoUrl' => 'nullable|url',
             'videoProvider' => 'nullable|string',
@@ -264,7 +264,6 @@ class ArticleController extends Controller
         $slugEn = $validated['slugEn'] ?? ($validated['titleEn'] ? $this->generateSlug($validated['titleEn'], 'slug_en') : null);
 
         $publishedAt = ($validated['status'] === 'published') ? now() : null;
-        $scheduledAt = ($validated['status'] === 'scheduled') ? $validated['scheduledAt'] : null;
 
         $article = Article::create([
             'title_bn' => $validated['titleBn'],
@@ -282,7 +281,7 @@ class ArticleController extends Controller
             'status' => $validated['status'],
             'is_breaking' => $validated['isBreaking'] ?? false,
             'is_featured' => $validated['isFeatured'] ?? false,
-            'is_premium' => $validated['isPremium'] ?? false,
+            'is_premium' => false, // premium/subscriptions disabled — never flag premium
             'is_exclusive' => $validated['isExclusive'] ?? false,
             'allow_comments' => $validated['allowComments'] ?? true,
             'video_url' => $validated['videoUrl'] ?? null,
@@ -309,7 +308,6 @@ class ArticleController extends Controller
             'meta_description_bn' => $validated['metaDescBn'] ?? null,
             'meta_description_en' => $validated['metaDescEn'] ?? null,
             'published_at' => $publishedAt,
-            'scheduled_at' => $scheduledAt,
             'in_article_ad_id' => $validated['inArticleAdId'] ?? null,
             'in_article_ad_position' => $validated['inArticleAdPosition'] ?? 4,
         ]);
@@ -410,7 +408,6 @@ class ArticleController extends Controller
                 'metaTitleEn' => $article->meta_title_en,
                 'metaDescBn' => $article->meta_description_bn,
                 'metaDescEn' => $article->meta_description_en,
-                'scheduledAt' => $article->scheduled_at?->format('Y-m-d\TH:i'),
                 'tags_bn' => $article->tags->filter(fn($t) => $t->pivot->edition === 'bn')->pluck('name_bn')->values()->toArray(),
                 'tags_en' => $article->tags->filter(fn($t) => $t->pivot->edition === 'en')->pluck('name_en')->values()->toArray(),
                 'inArticleAdId' => $article->in_article_ad_id,
@@ -443,10 +440,9 @@ class ArticleController extends Controller
             'excerptEn' => 'nullable|string',
             'edition' => 'required|in:both,bn,en',
             'articleType' => 'required|in:news,feature,opinion,interview,explainer,video,photo,liveblog,sponsored',
-            'status' => 'required|in:draft,pending,scheduled,published,archived',
+            'status' => 'required|in:draft,pending,published,archived',
             'isBreaking' => 'boolean',
             'isFeatured' => 'boolean',
-            'isPremium' => 'boolean',
             'isExclusive' => 'boolean',
             'categories' => 'required|array|min:1',
             'categories.*' => 'integer|exists:categories,id',
@@ -469,12 +465,10 @@ class ArticleController extends Controller
             'metaTitleEn' => 'nullable|string|max:255',
             'metaDescBn' => 'nullable|string|max:500',
             'metaDescEn' => 'nullable|string|max:500',
-            'scheduledAt' => 'nullable|date',
             'tags_bn' => 'nullable|array',
             'tags_bn.*' => 'string|max:100',
             'tags_en' => 'nullable|array',
             'tags_en.*' => 'string|max:100',
-            'sendPushNotification' => 'boolean',
             'allowComments' => 'boolean',
             'videoUrl' => 'nullable|url',
             'videoProvider' => 'nullable|string',
@@ -494,13 +488,9 @@ class ArticleController extends Controller
         $slugEn = $validated['slugEn'] ?? ($validated['titleEn'] ? $this->generateSlug($validated['titleEn'], 'slug_en', $article->id) : $article->slug_en);
 
         $publishedAt = $article->published_at;
-        $scheduledAt = $article->scheduled_at;
 
         if ($validated['status'] === 'published' && !$publishedAt) {
             $publishedAt = now();
-        } elseif ($validated['status'] === 'scheduled' && !empty($validated['scheduledAt'])) {
-            $scheduledAt = $validated['scheduledAt'];
-            $publishedAt = null;
         }
 
         $article->update([
@@ -519,7 +509,7 @@ class ArticleController extends Controller
             'status' => $validated['status'],
             'is_breaking' => $validated['isBreaking'] ?? false,
             'is_featured' => $validated['isFeatured'] ?? false,
-            'is_premium' => $validated['isPremium'] ?? false,
+            'is_premium' => false, // premium/subscriptions disabled — never flag premium
             'is_exclusive' => $validated['isExclusive'] ?? false,
             'allow_comments' => $validated['allowComments'] ?? true,
             'video_url' => $validated['videoUrl'] ?? null,
@@ -546,7 +536,6 @@ class ArticleController extends Controller
             'meta_description_bn' => $validated['metaDescBn'] ?? null,
             'meta_description_en' => $validated['metaDescEn'] ?? null,
             'published_at' => $publishedAt,
-            'scheduled_at' => $scheduledAt,
             'in_article_ad_id' => $validated['inArticleAdId'] ?? null,
             'in_article_ad_position' => $validated['inArticleAdPosition'] ?? 4,
         ]);
@@ -706,70 +695,6 @@ class ArticleController extends Controller
     /**
      * Generate unique slug
      */
-    protected function generateSlug(string $title, string $column, ?int $excludeId = null): string
-    {
-        $slug = mb_strtolower($title, 'UTF-8');
-        $slug = preg_replace('/[^\p{L}\p{N}\s-]+/u', '', $slug);
-        $slug = preg_replace('/\s+/u', '-', $slug);
-        $slug = preg_replace('/-+/u', '-', $slug);
-        $slug = trim($slug, '-');
-
-        if (empty($slug)) $slug = Str::random(8);
-
-        $originalSlug = $slug;
-        $counter = 1;
-
-        $query = Article::where($column, $slug);
-        if ($excludeId) $query->where('id', '!=', $excludeId);
-
-        while ($query->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $query = Article::where($column, $slug);
-            if ($excludeId) $query->where('id', '!=', $excludeId);
-            $counter++;
-        }
-
-        return $slug;
-    }
-
-    protected function syncArticleTags(Article $article, array $tagsBn, array $tagsEn): void
-    {
-        $pivotData = [];
-
-        foreach ($tagsBn as $name) {
-            $name = trim($name);
-            if (empty($name)) continue;
-            $slug = $this->makeTagSlug($name);
-            $tag = Tag::firstOrCreate(['slug' => $slug], ['name_bn' => $name, 'name_en' => null]);
-            $pivotData[$tag->id . ':bn'] = ['tag_id' => $tag->id, 'edition' => 'bn'];
-        }
-
-        foreach ($tagsEn as $name) {
-            $name = trim($name);
-            if (empty($name)) continue;
-            $slug = $this->makeTagSlug($name);
-            $tag = Tag::firstOrCreate(['slug' => $slug], ['name_bn' => $name, 'name_en' => $name]);
-            if ($tag->name_en === null) {
-                $tag->update(['name_en' => $name]);
-            }
-            $pivotData[$tag->id . ':en'] = ['tag_id' => $tag->id, 'edition' => 'en'];
-        }
-
-        $article->tags()->detach();
-        foreach ($pivotData as $entry) {
-            $article->tags()->attach($entry['tag_id'], ['edition' => $entry['edition']]);
-        }
-    }
-
-    protected function makeTagSlug(string $name): string
-    {
-        $slug = Str::slug($name);
-        if (empty($slug)) {
-            $slug = 'tag-' . substr(md5($name), 0, 8);
-        }
-        return $slug;
-    }
-
     /**
      * Bulk update article status
      */
@@ -829,7 +754,7 @@ class ArticleController extends Controller
     public function transitionStatus(Request $request, Article $article)
     {
         $validated = $request->validate([
-            'status' => 'required|in:draft,pending,scheduled,published,archived',
+            'status' => 'required|in:draft,pending,published,archived',
         ]);
 
         $result = ArticleStatusWorkflow::transition($article, $validated['status']);

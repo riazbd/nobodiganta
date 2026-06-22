@@ -202,6 +202,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/opinions', [OpinionController::class, 'index'])->name('opinions');
         Route::get('/opinions/write', [OpinionController::class, 'create'])->name('opinions.write');
         Route::post('/opinions', [OpinionController::class, 'store'])->name('opinions.store');
+        Route::post('/opinions/bulk-status', [OpinionController::class, 'bulkStatus'])->name('opinions.bulk-status');
+        Route::post('/opinions/bulk-delete', [OpinionController::class, 'bulkDestroy'])->name('opinions.bulk-delete');
         Route::get('/opinions/{article}/edit', [OpinionController::class, 'edit'])->name('opinions.edit')->whereNumber('article');
         Route::put('/opinions/{article}', [OpinionController::class, 'update'])->name('opinions.update')->whereNumber('article');
         Route::delete('/opinions/{article}', [OpinionController::class, 'destroy'])->name('opinions.destroy')->whereNumber('article');
@@ -245,16 +247,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/subscriptions/{subscription}', [AdminSubscriptionController::class, 'destroy'])->name('subscriptions.destroy')->whereNumber('subscription');
         Route::patch('/subscriptions/{subscription}/toggle', [AdminSubscriptionController::class, 'toggleStatus'])->name('subscriptions.toggle')->whereNumber('subscription');
 
-        // Analytics
-        Route::get('/traffic', function () {
-            return Inertia::render('features/admin/pages/analytics/TrafficAnalytics');
-        })->name('traffic');
-        Route::get('/revenue', function () {
-            return Inertia::render('features/admin/pages/analytics/RevenueReport');
-        })->name('revenue');
-        Route::get('/seo', function () {
-            return Inertia::render('features/admin/pages/dashboard/SEOManagerDashboard');
-        })->name('seo');
+        // Analytics — real data (page_views / ads / articles)
+        Route::get('/traffic', [\App\Http\Controllers\Admin\AnalyticsController::class, 'traffic'])->name('traffic');
+        Route::get('/revenue', [\App\Http\Controllers\Admin\AnalyticsController::class, 'revenue'])->name('revenue');
+        Route::get('/seo', [\App\Http\Controllers\Admin\AnalyticsController::class, 'seo'])->name('seo');
 
         // System Settings
         Route::get('/settings', [SettingController::class, 'index'])->name('settings');
@@ -425,6 +421,7 @@ Route::post('/api/comments/{comment}/flag', [CommentController::class, 'flag'])-
 // Stories (public)
 Route::get('/stories', [\App\Http\Controllers\StoriesController::class, 'index'])->name('stories');
 Route::get('/api/stories', [\App\Http\Controllers\StoriesController::class, 'apiIndex'])->name('api.stories');
+Route::post('/api/stories/{story}/view', [\App\Http\Controllers\StoriesController::class, 'trackView'])->name('api.stories.view')->whereNumber('story');
 
 // Breaking news archive (public)
 Route::get('/breaking', [BreakingNewsController::class, 'page'])->name('breaking');

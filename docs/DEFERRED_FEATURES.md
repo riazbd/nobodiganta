@@ -4,7 +4,7 @@ Features that are **intentionally parked** — either fully implemented but dorm
 or partially built with a clear path to completion. Keep this list updated as items
 are activated or finished.
 
-_Last updated: 2026-06-21_
+_Last updated: 2026-06-22_
 
 ---
 
@@ -102,3 +102,33 @@ any non-UI deletion path. Not required for current flows.
 
 **Remaining:** either wire per-role dashboards in `DashboardController`, or remove the dead
 components.
+
+---
+
+## 8. Article Format Types (editorial labels)
+
+**Status:** The article `article_type` column supports several format values, but only
+**News** and **Video** have real public behaviour (Video shows the video fields in the
+editor and renders a player + feeds video sections). These format labels are **stored
+only** and have **no public layout, badge, or behaviour** — so they were removed from the
+Write News "Format" dropdown:
+
+- `feature` — Feature
+- `interview` — Interview
+- `explainer` — Explainer
+- `liveblog` — Live Blog (implies live-updating coverage — not built)
+- `sponsored` — Sponsored (implies sponsored-content styling/disclosure — not built)
+
+Note: `opinion` and `photo` are **not** dead — they have their own dedicated editors
+(Opinions manager, Photo Gallery manager) and were removed from the News editor only to
+avoid duplicate/confusing creation paths.
+
+**Done**
+- Trimmed the Format dropdown to News + Video. → [`resources/js/features/admin/pages/content/WriteNews.jsx`](../resources/js/features/admin/pages/content/WriteNews.jsx)
+- Backend validation still accepts all the old values, so existing articles edit without breaking.
+
+**Remaining to activate any of these**
+1. Give the format real public behaviour (a card/article badge, a dedicated layout, or a
+   filterable section) — e.g. a "Sponsored" disclosure label, a live-blog timeline.
+2. Re-add the option(s) to the Format dropdown.
+3. (Liveblog) build the live-update mechanism if that's the intent.

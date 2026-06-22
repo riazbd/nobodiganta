@@ -119,7 +119,7 @@ export default function StoriesIndex({ stories, filters, can }) {
                             <div className="flex-1 min-w-0">
                                 <p className="text-[#1a1d2e] text-sm font-semibold truncate">{story.title_bn}</p>
                                 <p className="text-gray-400 text-xs mt-0.5">
-                                    {story.slides_count}টি স্লাইড · {story.creator_name}
+                                    {story.slides_count}টি স্লাইড · 👁 {(story.view_count ?? 0).toLocaleString('bn-BD')} ভিউ · {story.creator_name}
                                     {story.expires_at && ` · মেয়াদ: ${new Date(story.expires_at).toLocaleDateString('bn-BD')}`}
                                 </p>
                             </div>

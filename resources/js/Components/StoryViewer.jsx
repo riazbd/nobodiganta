@@ -15,6 +15,19 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     const isVideo = currentSlide?.is_video;
     const duration = (currentSlide?.duration ?? 5) * 1000;
 
+    // Analytics: when a story is opened, record it once per session — both as a
+    // Google Analytics event and as an in-app view_count bump (fire-and-forget).
+    const trackedRef = useRef(new Set());
+    useEffect(() => {
+        const s = stories[storyIndex];
+        if (!s || trackedRef.current.has(s.id)) return;
+        trackedRef.current.add(s.id);
+        if (typeof window.gtag === 'function') {
+            window.gtag('event', 'story_open', { story_id: s.id, story_title: s.title });
+        }
+        window.axios?.post(`/api/stories/${s.id}/view`).catch(() => {});
+    }, [storyIndex, stories]);
+
     const goNextSlide = useCallback(() => {
         if (slideIndex < (currentStory.slides?.length ?? 0) - 1) {
             setSlideIndex(s => s + 1);
@@ -120,8 +133,13 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                             className="w-full h-full object-cover"
                             autoPlay
                             playsInline
-                            muted={false}
+                            muted
                             onEnded={goNextSlide}
+                            onError={goNextSlide}
+                            onTimeUpdate={(e) => {
+                                const v = e.currentTarget;
+                                if (v.duration) setProgress(Math.min((v.currentTime / v.duration) * 100, 100));
+                            }}
                         />
                     ) : (
                         <img
@@ -146,6 +164,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     {currentSlide.linked_article && (
                         <Link
                             href={`/${currentSlide.linked_article.category_slug}/${currentSlide.linked_article.slug}`}
+                            onClick={() => { if (typeof window.gtag === 'function') window.gtag('event', 'story_article_click', { story_id: currentStory.id, article_id: currentSlide.linked_article.id }); }}
                             className="inline-block bg-white/20 border border-white/40 backdrop-blur-sm text-white text-xs px-4 py-2 rounded-full hover:bg-white/30 transition-colors"
                         >
                             পুরো খবর পড়ুন →

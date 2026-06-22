@@ -8,8 +8,5 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Schedule automatic publishing of scheduled articles
-Schedule::command('articles:publish-scheduled')->everyMinute();
-
 // Expire stories whose expires_at has passed
 Schedule::command('stories:expire')->hourly();

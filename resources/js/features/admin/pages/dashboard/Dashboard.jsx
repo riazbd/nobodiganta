@@ -9,7 +9,6 @@ import { QuickActions } from '../../components/widgets/QuickActions';
 import { TodoList } from '../../components/widgets/TodoList';
 import { ActivityFeed } from '../../components/widgets/ActivityFeed';
 import { ReporterCard } from '../../components/widgets/ReporterCard';
-import { ScheduleList } from '../../components/widgets/ScheduleList';
 import { ServerHealth } from '../../components/widgets/ServerHealth';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
@@ -26,7 +25,6 @@ export default function Dashboard({
   traffic = {},
   activities = [],
   serverHealth = {},
-  schedule = [],
   widgets = {}
 }) {
   const { lang, t } = useLanguage();
@@ -62,11 +60,10 @@ export default function Dashboard({
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-5 row-anim">
+      <div className="grid grid-cols-3 gap-4 mb-5 row-anim">
         <StatCard icon={Newspaper} label={t('totalPublished')} value={s.totalPublished || '0'} change={trends.published?.change} changeUp={trends.published?.up} linkText={t('viewAll')} onLinkClick={() => onNavigate?.('news')} color="red" />
         <StatCard icon={Users} label={t('todayVisitors')} value={s.todayVisitors || '0'} change={trends.visitors?.change} changeUp={trends.visitors?.up} linkText={t('analyzeLinkBn')} onLinkClick={() => onNavigate?.('traffic')} color="blue" />
         <StatCard icon={MessageSquare} label={t('weeklyComments')} value={s.weeklyComments || '0'} change={trends.comments?.change} changeUp={trends.comments?.up} linkText={t('approveLinkBn')} onLinkClick={() => onNavigate?.('dashboard')} color="green" />
-        <StatCard icon={CreditCard} label={t('activeSubscribers')} value={s.activeSubscribers || '0'} change={trends.subscribers?.change} changeUp={trends.subscribers?.up} linkText={t('viewMembersLinkBn')} onLinkClick={() => onNavigate?.('subscriptions')} color="orange" />
       </div>
 
       {/* Mini Stats */}
@@ -217,25 +214,14 @@ export default function Dashboard({
           </table>
       </div>
 
-      {/* Final Row: Activity + Schedule */}
-      <div className="grid grid-cols-[1fr_320px] gap-4.5 mb-5 row-anim">
-        {/* Recent Activity */}
+      {/* Final Row: Recent Activity */}
+      <div className="mb-5 row-anim">
         <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
             <h3 className="text-sm font-bold">{t('recentActivityHeader')}</h3>
           </div>
           <div className="p-4 pt-1.5">
             <ActivityFeed items={activities} lang={lang} />
-          </div>
-        </div>
-
-        {/* Schedule */}
-        <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-[var(--card-border,#e8ebf4)] flex items-center justify-between">
-            <h3 className="text-sm font-bold">{t('todayScheduleHeader')}</h3>
-          </div>
-          <div className="p-4 pt-1.5">
-            <ScheduleList items={schedule} lang={lang} />
           </div>
         </div>
       </div>

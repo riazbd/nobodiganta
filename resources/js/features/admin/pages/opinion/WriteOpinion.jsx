@@ -38,6 +38,8 @@ export default function WriteOpinion() {
   const [activeMediaTarget, setActiveMediaTarget] = useState('featured'); // 'featured' or 'guest'
   const [manuallyEditedSlugBn, setManuallyEditedSlugBn] = useState(false);
   const [manuallyEditedSlugEn, setManuallyEditedSlugEn] = useState(false);
+  const [tagsBnInput, setTagsBnInput] = useState('');
+  const [tagsEnInput, setTagsEnInput] = useState('');
 
   const form = useForm({
     titleBn: '',
@@ -55,6 +57,12 @@ export default function WriteOpinion() {
     featuredImage: '',
     featuredImageAltBn: '',
     featuredImageAltEn: '',
+    metaTitleBn: '',
+    metaTitleEn: '',
+    metaDescBn: '',
+    metaDescEn: '',
+    tags_bn: [],
+    tags_en: [],
     isExclusive: false,
     secondaryAuthorId: '',
     isGuestAuthor: false,
@@ -85,8 +93,14 @@ export default function WriteOpinion() {
         edition: article.edition || 'both',
         status: article.status || 'draft',
         featuredImage: article.featuredImage || '',
-        featuredImageAltBn: '',
-        featuredImageAltEn: '',
+        featuredImageAltBn: article.featuredImageAltBn || '',
+        featuredImageAltEn: article.featuredImageAltEn || '',
+        metaTitleBn: article.metaTitleBn || '',
+        metaTitleEn: article.metaTitleEn || '',
+        metaDescBn: article.metaDescBn || '',
+        metaDescEn: article.metaDescEn || '',
+        tags_bn: article.tags_bn || [],
+        tags_en: article.tags_en || [],
         isExclusive: !!article.isExclusive,
         allowComments: article.allowComments !== undefined ? !!article.allowComments : true,
         videoUrl: article.videoUrl || '',
@@ -195,6 +209,19 @@ export default function WriteOpinion() {
   const handleUrlChange = (url) => {
     const provider = detectVideoProvider(url);
     form.setData({ ...form.data, videoUrl: url, videoProvider: provider });
+  };
+
+  const addTag = (loc) => {
+    const key = loc === 'bn' ? 'tags_bn' : 'tags_en';
+    const val = (loc === 'bn' ? tagsBnInput : tagsEnInput).trim();
+    if (!val) return;
+    const existing = form.data[key] || [];
+    if (!existing.includes(val)) form.setData(key, [...existing, val]);
+    loc === 'bn' ? setTagsBnInput('') : setTagsEnInput('');
+  };
+  const removeTag = (tag, loc) => {
+    const key = loc === 'bn' ? 'tags_bn' : 'tags_en';
+    form.setData(key, (form.data[key] || []).filter(t => t !== tag));
   };
 
   const showBn = form.data.edition === 'bn' || form.data.edition === 'both';
@@ -426,9 +453,8 @@ export default function WriteOpinion() {
             {article && (
               <div className="mt-4 pt-3 border-t border-gray-50 text-center">
                 <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-wider ${
-                  form.data.status === 'published' ? 'bg-[#ecfdf5] text-[#10b981]' : 
-                  form.data.status === 'pending' ? 'bg-orange-50 text-orange-600' : 
-                  form.data.status === 'scheduled' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-600'
+                  form.data.status === 'published' ? 'bg-[#ecfdf5] text-[#10b981]' :
+                  form.data.status === 'pending' ? 'bg-orange-50 text-orange-600' : 'bg-gray-100 text-gray-600'
                 }`}>
                   {lang === 'bn' ? 'বর্তমান অবস্থা' : 'Current Status'}: {form.data.status}
                 </span>
@@ -481,6 +507,82 @@ export default function WriteOpinion() {
                   ))}
                 </select>
              </div>
+          </div>
+
+          {/* SEO / Meta */}
+          <div className="bg-white p-5 rounded-xl border border-[var(--card-border,#e8ebf4)] shadow-sm space-y-3">
+            <h3 className="text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider">SEO</h3>
+            {showBn && (
+              <>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'মেটা টাইটেল (বাংলা)' : 'Meta Title (BN)'}</label>
+                  <input type="text" value={form.data.metaTitleBn} onChange={e => form.setData('metaTitleBn', e.target.value)} maxLength={255}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#263238]" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'মেটা বিবরণ (বাংলা)' : 'Meta Description (BN)'}</label>
+                  <textarea rows="2" value={form.data.metaDescBn} onChange={e => form.setData('metaDescBn', e.target.value)} maxLength={500}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#263238] resize-none" />
+                </div>
+              </>
+            )}
+            {showEn && (
+              <>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Meta Title (EN)</label>
+                  <input type="text" value={form.data.metaTitleEn} onChange={e => form.setData('metaTitleEn', e.target.value)} maxLength={255}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#263238]" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Meta Description (EN)</label>
+                  <textarea rows="2" value={form.data.metaDescEn} onChange={e => form.setData('metaDescEn', e.target.value)} maxLength={500}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#263238] resize-none" />
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Tags */}
+          <div className="bg-white p-5 rounded-xl border border-[var(--card-border,#e8ebf4)] shadow-sm space-y-3">
+            <h3 className="text-[11px] font-bold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider">{lang === 'bn' ? 'ট্যাগ' : 'Tags'}</h3>
+            {showBn && (
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'বাংলা ট্যাগ' : 'Bangla Tags'}</label>
+                <div className="flex gap-2 mb-1.5">
+                  <input type="text" value={tagsBnInput} onChange={e => setTagsBnInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTag('bn'))}
+                    placeholder={lang === 'bn' ? 'ট্যাগ যোগ করুন...' : 'Add tag...'}
+                    className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#263238]" />
+                  <button type="button" onClick={() => addTag('bn')} className="bg-gray-800 text-white rounded-lg px-2.5 py-1.5 text-xs hover:bg-black">+</button>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {(form.data.tags_bn || []).map(tag => (
+                    <span key={tag} className="inline-flex items-center gap-1 bg-[var(--body-bg,#f0f2f8)] border border-gray-200 rounded-md px-2 py-1 text-[11px] text-gray-700">
+                      {tag}<button type="button" onClick={() => removeTag(tag, 'bn')} className="hover:text-red-500"><X className="w-3 h-3" /></button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {showEn && (
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">English Tags</label>
+                <div className="flex gap-2 mb-1.5">
+                  <input type="text" value={tagsEnInput} onChange={e => setTagsEnInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addTag('en'))}
+                    placeholder="Add tag..."
+                    className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#263238]" />
+                  <button type="button" onClick={() => addTag('en')} className="bg-gray-800 text-white rounded-lg px-2.5 py-1.5 text-xs hover:bg-black">+</button>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {(form.data.tags_en || []).map(tag => (
+                    <span key={tag} className="inline-flex items-center gap-1 bg-[var(--body-bg,#f0f2f8)] border border-gray-200 rounded-md px-2 py-1 text-[11px] text-gray-700">
+                      {tag}<button type="button" onClick={() => removeTag(tag, 'en')} className="hover:text-red-500"><X className="w-3 h-3" /></button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Video Options */}

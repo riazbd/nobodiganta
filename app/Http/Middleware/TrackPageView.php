@@ -68,7 +68,25 @@ class TrackPageView
             'visitor_hash' => $hash,
             'referrer_host' => $refHost ? mb_substr($refHost, 0, 255) : null,
             'edition' => str_starts_with($request->path(), 'en') ? 'en' : 'bn',
+            'device' => $this->deviceClass((string) $request->userAgent()),
             'created_at' => now(),
         ]);
+    }
+
+    /**
+     * Rough device class from the user-agent — enough for a mobile/tablet/desktop
+     * traffic split without a heavyweight UA-parsing library.
+     */
+    private function deviceClass(string $ua): string
+    {
+        $ua = strtolower($ua);
+        if (str_contains($ua, 'ipad') || str_contains($ua, 'tablet')
+            || (str_contains($ua, 'android') && ! str_contains($ua, 'mobile'))) {
+            return 'tablet';
+        }
+        if (str_contains($ua, 'mobi') || str_contains($ua, 'iphone') || str_contains($ua, 'android')) {
+            return 'mobile';
+        }
+        return 'desktop';
     }
 }

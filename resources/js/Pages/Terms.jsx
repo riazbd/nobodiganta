@@ -161,15 +161,6 @@ export default function Terms() {
                   <li>You are responsible for all activity under your account</li>
                 </ul>
 
-                <h2>Subscriptions & Payments</h2>
-                <p>For premium memberships:</p>
-                <ul>
-                  <li>Subscription fees apply for the specified period</li>
-                  <li>You will be notified before automatic renewal</li>
-                  <li>Cancellations take effect from the next billing cycle</li>
-                  <li>Refunds are generally not available for digital content</li>
-                </ul>
-
                 <h2>Limitation of Liability</h2>
                 <p>{siteName} is not liable for:</p>
                 <ul>

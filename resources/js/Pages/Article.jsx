@@ -422,6 +422,9 @@ export default function Article({
         </aside>
 
         <article className="article-main" ref={articleRef}>
+          {article.is_exclusive && (
+            <span className="excl-tag excl-tag-lg">{lang === 'bn' ? 'এক্সক্লুসিভ' : 'Exclusive'}</span>
+          )}
           <h1 className="art-h1">{article.title}</h1>
           {article.subtitle && <div className="art-sub">{article.subtitle}</div>}
 

@@ -9,7 +9,6 @@ const STATUS_MAP = {
   published: { bn: 'প্রকাশিত',         en: 'Published', variant: 'green'  },
   draft:     { bn: 'ড্রাফট',            en: 'Draft',     variant: 'gray'   },
   pending:   { bn: 'অনুমোদন অপেক্ষায়', en: 'Pending',   variant: 'orange' },
-  scheduled: { bn: 'নির্ধারিত',         en: 'Scheduled', variant: 'purple' },
 };
 
 function Select({ value, onChange, children, className = '' }) {

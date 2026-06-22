@@ -131,7 +131,6 @@ export default function WriteNews() {
     videoDuration: '',
     isBreaking: false,
     isFeatured: false,
-    isPremium: false,
     isExclusive: false,
     isGuestAuthor: false,
     categories: [],
@@ -155,9 +154,6 @@ export default function WriteNews() {
     metaTitleEn: '',
     metaDescBn: '',
     metaDescEn: '',
-    publishAt: '',
-    scheduledAt: '',
-    sendPushNotification: false,
     allowComments: true,
     inArticleAdId: '',
     inArticleAdPosition: 4,
@@ -184,7 +180,6 @@ export default function WriteNews() {
         status: article.status || 'draft',
         isBreaking: !!article.isBreaking,
         isFeatured: !!article.isFeatured,
-        isPremium: !!article.isPremium,
         isExclusive: !!article.isExclusive,
         isGuestAuthor: !!article.isGuestAuthor,
         allowComments: article.allowComments !== undefined ? !!article.allowComments : true,
@@ -207,7 +202,6 @@ export default function WriteNews() {
         metaTitleEn: article.metaTitleEn || '',
         metaDescBn: article.metaDescBn || '',
         metaDescEn: article.metaDescEn || '',
-        scheduledAt: article.scheduledAt || '',
         tags_bn: article.tags_bn || [],
         tags_en: article.tags_en || [],
         inArticleAdId: article.inArticleAdId ? String(article.inArticleAdId) : '',
@@ -1154,15 +1148,16 @@ export default function WriteNews() {
                   onChange={(e) => form.setData('articleType', e.target.value)}
                   className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
                 >
+                  {/*
+                    Only the formats with real public behaviour are offered here.
+                    Opinion / Photo are created from their own dedicated managers
+                    (Opinions, Photo Gallery). Feature/Interview/Explainer/Liveblog/
+                    Sponsored are stored-only labels with no public layout yet — see
+                    docs/DEFERRED_FEATURES.md (#8). Backend validation still accepts
+                    those values so existing articles edit without breaking.
+                  */}
                   <option value="news">News</option>
-                  <option value="feature">Feature</option>
-                  <option value="opinion">Opinion</option>
-                  <option value="interview">Interview</option>
-                  <option value="explainer">Explainer</option>
                   <option value="video">Video</option>
-                  <option value="photo">Photo Essay</option>
-                  <option value="liveblog">Live Blog</option>
-                  <option value="sponsored">Sponsored</option>
                 </select>
               </div>
 
@@ -1193,7 +1188,7 @@ export default function WriteNews() {
               <div className="space-y-2 pt-2">
                 <label className="flex items-center gap-3 cursor-pointer group">
                   <div className="relative">
-                    <input type="checkbox" className="sr-only" checked={form.data.isBreaking} onChange={e => { form.setData('isBreaking', e.target.checked); if(e.target.checked) form.setData('sendPushNotification', true); }} />
+                    <input type="checkbox" className="sr-only" checked={form.data.isBreaking} onChange={e => form.setData('isBreaking', e.target.checked)} />
                     <div className={`block w-8 h-4.5 rounded-full transition-colors ${form.data.isBreaking ? 'bg-[#263238]' : 'bg-gray-200'}`}></div>
                     <div className={`absolute left-0.5 top-0.5 bg-white w-3.5 h-3.5 rounded-full transition-transform shadow-sm ${form.data.isBreaking ? 'translate-x-3.5' : ''}`}></div>
                   </div>

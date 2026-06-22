@@ -117,6 +117,7 @@ export default function Settings({ settings = {}, groups = [] }) {
     social:  { labelBn: 'সোশ্যাল', labelEn: 'Social',  icon: Share2 },
     system:  { labelBn: 'সিস্টেম', labelEn: 'System',  icon: Server },
     legal:   { labelBn: 'আইনি',    labelEn: 'Legal',   icon: Scale },
+    integrations: { labelBn: 'ইন্টিগ্রেশন', labelEn: 'Integrations', icon: Monitor },
   };
 
   // Build tabs from whatever groups the backend returns — no group is silently dropped

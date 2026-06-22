@@ -34,7 +34,7 @@ class Article extends Model
         'meta_title_bn', 'meta_title_en',
         'meta_description_bn', 'meta_description_en',
         'division', 'district', 'upazila',
-        'published_at', 'scheduled_at',
+        'published_at',
         'in_article_ad_id', 'in_article_ad_position',
     ];
 
@@ -49,7 +49,6 @@ class Article extends Model
         'read_time_bn' => 'integer',
         'read_time_en' => 'integer',
         'published_at' => 'datetime',
-        'scheduled_at' => 'datetime',
         'in_article_ad_position' => 'integer',
     ];
 
@@ -396,6 +395,7 @@ class Article extends Model
             'is_breaking' => $this->is_breaking,
             'is_featured' => $this->is_featured,
             'is_premium' => $this->is_premium,
+            'is_exclusive' => $this->is_exclusive,
             'allow_comments' => $this->allow_comments,
             'category' => [
                 'id' => $this->category->id,

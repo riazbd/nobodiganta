@@ -169,7 +169,6 @@ class DashboardController extends Controller
                 'poll' => $activePoll,
                 'horoscope' => $horoscopes,
             ],
-            'schedule' => $this->upcomingSchedule($edition),
         ]);
     }
 
@@ -221,25 +220,6 @@ class DashboardController extends Controller
             return 0;
         }
         return max(1, round(($totalWords / $counted) / 180, 1)); // ~180 words/minute
-    }
-
-    /**
-     * Upcoming scheduled articles (what's queued to publish), as today's agenda.
-     */
-    private function upcomingSchedule(string $edition): array
-    {
-        return Article::where('status', 'scheduled')
-            ->whereNotNull('published_at')
-            ->where('published_at', '>=', now())
-            ->orderBy('published_at')
-            ->limit(6)
-            ->get()
-            ->map(fn($a) => [
-                'time' => $a->published_at->format('h:i A'),
-                'title' => $edition === 'en' ? ($a->title_en ?: $a->title_bn) : $a->title_bn,
-                'type' => 'deadline',
-            ])
-            ->all();
     }
 
     /**

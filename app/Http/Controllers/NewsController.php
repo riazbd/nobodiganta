@@ -151,7 +151,7 @@ class NewsController extends Controller
                     ->map(fn($a) => $a->toAPIArray($edition))
                     ->values();
             } elseif ($section->type === 'stories') {
-                $data['items'] = \App\Models\Story::published()
+                $data['items'] = \App\Models\Story::live()
                     ->forEdition($edition)
                     ->with(['coverMedia', 'slides.media', 'slides.linkedArticle.category'])
                     ->withCount('slides')
@@ -391,44 +391,13 @@ class NewsController extends Controller
         abort_if(! $article, 404);
 
         if (! $isPreview) {
-            // Increment view count + record for the meter (not while previewing).
+            // Increment view count (not while previewing).
             $article->incrementViews();
-            ArticleMeter::recordView($article->id);
         }
 
-        // Check paywall for premium articles
-        $isPremium = $article->is_premium;
-        $hasSubscription = false;
-        $meterExceeded = ArticleMeter::hasExceededLimit();
-        $meterRemaining = ArticleMeter::getRemaining();
-
-        if ($request->user()) {
-            $hasSubscription = $request->user()->hasPremiumSubscription();
-        }
-
-        // If premium article and no subscription, show paywall (skip while previewing)
-        if ($isPremium && !$hasSubscription && !$isPreview) {
-            return Inertia::render('Article', [
-                'edition' => $edition,
-                'article' => $article->toAPIArray($edition),
-                'paywall' => true,
-                'paywallReason' => 'premium',
-                'meterRemaining' => $meterRemaining,
-                'meterExceeded' => $meterExceeded,
-            ]);
-        }
-
-        // If meter exceeded and no subscription, show paywall
-        if ($meterExceeded && !$hasSubscription && !$isPreview) {
-            return Inertia::render('Article', [
-                'edition' => $edition,
-                'article' => $article->toAPIArray($edition),
-                'paywall' => true,
-                'paywallReason' => 'meter_exceeded',
-                'meterRemaining' => 0,
-                'meterExceeded' => true,
-            ]);
-        }
+        // Subscriptions/paywall are disabled for now — every article is fully
+        // open. The meter + premium gating code is kept dormant (ArticleMeter,
+        // CheckSubscription) so it can be switched back on later if needed.
 
         // Related articles (sidebar – category-based)
         $relatedArticles = Article::published()
@@ -471,7 +440,7 @@ class NewsController extends Controller
             'categoryMoreArticles' => $categoryMoreArticles,
             'ads' => $this->getAds($edition),
             'paywall' => false,
-            'meterRemaining' => $meterRemaining,
+            'meterRemaining' => null,
             'meterExceeded' => false,
             'preview' => $isPreview,
         ]);
@@ -1031,10 +1000,18 @@ class NewsController extends Controller
         $edition = $this->getEdition($request);
         $limit = $request->input('limit', 4);
 
+        // Match the homepage opinion block: typed 'opinion' OR in the opinion category.
         $articles = Article::published()
             ->forEdition($edition)
-            ->type('opinion')
-            ->latest()
+            ->where(function ($q) {
+                $q->where('article_type', 'opinion')
+                  ->orWhereHas('category', function ($q2) {
+                      $q2->where('slug', 'opinion')
+                        ->orWhere('name_bn', 'মতামত')
+                        ->orWhereHas('parent', fn($q3) => $q3->where('slug', 'opinion'));
+                  });
+            })
+            ->latest('published_at')
             ->limit($limit)
             ->withRelations()
             ->get()
@@ -1083,7 +1060,7 @@ class NewsController extends Controller
                 'title' => $edition === 'en' ? $a->title_en : $a->title_bn,
                 'time' => $a->published_at ? $a->published_at->diffForHumans() : '',
                 'views' => $a->views,
-                'duration' => $a->video_duration ?: '03:45',
+                'duration' => $a->video_duration ?: '',
                 'thumbnail' => $a->featured_image,
                 'video_url' => $a->video_url,
             ]);

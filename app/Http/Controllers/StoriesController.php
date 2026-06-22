@@ -11,7 +11,7 @@ class StoriesController extends Controller
     {
         $edition = $this->getEdition($request);
 
-        $stories = Story::published()
+        $stories = Story::live()
             ->forEdition($edition)
             ->with(['coverMedia', 'slides.media', 'slides.linkedArticle.category'])
             ->withCount('slides')
@@ -30,7 +30,7 @@ class StoriesController extends Controller
         $edition = $this->getEdition($request);
         $limit = min((int) $request->get('limit', 10), 20);
 
-        $stories = Story::published()
+        $stories = Story::live()
             ->forEdition($edition)
             ->with(['coverMedia', 'slides.media', 'slides.linkedArticle.category'])
             ->withCount('slides')
@@ -40,6 +40,26 @@ class StoriesController extends Controller
             ->map(fn($s) => $s->toAPIArray($edition));
 
         return response()->json(['stories' => $stories]);
+    }
+
+    /**
+     * Count a story view — once per browser session (so refreshes/replays don't
+     * inflate it), and only for published stories. Fire-and-forget from the viewer.
+     */
+    public function trackView(Request $request, Story $story)
+    {
+        if ($story->status !== 'published') {
+            return response()->noContent();
+        }
+
+        $viewed = $request->session()->get('viewed_stories', []);
+        if (! in_array($story->id, $viewed, true)) {
+            $story->increment('view_count');
+            $viewed[] = $story->id;
+            $request->session()->put('viewed_stories', $viewed);
+        }
+
+        return response()->noContent();
     }
 
     protected function getEdition(Request $request): string

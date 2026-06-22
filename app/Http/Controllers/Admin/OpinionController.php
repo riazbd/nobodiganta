@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ManagesArticleContent;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Category;
-use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class OpinionController extends Controller
 {
+    use ManagesArticleContent;
+
     public function index(Request $request)
     {
         if (!auth()->user()->hasPermission('opinion.view')) {
@@ -64,6 +65,8 @@ class OpinionController extends Controller
                 'id'           => $article->id,
                 'title'        => $article->title_bn,
                 'title_en'     => $article->title_en,
+                'slug'         => $article->slug_bn,
+                'slug_en'      => $article->slug_en,
                 'author'       => $article->is_guest_author
                     ? ($article->guest_author_name_bn ?: $article->guest_author_name_en)
                     : $article->author?->name,
@@ -145,12 +148,20 @@ class OpinionController extends Controller
             'featured_image' => $validated['featuredImage'] ?? null,
             'featured_image_alt_bn' => $validated['featuredImageAltBn'] ?? null,
             'featured_image_alt_en' => $validated['featuredImageAltEn'] ?? null,
+            'meta_title_bn' => $validated['metaTitleBn'] ?? null,
+            'meta_title_en' => $validated['metaTitleEn'] ?? null,
+            'meta_description_bn' => $validated['metaDescBn'] ?? null,
+            'meta_description_en' => $validated['metaDescEn'] ?? null,
+            // Approver = whoever publishes it (the logged-in user), matching news articles.
+            'approver_id' => ($validated['status'] ?? 'draft') === 'published' ? Auth::id() : null,
             'published_at' => ($validated['status'] ?? 'draft') === 'published' ? now() : null,
         ]);
 
         if ($category) {
             $article->categories()->sync([$category->id => ['is_primary' => true, 'sort_order' => 0]]);
         }
+
+        $this->syncArticleTags($article, $validated['tags_bn'] ?? [], $validated['tags_en'] ?? []);
 
         return redirect()->route('admin.opinions.edit', $article)
             ->with('success', 'Opinion created successfully');
@@ -163,6 +174,7 @@ class OpinionController extends Controller
         }
 
         $authors = User::orderBy('name')->get(['id', 'name']);
+        $article->load('tags');
 
         return Inertia::render('features/admin/pages/opinion/WriteOpinion', [
             'authors' => $authors,
@@ -181,6 +193,15 @@ class OpinionController extends Controller
                 'edition' => $article->edition,
                 'status' => $article->status,
                 'featuredImage' => $article->featured_image,
+                'featuredImageAltBn' => $article->featured_image_alt_bn,
+                'featuredImageAltEn' => $article->featured_image_alt_en,
+                'metaTitleBn' => $article->meta_title_bn,
+                'metaTitleEn' => $article->meta_title_en,
+                'metaDescBn' => $article->meta_description_bn,
+                'metaDescEn' => $article->meta_description_en,
+                'videoUrl' => $article->video_url,
+                'videoProvider' => $article->video_provider,
+                'videoDuration' => $article->video_duration,
                 'isExclusive' => (bool)$article->is_exclusive,
                 'allowComments' => (bool)$article->allow_comments,
                 'secondaryAuthorId' => $article->secondary_author_id,
@@ -190,6 +211,8 @@ class OpinionController extends Controller
                 'guestAuthorBioBn' => $article->guest_author_bio_bn,
                 'guestAuthorBioEn' => $article->guest_author_bio_en,
                 'guestAuthorImage' => $article->guest_author_image,
+                'tags_bn' => $article->tags->filter(fn($t) => $t->pivot->edition === 'bn')->pluck('name_bn')->values()->toArray(),
+                'tags_en' => $article->tags->filter(fn($t) => $t->pivot->edition === 'en')->pluck('name_en')->values()->toArray(),
             ],
         ]);
     }
@@ -226,6 +249,13 @@ class OpinionController extends Controller
             'featured_image' => $validated['featuredImage'] ?? null,
             'featured_image_alt_bn' => $validated['featuredImageAltBn'] ?? null,
             'featured_image_alt_en' => $validated['featuredImageAltEn'] ?? null,
+            'meta_title_bn' => $validated['metaTitleBn'] ?? null,
+            'meta_title_en' => $validated['metaTitleEn'] ?? null,
+            'meta_description_bn' => $validated['metaDescBn'] ?? null,
+            'meta_description_en' => $validated['metaDescEn'] ?? null,
+            'video_url' => $validated['videoUrl'] ?? null,
+            'video_provider' => $validated['videoProvider'] ?? null,
+            'video_duration' => $validated['videoDuration'] ?? null,
             'is_exclusive' => $validated['isExclusive'] ?? false,
             'allow_comments' => $validated['allowComments'] ?? true,
             'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
@@ -236,12 +266,16 @@ class OpinionController extends Controller
             'guest_author_bio_en' => $validated['guestAuthorBioEn'] ?? null,
             'guest_author_image' => $validated['guestAuthorImage'] ?? null,
             'status' => $newStatus,
+            // Approver = whoever publishes it; keep the original once set.
+            'approver_id' => $newStatus === 'published' ? ($article->approver_id ?? Auth::id()) : $article->approver_id,
             'published_at' => ($newStatus === 'published' && !$article->published_at) ? now() : $article->published_at,
         ]);
 
         if ($category) {
             $article->categories()->sync([$category->id => ['is_primary' => true, 'sort_order' => 0]]);
         }
+
+        $this->syncArticleTags($article, $validated['tags_bn'] ?? [], $validated['tags_en'] ?? []);
 
         return back()->with('success', 'Opinion updated successfully');
     }
@@ -268,44 +302,52 @@ class OpinionController extends Controller
 
         $article->update([
             'status' => $validated['status'],
+            'approver_id' => $validated['status'] === 'published' ? ($article->approver_id ?? Auth::id()) : $article->approver_id,
             'published_at' => $validated['status'] === 'published' ? ($article->published_at ?? now()) : $article->published_at,
         ]);
 
         return response()->json(['success' => true]);
     }
 
-    protected function generateSlug(string $title, string $column, ?int $excludeId = null): string
+    /** Bulk status change for selected opinions (opinion-scoped permission). */
+    public function bulkStatus(Request $request)
     {
-        // Unicode-friendly slugify: keep letters, numbers, spaces and dashes
-        $slug = mb_strtolower($title, 'UTF-8');
-        $slug = preg_replace('/[^\p{L}\p{N}\s-]+/u', '', $slug);
-        $slug = preg_replace('/\s+/u', '-', $slug);
-        $slug = preg_replace('/-+/u', '-', $slug);
-        $slug = trim($slug, '-');
-
-        // Fallback for empty slug
-        if (empty($slug)) {
-            $slug = 'opinion-' . Str::random(5);
+        if (!auth()->user()->hasPermission('opinion.publish')) {
+            abort(403);
         }
 
-        $originalSlug = $slug;
-        $counter = 1;
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:articles,id',
+            'status' => 'required|in:draft,pending,published,archived',
+        ]);
 
-        $query = Article::where($column, $slug);
-        if ($excludeId) {
-            $query->where('id', '!=', $excludeId);
+        $data = ['status' => $validated['status']];
+        if ($validated['status'] === 'published') {
+            $data['published_at'] = now();
+            $data['approver_id'] = Auth::id();
         }
 
-        while ($query->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $query = Article::where($column, $slug);
-            if ($excludeId) {
-                $query->where('id', '!=', $excludeId);
-            }
-            $counter++;
+        Article::whereIn('id', $validated['ids'])->where('article_type', 'opinion')->update($data);
+
+        return back()->with('success', count($validated['ids']) . ' opinions updated');
+    }
+
+    /** Bulk delete selected opinions (opinion-scoped permission). */
+    public function bulkDestroy(Request $request)
+    {
+        if (!auth()->user()->hasPermission('opinion.delete')) {
+            abort(403);
         }
 
-        return $slug;
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:articles,id',
+        ]);
+
+        Article::whereIn('id', $validated['ids'])->where('article_type', 'opinion')->delete();
+
+        return back()->with('success', count($validated['ids']) . ' opinions deleted');
     }
 
     protected function validateOpinion(Request $request)
@@ -325,6 +367,14 @@ class OpinionController extends Controller
             'featuredImage' => 'nullable|string',
             'featuredImageAltBn' => 'nullable|string|max:255',
             'featuredImageAltEn' => 'nullable|string|max:255',
+            'metaTitleBn' => 'nullable|string|max:255',
+            'metaTitleEn' => 'nullable|string|max:255',
+            'metaDescBn' => 'nullable|string|max:500',
+            'metaDescEn' => 'nullable|string|max:500',
+            'tags_bn' => 'nullable|array',
+            'tags_bn.*' => 'string|max:100',
+            'tags_en' => 'nullable|array',
+            'tags_en.*' => 'string|max:100',
             'status' => 'nullable|in:draft,pending,published,archived',
             'isExclusive' => 'boolean',
             'secondaryAuthorId' => 'nullable|exists:users,id',

@@ -12,14 +12,14 @@ export default function About() {
     ['২০১৩', 'অনলাইন সংস্করণ চালু। ডিজিটাল সাংবাদিকতায় নতুন যুগের সূচনা।'],
     ['২০১৬', 'মোবাইল অ্যাপ লঞ্চ। স্মার্টফোনে সংবাদ পাঠের নতুন যুগ।'],
     ['২০১৯', 'দশ বছর পূর্তি। প্রচার সংখ্যা পাঁচ লাখ ছাড়িয়ে যায়।'],
-    ['২০২২', 'ডিজিটাল সাবস্ক্রিপশন সেবা চালু। অনলাইন পাঠক সংখ্যা এক কোটি ছাড়িয়ে যায়।'],
+    ['২০২২', 'অনলাইন পাঠক সংখ্যা এক কোটি ছাড়িয়ে যায়।'],
     ['২০২৬', 'বাংলাদেশের সর্বাধিক পঠিত নিউজ পোর্টাল হিসেবে স্বীকৃতি।'],
   ] : [
     ['2010', `${siteName} launched on January 1. First issue published under the editorship of Shahidul Islam.`],
     ['2013', 'Online edition launched. A new era of digital journalism begins.'],
     ['2016', 'Mobile app launched. A new era of reading news on smartphones.'],
     ['2019', 'Ten years completed. Circulation crosses five hundred thousand.'],
-    ['2022', 'Digital subscription service launched. Online readers cross ten million.'],
+    ['2022', 'Online readers cross ten million.'],
     ['2026', `Recognized as Bangladesh's most read news portal.`],
   ];
 

@@ -18,7 +18,6 @@ const STATUS_MAP = {
   published: { bn: 'প্রকাশিত',         en: 'Published', variant: 'green'  },
   draft:     { bn: 'ড্রাফট',            en: 'Draft',     variant: 'gray'   },
   pending:   { bn: 'অনুমোদন অপেক্ষায়', en: 'Pending',   variant: 'orange' },
-  scheduled: { bn: 'নির্ধারিত',         en: 'Scheduled', variant: 'purple' },
   archived:  { bn: 'আর্কাইভড',          en: 'Archived',  variant: 'blue'   },
 };
 
@@ -266,7 +265,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
               <option value="all">{l('সব ফ্ল্যাগ', 'All Flags')}</option>
               <option value="breaking">{l('ব্রেকিং', 'Breaking')}</option>
               <option value="featured">{l('ফিচার্ড', 'Featured')}</option>
-              <option value="premium">{l('প্রিমিয়াম', 'Premium')}</option>
+              {/* Premium filter hidden — subscriptions/paywall are disabled (is_premium gates nothing). */}
             </Select>
 
             {/* Author */}
@@ -377,7 +376,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
                       )}
                       <FlagChip active={article.is_breaking} onClick={() => toggleFlag(article.id, 'breaking')} onClass="bg-red-100 text-red-600" label={l('ব্রেকিং', 'BREAKING')} title={l('ব্রেকিং টগল', 'Toggle breaking')} />
                       <FlagChip active={article.is_featured} onClick={() => toggleFlag(article.id, 'featured')} onClass="bg-blue-100 text-blue-600" label={l('ফিচার্ড', 'FEATURED')} title={l('ফিচার্ড টগল', 'Toggle featured')} />
-                      <FlagChip active={article.is_premium} onClick={() => toggleFlag(article.id, 'premium')} onClass="bg-yellow-100 text-yellow-700" label={l('প্রিমিয়াম', 'PREMIUM')} title={l('প্রিমিয়াম টগল', 'Toggle premium')} />
+                      {/* Premium chip hidden — subscriptions/paywall are disabled (is_premium gates nothing). */}
                     </div>
                   </td>
 

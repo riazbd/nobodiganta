@@ -53,7 +53,7 @@ class VideoController extends Controller
                 'categoryEn' => $article->category?->name_en,
                 'edition' => $article->edition,
                 'video_provider' => $article->video_provider,
-                'duration' => $article->video_duration || '00:00',
+                'duration' => $article->video_duration ?: '00:00',
                 'date' => $article->created_at->format('Y-m-d'),
                 'video_url' => $article->video_url, 
             ];

@@ -1,9 +1,10 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { router } from '@inertiajs/react';
-import { PenLine, Eye, Edit3, Trash2, Send, Search, X, Loader2, AlertTriangle, ChevronDown, CheckCircle, RotateCcw } from 'lucide-react';
+import { PenLine, Eye, Edit3, Trash2, Send, Search, X, Loader2, AlertTriangle, ChevronDown, CheckCircle, RotateCcw, Archive } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
+import { ROUTES } from '../../../../lib/routes';
 
 function Select({ value, onChange, children, className = '' }) {
   return (
@@ -67,12 +68,14 @@ export default function OpinionList({ opinions, authors = [], filters }) {
     if (!selected.length) return;
     if (action === 'delete') {
       if (!confirm(l(`${selected.length}টি মতামত মুছে ফেলতে চান?`, `Delete ${selected.length} opinions?`))) return;
-      router.post(route('admin.news.bulk-delete'), { article_ids: selected }, {
+      router.post(route('admin.opinions.bulk-delete'), { ids: selected }, {
+        preserveScroll: true,
         onSuccess: () => { showToast(l('মুছে ফেলা হয়েছে', 'Deleted')); setSelected([]); },
       });
       return;
     }
-    router.post(route('admin.news.bulk-status'), { article_ids: selected, status: action }, {
+    router.post(route('admin.opinions.bulk-status'), { ids: selected, status: action }, {
+      preserveScroll: true,
       onSuccess: () => { showToast(l('আপডেট হয়েছে', 'Updated')); setSelected([]); },
     });
   };
@@ -119,6 +122,7 @@ export default function OpinionList({ opinions, authors = [], filters }) {
             <option value="published">{l('প্রকাশিত', 'Published')}</option>
             <option value="pending">{l('অপেক্ষমাণ', 'Pending')}</option>
             <option value="draft">{l('ড্রাফট', 'Draft')}</option>
+            <option value="archived">{l('আর্কাইভড', 'Archived')}</option>
           </Select>
 
           <Select value={edition} onChange={v => { setEdition(v); applyFilters({ edition: v }); }}>
@@ -198,39 +202,59 @@ export default function OpinionList({ opinions, authors = [], filters }) {
                 </td>
                 <td className="px-4 py-3 text-[12px] text-[var(--text-muted,#9ca3af)]">{fmt(op.published_at || op.created_at)}</td>
                 <td className="px-4 py-3">
-                  <Badge variant={op.status === 'published' ? 'green' : op.status === 'pending' ? 'orange' : 'gray'} className="text-[9px] uppercase font-bold px-2 py-0.5">
+                  <Badge variant={op.status === 'published' ? 'green' : op.status === 'pending' ? 'orange' : op.status === 'archived' ? 'blue' : 'gray'} className="text-[9px] uppercase font-bold px-2 py-0.5">
                     {op.status === 'published' ? l('প্রকাশিত', 'Published') :
-                     op.status === 'pending'   ? l('অপেক্ষায়', 'Pending') : l('ড্রাফট', 'Draft')}
+                     op.status === 'pending'   ? l('অপেক্ষায়', 'Pending') :
+                     op.status === 'archived'  ? l('আর্কাইভড', 'Archived') : l('ড্রাফট', 'Draft')}
                   </Badge>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
-                    <button className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
+                    {(op.slug || op.slug_en) && (
+                      <a
+                        href={ROUTES.article('opinion',
+                          op.edition === 'en' ? (op.slug_en || op.slug) : (op.slug || op.slug_en),
+                          op.edition === 'en' ? 'en' : 'bn')}
+                        target="_blank" rel="noopener noreferrer"
+                        className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-colors"
+                        title={op.status === 'published' ? l('সাইটে দেখুন', 'Open on site') : l('সাইটে প্রিভিউ', 'Preview on site')}>
+                        <Eye className="w-3.5 h-3.5" />
+                      </a>
+                    )}
                     <button onClick={() => router.visit(`/admin/opinions/${op.id}/edit`)}
-                      className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-green-600 transition-colors">
+                      className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-green-600 transition-colors" title={l('সম্পাদনা', 'Edit')}>
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
                     {op.status === 'pending' && (
-                      <button onClick={() => handleStatusChange(op.id, 'published')}
+                      <button onClick={() => handleStatusChange(op.id, 'published')} title={l('প্রকাশ', 'Publish')}
                         className="p-1.5 rounded-md hover:bg-green-50 text-green-400 hover:text-green-600 transition-colors">
                         <CheckCircle className="w-3.5 h-3.5" />
                       </button>
                     )}
                     {op.status === 'draft' && (
-                      <button onClick={() => handleStatusChange(op.id, 'pending')}
+                      <button onClick={() => handleStatusChange(op.id, 'pending')} title={l('পর্যালোচনায় পাঠান', 'Submit for review')}
                         className="p-1.5 rounded-md hover:bg-orange-50 text-orange-400 hover:text-orange-600 transition-colors">
                         <Send className="w-3.5 h-3.5" />
                       </button>
                     )}
                     {op.status === 'published' && (
-                      <button onClick={() => handleStatusChange(op.id, 'draft')}
+                      <button onClick={() => handleStatusChange(op.id, 'draft')} title={l('আনপাবলিশ', 'Unpublish')}
                         className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
                         <Send className="w-3.5 h-3.5 rotate-180" />
                       </button>
                     )}
-                    <button onClick={() => setDeleteConfirm(op)}
+                    {op.status !== 'archived' ? (
+                      <button onClick={() => handleStatusChange(op.id, 'archived')} title={l('আর্কাইভ', 'Archive')}
+                        className="p-1.5 rounded-md hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors">
+                        <Archive className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <button onClick={() => handleStatusChange(op.id, 'draft')} title={l('পুনরুদ্ধার', 'Restore')}
+                        className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button onClick={() => setDeleteConfirm(op)} title={l('মুছুন', 'Delete')}
                       className="p-1.5 rounded-md hover:bg-[#eceff1] text-gray-400 hover:text-[#263238] transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
