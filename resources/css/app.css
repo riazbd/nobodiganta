@@ -645,7 +645,7 @@ article .card{padding:8px;}
   display:flex;
   align-items:center;
   white-space:nowrap;
-  animation:brkScroll 60s linear infinite;
+  animation:brkScroll 120s linear infinite;
   will-change:transform;
 }
 /* Severity variants */
