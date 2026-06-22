@@ -199,7 +199,7 @@ article .card{padding:8px;}
 }
 .bbc-centre:hover { opacity: .82; }
 .bbc-centre:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; border-radius: 3px; }
-.bbc-logo-img { max-width: 150px; width: auto; height: auto; display: block; object-fit: contain; }
+.bbc-logo-img { max-width: 125px; width: auto; height: auto; display: block; object-fit: contain; }
 
 /* BBC-style letter blocks */
 .bbc-wordmark { display: flex; flex-direction: column; align-items: center; gap: 2px; }
