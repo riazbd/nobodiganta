@@ -211,6 +211,27 @@ export default function Navigation() {
   const handleDropEnter = ()  => clearTimeout(hoverTimer.current);
   const handleDropLeave = ()  => { hoverTimer.current = setTimeout(() => setHoveredCat(null), 130); };
 
+  // Vertically position a nested flyout submenu so it never runs off the bottom:
+  // open it downward when there's room, upward when the parent sits low. Leaf
+  // menus also get a capped height + scroll; intermediate menus only reposition
+  // (so their own child flyouts aren't clipped).
+  const positionFlyout = (e) => {
+    const wrap = e.currentTarget;
+    const sub = wrap.querySelector(':scope > .nav-sub-sub');
+    if (!sub) return;
+    sub.style.top = ''; sub.style.bottom = ''; sub.style.maxHeight = ''; sub.style.overflowY = '';
+    const rect = wrap.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.top - 8;
+    const spaceAbove = rect.bottom - 8;
+    const openUp = spaceBelow < spaceAbove;
+    if (openUp) { sub.style.top = 'auto'; sub.style.bottom = '0'; }
+    else        { sub.style.top = '0';    sub.style.bottom = 'auto'; }
+    if (!sub.querySelector('.nav-sub-wrap')) { // leaf — safe to cap + scroll
+      sub.style.maxHeight = (openUp ? spaceAbove : spaceBelow) + 'px';
+      sub.style.overflowY = 'auto';
+    }
+  };
+
   const renderDropdownItems = (items, depth, ancestors = []) => {
     const useGrid = depth === 0 && items.length > 6 && !items.some(i => i.children?.length > 0);
     const cols = useGrid ? (items.length > 10 ? 3 : 2) : 1;
@@ -222,7 +243,7 @@ export default function Navigation() {
           const name = lang === 'bn' ? child.name_bn : (child.name_en || child.name_bn);
           if (hasSub) {
             return (
-              <div key={child.slug} className="nav-sub-wrap">
+              <div key={child.slug} className="nav-sub-wrap" onMouseEnter={positionFlyout}>
                 <a className="nav-sub-link nav-sub-has-sub"
                   onClick={() => { setHoveredCat(null); nav(); }}
                   role="menuitem" tabIndex={0}
