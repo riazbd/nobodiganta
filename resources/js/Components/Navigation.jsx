@@ -211,25 +211,51 @@ export default function Navigation() {
   const handleDropEnter = ()  => clearTimeout(hoverTimer.current);
   const handleDropLeave = ()  => { hoverTimer.current = setTimeout(() => setHoveredCat(null), 130); };
 
-  // Vertically position a nested flyout submenu so it never runs off the bottom:
-  // open it downward when there's room, upward when the parent sits low. Leaf
-  // menus also get a capped height + scroll; intermediate menus only reposition
-  // (so their own child flyouts aren't clipped).
+  // Position a nested flyout submenu so it never runs off screen — vertically or
+  // horizontally. Measured against clientWidth/clientHeight (which exclude the
+  // page scrollbar) so a deep column never slides behind it.
+  //   • Horizontal: open to the right of the row; flip to the left if there
+  //     isn't room (decided per submenu, not once for the whole dropdown).
+  //   • Vertical: align its top with the row you hovered, then shift up only as
+  //     much as needed to fit (so long lists stay attached instead of shooting
+  //     to the top). Leaf menus also get a capped height + scroll; intermediate
+  //     menus only reposition so their own child flyouts aren't clipped.
   const positionFlyout = (e) => {
     const wrap = e.currentTarget;
     const sub = wrap.querySelector(':scope > .nav-sub-sub');
     if (!sub) return;
-    sub.style.top = ''; sub.style.bottom = ''; sub.style.maxHeight = ''; sub.style.overflowY = '';
+    sub.style.top = ''; sub.style.bottom = ''; sub.style.left = ''; sub.style.right = '';
+    sub.style.maxHeight = ''; sub.style.overflowY = '';
+    const margin = 8;
     const rect = wrap.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - rect.top - 8;
-    const spaceAbove = rect.bottom - 8;
-    const openUp = spaceBelow < spaceAbove;
-    if (openUp) { sub.style.top = 'auto'; sub.style.bottom = '0'; }
-    else        { sub.style.top = '0';    sub.style.bottom = 'auto'; }
-    if (!sub.querySelector('.nav-sub-wrap')) { // leaf — safe to cap + scroll
-      sub.style.maxHeight = (openUp ? spaceAbove : spaceBelow) + 'px';
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    const avail = vh - margin * 2;
+    const isLeaf = !sub.querySelector('.nav-sub-wrap');
+
+    let h = sub.offsetHeight;
+    if (isLeaf && h > avail) { // taller than the viewport — cap + scroll
+      h = avail;
+      sub.style.maxHeight = avail + 'px';
       sub.style.overflowY = 'auto';
     }
+
+    // Horizontal: prefer the right of the row; flip left if it would overflow.
+    const w = sub.offsetWidth;
+    if (rect.right + w > vw - margin && rect.left - w >= margin) {
+      sub.style.left = 'auto'; sub.style.right = '100%';
+    } else {
+      sub.style.left = '100%'; sub.style.right = 'auto';
+    }
+
+    // Vertical: top is relative to the (position:relative) wrap; 0 aligns it.
+    let top = 0;
+    const overflowBelow = (rect.top + h) - (vh - margin);
+    if (overflowBelow > 0) top = -overflowBelow;          // shift up just enough
+    const minTop = margin - rect.top;                      // but stay on screen
+    if (top < minTop) top = minTop;
+    sub.style.top = top + 'px';
+    sub.style.bottom = 'auto';
   };
 
   const renderDropdownItems = (items, depth, ancestors = []) => {
