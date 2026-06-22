@@ -119,8 +119,8 @@ class AnalyticsController extends Controller
                 ? Article::where('slug_bn', $slug)->orWhere('slug_en', $slug)->first(['title_bn', 'title_en'])
                 : null;
             return [
-                'titleBn' => $article->title_bn ?? ('/' . $row->path),
-                'titleEn' => $article->title_en ?: ($article->title_bn ?? ('/' . $row->path)),
+                'titleBn' => $article?->title_bn ?? ('/' . $row->path),
+                'titleEn' => $article?->title_en ?: ($article?->title_bn ?? ('/' . $row->path)),
                 'path' => '/' . $row->path,
                 'views' => (int) $row->c,
             ];
