@@ -35,7 +35,6 @@ export default function Profile() {
   const tabs = [
     { id: 'profile', labelBn: 'প্রোফাইল', labelEn: 'Profile', icon: User },
     { id: 'security', labelBn: 'নিরাপত্তা', labelEn: 'Security', icon: Shield },
-    { id: 'notifications', labelBn: 'বিজ্ঞপ্তি', labelEn: 'Notifications', icon: Bell },
   ];
 
   const profileForm = useForm({

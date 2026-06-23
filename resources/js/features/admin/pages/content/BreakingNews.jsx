@@ -113,7 +113,6 @@ export default function BreakingNews({ items = { active: [], scheduled: [], expi
                   {it.articleId ? l('আর্টিকেল-লিংকড', 'Article-linked') : l('স্ট্যান্ডঅ্যালোন', 'Standalone')} · {it.edition.toUpperCase()}
                   {it.startsAt && it.isScheduled && ` · ${l('শুরু', 'starts')} ${new Date(it.startsAt).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })}`}
                   {it.expiresAt && ` · ${l('শেষ', 'expires')} ${new Date(it.expiresAt).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })}`}
-                  {it.pushEnabled && ` · 🔔 ${it.pushSentAt ? l('পাঠানো হয়েছে', 'sent') : l('সারিতে', 'queued')}`}
                   {it.creator && ` · ${it.creator}`}
                 </p>
               </div>
@@ -194,7 +193,6 @@ export default function BreakingNews({ items = { active: [], scheduled: [], expi
               <div className="flex flex-wrap gap-5 pt-1">
                 <label className="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" checked={form.isPinned} onChange={e => setForm({ ...form, isPinned: e.target.checked })} /> {l('পিন করুন', 'Pin')}</label>
                 <label className="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" checked={form.isActive} onChange={e => setForm({ ...form, isActive: e.target.checked })} /> {l('সক্রিয়', 'Active')}</label>
-                <label className="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" checked={form.pushEnabled} onChange={e => setForm({ ...form, pushEnabled: e.target.checked })} /> {l('পুশ নোটিফিকেশন', 'Push notification')} <span className="text-[10px] text-gray-400">({l('ভবিষ্যতে সক্রিয় হবে', 'activates later')})</span></label>
               </div>
 
               <div className="flex gap-3 pt-3">
