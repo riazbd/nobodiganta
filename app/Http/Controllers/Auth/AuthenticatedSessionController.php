@@ -47,9 +47,19 @@ class AuthenticatedSessionController extends Controller
             return Inertia::location(route('admin.dashboard', absolute: false));
         }
 
-        // OTP enabled — verify credentials WITHOUT logging in, then email a code.
+        // OTP enabled — verify credentials WITHOUT logging in first.
         $user = $request->validateCredentials();
 
+        // Supreme/super admins bypass 2FA — log in straight away.
+        if ($user->isSuperAdmin()) {
+            Auth::login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
+            $user->update(['last_login_at' => now()]);
+
+            return Inertia::location(route('admin.dashboard', absolute: false));
+        }
+
+        // Everyone else gets an emailed code.
         try {
             $otp->send($user);
         } catch (\Throwable $e) {

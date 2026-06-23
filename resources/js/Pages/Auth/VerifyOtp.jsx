@@ -59,6 +59,9 @@ export default function VerifyOtp({ email, resendIn = 0, status }) {
                             <p className="text-sm text-gray-500 mt-1.5">
                                 We emailed a code to <span className="font-semibold text-gray-700">{email}</span>. Enter it to finish signing in.
                             </p>
+                            <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-3">
+                                📩 ইমেইলটি ইনবক্সে না পেলে স্প্যাম / জাঙ্ক ফোল্ডার দেখুন। / If you don’t see the email in your inbox, please check your spam/junk folder.
+                            </p>
                         </div>
 
                         {status && (

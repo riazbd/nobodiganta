@@ -145,12 +145,20 @@ class User extends Authenticatable
     }
 
     /**
+     * The top-level role that bypasses permission checks (and login 2FA).
+     */
+    public function isSuperAdmin(): bool
+    {
+        return in_array($this->role, ['supreme_admin', 'super_admin'], true)
+            || ($this->roleRelation && in_array($this->roleRelation->name, ['supreme_admin', 'super_admin'], true));
+    }
+
+    /**
      * Check if user has a specific permission.
      */
     public function hasPermission(string $permission): bool
     {
-        if (in_array($this->role, ['supreme_admin', 'super_admin']) || 
-            ($this->roleRelation && in_array($this->roleRelation->name, ['supreme_admin', 'super_admin']))) {
+        if ($this->isSuperAdmin()) {
             return true;
         }
 

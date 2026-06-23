@@ -3,80 +3,94 @@
 namespace App\Services;
 
 use App\Mail\LoginOtpMail;
+use App\Models\LoginOtp;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * Session-based login OTP (email 2FA). Holds an interim challenge between a
- * correct password and a completed login — no DB table needed; the pending
- * state lives in the visitor's session and is cleared once login completes.
+ * Login OTP (email 2FA). The challenge is persisted in the `login_otps` table;
+ * the session holds only a pointer (the row id) so the unauthenticated browser
+ * can be tied to its pending challenge. Login completes only after a valid code.
  */
 class EmailOtp
 {
-    private const KEY = 'login_otp';
+    private const KEY = 'login_otp_id';
 
     public function enabled(): bool
     {
         return (bool) config('auth.email_otp.enabled', false);
     }
 
+    /** The active (unconsumed, unexpired) challenge for this browser, if any. */
+    private function current(): ?LoginOtp
+    {
+        $id = session(self::KEY);
+        if (! $id) {
+            return null;
+        }
+        return LoginOtp::whereNull('consumed_at')->find($id);
+    }
+
     public function pending(): bool
     {
-        return session()->has(self::KEY);
+        $otp = $this->current();
+        return $otp !== null && $otp->expires_at->isFuture();
     }
 
     public function userId(): ?int
     {
-        return session(self::KEY . '.user_id');
+        return optional($this->current())->user_id;
     }
 
-    /** Email a fresh code and (re)start the challenge for this user. */
+    /** Create + email a fresh code, replacing any previous pending one for the user. */
     public function send(User $user): void
     {
         $length = max(4, min(8, (int) config('auth.email_otp.length', 6)));
         $code = str_pad((string) random_int(0, (10 ** $length) - 1), $length, '0', STR_PAD_LEFT);
         $minutes = (int) config('auth.email_otp.expiry_minutes', 10);
 
-        session()->put(self::KEY, [
+        // Only one active challenge per user.
+        LoginOtp::where('user_id', $user->id)->whereNull('consumed_at')->delete();
+
+        $otp = LoginOtp::create([
             'user_id' => $user->id,
-            'email' => $user->email,
-            'hash' => Hash::make($code),
-            'expires_at' => now()->addMinutes($minutes)->getTimestamp(),
+            'code_hash' => Hash::make($code),
             'attempts' => 0,
-            'last_sent_at' => now()->getTimestamp(),
+            'expires_at' => now()->addMinutes($minutes),
+            'last_sent_at' => now(),
         ]);
+
+        session()->put(self::KEY, $otp->id);
 
         Mail::to($user->email)->send(new LoginOtpMail($code, $minutes, $user->name));
     }
 
     /**
-     * Verify a submitted code. Returns one of:
-     *   ok | invalid | expired | locked | none
-     * On success it does NOT clear the session — the caller logs the user in
+     * Verify a submitted code. Returns: ok | invalid | expired | locked | none.
+     * On success it does NOT consume the row — the caller logs the user in
      * (reading userId() first) and then calls clear().
      */
     public function verify(string $code): string
     {
-        $data = session(self::KEY);
-        if (! $data) {
+        $otp = $this->current();
+        if (! $otp) {
             return 'none';
         }
-        if (now()->getTimestamp() > $data['expires_at']) {
+        if ($otp->expires_at->isPast()) {
             $this->clear();
             return 'expired';
         }
 
         $max = (int) config('auth.email_otp.max_attempts', 5);
-        if ($data['attempts'] >= $max) {
+        if ($otp->attempts >= $max) {
             $this->clear();
             return 'locked';
         }
 
-        if (! Hash::check($code, $data['hash'])) {
-            $data['attempts']++;
-            session()->put(self::KEY, $data);
-            if ($data['attempts'] >= $max) {
+        if (! Hash::check($code, $otp->code_hash)) {
+            $otp->increment('attempts');
+            if ($otp->attempts >= $max) {
                 $this->clear();
                 return 'locked';
             }
@@ -88,38 +102,42 @@ class EmailOtp
 
     public function canResend(): bool
     {
-        $data = session(self::KEY);
-        if (! $data) {
+        $otp = $this->current();
+        if (! $otp) {
             return false;
         }
         $cooldown = (int) config('auth.email_otp.resend_cooldown_seconds', 60);
-        return now()->getTimestamp() - $data['last_sent_at'] >= $cooldown;
+        return (now()->getTimestamp() - $otp->last_sent_at->getTimestamp()) >= $cooldown;
     }
 
     public function resendCooldownRemaining(): int
     {
-        $data = session(self::KEY);
-        if (! $data) {
+        $otp = $this->current();
+        if (! $otp) {
             return 0;
         }
         $cooldown = (int) config('auth.email_otp.resend_cooldown_seconds', 60);
-        return max(0, $cooldown - (now()->getTimestamp() - $data['last_sent_at']));
+        return max(0, $cooldown - (now()->getTimestamp() - $otp->last_sent_at->getTimestamp()));
     }
 
     /** Masked email for display, e.g. j***@example.com */
     public function maskedEmail(): ?string
     {
-        $email = session(self::KEY . '.email');
+        $email = optional(optional($this->current())->user)->email;
         if (! $email || ! str_contains($email, '@')) {
             return $email;
         }
         [$name, $domain] = explode('@', $email, 2);
-        $visible = mb_substr($name, 0, 1);
-        return $visible . str_repeat('*', max(1, mb_strlen($name) - 1)) . '@' . $domain;
+        return mb_substr($name, 0, 1) . str_repeat('*', max(1, mb_strlen($name) - 1)) . '@' . $domain;
     }
 
+    /** Mark the active challenge consumed and drop the session pointer. */
     public function clear(): void
     {
-        session()->forget(self::KEY);
+        $id = session(self::KEY);
+        if ($id) {
+            LoginOtp::where('id', $id)->update(['consumed_at' => now()]);
+            session()->forget(self::KEY);
+        }
     }
 }
