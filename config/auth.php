@@ -114,4 +114,23 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Email OTP (login 2FA)
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, a correct email+password is followed by a one-time code
+    | emailed to the user; login only completes after the code is verified.
+    | Toggle entirely from .env with EMAIL_OTP_ENABLED.
+    |
+    */
+
+    'email_otp' => [
+        'enabled' => env('EMAIL_OTP_ENABLED', false),
+        'length' => (int) env('EMAIL_OTP_LENGTH', 6),
+        'expiry_minutes' => (int) env('EMAIL_OTP_EXPIRY_MINUTES', 10),
+        'max_attempts' => (int) env('EMAIL_OTP_MAX_ATTEMPTS', 5),
+        'resend_cooldown_seconds' => (int) env('EMAIL_OTP_RESEND_COOLDOWN', 60),
+    ],
+
 ];

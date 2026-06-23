@@ -25,6 +25,11 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
+    // Email OTP (login 2FA) — the interim step between password and full login.
+    Route::get('login/otp', [AuthenticatedSessionController::class, 'showOtp'])->name('login.otp');
+    Route::post('login/otp', [AuthenticatedSessionController::class, 'verifyOtp'])->name('login.otp.verify');
+    Route::post('login/otp/resend', [AuthenticatedSessionController::class, 'resendOtp'])->name('login.otp.resend');
+
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 

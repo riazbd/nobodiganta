@@ -56,6 +56,33 @@ class LoginRequest extends FormRequest
     }
 
     /**
+     * Verify the credentials (rate-limit + captcha + email/password) WITHOUT
+     * logging the user in. Used by the email-OTP flow, which only completes the
+     * login after the emailed code is verified.
+     *
+     * @throws ValidationException
+     */
+    public function validateCredentials(): \App\Models\User
+    {
+        $this->ensureIsNotRateLimited();
+        $this->ensureTurnstilePassed();
+
+        $user = \App\Models\User::where('email', $this->string('email'))->first();
+
+        if (! $user || ! \Illuminate\Support\Facades\Hash::check((string) $this->string('password'), $user->password)) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+
+        return $user;
+    }
+
+    /**
      * Verify the Cloudflare Turnstile token. Skipped entirely when no secret is
      * configured, so login keeps working until the keys are set in .env.
      *
