@@ -50,8 +50,8 @@ class AuthenticatedSessionController extends Controller
         // OTP enabled — verify credentials WITHOUT logging in first.
         $user = $request->validateCredentials();
 
-        // Supreme/super admins bypass 2FA — log in straight away.
-        if ($user->isSuperAdmin()) {
+        // Only the supreme admin bypasses 2FA — log in straight away.
+        if ($user->isSupremeAdmin()) {
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
             $user->update(['last_login_at' => now()]);
