@@ -145,18 +145,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Roles with unconditional full access (both top roles). Used for permission
-     * checks — unchanged from the original behavior.
-     */
-    public function hasFullAccess(): bool
-    {
-        return in_array($this->role, ['supreme_admin', 'super_admin'], true)
-            || ($this->roleRelation && in_array($this->roleRelation->name, ['supreme_admin', 'super_admin'], true));
-    }
-
-    /**
-     * The single highest role — the only one exempt from login 2FA.
-     * (super_admin is NOT exempt.)
+     * The single highest role. It is the only unconditional wildcard — exempt
+     * from both permission checks and login 2FA. Every other role (including
+     * super_admin) is governed by its assigned permissions.
      */
     public function isSupremeAdmin(): bool
     {
@@ -169,7 +160,7 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permission): bool
     {
-        if ($this->hasFullAccess()) {
+        if ($this->isSupremeAdmin()) {
             return true;
         }
 

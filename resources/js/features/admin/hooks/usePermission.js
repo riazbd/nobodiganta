@@ -18,20 +18,23 @@ export function usePermission() {
     return auth?.user?.role || 'reporter';
   }, [auth]);
 
-  const isSuperAdmin = ['supreme_admin', 'super_admin'].includes(currentRole);
+  // Only the supreme admin is an unconditional wildcard; super_admin (and every
+  // other role) is governed by its assigned permissions — which the supreme/super
+  // admin accounts already hold in full.
+  const isSupremeAdmin = currentRole === 'supreme_admin';
 
   const hasPermission = (permission) => {
-    if (isSuperAdmin) return true;
+    if (isSupremeAdmin) return true;
     return permissions.includes(permission);
   };
 
   const hasAnyPermission = (permissionList) => {
-    if (isSuperAdmin) return true;
+    if (isSupremeAdmin) return true;
     return permissionList.some(p => permissions.includes(p));
   };
 
   const hasAllPermissions = (permissionList) => {
-    if (isSuperAdmin) return true;
+    if (isSupremeAdmin) return true;
     return permissionList.every(p => permissions.includes(p));
   };
 
