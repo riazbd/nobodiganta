@@ -7,7 +7,7 @@ import { useToast } from '../hooks/useToast';
 import { useRole } from '../hooks/useRole';
 
 export default function Profile() {
-  const { auth, twoFactorSystemEnabled = false } = usePage().props;
+  const { auth, twoFactorSystemEnabled = false, twoFactorExempt = false } = usePage().props;
   const user = auth.user;
   const { lang } = useLanguage();
   const { showToast } = useToast();
@@ -291,7 +291,29 @@ export default function Profile() {
               : 'When on, you’ll be asked for a 6-digit code sent to your email each time you sign in. (A trusted device can skip the code for a while.)'}
           </p>
 
-          {twoFactorSystemEnabled ? (
+          {twoFactorExempt ? (
+            <div className="flex items-center justify-between py-4 px-4 rounded-xl border border-[#e8ebf4] bg-emerald-50/40">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 w-9 h-9 rounded-lg flex items-center justify-center bg-emerald-100 text-emerald-600">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-gray-700 block">
+                    {lang === 'bn' ? 'আমার অ্যাকাউন্টে 2FA' : '2FA for my account'}
+                  </span>
+                  <span className="text-[11px] text-gray-500">
+                    {lang === 'bn'
+                      ? 'এই অ্যাকাউন্টটি সর্বদা 2FA থেকে অব্যাহতিপ্রাপ্ত (সুপ্রিম অ্যাডমিন)'
+                      : 'This account is always exempt from 2FA (supreme admin)'}
+                  </span>
+                </div>
+              </div>
+              {/* No operable toggle — the supreme admin is never challenged. */}
+              <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-600 bg-emerald-100 rounded-full px-2.5 py-1">
+                {lang === 'bn' ? 'অব্যাহতিপ্রাপ্ত' : 'Exempt'}
+              </span>
+            </div>
+          ) : twoFactorSystemEnabled ? (
             <div className="flex items-center justify-between py-4 px-4 rounded-xl border border-[#e8ebf4] bg-gray-50/60">
               <div className="flex items-start gap-3">
                 <div className={`mt-0.5 w-9 h-9 rounded-lg flex items-center justify-center ${user.two_factor_enabled ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-200 text-gray-400'}`}>
@@ -345,7 +367,7 @@ export default function Profile() {
             </div>
           )}
 
-          {!twoFactorSystemEnabled && (
+          {!twoFactorSystemEnabled && !twoFactorExempt && (
             <div className="mt-4 flex items-start gap-2.5 text-[11.5px] text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5">
               <Lock className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
               <span>

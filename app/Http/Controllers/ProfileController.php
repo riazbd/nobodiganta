@@ -27,6 +27,10 @@ class ProfileController extends Controller
             // Whether 2FA is switched on system-wide. The per-account toggle is
             // only meaningful (active) while this is true.
             'twoFactorSystemEnabled' => $otp->enabled(),
+            // The supreme admin is never challenged for an OTP (lockout-proof
+            // account), so their personal toggle is shown as a fixed exemption
+            // rather than an operable switch that would have no effect.
+            'twoFactorExempt' => $request->user()->isSupremeAdmin(),
         ]);
     }
 
@@ -35,6 +39,16 @@ class ProfileController extends Controller
      */
     public function updateTwoFactor(Request $request, EmailOtp $otp): RedirectResponse
     {
+        $user = $request->user();
+
+        // The supreme admin is never challenged for an OTP, so the toggle is a
+        // no-op for them — reject it rather than store a misleading state.
+        if ($user->isSupremeAdmin()) {
+            return Redirect::route('admin.profile.edit')->withErrors([
+                'two_factor_enabled' => 'This account is always exempt from two-factor authentication.',
+            ]);
+        }
+
         // The personal toggle is only operable while 2FA is on system-wide.
         if (! $otp->enabled()) {
             return Redirect::route('admin.profile.edit')->withErrors([
@@ -46,7 +60,6 @@ class ProfileController extends Controller
             'two_factor_enabled' => ['required', 'boolean'],
         ]);
 
-        $user = $request->user();
         $user->two_factor_enabled = $validated['two_factor_enabled'];
         $user->save();
 
