@@ -131,6 +131,8 @@ return [
         'expiry_minutes' => (int) env('EMAIL_OTP_EXPIRY_MINUTES', 10),
         'max_attempts' => (int) env('EMAIL_OTP_MAX_ATTEMPTS', 5),
         'resend_cooldown_seconds' => (int) env('EMAIL_OTP_RESEND_COOLDOWN', 60),
+        // How long a "trusted device" can skip OTP (0 disables the feature).
+        'trusted_device_days' => (int) env('EMAIL_OTP_TRUSTED_DAYS', 15),
     ],
 
 ];

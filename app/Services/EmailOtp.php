@@ -4,9 +4,12 @@ namespace App\Services;
 
 use App\Mail\LoginOtpMail;
 use App\Models\LoginOtp;
+use App\Models\TrustedDevice;
 use App\Models\User;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 /**
  * Login OTP (email 2FA). The challenge is persisted in the `login_otps` table;
@@ -16,10 +19,64 @@ use Illuminate\Support\Facades\Mail;
 class EmailOtp
 {
     private const KEY = 'login_otp_id';
+    private const TRUST_COOKIE = 'td_token';
 
     public function enabled(): bool
     {
         return (bool) config('auth.email_otp.enabled', false);
+    }
+
+    /** Is this browser a trusted device for the user (so OTP can be skipped)? */
+    public function isDeviceTrusted(User $user): bool
+    {
+        $days = (int) config('auth.email_otp.trusted_device_days', 0);
+        if ($days <= 0) {
+            return false;
+        }
+
+        $raw = request()->cookie(self::TRUST_COOKIE);
+        if (! $raw) {
+            return false;
+        }
+
+        $device = TrustedDevice::where('user_id', $user->id)
+            ->where('token_hash', hash('sha256', $raw))
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (! $device) {
+            return false;
+        }
+
+        $device->update(['last_used_at' => now()]);
+        return true;
+    }
+
+    /** Mark the current browser trusted for the configured number of days. */
+    public function trustThisDevice(User $user): void
+    {
+        $days = (int) config('auth.email_otp.trusted_device_days', 0);
+        if ($days <= 0) {
+            return;
+        }
+
+        $raw = Str::random(64);
+
+        TrustedDevice::create([
+            'user_id' => $user->id,
+            'token_hash' => hash('sha256', $raw),
+            'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+            'expires_at' => now()->addDays($days),
+        ]);
+
+        // Encrypted automatically by Laravel's EncryptCookies middleware.
+        Cookie::queue(cookie(
+            self::TRUST_COOKIE, $raw, $days * 24 * 60, // minutes
+            '/', null, request()->isSecure(), true, false, 'lax'
+        ));
+
+        // Tidy expired entries for this user.
+        TrustedDevice::where('user_id', $user->id)->where('expires_at', '<', now())->delete();
     }
 
     /** The active (unconsumed, unexpired) challenge for this browser, if any. */

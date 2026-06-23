@@ -1,8 +1,8 @@
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-export default function VerifyOtp({ email, resendIn = 0, status }) {
-    const { data, setData, post, processing, errors, reset } = useForm({ code: '' });
+export default function VerifyOtp({ email, resendIn = 0, status, trustDays = 0 }) {
+    const { data, setData, post, processing, errors, reset } = useForm({ code: '', remember_device: false });
     const [cooldown, setCooldown] = useState(resendIn);
     const [resending, setResending] = useState(false);
 
@@ -90,6 +90,20 @@ export default function VerifyOtp({ email, resendIn = 0, status }) {
                                     className="w-full border border-gray-300 rounded-xl px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] outline-none focus:border-[#263238] focus:ring-2 focus:ring-[#263238]/20 transition-all bg-white font-mono"
                                 />
                             </div>
+
+                            {trustDays > 0 && (
+                                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        checked={data.remember_device}
+                                        onChange={(e) => setData('remember_device', e.target.checked)}
+                                        className="w-4 h-4 text-[#263238] border-gray-300 rounded focus:ring-[#263238] cursor-pointer"
+                                    />
+                                    <span className="text-sm text-gray-600">
+                                        Trust this device for {trustDays} days (skip the code next time)
+                                    </span>
+                                </label>
+                            )}
 
                             <button
                                 type="submit"

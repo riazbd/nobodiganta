@@ -50,8 +50,8 @@ class AuthenticatedSessionController extends Controller
         // OTP enabled — verify credentials WITHOUT logging in first.
         $user = $request->validateCredentials();
 
-        // Only the supreme admin bypasses 2FA — log in straight away.
-        if ($user->isSupremeAdmin()) {
+        // Supreme admin, or a previously-trusted device → skip OTP, log in now.
+        if ($user->isSupremeAdmin() || $otp->isDeviceTrusted($user)) {
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
             $user->update(['last_login_at' => now()]);
@@ -85,6 +85,7 @@ class AuthenticatedSessionController extends Controller
             'email' => $otp->maskedEmail(),
             'resendIn' => $otp->resendCooldownRemaining(),
             'status' => session('status'),
+            'trustDays' => (int) config('auth.email_otp.trusted_device_days', 0),
         ]);
     }
 
@@ -107,6 +108,11 @@ class AuthenticatedSessionController extends Controller
             Auth::loginUsingId($userId);
             $request->session()->regenerate();
             $request->user()->update(['last_login_at' => now()]);
+
+            // Remember this browser so it can skip OTP next time, if opted in.
+            if ($request->boolean('remember_device')) {
+                $otp->trustThisDevice($request->user());
+            }
 
             return Inertia::location(route('admin.dashboard', absolute: false));
         }
