@@ -47,11 +47,14 @@ class AuthenticatedSessionController extends Controller
             return Inertia::location(route('admin.dashboard', absolute: false));
         }
 
-        // OTP enabled — verify credentials WITHOUT logging in first.
+        // OTP enabled system-wide — verify credentials WITHOUT logging in first.
         $user = $request->validateCredentials();
 
-        // Supreme admin, or a previously-trusted device → skip OTP, log in now.
-        if ($user->isSupremeAdmin() || $otp->isDeviceTrusted($user)) {
+        // Skip OTP and log in now when any of these hold:
+        //  - the supreme admin (never challenged),
+        //  - the user hasn't opted into 2FA for their own account,
+        //  - this browser is already a trusted device.
+        if ($user->isSupremeAdmin() || ! $user->two_factor_enabled || $otp->isDeviceTrusted($user)) {
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
             $user->update(['last_login_at' => now()]);

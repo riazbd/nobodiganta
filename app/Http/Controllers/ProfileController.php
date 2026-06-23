@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\EmailOtp;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,13 +18,42 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): Response
+    public function edit(Request $request, EmailOtp $otp): Response
     {
         return Inertia::render('features/admin/pages/Profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
             'user' => $request->user(),
+            // Whether 2FA is switched on system-wide. The per-account toggle is
+            // only meaningful (active) while this is true.
+            'twoFactorSystemEnabled' => $otp->enabled(),
         ]);
+    }
+
+    /**
+     * Toggle login 2FA for the current user's own account (opt-in).
+     */
+    public function updateTwoFactor(Request $request, EmailOtp $otp): RedirectResponse
+    {
+        // The personal toggle is only operable while 2FA is on system-wide.
+        if (! $otp->enabled()) {
+            return Redirect::route('admin.profile.edit')->withErrors([
+                'two_factor_enabled' => 'Two-factor authentication is disabled by the administrator.',
+            ]);
+        }
+
+        $validated = $request->validate([
+            'two_factor_enabled' => ['required', 'boolean'],
+        ]);
+
+        $user = $request->user();
+        $user->two_factor_enabled = $validated['two_factor_enabled'];
+        $user->save();
+
+        return Redirect::route('admin.profile.edit')->with(
+            'success',
+            $user->two_factor_enabled ? 'Two-factor authentication enabled.' : 'Two-factor authentication disabled.'
+        );
     }
 
     /**

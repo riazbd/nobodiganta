@@ -83,6 +83,7 @@ class HandleInertiaRequests extends Middleware
                     'role'        => $user->role ?? 'reporter',
                     'role_id'     => $user->role_id,
                     'permissions' => $user->permissions,
+                    'two_factor_enabled' => (bool) $user->two_factor_enabled,
                 ] : null,
             ],
             'settings' => $publicSettings,

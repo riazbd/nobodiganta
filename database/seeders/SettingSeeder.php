@@ -456,6 +456,19 @@ class SettingSeeder extends Seeder
                 'description_en' => 'Scripts like chat widgets or pixels. Injected before </body> on the public site.',
                 'is_public' => false,
             ],
+
+            // Security — login 2FA master switch (per-user opt-in is on each profile).
+            [
+                'key' => 'email_otp_enabled',
+                'value' => 'false',
+                'group' => 'security',
+                'type' => 'boolean',
+                'label_bn' => 'ইমেইল OTP (টু-ফ্যাক্টর) — সিস্টেম-ব্যাপী',
+                'label_en' => 'Email OTP (Two-Factor) — System-wide',
+                'description_bn' => 'চালু থাকলে যেসব ব্যবহারকারী নিজ অ্যাকাউন্টে 2FA চালু রেখেছেন তাদের লগইনে ইমেইলে পাঠানো কোড লাগবে। বন্ধ থাকলে কারো জন্যই 2FA কাজ করবে না।',
+                'description_en' => 'Master switch. When on, users who have enabled 2FA on their own account must enter an emailed code at login. When off, 2FA is disabled for everyone.',
+                'is_public' => false,
+            ],
         ];
 
         foreach ($settings as $setting) {

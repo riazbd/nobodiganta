@@ -1,13 +1,13 @@
 ﻿import { useState, useRef } from 'react';
-import { useForm, usePage } from '@inertiajs/react';
-import { User, Mail, Phone, MapPin, Camera, Save, Shield, Bell, Globe, Loader2, Trash2 } from 'lucide-react';
+import { useForm, usePage, router } from '@inertiajs/react';
+import { User, Mail, Phone, MapPin, Camera, Save, Shield, ShieldCheck, Bell, Globe, Loader2, Trash2, Lock } from 'lucide-react';
 import { Badge } from '../components/feedback/Badge';
 import { useLanguage } from '../hooks/useLanguage';
 import { useToast } from '../hooks/useToast';
 import { useRole } from '../hooks/useRole';
 
 export default function Profile() {
-  const { auth } = usePage().props;
+  const { auth, twoFactorSystemEnabled = false } = usePage().props;
   const user = auth.user;
   const { lang } = useLanguage();
   const { showToast } = useToast();
@@ -15,6 +15,22 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState('profile');
   const fileInputRef = useRef(null);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [twoFaSaving, setTwoFaSaving] = useState(false);
+
+  const toggleTwoFactor = (next) => {
+    if (twoFaSaving) return;
+    setTwoFaSaving(true);
+    router.put(route('admin.profile.two-factor'), { two_factor_enabled: next }, {
+      preserveScroll: true,
+      onSuccess: () => showToast(
+        next
+          ? (lang === 'bn' ? 'টু-ফ্যাক্টর চালু হয়েছে' : 'Two-factor authentication enabled')
+          : (lang === 'bn' ? 'টু-ফ্যাক্টর বন্ধ হয়েছে' : 'Two-factor authentication disabled')
+      ),
+      onError: () => showToast(lang === 'bn' ? 'পরিবর্তন ব্যর্থ হয়েছে' : 'Could not update setting', 'error'),
+      onFinish: () => setTwoFaSaving(false),
+    });
+  };
 
   const tabs = [
     { id: 'profile', labelBn: 'প্রোফাইল', labelEn: 'Profile', icon: User },
@@ -209,7 +225,8 @@ export default function Profile() {
       )}
 
       {activeTab === 'security' && (
-        <form onSubmit={handleSecuritySubmit} className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-6 max-w-2xl">
+        <div className="space-y-6 max-w-2xl">
+        <form onSubmit={handleSecuritySubmit} className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-6">
           <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
             <Shield className="w-5 h-5 text-[#263238]" />
             {lang === 'bn' ? 'পাসওয়ার্ড পরিবর্তন' : 'Update Password'}
@@ -262,6 +279,85 @@ export default function Profile() {
             {lang === 'bn' ? 'পাসওয়ার্ড আপডেট করুন' : 'Update Password'}
           </button>
         </form>
+
+        {/* Two-Factor Authentication (email OTP) — per-account opt-in */}
+        <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm p-6">
+          <h3 className="text-lg font-bold mb-1.5 flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-[#263238]" />
+            {lang === 'bn' ? 'টু-ফ্যাক্টর অথেনটিকেশন (2FA)' : 'Two-Factor Authentication (2FA)'}
+          </h3>
+          <p className="text-[12.5px] text-gray-500 mb-5">
+            {lang === 'bn'
+              ? 'চালু থাকলে প্রতিবার লগইনের সময় আপনার ইমেইলে পাঠানো ৬-সংখ্যার কোড দিতে হবে। (বিশ্বস্ত ডিভাইস কিছুদিনের জন্য কোড ছাড়া লগইন করতে পারবে।)'
+              : 'When on, you’ll be asked for a 6-digit code sent to your email each time you sign in. (A trusted device can skip the code for a while.)'}
+          </p>
+
+          {twoFactorSystemEnabled ? (
+            <div className="flex items-center justify-between py-4 px-4 rounded-xl border border-[#e8ebf4] bg-gray-50/60">
+              <div className="flex items-start gap-3">
+                <div className={`mt-0.5 w-9 h-9 rounded-lg flex items-center justify-center ${user.two_factor_enabled ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-200 text-gray-400'}`}>
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-gray-700 block">
+                    {lang === 'bn' ? 'আমার অ্যাকাউন্টে 2FA' : '2FA for my account'}
+                  </span>
+                  <span className="text-[11px] text-gray-400">
+                    {user.two_factor_enabled
+                      ? (lang === 'bn' ? 'সক্রিয় — লগইনে ইমেইল কোড লাগবে' : 'Enabled — an email code is required at login')
+                      : (lang === 'bn' ? 'নিষ্ক্রিয়' : 'Disabled')}
+                  </span>
+                </div>
+              </div>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={!!user.two_factor_enabled}
+                  disabled={twoFaSaving}
+                  onChange={(e) => toggleTwoFactor(e.target.checked)}
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-checked:bg-[#10b981] rounded-full relative transition-colors peer-disabled:opacity-50">
+                  <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 peer-checked:translate-x-5 transition-transform shadow-sm" />
+                </div>
+              </label>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between py-4 px-4 rounded-xl border border-dashed border-gray-200 bg-gray-50/60 opacity-75">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 w-9 h-9 rounded-lg flex items-center justify-center bg-gray-200 text-gray-400">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-gray-500 block">
+                    {lang === 'bn' ? 'আমার অ্যাকাউন্টে 2FA' : '2FA for my account'}
+                  </span>
+                  <span className="text-[11px] text-gray-400">
+                    {lang === 'bn'
+                      ? 'অ্যাডমিন কর্তৃক নিষ্ক্রিয় করা হয়েছে'
+                      : 'Disabled by administrator'}
+                  </span>
+                </div>
+              </div>
+              {/* Inert, greyed-out toggle — not operable while 2FA is off system-wide */}
+              <div className="w-11 h-6 bg-gray-200 rounded-full relative opacity-60 cursor-not-allowed">
+                <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm" />
+              </div>
+            </div>
+          )}
+
+          {!twoFactorSystemEnabled && (
+            <div className="mt-4 flex items-start gap-2.5 text-[11.5px] text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5">
+              <Lock className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
+              <span>
+                {lang === 'bn'
+                  ? 'টু-ফ্যাক্টর অথেনটিকেশন বর্তমানে অ্যাডমিন কর্তৃক পুরো সিস্টেমে বন্ধ রাখা হয়েছে, তাই এটি এখন পরিবর্তন করা যাবে না।'
+                  : 'Two-factor authentication is currently disabled by the administrator for the whole system, so it can’t be changed here right now.'}
+              </span>
+            </div>
+          )}
+        </div>
+        </div>
       )}
 
       {activeTab === 'notifications' && (

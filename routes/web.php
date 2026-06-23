@@ -339,6 +339,7 @@ Route::middleware(['auth'])->group(function () {
         // User Profile
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::put('/profile/two-factor', [ProfileController::class, 'updateTwoFactor'])->name('profile.two-factor');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
         // Stories

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Mail\LoginOtpMail;
 use App\Models\LoginOtp;
+use App\Models\Setting;
 use App\Models\TrustedDevice;
 use App\Models\User;
 use Illuminate\Support\Facades\Cookie;
@@ -21,9 +22,25 @@ class EmailOtp
     private const KEY = 'login_otp_id';
     private const TRUST_COOKIE = 'td_token';
 
+    /**
+     * Is login 2FA enabled system-wide? The dashboard setting
+     * (System Settings → Security) is the source of truth; the .env value
+     * is only the fallback default used until that row exists.
+     */
     public function enabled(): bool
     {
-        return (bool) config('auth.email_otp.enabled', false);
+        try {
+            $setting = Setting::get('email_otp_enabled', null);
+        } catch (\Throwable $e) {
+            // settings table not migrated yet, etc. — fall back to config.
+            $setting = null;
+        }
+
+        if ($setting === null) {
+            return (bool) config('auth.email_otp.enabled', false);
+        }
+
+        return (bool) $setting;
     }
 
     /** Is this browser a trusted device for the user (so OTP can be skipped)? */

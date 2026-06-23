@@ -29,6 +29,7 @@ class User extends Authenticatable
         'profile_photo_path',
         'role',
         'role_id',
+        'two_factor_enabled',
         'last_login_at',
         'email_verified_at',
     ];
@@ -70,6 +71,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'two_factor_enabled' => 'boolean',
             'password' => 'hashed',
         ];
     }

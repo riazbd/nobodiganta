@@ -3,7 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import {
   Settings as SettingsIcon, Globe, Palette, Search, Mail, Shield, Save,
   Info, AlertTriangle, Monitor, Share2, Server, RefreshCw, Upload, Trash2, Image,
-  Scale, HelpCircle
+  Scale, HelpCircle, Lock
 } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -118,6 +118,7 @@ export default function Settings({ settings = {}, groups = [] }) {
     system:  { labelBn: 'সিস্টেম', labelEn: 'System',  icon: Server },
     legal:   { labelBn: 'আইনি',    labelEn: 'Legal',   icon: Scale },
     integrations: { labelBn: 'ইন্টিগ্রেশন', labelEn: 'Integrations', icon: Monitor },
+    security: { labelBn: 'নিরাপত্তা', labelEn: 'Security', icon: Lock },
   };
 
   // Build tabs from whatever groups the backend returns — no group is silently dropped
