@@ -2407,6 +2407,7 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 .home-notice-inner{max-width:1220px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px;}
 .home-notice-icon{flex-shrink:0;margin-top:1px;opacity:.9;}
 .home-notice-text{font-family:'SolaimanLipi',sans-serif;font-size:17px;font-weight:600;line-height:1.7;}
+html[lang="en"] .home-notice-text{font-size:15px;}
 @media(max-width:640px){
   .home-notice-wrapper{margin-bottom:8px;padding:0;}
   .home-notice-inner{padding:6px 10px;gap:6px;}
