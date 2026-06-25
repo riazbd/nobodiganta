@@ -95,6 +95,7 @@ html[lang="en"] .hp-feat-h{font-family:'Playfair Display','Georgia',serif;font-w
 html[lang="en"] .hp-list-h{font-family:'Playfair Display','Georgia',serif;font-weight:700;}
 html[lang="en"] .nav-item{font-family:'Merriweather','Georgia',serif;font-size:14px;}
 html[lang="en"] .art-body blockquote{font-family:'Merriweather','Georgia',serif;font-style:italic;}
+html[lang="en"] .sf-bs-hero-h{font-size: 20px;}
 
 /* â”€â”€ CUSTOM SCROLLBAR FOR ADMIN SIDEBAR â”€â”€ */
 aside::-webkit-scrollbar { width: 5px; }
@@ -2446,6 +2447,8 @@ html[data-font-size="large"]  .art-body { font-size: 22px; line-height: 1.9; }
 .hp-h3-feat-h{font-family:'SolaimanLipi',sans-serif;font-size:26px;font-weight:600;line-height:36px;color:var(--black);margin-bottom:10px;transition:color .15s;}
 .hp-h3-feat-p{font-size:16px;color:var(--light-text);line-height:22px;font-weight: 400;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 
+html[lang="en"] .hp-h3-feat-h{font-size: 22px;}
+
 /* Left — 6-card bottom grid (separated from feat by border) */
 .hp-h3-grid{margin-top:8px;border-top:1px solid #e2e2e2;}
 .hp-h3-grid-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;}
@@ -3487,10 +3490,10 @@ select.almnc-city-select{padding:0;}
 .sf-col-img{width:64px;height:48px;flex-shrink:0;overflow:hidden;border-radius:4px;}
 .sf-col-img img{transition:transform .35s;}
 .sf-col-item:hover .sf-col-img img{transform:scale(1.04);}
-.sf-col-link{font-size:20.5px;font-weight:700;line-height:1.3;color:#222;transition:color .15s;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.sf-col-link{font-size:18px;font-weight:700;line-height:1.3;color:#222;transition:color .15s;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 html[lang="bn"] .sf-col-link{font-weight:700;}
 .sf-col-item:hover .sf-col-link{color:var(--primary);}
-
+html[lang="bn"] .sf-bs-hero-h{font-size: 20px;}
 /* hero_list */
 .sf-layout-herolist{display:grid;grid-template-columns:56% 44%;gap:0;}
 .sf-hero{cursor:pointer;padding-right:20px;border-right:1px solid #ececec;}
