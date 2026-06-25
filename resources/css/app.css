@@ -3490,10 +3490,11 @@ select.almnc-city-select{padding:0;}
 .sf-col-img{width:64px;height:48px;flex-shrink:0;overflow:hidden;border-radius:4px;}
 .sf-col-img img{transition:transform .35s;}
 .sf-col-item:hover .sf-col-img img{transform:scale(1.04);}
-.sf-col-link{font-size:18px;font-weight:700;line-height:1.3;color:#222;transition:color .15s;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.sf-col-link{font-size:20px;font-weight:700;line-height:1.3;color:#222;transition:color .15s;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 html[lang="bn"] .sf-col-link{font-weight:700;}
 .sf-col-item:hover .sf-col-link{color:var(--primary);}
-html[lang="bn"] .sf-bs-hero-h{font-size: 20px;}
+html[lang="en"] .sf-bs-hero-h{font-size: 20px;}
+html[lang="en"] .sf-col-link{font-size: 18px;}
 /* hero_list */
 .sf-layout-herolist{display:grid;grid-template-columns:56% 44%;gap:0;}
 .sf-hero{cursor:pointer;padding-right:20px;border-right:1px solid #ececec;}
