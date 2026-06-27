@@ -16,8 +16,11 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
   const [typeFilter, setTypeFilter] = useState(initialType);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
+  const savedRef   = useRef({});    // last-persisted field values, for per-field dirty checks
+  const savingRef  = useRef(false); // in-flight guard
+  const savedTimer = useRef(null);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -83,35 +86,50 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
     }
   };
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
+  // Auto-save a metadata field. Sends the full field set (the update endpoint
+  // requires license_type + edition), but no-ops when nothing actually changed.
+  const saveMeta = async (overrides = {}) => {
+    if (!selectedItem) return;
+    const payload = { ...editData, ...overrides };
+    const changed = Object.keys(payload).some(k => payload[k] !== savedRef.current[k]);
+    if (!changed || savingRef.current) return;
+
+    savingRef.current = true;
+    setSaveStatus('saving');
     try {
-      const res = await window.axios.put(route('admin.media.update', { media: selectedItem.id }), editData);
-      // Merge updated fields into selectedItem so the detail view reflects changes immediately
-      setSelectedItem(prev => ({ ...prev, ...editData, ...(res.data?.media || {}) }));
-      setIsEditing(false);
-      showToast(lang === 'bn' ? 'মিডিয়া তথ্য আপডেট করা হয়েছে' : 'Media updated successfully');
-      fetchMedia(pagination.current_page || 1);
+      const res = await window.axios.put(route('admin.media.update', { media: selectedItem.id }), payload);
+      savedRef.current = payload;
+      const updated = { ...selectedItem, ...payload, ...(res.data?.media || {}) };
+      setSelectedItem(updated);
+      // Keep the list in sync (e.g. edition badge) without a jarring refetch.
+      setMedia(prev => prev.map(m => m.id === updated.id ? { ...m, ...updated } : m));
+      setSaveStatus('saved');
+      clearTimeout(savedTimer.current);
+      savedTimer.current = setTimeout(() => setSaveStatus('idle'), 1500);
     } catch {
-      showToast(lang === 'bn' ? 'আপডেট ব্যর্থ হয়েছে' : 'Update failed', 'error');
+      setSaveStatus('error');
+      showToast(lang === 'bn' ? 'সেভ ব্যর্থ হয়েছে' : 'Save failed', 'error');
+    } finally {
+      savingRef.current = false;
     }
   };
 
-  const startEditing = (item) => {
-    setSelectedItem(item);
-    setEditData({
-      alt_text_bn: item.alt_text_bn || '',
-      alt_text_en: item.alt_text_en || '',
-      caption_bn: item.caption_bn || '',
-      caption_en: item.caption_en || '',
-      credit_bn: item.credit_bn || '',
-      credit_en: item.credit_en || '',
-      source_link: item.source_link || '',
-      license_type: item.license_type || 'internal',
-      edition: item.edition || 'both',
-    });
-    setIsEditing(true);
-  };
+  // Load the selected item's metadata into the always-editable form. Keyed on
+  // id so the in-place updates from saveMeta() (same id) don't clobber the form.
+  useEffect(() => {
+    if (!selectedItem) return;
+    const init = {
+      alt_text_bn: selectedItem.alt_text_bn || '', alt_text_en: selectedItem.alt_text_en || '',
+      caption_bn: selectedItem.caption_bn || '', caption_en: selectedItem.caption_en || '',
+      credit_bn: selectedItem.credit_bn || '', credit_en: selectedItem.credit_en || '',
+      source_link: selectedItem.source_link || '', license_type: selectedItem.license_type || 'internal',
+      edition: selectedItem.edition || 'both',
+    };
+    setEditData(init);
+    savedRef.current = init;
+    setSaveStatus('idle');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedItem?.id]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -294,7 +312,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                         <div
                           key={item.id}
                           className={`group relative rounded-xl overflow-hidden bg-white border cursor-pointer transition-all hover:shadow-md ${selectedItem?.id === item.id ? 'ring-2 ring-[#263238] border-transparent shadow-md' : 'border-gray-100'}`}
-                          onClick={() => { setSelectedItem(item); setIsEditing(false); }}
+                          onClick={() => setSelectedItem(item)}
                         >
                           {isVid ? (
                             <div className="w-full h-32 bg-gray-900 flex flex-col items-center justify-center gap-1">
@@ -321,7 +339,7 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
                         <div
                           key={item.id}
                           className={`flex items-center gap-4 p-2 rounded-lg cursor-pointer hover:bg-gray-50 ${selectedItem?.id === item.id ? 'bg-red-50' : ''}`}
-                          onClick={() => { setSelectedItem(item); setIsEditing(false); }}
+                          onClick={() => setSelectedItem(item)}
                         >
                           {isVid ? (
                             <div className="w-12 h-12 rounded bg-gray-900 flex items-center justify-center flex-shrink-0">
@@ -363,104 +381,80 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect, initialTy
           <div className="w-full lg:w-80 bg-gray-50 flex flex-col min-h-0">
              {selectedItem ? (
                <div className="flex-1 flex flex-col min-h-0 overflow-y-auto p-5">
-                 {!isEditing ? (
-                   <div className="space-y-5">
-                     <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
-                       {selectedItem.mime_type?.startsWith('video/') ? (
-                         <video src={selectedItem.url} controls className="w-full max-h-48 bg-black" />
-                       ) : (
-                         <img src={selectedItem.url || asset('storage/' + selectedItem.file_path)} className="w-full h-auto max-h-48 object-contain bg-gray-50" />
-                       )}
-                     </div>
-                     
-                     <div className="space-y-3 font-['Noto_Sans_Bengali']">
-                       <div>
-                         <label className="text-[10px] font-bold text-gray-400 uppercase">Alt Text (BN/EN)</label>
-                         <p className="text-xs text-gray-700">{selectedItem.alt_text_bn || '-'}</p>
-                         <p className="text-xs text-gray-400 italic">{selectedItem.alt_text_en || '-'}</p>
-                       </div>
-                       <div>
-                         <label className="text-[10px] font-bold text-gray-400 uppercase">Caption (BN/EN)</label>
-                         <p className="text-xs text-gray-700">{selectedItem.caption_bn || '-'}</p>
-                         <p className="text-xs text-gray-400 italic">{selectedItem.caption_en || '-'}</p>
-                       </div>
-                       <div>
-                         <label className="text-[10px] font-bold text-gray-400 uppercase">Credit (BN/EN)</label>
-                         <p className="text-xs text-gray-700 font-bold">{selectedItem.credit_bn || '-'}</p>
-                         <p className="text-xs text-gray-400 italic">{selectedItem.credit_en || '-'}</p>
-                       </div>
-                       <div>
-                         <label className="text-[10px] font-bold text-gray-400 uppercase">Source & License</label>
-                         <div className="flex flex-wrap gap-2 mt-1">
-                           <span className="text-[10px] px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full font-bold uppercase">{selectedItem.license_type || 'internal'}</span>
-                           {selectedItem.source_link && <a href={selectedItem.source_link} target="_blank" className="text-[10px] text-gray-400 hover:text-[#263238] underline truncate max-w-[150px]">{selectedItem.source_link}</a>}
-                         </div>
-                       </div>
-                     </div>
-
-                     <div className="pt-4 space-y-2">
-                       <button 
-                         onClick={() => { onSelect(selectedItem); onClose(); }}
-                         className="w-full py-2.5 bg-[#263238] text-white rounded-xl text-sm font-bold shadow-lg shadow-red-100 hover:bg-[#1a2428] transition-all"
-                       >
-                         {lang === 'bn' ? 'ব্যবহার করুন' : 'Insert Asset'}
-                       </button>
-                       <button onClick={() => startEditing(selectedItem)} className="w-full py-2 bg-white text-gray-700 border border-gray-200 rounded-xl text-xs font-bold hover:bg-gray-50">Edit Metadata</button>
-                       <button onClick={() => handleDelete(selectedItem.id)} className="w-full py-2 text-red-500 text-xs font-bold hover:underline flex items-center justify-center gap-1"><Trash2 className="w-3 h-3" /> Delete Permanent</button>
-                     </div>
+                 <div className="space-y-5">
+                   <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
+                     {selectedItem.mime_type?.startsWith('video/') ? (
+                       <video src={selectedItem.url} controls className="w-full max-h-48 bg-black" />
+                     ) : (
+                       <img src={selectedItem.url || asset('storage/' + selectedItem.file_path)} className="w-full h-auto max-h-48 object-contain bg-gray-50" />
+                     )}
                    </div>
-                 ) : (
-                   <form onSubmit={handleUpdate} className="space-y-3 font-['Noto_Sans_Bengali']">
-                     <h4 className="text-sm font-bold border-b pb-2">Edit Metadata</h4>
+
+                   {/* Directly-editable metadata (auto-saves on blur / change) */}
+                   <div className="flex items-center justify-between">
+                     <h4 className="text-sm font-bold">{lang === 'bn' ? 'তথ্য' : 'Metadata'}</h4>
+                     <span className="h-4">
+                       {saveStatus === 'saving' && <span className="flex items-center gap-1 text-[11px] text-gray-400"><Loader2 className="w-3 h-3 animate-spin" /> {lang === 'bn' ? 'সেভ হচ্ছে…' : 'Saving…'}</span>}
+                       {saveStatus === 'saved' && <span className="flex items-center gap-1 text-[11px] text-green-600"><CheckCircle className="w-3 h-3" /> {lang === 'bn' ? 'সেভ হয়েছে' : 'Saved'}</span>}
+                     </span>
+                   </div>
+
+                   <div className="space-y-3 font-['Noto_Sans_Bengali']">
                      <div className="grid grid-cols-2 gap-2">
                        <div>
                          <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Alt (BN)</label>
-                         <input type="text" value={editData.alt_text_bn} onChange={e => setEditData({...editData, alt_text_bn: e.target.value})} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
+                         <input type="text" value={editData.alt_text_bn ?? ''} onChange={e => setEditData(d => ({ ...d, alt_text_bn: e.target.value }))} onBlur={() => saveMeta()} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
                        </div>
                        <div>
                          <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Alt (EN)</label>
-                         <input type="text" value={editData.alt_text_en} onChange={e => setEditData({...editData, alt_text_en: e.target.value})} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
+                         <input type="text" value={editData.alt_text_en ?? ''} onChange={e => setEditData(d => ({ ...d, alt_text_en: e.target.value }))} onBlur={() => saveMeta()} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
                        </div>
                      </div>
                      <div className="grid grid-cols-2 gap-2">
                        <div>
                          <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Cap (BN)</label>
-                         <input type="text" value={editData.caption_bn} onChange={e => setEditData({...editData, caption_bn: e.target.value})} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
+                         <input type="text" value={editData.caption_bn ?? ''} onChange={e => setEditData(d => ({ ...d, caption_bn: e.target.value }))} onBlur={() => saveMeta()} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
                        </div>
                        <div>
                          <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Cap (EN)</label>
-                         <input type="text" value={editData.caption_en} onChange={e => setEditData({...editData, caption_en: e.target.value})} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
+                         <input type="text" value={editData.caption_en ?? ''} onChange={e => setEditData(d => ({ ...d, caption_en: e.target.value }))} onBlur={() => saveMeta()} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
                        </div>
                      </div>
                      <div className="grid grid-cols-2 gap-2">
                        <div>
                          <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Credit (BN)</label>
-                         <input type="text" value={editData.credit_bn} onChange={e => setEditData({...editData, credit_bn: e.target.value})} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
+                         <input type="text" value={editData.credit_bn ?? ''} onChange={e => setEditData(d => ({ ...d, credit_bn: e.target.value }))} onBlur={() => saveMeta()} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
                        </div>
                        <div>
                          <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Credit (EN)</label>
-                         <input type="text" value={editData.credit_en} onChange={e => setEditData({...editData, credit_en: e.target.value})} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
+                         <input type="text" value={editData.credit_en ?? ''} onChange={e => setEditData(d => ({ ...d, credit_en: e.target.value }))} onBlur={() => saveMeta()} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" />
                        </div>
                      </div>
                      <div>
                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Source Link</label>
-                       <input type="text" value={editData.source_link} onChange={e => setEditData({...editData, source_link: e.target.value})} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" placeholder="https://" />
+                       <input type="text" value={editData.source_link ?? ''} onChange={e => setEditData(d => ({ ...d, source_link: e.target.value }))} onBlur={() => saveMeta()} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" placeholder="https://" />
                      </div>
                      <div>
                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">License</label>
-                       <select value={editData.license_type} onChange={e => setEditData({...editData, license_type: e.target.value})} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none">
+                       <select value={editData.license_type ?? 'internal'} onChange={e => { setEditData(d => ({ ...d, license_type: e.target.value })); saveMeta({ license_type: e.target.value }); }} className="w-full border rounded-lg px-2 py-1.5 text-xs outline-none">
                           <option value="internal">Staff</option>
                           <option value="creative_commons">CC</option>
                           <option value="stock">Stock</option>
                           <option value="licensed">Licensed</option>
                        </select>
                      </div>
-                     <div className="flex gap-2 pt-2">
-                       <button type="button" onClick={() => setIsEditing(false)} className="flex-1 py-2 text-xs font-bold text-gray-500">Cancel</button>
-                       <button type="submit" className="flex-1 py-2 bg-green-500 text-white rounded-lg text-xs font-bold shadow-md">Save</button>
-                     </div>
-                   </form>
-                 )}
+                   </div>
+
+                   <div className="pt-4 space-y-2">
+                     <button
+                       onClick={() => { onSelect(selectedItem); onClose(); }}
+                       className="w-full py-2.5 bg-[#263238] text-white rounded-xl text-sm font-bold shadow-lg shadow-red-100 hover:bg-[#1a2428] transition-all"
+                     >
+                       {lang === 'bn' ? 'ব্যবহার করুন' : 'Insert Asset'}
+                     </button>
+                     <button onClick={() => handleDelete(selectedItem.id)} className="w-full py-2 text-red-500 text-xs font-bold hover:underline flex items-center justify-center gap-1"><Trash2 className="w-3 h-3" /> Delete Permanent</button>
+                   </div>
+                 </div>
                </div>
              ) : (
                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-gray-400">

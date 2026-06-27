@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Upload, Image, Trash2, Grid, List, Search, X, Copy, ExternalLink, Loader2 } from 'lucide-react';
+import { Upload, Image, Trash2, Grid, List, Search, X, Copy, ExternalLink, Loader2, Check } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { usePage, router } from '@inertiajs/react';
@@ -47,8 +47,12 @@ export default function MediaLibrary({ onSelect = null }) {
   const [searchQuery,    setSearchQuery]    = useState(props.filters?.search  || '');
   const [selectedItems,  setSelectedItems]  = useState([]);
   const [selectedMedia,  setSelectedMedia]  = useState(null);
-  const [isEditing,      setIsEditing]      = useState(false);
   const [editData,       setEditData]       = useState({});
+  const [saveStatus,     setSaveStatus]     = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
+  const savedRef   = useRef({});    // last-persisted field values, for per-field dirty checks
+  const savingRef  = useRef(false); // in-flight guard
+  const touchedRef = useRef(false); // whether any save succeeded this session
+  const savedTimer = useRef(null);
   const [showUploadModal,setShowUploadModal]= useState(false);
   const [uploading,      setUploading]      = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -115,17 +119,38 @@ export default function MediaLibrary({ onSelect = null }) {
     }
   };
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
+  // Auto-save a metadata field. Sends the full field set (the update endpoint
+  // requires license_type + edition), but no-ops when nothing actually changed.
+  const saveMeta = async (overrides = {}) => {
+    if (!selectedMedia) return;
+    const payload = { ...editData, ...overrides };
+    const changed = Object.keys(payload).some(k => payload[k] !== savedRef.current[k]);
+    if (!changed || savingRef.current) return;
+
+    savingRef.current = true;
+    setSaveStatus('saving');
     try {
-      const res = await window.axios.put(route('admin.media.update', { media: selectedMedia.id }), editData);
-      showToast(lang === 'bn' ? 'মিডিয়া তথ্য আপডেট হয়েছে' : 'Media updated');
+      const res = await window.axios.put(route('admin.media.update', { media: selectedMedia.id }), payload);
+      savedRef.current = payload;
+      touchedRef.current = true;
       setSelectedMedia(prev => ({ ...prev, ...res.data.media }));
-      setIsEditing(false);
-      reload();
+      setSaveStatus('saved');
+      clearTimeout(savedTimer.current);
+      savedTimer.current = setTimeout(() => setSaveStatus('idle'), 1500);
     } catch {
-      showToast(lang === 'bn' ? 'আপডেট ব্যর্থ হয়েছে' : 'Update failed', 'error');
+      setSaveStatus('error');
+      showToast(lang === 'bn' ? 'সেভ ব্যর্থ হয়েছে' : 'Save failed', 'error');
+    } finally {
+      savingRef.current = false;
     }
+  };
+
+  // Close the detail modal; refresh the grid only if something was saved.
+  const closeDetail = () => {
+    if (touchedRef.current) reload();
+    touchedRef.current = false;
+    setSelectedMedia(null);
+    setSaveStatus('idle');
   };
 
   const handleUpload = async (e) => {
@@ -187,16 +212,23 @@ export default function MediaLibrary({ onSelect = null }) {
   const toggleSelectAll = () => setSelectedItems(selectedItems.length === media.length && media.length > 0 ? [] : media.map(i => i.id));
   const toggleSelect    = (id) => setSelectedItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
 
-  const startEditing = (item) => {
-    setEditData({
-      alt_text_bn: item.alt_text_bn  || '', alt_text_en: item.alt_text_en || '',
-      caption_bn:  item.caption_bn   || '', caption_en:  item.caption_en  || '',
-      credit_bn:   item.credit_bn    || '', credit_en:   item.credit_en   || '',
-      source_link: item.source_link  || '', license_type: item.license_type || 'internal',
-      edition:     item.edition      || 'both',
-    });
-    setIsEditing(true);
-  };
+  // Load the opened item's metadata into the always-editable form. Keyed on id
+  // so the in-place updates from saveMeta() (same id) don't clobber the form.
+  useEffect(() => {
+    if (!selectedMedia) return;
+    const init = {
+      alt_text_bn: selectedMedia.alt_text_bn  || '', alt_text_en: selectedMedia.alt_text_en || '',
+      caption_bn:  selectedMedia.caption_bn   || '', caption_en:  selectedMedia.caption_en  || '',
+      credit_bn:   selectedMedia.credit_bn    || '', credit_en:   selectedMedia.credit_en   || '',
+      source_link: selectedMedia.source_link  || '', license_type: selectedMedia.license_type || 'internal',
+      edition:     selectedMedia.edition      || 'both',
+    };
+    setEditData(init);
+    savedRef.current = init;
+    touchedRef.current = false;
+    setSaveStatus('idle');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMedia?.id]);
 
   const copyUrl = (url) => { navigator.clipboard.writeText(url); showToast(lang === 'bn' ? 'URL কপি হয়েছে' : 'URL copied'); };
 
@@ -371,11 +403,19 @@ export default function MediaLibrary({ onSelect = null }) {
 
       {/* ── Detail modal ── */}
       {selectedMedia && (
-        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4" onClick={() => { setSelectedMedia(null); setIsEditing(false); }}>
+        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4" onClick={closeDetail}>
           <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold truncate pr-8">{selectedMedia.original_name}</h3>
-              <button onClick={() => { setSelectedMedia(null); setIsEditing(false); }} className="p-1.5 hover:bg-gray-100 rounded-md"><X className="w-5 h-5" /></button>
+            <div className="flex items-center justify-between mb-4 gap-3">
+              <h3 className="text-lg font-bold truncate">{selectedMedia.original_name}</h3>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {saveStatus === 'saving' && (
+                  <span className="flex items-center gap-1 text-xs text-gray-400"><Loader2 className="w-3.5 h-3.5 animate-spin" /> {lang === 'bn' ? 'সেভ হচ্ছে…' : 'Saving…'}</span>
+                )}
+                {saveStatus === 'saved' && (
+                  <span className="flex items-center gap-1 text-xs text-green-600"><Check className="w-3.5 h-3.5" /> {lang === 'bn' ? 'সেভ হয়েছে' : 'Saved'}</span>
+                )}
+                <button onClick={closeDetail} className="p-1.5 hover:bg-gray-100 rounded-md"><X className="w-5 h-5" /></button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -404,80 +444,51 @@ export default function MediaLibrary({ onSelect = null }) {
                 </div>
               </div>
 
-              {/* Right: info / edit */}
+              {/* Right: directly-editable metadata (auto-saves on blur/change) */}
               <div className="space-y-3">
-                {!isEditing ? (
-                  <>
-                    {[
-                      { label: lang === 'bn' ? 'অল্ট টেক্সট (বাং)' : 'Alt (BN)', val: selectedMedia.alt_text_bn },
-                      { label: lang === 'bn' ? 'অল্ট টেক্সট (ইং)' : 'Alt (EN)', val: selectedMedia.alt_text_en },
-                      { label: lang === 'bn' ? 'ক্যাপশন (বাং)'    : 'Caption (BN)', val: selectedMedia.caption_bn },
-                      { label: lang === 'bn' ? 'ক্যাপশন (ইং)'    : 'Caption (EN)', val: selectedMedia.caption_en },
-                      { label: lang === 'bn' ? 'ক্রেডিট (বাং)'   : 'Credit (BN)',  val: selectedMedia.credit_bn },
-                      { label: lang === 'bn' ? 'ক্রেডিট (ইং)'   : 'Credit (EN)',  val: selectedMedia.credit_en },
-                      { label: lang === 'bn' ? 'সোর্স'           : 'Source',       val: selectedMedia.source_link },
-                      { label: lang === 'bn' ? 'লাইসেন্স'        : 'License',      val: selectedMedia.license_type?.toUpperCase() },
-                    ].map(({ label, val }) => (
-                      <div key={label}>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">{label}</p>
-                        <p className="text-sm text-gray-700 border-b border-gray-100 pb-1.5">{val || '-'}</p>
-                      </div>
-                    ))}
-                    <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">{lang === 'bn' ? 'সংস্করণ' : 'Edition'}</p>
-                      <EditionBadge edition={selectedMedia.edition} />
-                    </div>
-                    <div className="flex gap-2 pt-2">
-                      <button onClick={() => startEditing(selectedMedia)} className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200">
-                        {lang === 'bn' ? 'এডিট' : 'Edit'}
+                {[
+                  { label: lang === 'bn' ? 'অল্ট টেক্সট (বাং)' : 'Alt (BN)', key: 'alt_text_bn' },
+                  { label: lang === 'bn' ? 'অল্ট টেক্সট (ইং)' : 'Alt (EN)', key: 'alt_text_en' },
+                  { label: lang === 'bn' ? 'ক্যাপশন (বাং)'    : 'Caption (BN)', key: 'caption_bn', textarea: true },
+                  { label: lang === 'bn' ? 'ক্যাপশন (ইং)'    : 'Caption (EN)', key: 'caption_en', textarea: true },
+                  { label: lang === 'bn' ? 'ক্রেডিট (বাং)'   : 'Credit (BN)',  key: 'credit_bn' },
+                  { label: lang === 'bn' ? 'ক্রেডিট (ইং)'   : 'Credit (EN)',  key: 'credit_en' },
+                  { label: lang === 'bn' ? 'সোর্স লিঙ্ক'      : 'Source Link',  key: 'source_link' },
+                ].map(({ label, key, textarea }) => (
+                  <div key={key}>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{label}</label>
+                    {textarea
+                      ? <textarea rows={2} value={editData[key] ?? ''} onChange={e => setEditData(d => ({ ...d, [key]: e.target.value }))} onBlur={() => saveMeta()} className="w-full border border-gray-200 rounded-lg p-2 text-sm outline-none focus:border-[#263238]" />
+                      : <input type="text" value={editData[key] ?? ''} onChange={e => setEditData(d => ({ ...d, [key]: e.target.value }))} onBlur={() => saveMeta()} className="w-full border border-gray-200 rounded-lg p-2 text-sm outline-none focus:border-[#263238]" />}
+                  </div>
+                ))}
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{lang === 'bn' ? 'লাইসেন্স' : 'License'}</label>
+                  <select value={editData.license_type ?? 'internal'}
+                    onChange={e => { setEditData(d => ({ ...d, license_type: e.target.value })); saveMeta({ license_type: e.target.value }); }}
+                    className="w-full border border-gray-200 rounded-lg p-2 text-sm outline-none focus:border-[#263238]">
+                    <option value="internal">Internal / Staff</option>
+                    <option value="creative_commons">Creative Commons</option>
+                    <option value="stock">Stock Photo</option>
+                    <option value="licensed">Licensed</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">{lang === 'bn' ? 'সংস্করণ' : 'Edition'}</label>
+                  <div className="flex gap-2">
+                    {['bn', 'en', 'both'].map(v => (
+                      <button key={v} type="button"
+                        onClick={() => { setEditData(d => ({ ...d, edition: v })); saveMeta({ edition: v }); }}
+                        className={`px-3 py-1.5 rounded-md text-[11px] font-medium transition-all ${editData.edition === v ? 'bg-[#263238] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+                        {v.toUpperCase()}
                       </button>
-                      {onSelect && (
-                        <button onClick={() => { onSelect(selectedMedia); setSelectedMedia(null); }} className="flex-[2] py-2 bg-[#263238] text-white rounded-lg text-sm font-semibold hover:bg-[#1a2428]">
-                          {lang === 'bn' ? 'নির্বাচন করুন' : 'Select'}
-                        </button>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <form onSubmit={handleUpdate} className="space-y-3">
-                    {[
-                      { label: 'Alt (BN)', key: 'alt_text_bn' }, { label: 'Alt (EN)', key: 'alt_text_en' },
-                      { label: 'Caption (BN)', key: 'caption_bn', textarea: true }, { label: 'Caption (EN)', key: 'caption_en', textarea: true },
-                      { label: 'Credit (BN)', key: 'credit_bn' }, { label: 'Credit (EN)', key: 'credit_en' },
-                      { label: 'Source Link', key: 'source_link' },
-                    ].map(({ label, key, textarea }) => (
-                      <div key={key}>
-                        <label className="block text-xs font-medium mb-1">{label}</label>
-                        {textarea
-                          ? <textarea rows={2} value={editData[key]} onChange={e => setEditData({ ...editData, [key]: e.target.value })} className="w-full border border-gray-200 rounded-lg p-2 text-sm outline-none focus:border-[#263238]" />
-                          : <input type="text" value={editData[key]} onChange={e => setEditData({ ...editData, [key]: e.target.value })} className="w-full border border-gray-200 rounded-lg p-2 text-sm outline-none focus:border-[#263238]" />}
-                      </div>
                     ))}
-                    <div>
-                      <label className="block text-xs font-medium mb-1">{lang === 'bn' ? 'লাইসেন্স' : 'License'}</label>
-                      <select value={editData.license_type} onChange={e => setEditData({ ...editData, license_type: e.target.value })} className="w-full border border-gray-200 rounded-lg p-2 text-sm outline-none focus:border-[#263238]">
-                        <option value="internal">Internal / Staff</option>
-                        <option value="creative_commons">Creative Commons</option>
-                        <option value="stock">Stock Photo</option>
-                        <option value="licensed">Licensed</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-2">{lang === 'bn' ? 'সংস্করণ' : 'Edition'}</label>
-                      <div className="flex gap-2">
-                        {['bn', 'en', 'both'].map(v => (
-                          <button key={v} type="button" onClick={() => setEditData({ ...editData, edition: v })}
-                            className={`px-3 py-1.5 rounded-md text-[11px] font-medium transition-all ${editData.edition === v ? 'bg-[#263238] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-                            {v.toUpperCase()}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex gap-2 pt-2">
-                      <button type="button" onClick={() => setIsEditing(false)} className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200">{lang === 'bn' ? 'বাতিল' : 'Cancel'}</button>
-                      <button type="submit" className="flex-[2] py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700">{lang === 'bn' ? 'সেভ করুন' : 'Save'}</button>
-                    </div>
-                  </form>
+                  </div>
+                </div>
+                {onSelect && (
+                  <button onClick={() => { onSelect(selectedMedia); closeDetail(); }} className="w-full py-2 bg-[#263238] text-white rounded-lg text-sm font-semibold hover:bg-[#1a2428]">
+                    {lang === 'bn' ? 'নির্বাচন করুন' : 'Select'}
+                  </button>
                 )}
                 <div className="pt-3 border-t border-gray-100">
                   <button onClick={() => handleDelete(selectedMedia.id)} className="w-full flex items-center justify-center gap-1.5 py-2 text-red-600 text-sm font-semibold hover:bg-red-50 rounded-lg transition-colors">
