@@ -117,9 +117,11 @@ class Article extends Model
      */
     public function getTitle(string $edition = 'bn'): string
     {
-        return $edition === 'en' && $this->title_en 
-            ? $this->title_en 
-            : $this->title_bn;
+        // Bangla fields are nullable (English-only articles), so fall back to the
+        // other edition and never return null — the return type is non-nullable.
+        $primary  = $edition === 'en' ? $this->title_en : $this->title_bn;
+        $fallback = $edition === 'en' ? $this->title_bn : $this->title_en;
+        return $primary ?: ($fallback ?? '');
     }
 
     /**
@@ -141,9 +143,11 @@ class Article extends Model
      */
     public function getBody(string $edition = 'bn'): string
     {
-        return $edition === 'en' && $this->body_en 
-            ? $this->body_en 
-            : $this->body_bn;
+        // Bangla fields are nullable; fall back to the other edition so this
+        // never returns null (the return type is non-nullable string).
+        $primary  = $edition === 'en' ? $this->body_en : $this->body_bn;
+        $fallback = $edition === 'en' ? $this->body_bn : $this->body_en;
+        return $primary ?: ($fallback ?? '');
     }
 
     /**
