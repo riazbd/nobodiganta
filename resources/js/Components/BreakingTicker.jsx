@@ -15,9 +15,6 @@ const SEV_LABEL = {
   urgent:   { bn: 'জরুরি',     en: 'URGENT' },
   live:     { bn: 'লাইভ',      en: 'LIVE' },
 };
-const SEV_RANK = { just_in: 1, breaking: 2, live: 3, urgent: 4 };
-// Only these severities take a turn in the prominent alert/flash phase.
-const ALERT_SEVERITIES = ['breaking', 'urgent'];
 
 // Settings arrive as strings (or undefined) from the shared `settings` prop.
 const asBool = (v, d) => (v === undefined || v === null || v === '') ? d : (v === true || v === 'true' || v === '1');
@@ -43,8 +40,10 @@ export default function BreakingTicker() {
   // Signature of the current set — drives dismissal memory and phase resets.
   const sig = items.map(i => `${i.id}:${i.updated_at || ''}`).join('|');
 
+  // Only PINNED items get the prominent alert/flash phase; everything else just
+  // scrolls. (Severity stays purely a coloured label + ordering.)
   const alertItems = useMemo(
-    () => items.filter(i => ALERT_SEVERITIES.includes(i.severity)),
+    () => items.filter(i => i.is_pinned),
     // sig captures the meaningful change to `items`
     [sig], // eslint-disable-line react-hooks/exhaustive-deps
   );
@@ -57,7 +56,10 @@ export default function BreakingTicker() {
       try {
         const headers = {};
         if (etagRef.current) headers['If-None-Match'] = etagRef.current;
-        const res = await fetch('/api/breaking-news', { headers });
+        // The API URL never starts with /en, so pass the edition explicitly —
+        // otherwise the poll would always return Bangla titles on /en.
+        const ed = window.location.pathname.startsWith('/en') ? 'en' : 'bn';
+        const res = await fetch(`/api/breaking-news?edition=${ed}`, { headers });
         if (res.status === 304) return;
         const et = res.headers.get('ETag');
         if (et) etagRef.current = et;
@@ -100,8 +102,6 @@ export default function BreakingTicker() {
 
   if (!tickerEnabled || !items.length || dismissed) return null;
 
-  const topSev = items.reduce((acc, i) => ((SEV_RANK[i.severity] || 2) > (SEV_RANK[acc] || 0) ? i.severity : acc), 'just_in');
-
   const go = (item) => {
     if (item?.url) router.visit(item.url);
     else if (item?.category_slug && item?.slug) onNavigate('article', { categorySlug: item.category_slug, articleSlug: item.slug });
@@ -111,12 +111,16 @@ export default function BreakingTicker() {
 
   const showingAlert = phase === 'alert' && alertActive;
   const current = showingAlert ? (alertItems[alertIndex] || alertItems[0]) : null;
-  const barSev = showingAlert ? current.severity : topSev;
-  const label = SEV_LABEL[barSev] || SEV_LABEL.breaking;
+  // Scroll phase: neutral "Headline" label, no severity tint, no flash.
+  // Alert phase: the pinned item's severity label + gentle flash.
+  const sevClass = showingAlert ? ` brk-sev-${current.severity}` : '';
+  const label = showingAlert
+    ? (SEV_LABEL[current.severity] || SEV_LABEL.breaking)
+    : { bn: 'শিরোনাম', en: 'Headline' };
   const loop = items.length > 1 ? [...items, ...items] : items;
 
   return (
-    <div className={`brk-fixed brk-sev-${barSev}${showingAlert ? ' brk-mode-alert' : ''}`} role="marquee" aria-label={lang === 'bn' ? 'সর্বশেষ সংবাদ' : 'Breaking news'}>
+    <div className={`brk-fixed${sevClass}${showingAlert ? ' brk-mode-alert' : ''}`} role="marquee" aria-label={lang === 'bn' ? 'সর্বশেষ সংবাদ' : 'Breaking news'}>
       <div className="brk-label">{lang === 'bn' ? label.bn : label.en}</div>
       {showingAlert ? (
         <div className="brk-alert">

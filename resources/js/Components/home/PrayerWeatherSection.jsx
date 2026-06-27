@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { useNavigation } from '../../contexts/NavigationContext';
-import { prayerLabel, findNextPrayer, findCurrentPrayer, findNextSunEvent, formatCountdown, toBn, formatTime12h, PRAYER_ORDER } from '../../lib/prayerUtils';
+import { prayerLabel, findNextPrayer, findCurrentPrayer, findNextSunEvent, formatCountdown, toBn, to12h, formatTime12h, PRAYER_ORDER } from '../../lib/prayerUtils';
 import { fetchWeatherDirect } from '../../lib/bangladeshCities';
-import { Sun, Cloud, CloudRain, CloudLightning, CloudFog, CloudDrizzle, CloudSun, MapPin, ArrowRight, Navigation as NavIcon, Sunrise, Sunset } from 'lucide-react';
+import { Sun, Cloud, CloudRain, CloudLightning, CloudFog, CloudDrizzle, CloudSun, MapPin, ArrowRight, Navigation as NavIcon, Sunrise, Sunset, Moon } from 'lucide-react';
 
 // Each weather code maps to an icon + a true-to-life colour so the widget reads
 // at a glance (sunny = amber, rain = blue, storm = violet, fog = slate).
 const WMO_META = {
-  0:  { Icon: Sun,            color: '#f59e0b' },
-  1:  { Icon: Sun,            color: '#f59e0b' },
-  2:  { Icon: CloudSun,       color: '#f59e0b' },
+  0:  { Icon: Sun,            color: '#e3b14a' },
+  1:  { Icon: Sun,            color: '#e3b14a' },
+  2:  { Icon: CloudSun,       color: '#e3b14a' },
   3:  { Icon: Cloud,          color: '#64748b' },
   45: { Icon: CloudFog,       color: '#94a3b8' },
   48: { Icon: CloudFog,       color: '#94a3b8' },
@@ -60,6 +60,20 @@ const CITY_OPTIONS = [
   { key: 'bogra',       bn: 'বগুড়া',         en: 'Bogra' },
   { key: 'coxsbazar',   bn: 'কক্সবাজার',     en: "Cox's Bazar" },
 ];
+
+// ── Sun-path arc geometry (matches the mockup) ──────────────────────────────
+// H (viewBox height) leaves room below the baseline for the in-SVG labels so
+// they can't overflow and collide with the status row beneath the arc.
+const ARC = { W: 400, H: 150, X0: 28, X1: 372, baseline: 100, amp: 76 };
+const minutesOf = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const arcPt = (t) => [ARC.X0 + t * (ARC.X1 - ARC.X0), ARC.baseline - ARC.amp * Math.sin(Math.PI * t)];
+
+// Short clock without the AM/PM suffix (e.g. "৩:৪৫"), localized.
+const shortTime = (t, lang) => {
+  if (!t) return '';
+  const base = to12h(t).replace(/\s*(AM|PM)$/i, '');
+  return lang === 'bn' ? toBn(base) : base;
+};
 
 export default function PrayerWeatherSection({ initialPrayer, initialWeather }) {
   const { lang }       = useApp();
@@ -137,27 +151,17 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
     );
   };
 
-  const next      = prayer ? findNextPrayer(prayer.timings) : null;
-  const current   = prayer ? findCurrentPrayer(prayer.timings) : null;
+  const timings   = prayer?.timings || null;
+  const next      = timings ? findNextPrayer(timings) : null;
+  const current   = timings ? findCurrentPrayer(timings) : null;
   const countdown = useCountdown(next?.epochMs);
   const isRamadan = prayer?.is_ramadan;
-  const sunEvent  = prayer ? findNextSunEvent(prayer.timings) : null;
+  const sunEvent  = timings ? findNextSunEvent(timings) : null;
 
-  // Hero shows the active prayer; during a gap (no prayer running, e.g. after
-  // sunrise before Dhuhr) it falls back to the upcoming/future prayer.
-  const heroPrayer = current
-    ?? (next && prayer ? { name: next.name, time: prayer.timings[next.name] } : null);
-
-  // Show the next 3 prayers starting with the upcoming one (wraps to tomorrow
-  // after Isha). The full daily schedule stays behind "সম্পূর্ণ সূচি".
-  const startIdx = next ? PRAYER_ORDER.indexOf(next.name) : 0;
-  const rows     = (startIdx >= 0
-    ? Array.from({ length: 3 }, (_, i) => PRAYER_ORDER[(startIdx + i) % PRAYER_ORDER.length])
-    : PRAYER_ORDER.slice(0, 3));
-  const cityLabel = cityKey === '__location__'
-    ? (lang === 'bn' ? 'আপনার অবস্থান' : 'Your location')
-    : (CITY_OPTIONS.find(c => c.key === cityKey)?.[lang === 'bn' ? 'bn' : 'en']
-       ?? (lang === 'bn' ? 'ঢাকা' : 'Dhaka'));
+  // The dot that gets the gold pulse: the running prayer, or (during a gap) the
+  // upcoming one. The "next" dot is shown lighter unless it's already the gold one.
+  const goldName = current?.name ?? next?.name ?? null;
+  const nextName = next?.name ?? null;
 
   const nextLabel = next
     ? (isRamadan && next.name === 'Maghrib'
@@ -165,117 +169,194 @@ export default function PrayerWeatherSection({ initialPrayer, initialWeather }) 
         : prayerLabel(next.name, lang, isRamadan))
     : '—';
 
-  return (
-    <div className={`pw${isRamadan ? ' pw-ramadan' : ''}`}>
+  const cityLabel = cityKey === '__location__'
+    ? (lang === 'bn' ? 'আপনার অবস্থান' : 'Your location')
+    : (CITY_OPTIONS.find(c => c.key === cityKey)?.[lang === 'bn' ? 'bn' : 'en']
+       ?? (lang === 'bn' ? 'ঢাকা' : 'Dhaka'));
 
-      {/* Header */}
-      <div className="pw-head">
-        <span className="pw-head-title">{lang === 'bn' ? 'নামাজ ও আবহাওয়া' : 'Prayer & Weather'}</span>
-        <div className="pw-head-right">
-          <span className="pw-city">
-            <MapPin size={11} strokeWidth={2.2} />
-            <select className="pw-city-sel" value={cityKey} onChange={e => handleCityChange(e.target.value)} disabled={loading}>
+  // Build the arc (path + per-prayer dots/labels) from the live timings.
+  let arc = null;
+  if (timings && timings.Fajr && timings.Isha) {
+    const fajrM = minutesOf(timings.Fajr);
+    const ishaM = minutesOf(timings.Isha);
+    const span  = Math.max(1, ishaM - fajrM);
+
+    let d = `M 4 ${ARC.baseline} L ${ARC.X0} ${ARC.baseline}`;
+    const steps = 48;
+    for (let i = 0; i <= steps; i++) {
+      const [x, y] = arcPt(i / steps);
+      d += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+    }
+    d += ` L ${ARC.W - 4} ${ARC.baseline}`;
+
+    const dots = PRAYER_ORDER.filter(p => timings[p]).map(p => {
+      const t = Math.min(1, Math.max(0, (minutesOf(timings[p]) - fajrM) / span));
+      const [x, y] = arcPt(t);
+      return { name: p, x, y, isGold: p === goldName, isNext: p === nextName && p !== goldName };
+    });
+    arc = { d, dots };
+  }
+
+  const statusText = current
+    ? (lang === 'bn' ? `${prayerLabel(current.name, lang, isRamadan)} ওয়াক্ত চলছে` : `${prayerLabel(current.name, lang, isRamadan)} is ongoing`)
+    : (next ? (lang === 'bn' ? `পরবর্তী ওয়াক্ত: ${nextLabel}` : `Up next: ${nextLabel}`) : '');
+
+  return (
+    <div className={`nw${isRamadan ? ' nw-ramadan' : ''}`}>
+      {/* ── Hero ── */}
+      <div className="nw-hero">
+        <svg className="nw-medallion" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+          <rect x="18" y="18" width="64" height="64" rx="3" />
+          <rect x="18" y="18" width="64" height="64" rx="3" transform="rotate(45 50 50)" />
+          <circle cx="50" cy="50" r="20" />
+        </svg>
+
+        <div className="nw-hero-top">
+          <div className="nw-brand">
+            <Moon size={16} strokeWidth={0} fill="currentColor" />
+            {lang === 'bn' ? 'নামাজ ও আবহাওয়া' : 'Prayer & Weather'}
+          </div>
+          <div className="nw-loc-pill">
+            <MapPin size={12} strokeWidth={2} />
+            <select className="nw-city-sel" value={cityKey} onChange={e => handleCityChange(e.target.value)} disabled={loading} aria-label={lang === 'bn' ? 'শহর' : 'City'}>
               <option value="__location__" style={{ display: cityKey === '__location__' ? '' : 'none' }}>
                 {lang === 'bn' ? 'আপনার অবস্থান' : 'Your location'}
               </option>
-              {CITY_OPTIONS.map(c => (
-                <option key={c.key} value={c.key}>{lang === 'bn' ? c.bn : c.en}</option>
-              ))}
+              {CITY_OPTIONS.map(c => <option key={c.key} value={c.key}>{lang === 'bn' ? c.bn : c.en}</option>)}
             </select>
-          </span>
-          <button className="pw-loc" onClick={handleLocate} disabled={loading} aria-label={lang === 'bn' ? 'অবস্থান' : 'Locate'}>
-            <NavIcon size={12} strokeWidth={2.2} />
-          </button>
+            <button type="button" className="nw-loc-btn" onClick={handleLocate} disabled={loading} aria-label={lang === 'bn' ? 'বর্তমান অবস্থান শনাক্ত করুন' : 'Use my location'}>
+              <NavIcon size={12} strokeWidth={2.2} />
+            </button>
+          </div>
+        </div>
+
+        {/* Sun-path arc */}
+        <div className="nw-arc-wrap">
+          <svg className="nw-arc" viewBox={`0 0 ${ARC.W} ${ARC.H}`} aria-hidden="true">
+            <defs>
+              <linearGradient id="nwSkyline" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#a8d6b6" />
+                <stop offset="34%" stopColor="#e3b14a" />
+                <stop offset="68%" stopColor="#3f9163" />
+                <stop offset="100%" stopColor="#15482f" />
+              </linearGradient>
+            </defs>
+            {arc && (
+              <>
+                <path d={arc.d} fill="none" stroke="url(#nwSkyline)" strokeWidth="2.5" strokeLinecap="round" opacity="0.9" />
+                {arc.dots.map(dot => (
+                  <g key={dot.name}>
+                    {dot.isGold && (
+                      <circle cx={dot.x} cy={dot.y} r="8" fill="none" stroke="#e3b14a" strokeWidth="2" className="nw-pulse-ring" />
+                    )}
+                    <circle
+                      cx={dot.x} cy={dot.y}
+                      r={dot.isGold ? 7 : (dot.isNext ? 5.5 : 4)}
+                      fill={dot.isGold ? '#e3b14a' : (dot.isNext ? '#eef6ec' : 'rgba(238,246,236,0.55)')}
+                      stroke={dot.isGold ? '#082316' : 'none'}
+                      strokeWidth={dot.isGold ? 2 : 0}
+                    />
+                    <text textAnchor="middle">
+                      <tspan x={dot.x} y={dot.y + 18} className={`nw-arc-name${dot.isGold ? ' cur' : ''}`}>
+                        {prayerLabel(dot.name, lang, isRamadan)}
+                      </tspan>
+                      <tspan x={dot.x} y={dot.y + 30} className="nw-arc-time">
+                        {shortTime(timings[dot.name], lang)}
+                      </tspan>
+                    </text>
+                  </g>
+                ))}
+              </>
+            )}
+          </svg>
+        </div>
+
+        {statusText && (
+          <div className="nw-status-row"><span className="nw-status-dot" aria-hidden="true" />{statusText}</div>
+        )}
+        <div className="nw-cd-label">{lang === 'bn' ? `${nextLabel} বাকি` : `Time left · ${nextLabel}`}</div>
+        <div className="nw-countdown" aria-live="polite">
+          {next ? (lang === 'bn' ? toBn(countdown) : countdown) : '—'}
+        </div>
+        <div className="nw-next-line">
+          {lang === 'bn' ? `${nextLabel} শুরু` : `${nextLabel} starts`} · <b>{next && timings ? formatTime12h(timings[next.name], lang) : '—'}</b>
         </div>
       </div>
 
-      {/* Top — active prayer (left) + countdown to next (right).
-          During a gap between two prayers (no prayer running), the left side
-          shows the upcoming/future prayer instead. */}
-      <div className="pw-top">
-        <div className="pw-nextp">
-          <div className="pw-nextp-name">{heroPrayer ? prayerLabel(heroPrayer.name, lang, isRamadan) : '—'}</div>
-          <div className="pw-nextp-time">{heroPrayer ? formatTime12h(heroPrayer.time, lang) : '—'}</div>
-        </div>
-        <div className="pw-next">
-          <div className="pw-next-label">{lang === 'bn' ? `${nextLabel} বাকি` : `${nextLabel} in`}</div>
-          <div className="pw-next-cd">{next ? (lang === 'bn' ? toBn(countdown) : countdown) : '—'}</div>
-        </div>
-      </div>
+      {/* ── Body ── */}
+      <div className="nw-body">
+        {/* 5-waqt strip */}
+        {timings ? (
+          <div className="nw-waqt-strip">
+            {PRAYER_ORDER.map(key => {
+              if (!timings[key]) return null;
+              const isCurrent = current?.name === key;
+              const isNext    = !isCurrent && nextName === key;
+              return (
+                <div key={key} className={`nw-chip${isCurrent ? ' current' : ''}${isNext ? ' next' : ''}`}>
+                  <div className="nw-chip-name">{prayerLabel(key, lang, isRamadan)}</div>
+                  <div className="nw-chip-time">{shortTime(timings[key], lang)}</div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="nw-load">{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
+        )}
 
-      {/* Prayer times — compact 3-column grid */}
-      {prayer ? (
-        <div className="pw-grid">
-          {rows.map((key, i) => {
-            const time = prayer.timings[key];
-            if (!time) return null;
-            // Only the leading cell is the upcoming prayer; the rest are later
-            // today or tomorrow — none are "past" in a next-3 view.
-            const isNext  = i === 0;
-            const isIftar = isRamadan && key === 'Maghrib';
-            return (
-              <div key={key} className={`pw-cell${isNext ? ' is-next' : ''}${isIftar ? ' is-iftar' : ''}`}>
-                <span className="pw-cell-name">{prayerLabel(key, lang, isRamadan)}</span>
-                <span className="pw-cell-time">{formatTime12h(time, lang)}</span>
+        {weather && (
+          <>
+            <div className="nw-div" />
+            <div className="nw-weather">
+              <div className="nw-wx-temp">
+                <WeatherIcon code={weather.current.weather_code} size={34} />
+                <div>
+                  <div className="nw-wx-num">
+                    {lang === 'bn' ? toBn(String(Math.round(weather.current.temp_c))) : Math.round(weather.current.temp_c)}°
+                  </div>
+                  <div className="nw-wx-cond">{lang === 'bn' ? weather.current.condition_bn : weather.current.condition_en}</div>
+                </div>
               </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="pw-mini-load pw-grid-load">{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
-      )}
-
-      {/* Current weather — temp/condition (left) + humidity/wind (right) */}
-      {weather && (
-        <div className="pw-wx-row">
-          <div className="pw-wx">
-            <WeatherIcon code={weather.current.weather_code} size={30} />
-            <div className="pw-wx-info">
-              <div className="pw-wx-temp">
-                {lang === 'bn' ? toBn(String(Math.round(weather.current.temp_c))) : Math.round(weather.current.temp_c)}<span className="pw-deg">°</span>
+              <div className="nw-wx-stats">
+                <span>{lang === 'bn' ? 'আর্দ্রতা' : 'Humidity'} {lang === 'bn' ? toBn(String(weather.current.humidity)) : weather.current.humidity}%</span>
+                <span>{lang === 'bn' ? 'বাতাস' : 'Wind'} {lang === 'bn' ? toBn(String(Math.round(weather.current.wind_kph))) : Math.round(weather.current.wind_kph)} {lang === 'bn' ? 'কিমি/ঘণ্টা' : 'km/h'}</span>
               </div>
-              <div className="pw-wx-cond">{lang === 'bn' ? weather.current.condition_bn : weather.current.condition_en}</div>
             </div>
-          </div>
-          <div className="pw-wx-meta">
-            {lang === 'bn' ? 'আর্দ্রতা' : 'Hum'} {lang === 'bn' ? toBn(String(weather.current.humidity)) : weather.current.humidity}%
-            <span className="pw-dot">·</span>
-            {lang === 'bn' ? toBn(String(Math.round(weather.current.wind_kph))) : Math.round(weather.current.wind_kph)} {lang === 'bn' ? 'কিমি/ঘণ্টা' : 'km/h'}
-          </div>
-        </div>
-      )}
+          </>
+        )}
 
-      {/* 3-day forecast strip */}
-      {weather?.forecast?.length > 1 && (
-        <div className="pw-fc">
-          {weather.forecast.slice(1, 4).map(d => {
-            const dt = new Date(d.date);
-            return (
-              <div key={d.date} className="pw-fc-day">
-                <span className="pw-fc-name">{dt.toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { weekday: 'short' })}</span>
-                <WeatherIcon code={d.weather_code} size={16} />
-                <span className="pw-fc-temp">{lang === 'bn' ? toBn(String(Math.round(d.max_c))) : Math.round(d.max_c)}°</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+        {weather?.forecast?.length > 1 && (
+          <>
+            <div className="nw-div" />
+            <div className="nw-forecast">
+              {weather.forecast.slice(1, 4).map(d => {
+                const dt = new Date(d.date);
+                return (
+                  <div key={d.date} className="nw-fday">
+                    <div className="nw-fday-d">{dt.toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { weekday: 'short' })}</div>
+                    <WeatherIcon code={d.weather_code} size={19} />
+                    <div className="nw-fday-t">{lang === 'bn' ? toBn(String(Math.round(d.max_c))) : Math.round(d.max_c)}°</div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
 
-      {/* Footer — next sun event (left) + full schedule link (right) */}
-      <div className="pw-foot">
+      {/* ── Footer ── */}
+      <div className="nw-foot">
         {sunEvent ? (
-          <span className="pw-meta">
-            <span className="pw-sun">
-              {sunEvent.name === 'Sunrise'
-                ? <Sunrise size={14} strokeWidth={2.2} color="#f59e0b" />
-                : <Sunset size={14} strokeWidth={2.2} color="#ea7317" />}
-              {prayerLabel(sunEvent.name, lang)} {formatTime12h(sunEvent.time, lang)}
-            </span>
+          <span className="nw-sun">
+            {sunEvent.name === 'Sunrise'
+              ? <Sunrise size={15} strokeWidth={2.2} color="#b9842b" />
+              : <Sunset size={15} strokeWidth={2.2} color="#b9842b" />}
+            {prayerLabel(sunEvent.name, lang)} {formatTime12h(sunEvent.time, lang)}
           </span>
         ) : <span />}
-        <button className="pw-link" onClick={() => onNavigate('prayerTimes')}>
+        <button className="nw-link" onClick={() => onNavigate('prayerTimes')}>
           {lang === 'bn' ? 'সম্পূর্ণ সূচি' : 'Full schedule'}
-          <ArrowRight size={11} strokeWidth={2.4} />
+          <ArrowRight size={13} strokeWidth={2.4} />
         </button>
       </div>
     </div>

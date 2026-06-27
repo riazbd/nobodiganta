@@ -199,14 +199,16 @@ function CatStrip({ items, lang, nav }) {
 
 // ─── VIDEO CAROUSEL ───────────────────────────────────────────────────────────
 function VideoSection({ items, lang, nav }) {
-  const [slide, setSlide]       = useState(0);
-  const [perSlide, setPerSlide] = useState(4);
-
+  const [slide, setSlide]   = useState(0);
+  const [cols, setCols]     = useState(3);
   const [paused, setPaused] = useState(false);
 
+  // Two rows per page so the section fills the height beside the (tall)
+  // prayer/weather aside instead of leaving empty space below one row.
+  const perSlide = cols * 2;
+
   useEffect(() => {
-    // Narrower than before — the prayer/weather aside now sits to the right.
-    const upd = () => setPerSlide(window.innerWidth < 600 ? 1 : window.innerWidth < 980 ? 2 : 3);
+    const upd = () => setCols(window.innerWidth < 600 ? 1 : window.innerWidth < 980 ? 2 : 3);
     upd();
     window.addEventListener('resize', upd);
     return () => window.removeEventListener('resize', upd);
@@ -239,7 +241,7 @@ function VideoSection({ items, lang, nav }) {
         <div className="p-car-viewport">
           <div className="p-car-track" style={{ transform: `translateX(-${slide * 100}%)` }}>
             {Array.from({ length: pages }).map((_, pi) => (
-              <div key={pi} className="p-car-page" style={{ gridTemplateColumns: `repeat(${perSlide},1fr)` }}>
+              <div key={pi} className="p-car-page" style={{ gridTemplateColumns: `repeat(${cols},1fr)` }}>
                 {items.slice(pi * perSlide, (pi + 1) * perSlide).map(a => (
                   <div key={a.id} className="p-vid-card" onClick={() => go(a, nav)} role="button" tabIndex={0}>
                     <div className="p-vid-thumb"><Img src={a.featured_image} alt={a.title} isVideo /></div>
