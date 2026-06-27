@@ -93,7 +93,11 @@ class BreakingNewsController extends Controller
             abort(403);
         }
 
-        $breaking->update(['is_active' => true, 'expires_at' => null]);
+        $hours = BreakingNews::defaultExpiryHours();
+        $breaking->update([
+            'is_active'  => true,
+            'expires_at' => $hours > 0 ? now()->addHours($hours) : null,
+        ]);
         $this->syncArticleFlag($breaking, true);
         $this->maybeQueuePush($breaking->fresh());
 

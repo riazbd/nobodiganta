@@ -519,6 +519,14 @@ class SettingSeeder extends Seeder
                 'description_en' => 'Maximum number of breaking items shown in the ticker.',
                 'is_public' => true,
             ],
+            [
+                'key' => 'breaking_default_expiry_hours', 'value' => '24',
+                'group' => 'breaking', 'type' => 'number',
+                'label_bn' => 'ডিফল্ট মেয়াদ (ঘণ্টা)', 'label_en' => 'Default expiry (hours)',
+                'description_bn' => 'মেয়াদ না দিলে ব্রেকিং আইটেম কত ঘণ্টা পর স্বয়ংক্রিয়ভাবে মুছে যাবে। ২৪ = এক দিন। ০ দিলে বন্ধ।',
+                'description_en' => 'Hours after which a breaking item auto-expires when no explicit expiry is set. 24 = one day. 0 disables.',
+                'is_public' => false,
+            ],
         ];
 
         foreach ($settings as $setting) {

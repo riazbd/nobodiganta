@@ -15,7 +15,11 @@ class BreakingNewsController extends Controller
      */
     public function index(Request $request)
     {
-        $edition = str_starts_with($request->path(), 'en') ? 'en' : 'bn';
+        // Prefer an explicit ?edition= (the ticker passes it, since this API URL
+        // never carries the /en prefix); fall back to the path.
+        $edition = in_array($request->query('edition'), ['bn', 'en'], true)
+            ? $request->query('edition')
+            : (str_starts_with($request->path(), 'en') ? 'en' : 'bn');
 
         $max = max(1, (int) (Setting::where('key', 'breaking_max_items')->value('value') ?: 15));
         $news = BreakingNews::active($edition)

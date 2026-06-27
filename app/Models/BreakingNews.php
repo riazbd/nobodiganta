@@ -30,6 +30,28 @@ class BreakingNews extends Model
 
     public const SEVERITIES = ['just_in', 'breaking', 'urgent', 'live'];
 
+    protected static function booted(): void
+    {
+        // A new item with no explicit "Expires at" auto-expires after the
+        // configured default window (measured from its start time, or now).
+        // Explicit expiry always wins; 0 hours disables the default.
+        static::creating(function (self $b) {
+            if ($b->expires_at === null) {
+                $hours = static::defaultExpiryHours();
+                if ($hours > 0) {
+                    $base = $b->starts_at ? $b->starts_at->copy() : now();
+                    $b->expires_at = $base->addHours($hours);
+                }
+            }
+        });
+    }
+
+    /** Default auto-expiry window in hours (admin setting; 24 = one day, 0 = off). */
+    public static function defaultExpiryHours(): int
+    {
+        return (int) (Setting::where('key', 'breaking_default_expiry_hours')->value('value') ?? 24);
+    }
+
     public function article(): BelongsTo
     {
         return $this->belongsTo(Article::class);
@@ -86,7 +108,11 @@ class BreakingNews extends Model
         if ($article->is_breaking && $article->status === 'published') {
             if ($existing) {
                 if (!$existing->is_active) {
-                    $existing->update(['is_active' => true, 'expires_at' => null]);
+                    $hours = static::defaultExpiryHours();
+                    $existing->update([
+                        'is_active'  => true,
+                        'expires_at' => $hours > 0 ? now()->addHours($hours) : null,
+                    ]);
                 }
             } else {
                 static::create([
