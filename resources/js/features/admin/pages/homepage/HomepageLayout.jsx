@@ -278,6 +278,7 @@ function PreviewThumb({ article, className = '' }) {
 function SpecialFeatureConfigPanel({ formData, setFormData, lang, categories = [] }) {
   const { showToast } = useToast();
   const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingBannerEn, setUploadingBannerEn] = useState(false);
   const [uploadingBg, setUploadingBg] = useState(false);
   const [gridArticles, setGridArticles] = useState([]);
   const [gridLoading, setGridLoading] = useState(false);
@@ -412,6 +413,40 @@ function SpecialFeatureConfigPanel({ formData, setFormData, lang, categories = [
     } finally {
       setConfig('banner_image', null);
       setUploadingBanner(false);
+    }
+  };
+
+  const handleBannerEnUpload = async (file) => {
+    if (!file) return;
+    setUploadingBannerEn(true);
+    const data = new FormData();
+    data.append('file', file);
+    try {
+      const res = await window.axios.post(route('admin.homepage-layout.upload-banner'), data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (res.data.url) {
+        setConfig('banner_image_en', res.data.url);
+        showToast(lang === 'bn' ? 'ইংরেজি ব্যানার আপলোড হয়েছে' : 'English banner uploaded');
+      }
+    } catch {
+      showToast(lang === 'bn' ? 'আপলোড ব্যর্থ হয়েছে' : 'Upload failed', 'error');
+    } finally {
+      setUploadingBannerEn(false);
+    }
+  };
+
+  const handleBannerEnRemove = async () => {
+    if (!cfg.banner_image_en) return;
+    if (!confirm(lang === 'bn' ? 'ইংরেজি ব্যানার ছবি মুছে ফেলবেন?' : 'Remove English banner image?')) return;
+    setUploadingBannerEn(true);
+    try {
+      await window.axios.delete(route('admin.homepage-layout.delete-banner'), { data: { url: cfg.banner_image_en } });
+    } catch {
+      // ignore — still clear locally so the section can be saved without the stale image
+    } finally {
+      setConfig('banner_image_en', null);
+      setUploadingBannerEn(false);
     }
   };
 
@@ -609,38 +644,86 @@ function SpecialFeatureConfigPanel({ formData, setFormData, lang, categories = [
             : 'A full-width image shown at the very top of the section — e.g. an event graphic with title/branding baked in. Recommended aspect ratio: 4:1 (e.g. 1600×400px) — keeps it impactful on desktop without taking up too much space on mobile.'}
         </p>
         {cfg.show_banner !== false && (
-          <>
-            {cfg.banner_image ? (
-              <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white">
-                <img src={cfg.banner_image} alt="Banner" className="w-full h-auto block" />
-                <button
-                  type="button"
-                  onClick={handleBannerRemove}
+          <div className="space-y-4">
+            {/* Bangla banner */}
+            <div className="space-y-2">
+              <span className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                {lang === 'bn' ? 'বাংলা ব্যানার' : 'Bangla Banner'}
+              </span>
+              {cfg.banner_image ? (
+                <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white">
+                  <img src={cfg.banner_image} alt="Bangla banner" className="w-full h-auto block" />
+                  <button
+                    type="button"
+                    onClick={handleBannerRemove}
+                    disabled={uploadingBanner}
+                    className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow disabled:opacity-50"
+                    title={lang === 'bn' ? 'মুছুন' : 'Remove'}
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-200 rounded-xl bg-white">
+                  <ImageIcon size={24} className="text-gray-300" />
+                  <span className="text-sm text-gray-400">{lang === 'bn' ? 'কোনো ব্যানার নেই' : 'No banner uploaded'}</span>
+                </div>
+              )}
+              <label className={`inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-xl border text-sm font-bold transition-all ${uploadingBanner ? 'opacity-50 cursor-not-allowed border-gray-200 text-gray-400' : 'border-[#1a56db] text-[#1a56db] hover:bg-[#1a56db] hover:text-white'}`}>
+                {uploadingBanner ? <RefreshCw size={14} className="animate-spin" /> : <Upload size={14} />}
+                {lang === 'bn' ? 'ব্যানার আপলোড করুন' : 'Upload Banner'}
+                <input
+                  type="file"
+                  className="sr-only"
+                  accept="image/*"
                   disabled={uploadingBanner}
-                  className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow disabled:opacity-50"
-                  title={lang === 'bn' ? 'মুছুন' : 'Remove'}
-                >
-                  <Trash2 size={13} />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-200 rounded-xl bg-white">
-                <ImageIcon size={24} className="text-gray-300" />
-                <span className="text-sm text-gray-400">{lang === 'bn' ? 'কোনো ব্যানার নেই' : 'No banner uploaded'}</span>
-              </div>
-            )}
-            <label className={`inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-xl border text-sm font-bold transition-all ${uploadingBanner ? 'opacity-50 cursor-not-allowed border-gray-200 text-gray-400' : 'border-[#1a56db] text-[#1a56db] hover:bg-[#1a56db] hover:text-white'}`}>
-              {uploadingBanner ? <RefreshCw size={14} className="animate-spin" /> : <Upload size={14} />}
-              {lang === 'bn' ? 'ব্যানার আপলোড করুন' : 'Upload Banner'}
-              <input
-                type="file"
-                className="sr-only"
-                accept="image/*"
-                disabled={uploadingBanner}
-                onChange={e => handleBannerUpload(e.target.files[0])}
-              />
-            </label>
-          </>
+                  onChange={e => handleBannerUpload(e.target.files[0])}
+                />
+              </label>
+            </div>
+
+            {/* English banner */}
+            <div className="space-y-2 pt-3 border-t border-gray-200">
+              <span className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                {lang === 'bn' ? 'ইংরেজি ব্যানার' : 'English Banner'}
+              </span>
+              <p className="text-xs text-gray-400">
+                {lang === 'bn'
+                  ? 'ইংরেজি এডিশনের জন্য আলাদা ব্যানার। খালি রাখলে ইংরেজি এডিশনে বাংলা ব্যানারটিই দেখাবে।'
+                  : 'A separate banner for the English edition. If left empty, the Bangla banner is shown in the English edition.'}
+              </p>
+              {cfg.banner_image_en ? (
+                <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white">
+                  <img src={cfg.banner_image_en} alt="English banner" className="w-full h-auto block" />
+                  <button
+                    type="button"
+                    onClick={handleBannerEnRemove}
+                    disabled={uploadingBannerEn}
+                    className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow disabled:opacity-50"
+                    title={lang === 'bn' ? 'মুছুন' : 'Remove'}
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 p-4 border-2 border-dashed border-gray-200 rounded-xl bg-white">
+                  <ImageIcon size={24} className="text-gray-300" />
+                  <span className="text-sm text-gray-400">{lang === 'bn' ? 'কোনো ব্যানার নেই' : 'No banner uploaded'}</span>
+                </div>
+              )}
+              <label className={`inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-xl border text-sm font-bold transition-all ${uploadingBannerEn ? 'opacity-50 cursor-not-allowed border-gray-200 text-gray-400' : 'border-[#1a56db] text-[#1a56db] hover:bg-[#1a56db] hover:text-white'}`}>
+                {uploadingBannerEn ? <RefreshCw size={14} className="animate-spin" /> : <Upload size={14} />}
+                {lang === 'bn' ? 'ব্যানার আপলোড করুন' : 'Upload Banner'}
+                <input
+                  type="file"
+                  className="sr-only"
+                  accept="image/*"
+                  disabled={uploadingBannerEn}
+                  onChange={e => handleBannerEnUpload(e.target.files[0])}
+                />
+              </label>
+            </div>
+          </div>
         )}
       </div>
 

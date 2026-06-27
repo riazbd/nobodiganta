@@ -11,7 +11,7 @@ export const SF_DEFAULTS = {
   badge_bg: '#1a56db', badge_text_color: '#ffffff',
   badge_label_bn: 'বিশেষ', badge_label_en: 'Special',
   show_badge: true, show_excerpt: true,
-  banner_image: null, show_banner: true, show_header: true, list_columns: 3,
+  banner_image: null, banner_image_en: null, show_banner: true, show_header: true, list_columns: 3,
 };
 
 // Builds the CSS `background*` properties for the section based on bg_type.
@@ -173,10 +173,12 @@ export default function SpecialFeatureSection({ section, lang, nav }) {
   const badge  = lang === 'bn' ? (cfg.badge_label_bn || 'বিশেষ') : (cfg.badge_label_en || 'Special');
   const hero   = items[0];
   const rest   = items.slice(1);
+  // English edition uses its own banner, falling back to the Bangla banner when unset.
+  const bannerSrc = lang === 'bn' ? cfg.banner_image : (cfg.banner_image_en || cfg.banner_image);
 
   return (
     <div className={`sf-section${cfg.content_theme === 'dark' ? ' sf-theme-dark' : ''}`} style={sfBackgroundStyle(cfg)}>
-      {cfg.show_banner !== false && <SFBanner src={cfg.banner_image} alt={title} />}
+      {cfg.show_banner !== false && <SFBanner src={bannerSrc} alt={title} />}
       {cfg.show_header !== false && <SFHeader title={title} badge={badge} cfg={cfg} />}
 
       {layout === 'banner_split' && (
