@@ -3,7 +3,7 @@ import { useForm, usePage, router } from '@inertiajs/react';
 import {
   Save, Send, Eye, Image as ImageIcon, X, Plus, Type, Tag, FileText,
   Settings, ChevronRight, Newspaper, Globe, Clock, CheckCircle,
-  FolderTree, Trash2, Languages, Loader2, Video, Users, Search, MapPin, Target
+  FolderTree, Trash2, Languages, Loader2, Video, Users, Search, MapPin, Target, Upload
 } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -66,6 +66,8 @@ export default function WriteNews() {
   const { showToast } = useToast();
   const [mediaFiles, setMediaFiles] = useState([]);
   const [uploadingFeatured, setUploadingFeatured] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
   const [categories, setCategories] = useState([]);
   const [showTranslateConfirm, setShowTranslateConfirm] = useState(false);
@@ -361,6 +363,48 @@ export default function WriteNews() {
       showToast(lang === 'bn' ? 'ছবি আপলোড ব্যর্থ হয়েছে' : 'Image upload failed', 'error');
     } finally {
       setUploadingFeatured(false);
+    }
+  };
+
+  // Direct video upload from PC → stores via the media endpoint, then fills the
+  // Video URL with the self-hosted file (played by the native HTML5 player).
+  const handleVideoUpload = async (file) => {
+    if (!file) return;
+    if (file.size > 100 * 1024 * 1024) {
+      showToast(lang === 'bn' ? 'ফাইলের সাইজ ১০০MB এর বেশি হতে পারবে না' : 'File size must not exceed 100MB', 'error');
+      return;
+    }
+    setUploadingVideo(true);
+    setVideoProgress(0);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('edition', form.data.edition || 'both');
+      formData.append('license_type', 'internal');
+      const res = await window.axios.post('/admin/media', formData, {
+        timeout: 0, // large videos
+        onUploadProgress: (e) => { if (e.total) setVideoProgress(Math.round((e.loaded * 100) / e.total)); },
+      });
+      const data = res.data;
+      if (data.success && data.url) {
+        form.setData((prev) => ({ ...prev, videoUrl: data.url, videoProvider: 'html5' }));
+        showToast(lang === 'bn' ? 'ভিডিও আপলোড সফল হয়েছে' : 'Video uploaded successfully', 'success');
+      } else {
+        const errMsg = data.errors
+          ? Object.values(data.errors).flat().join(' ')
+          : (data.message || data.error || (lang === 'bn' ? 'ভিডিও আপলোড ব্যর্থ হয়েছে' : 'Video upload failed'));
+        showToast(errMsg, 'error');
+      }
+    } catch (err) {
+      const msg = err.response?.status === 413
+        ? (lang === 'bn'
+            ? 'ফাইলটি সার্ভারের অনুমোদিত সীমার চেয়ে বড়। সার্ভারের আপলোড লিমিট (php.ini) বাড়াতে হবে।'
+            : 'File is larger than the server allows. The server upload limit (php.ini) needs to be raised.')
+        : (err.response?.data?.message || err.message || (lang === 'bn' ? 'ভিডিও আপলোড ব্যর্থ হয়েছে' : 'Video upload failed'));
+      showToast(msg, 'error');
+    } finally {
+      setUploadingVideo(false);
+      setVideoProgress(0);
     }
   };
 
@@ -1172,8 +1216,29 @@ export default function WriteNews() {
                       form.setData({ ...form.data, videoUrl: url, videoProvider: detectVideoProvider(url) });
                     }}
                     placeholder="https://youtube.com/..."
-                    className="w-full mb-3 bg-white border border-[var(--card-border,#e8ebf4)] rounded-md px-2.5 py-1.5 text-xs outline-none focus:border-red-500"
+                    className="w-full mb-2 bg-white border border-[var(--card-border,#e8ebf4)] rounded-md px-2.5 py-1.5 text-xs outline-none focus:border-red-500"
                   />
+
+                  {/* Direct upload from PC (self-hosted, plays in the native player) */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <label className={`inline-flex items-center gap-1.5 cursor-pointer px-2.5 py-1.5 rounded-md border text-xs font-bold transition-all ${uploadingVideo ? 'opacity-60 cursor-wait border-gray-200 text-gray-400' : 'border-[#263238] text-[#263238] hover:bg-[#263238] hover:text-white'}`}>
+                      {uploadingVideo ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+                      {uploadingVideo ? `${videoProgress}%` : (lang === 'bn' ? 'পিসি থেকে আপলোড' : 'Upload from PC')}
+                      <input
+                        type="file"
+                        accept="video/*"
+                        className="sr-only"
+                        disabled={uploadingVideo}
+                        onChange={(e) => { handleVideoUpload(e.target.files[0]); e.target.value = ''; }}
+                      />
+                    </label>
+                    <span className="text-[10px] text-gray-400">{lang === 'bn' ? 'অথবা উপরে লিঙ্ক দিন (সর্বোচ্চ ১০০MB)' : 'or paste a link above (max 100MB)'}</span>
+                  </div>
+
+                  {form.data.videoUrl && form.data.videoProvider === 'html5' && (
+                    <video src={form.data.videoUrl} controls className="w-full mb-3 rounded-md bg-black max-h-40" />
+                  )}
+
                   <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Duration</label>
                   <input
                     type="text"

@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { Video, Play, Eye, Trash2, Edit3, Plus, Search, X, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Video, Play, Eye, Trash2, Edit3, Plus, Search, X, Loader2, Image as ImageIcon, Upload } from 'lucide-react';
 import { Badge } from '../components/feedback/Badge';
 import { useLanguage } from '../hooks/useLanguage';
 import { useToast } from '../hooks/useToast';
@@ -20,7 +20,9 @@ export default function Videos({ initialVideos = [], filters = {} }) {
   const [showModal, setShowModal] = useState(false);
   const [editingVideo, setEditingVideo] = useState(null);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
-  
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
+
   const [formData, setFormData] = useState({
     titleBn: '',
     titleEn: '',
@@ -120,6 +122,48 @@ export default function Videos({ initialVideos = [], filters = {} }) {
     setShowMediaLibrary(false);
   };
 
+  // Direct video upload from PC → stored via the media endpoint, then used as a
+  // self-hosted (local) video played by the native HTML5 player.
+  const handleVideoUpload = async (file) => {
+    if (!file) return;
+    if (file.size > 100 * 1024 * 1024) {
+      showToast(lang === 'bn' ? 'ফাইলের সাইজ ১০০MB এর বেশি হতে পারবে না' : 'File size must not exceed 100MB', 'error');
+      return;
+    }
+    setUploadingVideo(true);
+    setVideoProgress(0);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('edition', formData.edition || 'both');
+      fd.append('license_type', 'internal');
+      const res = await window.axios.post('/admin/media', fd, {
+        timeout: 0,
+        onUploadProgress: (e) => { if (e.total) setVideoProgress(Math.round((e.loaded * 100) / e.total)); },
+      });
+      const data = res.data;
+      if (data.success && data.url) {
+        setFormData((prev) => ({ ...prev, videoUrl: data.url, videoProvider: 'local' }));
+        showToast(lang === 'bn' ? 'ভিডিও আপলোড সফল হয়েছে' : 'Video uploaded successfully');
+      } else {
+        const errMsg = data.errors
+          ? Object.values(data.errors).flat().join(' ')
+          : (data.message || data.error || (lang === 'bn' ? 'ভিডিও আপলোড ব্যর্থ হয়েছে' : 'Video upload failed'));
+        showToast(errMsg, 'error');
+      }
+    } catch (err) {
+      const msg = err.response?.status === 413
+        ? (lang === 'bn'
+            ? 'ফাইলটি সার্ভারের অনুমোদিত সীমার চেয়ে বড়। সার্ভারের আপলোড লিমিট (php.ini) বাড়াতে হবে।'
+            : 'File is larger than the server allows. The server upload limit (php.ini) needs to be raised.')
+        : (err.response?.data?.message || err.message || (lang === 'bn' ? 'ভিডিও আপলোড ব্যর্থ হয়েছে' : 'Video upload failed'));
+      showToast(msg, 'error');
+    } finally {
+      setUploadingVideo(false);
+      setVideoProgress(0);
+    }
+  };
+
   const getEditionBadge = (edition) => {
     const ed = EDITIONS.find(e => e.value === edition);
     if (!ed || edition === 'all') return null;
@@ -216,7 +260,7 @@ export default function Videos({ initialVideos = [], filters = {} }) {
       {/* CREATE/EDIT MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold">{editingVideo ? (lang === 'bn' ? 'ভিডিও আপডেট' : 'Edit Video') : (lang === 'bn' ? 'নতুন ভিডিও যোগ' : 'Add New Video')}</h2>
               <button onClick={() => setShowModal(false)} className="p-1 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5 text-gray-500" /></button>
@@ -246,9 +290,27 @@ export default function Videos({ initialVideos = [], filters = {} }) {
                     const provider = detectVideoProvider(url);
                     setFormData({...formData, videoUrl: url, videoProvider: provider});
                   }} 
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#263238] outline-none" 
-                  placeholder="Paste video URL..." 
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-[#263238] outline-none"
+                  placeholder="Paste video URL..."
                 />
+                {/* Direct upload from PC (self-hosted, native player) */}
+                <div className="flex items-center gap-2 mt-2">
+                  <label className={`inline-flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${uploadingVideo ? 'opacity-60 cursor-wait border-gray-200 text-gray-400' : 'border-[#263238] text-[#263238] hover:bg-[#263238] hover:text-white'}`}>
+                    {uploadingVideo ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                    {uploadingVideo ? `${videoProgress}%` : (lang === 'bn' ? 'পিসি থেকে আপলোড' : 'Upload from PC')}
+                    <input
+                      type="file"
+                      accept="video/*"
+                      className="sr-only"
+                      disabled={uploadingVideo}
+                      onChange={(e) => { handleVideoUpload(e.target.files[0]); e.target.value = ''; }}
+                    />
+                  </label>
+                  <span className="text-[10px] text-gray-400">{lang === 'bn' ? 'অথবা উপরে লিঙ্ক (সর্বোচ্চ ১০০MB)' : 'or paste a link (max 100MB)'}</span>
+                </div>
+                {formData.videoUrl && (formData.videoProvider === 'local' || formData.videoProvider === 'html5') && (
+                  <video src={formData.videoUrl} controls className="w-full mt-2 rounded-lg bg-black max-h-40" />
+                )}
               </div>
 
               <div>
