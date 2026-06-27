@@ -97,6 +97,10 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Pin the Postgres session timezone so DB-side defaults (CURRENT_TIMESTAMP)
+            // and any raw now() match the app timezone on every environment, instead
+            // of relying on the server's OS default.
+            'timezone' => env('APP_TIMEZONE', 'Asia/Dhaka'),
         ],
 
         'sqlsrv' => [
