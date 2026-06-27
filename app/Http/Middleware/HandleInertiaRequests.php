@@ -45,10 +45,11 @@ class HandleInertiaRequests extends Middleware
 
         // Load breaking news globally from the dedicated breaking-news system
         // (active items only; the ticker hydrates from this then polls for updates).
+        $breakingMax = max(1, (int) ($publicSettings->get('breaking_max_items') ?: 15));
         $globalBreakingNews = \App\Models\BreakingNews::active($edition)
             ->ordered()
             ->with('article.category')
-            ->limit(15)
+            ->limit($breakingMax)
             ->get()
             ->map(fn($b) => $b->toPublicArray($edition));
 

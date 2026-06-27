@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
@@ -16,16 +16,39 @@ const SEV_LABEL = {
   live:     { bn: 'লাইভ',      en: 'LIVE' },
 };
 const SEV_RANK = { just_in: 1, breaking: 2, live: 3, urgent: 4 };
+// Only these severities take a turn in the prominent alert/flash phase.
+const ALERT_SEVERITIES = ['breaking', 'urgent'];
+
+// Settings arrive as strings (or undefined) from the shared `settings` prop.
+const asBool = (v, d) => (v === undefined || v === null || v === '') ? d : (v === true || v === 'true' || v === '1');
+const asNum  = (v, d) => { const n = parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : d; };
 
 export default function BreakingTicker() {
-  const { lang, globalBreakingNews = [] } = useApp();
+  const { lang, globalBreakingNews = [], settings = {} } = useApp();
   const { onNavigate } = useNavigation();
+
+  // Admin-configurable cadence (with sensible fallbacks).
+  const tickerEnabled = asBool(settings.breaking_ticker_enabled, true);
+  const alertEnabled  = asBool(settings.breaking_alert_enabled, true);
+  const alertSeconds  = asNum(settings.breaking_alert_seconds, 5);
+  const alertCycles   = asNum(settings.breaking_alert_cycles, 1);
+  const scrollSeconds = asNum(settings.breaking_scroll_seconds, 30);
+
   const [items, setItems] = useState(globalBreakingNews);
   const [dismissed, setDismissed] = useState(false);
+  const [phase, setPhase] = useState('scroll');     // 'alert' | 'scroll'
+  const [alertIndex, setAlertIndex] = useState(0);
   const etagRef = useRef(null);
 
-  // Signature of the current set — used to remember dismissal until content changes.
+  // Signature of the current set — drives dismissal memory and phase resets.
   const sig = items.map(i => `${i.id}:${i.updated_at || ''}`).join('|');
+
+  const alertItems = useMemo(
+    () => items.filter(i => ALERT_SEVERITIES.includes(i.severity)),
+    // sig captures the meaningful change to `items`
+    [sig], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const alertActive = alertEnabled && alertItems.length > 0;
 
   // Live updates — poll the cheap, ETag-cached endpoint.
   useEffect(() => {
@@ -46,15 +69,38 @@ export default function BreakingTicker() {
     return () => { alive = false; clearInterval(id); };
   }, []);
 
-  // Re-show the bar whenever the content changes (new signature).
+  // Re-show the bar when content changes; (re)start the cadence from the top.
   useEffect(() => {
     setDismissed(sig !== '' && localStorage.getItem('brk_dismissed') === sig);
-  }, [sig]);
+    setPhase(alertActive ? 'alert' : 'scroll');
+    setAlertIndex(0);
+  }, [sig, alertActive]);
 
-  if (!items.length || dismissed) return null;
+  // ALERT phase: step through alert headlines, then hand off to the scroll phase.
+  useEffect(() => {
+    if (phase !== 'alert') return;
+    if (!alertActive) { setPhase('scroll'); return; }
+    setAlertIndex(0);
+    let step = 0;
+    const total = Math.max(1, alertItems.length * alertCycles);
+    const id = setInterval(() => {
+      step += 1;
+      if (step >= total) { clearInterval(id); setPhase('scroll'); }
+      else setAlertIndex(step % alertItems.length);
+    }, alertSeconds * 1000);
+    return () => clearInterval(id);
+  }, [phase, alertActive, sig, alertSeconds, alertCycles]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // SCROLL phase: after a spell, return to the alert phase (if there are any).
+  useEffect(() => {
+    if (phase !== 'scroll' || !alertActive) return;
+    const id = setTimeout(() => setPhase('alert'), scrollSeconds * 1000);
+    return () => clearTimeout(id);
+  }, [phase, alertActive, sig, scrollSeconds]);
+
+  if (!tickerEnabled || !items.length || dismissed) return null;
 
   const topSev = items.reduce((acc, i) => ((SEV_RANK[i.severity] || 2) > (SEV_RANK[acc] || 0) ? i.severity : acc), 'just_in');
-  const label = SEV_LABEL[topSev] || SEV_LABEL.breaking;
 
   const go = (item) => {
     if (item?.url) router.visit(item.url);
@@ -63,23 +109,33 @@ export default function BreakingTicker() {
 
   const dismiss = () => { localStorage.setItem('brk_dismissed', sig); setDismissed(true); };
 
+  const showingAlert = phase === 'alert' && alertActive;
+  const current = showingAlert ? (alertItems[alertIndex] || alertItems[0]) : null;
+  const barSev = showingAlert ? current.severity : topSev;
+  const label = SEV_LABEL[barSev] || SEV_LABEL.breaking;
   const loop = items.length > 1 ? [...items, ...items] : items;
 
   return (
-    <div className={`brk-fixed brk-sev-${topSev}`} role="marquee" aria-label={lang === 'bn' ? 'সর্বশেষ সংবাদ' : 'Breaking news'}>
+    <div className={`brk-fixed brk-sev-${barSev}${showingAlert ? ' brk-mode-alert' : ''}`} role="marquee" aria-label={lang === 'bn' ? 'সর্বশেষ সংবাদ' : 'Breaking news'}>
       <div className="brk-label">{lang === 'bn' ? label.bn : label.en}</div>
-      <div className="brk-track-wrap">
-        <div className="brk-track">
-          {loop.map((item, i) => (
-            <span key={i} className="brk-item">
-              <LogoDot />
-              <button className="brk-link" onClick={() => go(item)} tabIndex={0}>
-                {item?.title}
-              </button>
-            </span>
-          ))}
+      {showingAlert ? (
+        <div className="brk-alert">
+          <button className="brk-alert-text" onClick={() => go(current)} tabIndex={0}>{current?.title}</button>
         </div>
-      </div>
+      ) : (
+        <div className="brk-track-wrap">
+          <div className="brk-track">
+            {loop.map((item, i) => (
+              <span key={i} className="brk-item">
+                <LogoDot />
+                <button className="brk-link" onClick={() => go(item)} tabIndex={0}>
+                  {item?.title}
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
       <button className="brk-dismiss" onClick={dismiss} aria-label={lang === 'bn' ? 'বন্ধ করুন' : 'Dismiss'}>×</button>
     </div>
   );

@@ -705,6 +705,30 @@ article .card{padding:8px;}
 }
 .brk-logo-dot img{width:20px;height:20px;object-fit:contain;display:block;}
 
+/* ── Alert (flash) phase — one big centered headline, attention-grabbing ── */
+.brk-alert{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0 14px;}
+.brk-alert-text{
+  background:none;border:none;cursor:pointer;
+  color:#fff;
+  font-family:'SolaimanLipi',sans-serif;
+  font-weight:800;
+  font-size:18.5px;
+  letter-spacing:.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+  padding:0 8px;
+}
+.brk-alert-text:hover{text-decoration:underline;}
+/* Flash the bar background while an alert headline is on screen. */
+.brk-mode-alert{animation:brkAlertFlash 1.1s steps(1,end) infinite;}
+@keyframes brkAlertFlash{0%,100%{background:#1a0000;}50%{background:#4a0d0d;}}
+
+/* Respect users who prefer less motion: drop the flashing/pulsing. */
+@media(prefers-reduced-motion:reduce){
+  .brk-mode-alert{animation:none;background:#1a0000;}
+  .brk-sev-urgent{animation:none;}
+  .brk-sev-live .brk-label::before{animation:none;}
+}
+
 /* Add bottom padding to page so ticker doesn't overlap content */
 .page-container{padding-bottom:54px;}
 
@@ -712,6 +736,7 @@ article .card{padding:8px;}
   .brk-fixed { height:34px; }
   .brk-label { font-size:13px; padding:0 10px; letter-spacing:.3px; }
   .brk-link { font-size:14px; padding:0 6px; }
+  .brk-alert-text { font-size:15px; }
   .brk-logo-dot { width:14px; height:14px; margin:0 8px; }
   .brk-logo-dot img { width:14px; height:14px; }
   .page-container { padding-bottom:44px; }

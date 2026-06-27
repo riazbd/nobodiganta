@@ -3,7 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import {
   Settings as SettingsIcon, Globe, Palette, Search, Mail, Shield, Save,
   Info, AlertTriangle, Monitor, Share2, Server, RefreshCw, Upload, Trash2, Image,
-  Scale, HelpCircle, Lock
+  Scale, HelpCircle, Lock, Zap
 } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -119,6 +119,7 @@ export default function Settings({ settings = {}, groups = [] }) {
     legal:   { labelBn: 'আইনি',    labelEn: 'Legal',   icon: Scale },
     integrations: { labelBn: 'ইন্টিগ্রেশন', labelEn: 'Integrations', icon: Monitor },
     security: { labelBn: 'নিরাপত্তা', labelEn: 'Security', icon: Lock },
+    breaking: { labelBn: 'ব্রেকিং', labelEn: 'Breaking', icon: Zap },
   };
 
   // Build tabs from whatever groups the backend returns — no group is silently dropped
@@ -188,9 +189,18 @@ export default function Settings({ settings = {}, groups = [] }) {
             </span>
           </label>
         );
+      case 'number':
+        return (
+          <input
+            type="number"
+            value={value ?? ''}
+            onChange={e => handleChange(setting.key, e.target.value)}
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-[#263238]/5 focus:border-[#263238] transition-all outline-none max-w-[200px]"
+          />
+        );
       case 'textarea':
         return (
-          <textarea 
+          <textarea
             rows="3"
             value={value || ''}
             onChange={e => handleChange(setting.key, e.target.value)}

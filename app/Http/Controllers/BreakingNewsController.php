@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BreakingNews;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,10 +17,11 @@ class BreakingNewsController extends Controller
     {
         $edition = str_starts_with($request->path(), 'en') ? 'en' : 'bn';
 
+        $max = max(1, (int) (Setting::where('key', 'breaking_max_items')->value('value') ?: 15));
         $news = BreakingNews::active($edition)
             ->ordered()
             ->with('article.category')
-            ->limit(15)
+            ->limit($max)
             ->get()
             ->map(fn($b) => $b->toPublicArray($edition))
             ->values();
