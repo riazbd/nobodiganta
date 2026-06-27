@@ -148,6 +148,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/news/published', $statusView('published', 'Published'))->name('news.published');
         Route::get('/news/pending',   $statusView('pending',   'PendingApproval'))->name('news.pending');
 
+        // Trash — soft-deleted articles (restore / permanent delete)
+        Route::get('/news/trash',             [ArticleController::class, 'trash'])->name('news.trash');
+        Route::post('/news/bulk-restore',     [ArticleController::class, 'bulkRestore'])->name('news.bulk-restore');
+        Route::post('/news/bulk-force-delete', [ArticleController::class, 'bulkForceDelete'])->name('news.bulk-force-delete');
+        Route::post('/news/{id}/restore',     [ArticleController::class, 'restore'])->name('news.restore')->whereNumber('id');
+        Route::delete('/news/{id}/force',     [ArticleController::class, 'forceDelete'])->name('news.force-delete')->whereNumber('id');
+
         Route::get('/news/{article}/edit', [ArticleController::class, 'edit'])->name('news.edit')->whereNumber('article');
         Route::put('/news/{article}', [ArticleController::class, 'update'])->name('news.update')->whereNumber('article');
         Route::delete('/news/{article}', [ArticleController::class, 'destroy'])->name('news.destroy')->whereNumber('article');

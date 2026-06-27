@@ -33,6 +33,7 @@ class ArticleController extends Controller
         $search      = $request->input('search');
         $articleType = $request->input('article_type');
         $authorId    = $request->input('author');
+        $publisher   = $request->input('publisher');
         $division    = $request->input('division');
         $district    = $request->input('district');
         $locCategory = $request->input('location_category');
@@ -43,7 +44,7 @@ class ArticleController extends Controller
         $sortDir     = $request->input('sort_dir') === 'asc' ? 'asc' : 'desc';
         $perPage     = in_array((int) $request->input('per_page'), [10, 20, 50, 100]) ? (int) $request->input('per_page') : 20;
 
-        $query = Article::with(['category', 'author'])
+        $query = Article::with(['category', 'author', 'approver'])
             ->orderBy($sortBy, $sortDir);
 
         if ($status && $status !== 'all') {
@@ -72,6 +73,10 @@ class ArticleController extends Controller
 
         if ($authorId && $authorId !== 'all') {
             $query->where('author_id', $authorId);
+        }
+
+        if ($publisher && $publisher !== 'all') {
+            $query->where('approver_id', $publisher);
         }
 
         if ($dateFrom) {
@@ -133,6 +138,11 @@ class ArticleController extends Controller
                     : $article->author?->name,
                 'is_guest'       => (bool) $article->is_guest_author,
                 'author_id'      => $article->author_id,
+                // "Published by" = the approver's code name (Bangla-primary, English/name fallback).
+                'published_by'   => $article->approver
+                    ? ($article->approver->code_name_bn ?: $article->approver->code_name_en ?: $article->approver->name)
+                    : null,
+                'approver_id'    => $article->approver_id,
                 'views'          => $article->views,
                 'featured_image' => $article->featured_image,
                 'published_at'   => $article->published_at?->toIso8601String(),
@@ -142,6 +152,16 @@ class ArticleController extends Controller
 
         $authors = User::whereIn('role', ['admin', 'editor', 'reporter'])
             ->orderBy('name')->get(['id', 'name']);
+
+        // Only users who have actually approved/published at least one article.
+        $publishers = User::whereIn('id', Article::whereNotNull('approver_id')->distinct()->pluck('approver_id'))
+            ->orderBy('name')
+            ->get(['id', 'name', 'code_name_bn', 'code_name_en'])
+            ->map(fn($u) => [
+                'id'   => $u->id,
+                'name' => $u->code_name_bn ?: $u->code_name_en ?: $u->name,
+            ])
+            ->values();
 
         if ($request->wantsJson()) {
             return response()->json(['articles' => $articles]);
@@ -157,6 +177,7 @@ class ArticleController extends Controller
             'articles'      => $articles,
             'categories'    => Category::active()->editorial()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
             'authors'       => $authors,
+            'publishers'    => $publishers,
             'divisions'     => Category::whereHas('parent', fn($q) => $q->where('slug', 'saradesh'))
                 ->orderBy('sort_order')
                 ->get()
@@ -167,7 +188,7 @@ class ArticleController extends Controller
                 ])
                 ->toArray(),
             'locationTree'  => $saradeshCat,
-            'filters'       => $request->only(['status', 'edition', 'category', 'search', 'article_type', 'author', 'date_from', 'date_to', 'sort_by', 'sort_dir', 'per_page', 'division', 'district', 'location_category', 'flag']),
+            'filters'       => $request->only(['status', 'edition', 'category', 'search', 'article_type', 'author', 'publisher', 'date_from', 'date_to', 'sort_by', 'sort_dir', 'per_page', 'division', 'district', 'location_category', 'flag']),
         ]);
     }
 
@@ -618,6 +639,169 @@ class ArticleController extends Controller
         ]);
 
         return back()->with('success', "{$count} articles deleted successfully");
+    }
+
+    /**
+     * Display the trash — soft-deleted articles that can be restored or
+     * permanently removed.
+     */
+    public function trash(Request $request)
+    {
+        if (!$request->user()->hasPermission('news.delete')
+            && !$request->user()->hasPermission('news.delete.own')) {
+            abort(403);
+        }
+
+        $perPage = in_array((int) $request->input('per_page'), [10, 20, 50, 100]) ? (int) $request->input('per_page') : 20;
+        $search  = $request->input('search');
+
+        $articles = Article::onlyTrashed()
+            ->with(['category', 'author'])
+            ->when($search, fn($q, $s) => $q->where(fn($q2) => $q2->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%")))
+            ->orderByDesc('deleted_at')
+            ->paginate($perPage)
+            ->withQueryString()
+            ->through(fn($a) => [
+                'id'         => $a->id,
+                'title'      => $a->title_bn,
+                'title_en'   => $a->title_en,
+                'status'     => $a->status,
+                'edition'    => $a->edition,
+                'author'     => $a->author?->name,
+                'category'   => $a->category ? [
+                    'name'       => $a->category->name_bn,
+                    'name_en'    => $a->category->name_en,
+                    'slug'       => $a->category->slug,
+                    'color_code' => $a->category->color_code,
+                ] : null,
+                'deleted_at' => $a->deleted_at?->toIso8601String(),
+                'created_at' => $a->created_at->toIso8601String(),
+            ]);
+
+        return Inertia::render('features/admin/pages/content/Trash', [
+            'articles' => $articles,
+            'filters'  => $request->only(['search', 'per_page']),
+        ]);
+    }
+
+    /**
+     * Restore a soft-deleted article back to its previous state.
+     */
+    public function restore(Request $request, int $id)
+    {
+        $article = Article::onlyTrashed()->findOrFail($id);
+
+        if (!$request->user()->hasPermission('news.delete')) {
+            if (!($article->author_id === auth()->id() && $request->user()->hasPermission('news.delete.own'))) {
+                abort(403);
+            }
+        }
+
+        $article->restore();
+
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'article.restored',
+            'description' => "Restored article: {$article->title_bn}",
+            'properties' => ['article_id' => $article->id],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Article restored successfully']);
+        }
+
+        return back()->with('success', 'Article restored successfully');
+    }
+
+    /**
+     * Permanently delete a trashed article (irreversible).
+     */
+    public function forceDelete(Request $request, int $id)
+    {
+        $article = Article::onlyTrashed()->findOrFail($id);
+
+        if (!$request->user()->hasPermission('news.delete')) {
+            if (!($article->author_id === auth()->id() && $request->user()->hasPermission('news.delete.own'))) {
+                abort(403);
+            }
+        }
+
+        $title = $article->title_bn;
+        $article->forceDelete();
+
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'article.force_deleted',
+            'description' => "Permanently deleted article: {$title}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Article permanently deleted']);
+        }
+
+        return back()->with('success', 'Article permanently deleted');
+    }
+
+    /**
+     * Restore multiple trashed articles.
+     */
+    public function bulkRestore(Request $request)
+    {
+        if (!$request->user()->hasPermission('news.delete')) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'article_ids'   => 'required|array',
+            'article_ids.*' => 'integer',
+        ]);
+
+        $count = Article::onlyTrashed()->whereIn('id', $validated['article_ids'])->restore();
+
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'article.bulk_restored',
+            'description' => "Bulk restored {$count} articles",
+            'properties' => ['count' => $count],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return back()->with('success', "{$count} articles restored successfully");
+    }
+
+    /**
+     * Permanently delete multiple trashed articles (irreversible).
+     */
+    public function bulkForceDelete(Request $request)
+    {
+        if (!$request->user()->hasPermission('news.delete')) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'article_ids'   => 'required|array',
+            'article_ids.*' => 'integer',
+        ]);
+
+        $trashed = Article::onlyTrashed()->whereIn('id', $validated['article_ids']);
+        $count   = $trashed->count();
+        $trashed->forceDelete();
+
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'event' => 'article.bulk_force_deleted',
+            'description' => "Bulk permanently deleted {$count} articles",
+            'properties' => ['count' => $count],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return back()->with('success', "{$count} articles permanently deleted");
     }
 
     private function syncCategoryPivot(Article $article, array $expandedIds, int $primaryId): void

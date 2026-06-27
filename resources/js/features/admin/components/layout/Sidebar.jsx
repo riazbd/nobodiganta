@@ -48,6 +48,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
             { id: 'news-drafts',    label: 'drafts',          permission: PERMISSIONS.NEWS_VIEW },
             { id: 'news-published', label: 'published',       permission: PERMISSIONS.NEWS_VIEW },
             { id: 'news-pending',   label: 'pendingApproval', permission: PERMISSIONS.NEWS_REVIEW },
+            { id: 'news-trash',     label: 'trash',           permission: PERMISSIONS.NEWS_DELETE },
           ]
         },
         { id: 'breaking', icon: 'Zap',        label: 'breakingNews',  permission: PERMISSIONS.NEWS_VIEW },

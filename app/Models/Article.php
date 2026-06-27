@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,6 +12,8 @@ use App\Models\Ad;
 
 class Article extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'title_bn', 'title_en',
         'subtitle_bn', 'subtitle_en',
@@ -49,6 +52,7 @@ class Article extends Model
         'read_time_bn' => 'integer',
         'read_time_en' => 'integer',
         'published_at' => 'datetime',
+        'deleted_at' => 'datetime',
         'in_article_ad_position' => 'integer',
     ];
 

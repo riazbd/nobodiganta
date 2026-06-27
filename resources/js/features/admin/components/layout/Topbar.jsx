@@ -52,6 +52,7 @@ export default function Topbar({ currentPage, onNavigate, showToast }) {
     'news-drafts': { bn: 'ড্রাফট', en: 'Drafts' },
     'news-published': { bn: 'প্রকাশিত', en: 'Published' },
     'news-pending': { bn: 'মুলতুবি অনুমোদন', en: 'Pending Approval' },
+    'news-trash': { bn: 'ট্র্যাশ', en: 'Trash' },
     categories: { bn: 'বিভাগ', en: 'Categories' },
     media: { bn: 'মিডিয়া লাইব্রেরি', en: 'Media Library' },
     videos: { bn: 'ভিডিও', en: 'Videos' },

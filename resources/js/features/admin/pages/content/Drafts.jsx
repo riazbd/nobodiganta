@@ -294,7 +294,7 @@ function NewsTable({ articles, categories = [], authors = [], filters, pageTitle
                 <AlertTriangle className="w-7 h-7 text-red-500" />
               </div>
               <h3 className="text-lg font-bold">{l('সংবাদ মুছে ফেলুন?', 'Delete Article?')}</h3>
-              <p className="text-sm text-gray-400 mt-1">{l('এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না', 'This action cannot be undone')}</p>
+              <p className="text-sm text-gray-400 mt-1">{l('সংবাদটি ট্র্যাশে চলে যাবে — পরে ফিরিয়ে আনা যাবে', 'The article will be moved to Trash — you can restore it later')}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-3.5 mb-5 text-sm font-semibold text-gray-700 line-clamp-2">
               {deleteConfirm.title || deleteConfirm.title_en}

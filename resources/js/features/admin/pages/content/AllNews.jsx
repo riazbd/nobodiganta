@@ -41,7 +41,7 @@ function SortIcon({ column, sortBy, sortDir }) {
     : <ArrowDown className="w-3 h-3 ml-1 text-[#263238] inline" />;
 }
 
-export default function AllNews({ articles, categories, authors = [], divisions = [], locationTree = null, filters }) {
+export default function AllNews({ articles, categories, authors = [], publishers = [], divisions = [], locationTree = null, filters }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
   const { hasPermission } = usePermission();
@@ -53,6 +53,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
   const [edition,      setEdition]      = useState(filters.edition      || 'all');
   const [articleType,  setArticleType]  = useState(filters.article_type || 'all');
   const [author,       setAuthor]       = useState(filters.author       || 'all');
+  const [publisher,    setPublisher]    = useState(filters.publisher    || 'all');
   const [division,     setDivision]     = useState(filters.division     || '');
   const [district,     setDistrict]     = useState(filters.district     || '');
   const [locCategory,  setLocCategory]  = useState(filters.location_category || '');
@@ -80,7 +81,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
   const buildParams = (overrides = {}) => {
     const p = {
       search, status, category, edition,
-      article_type: articleType, author,
+      article_type: articleType, author, publisher,
       division, district, location_category: locCategory, flag,
       date_from: dateFrom, date_to: dateTo,
       per_page: perPage, sort_by: sortBy, sort_dir: sortDir,
@@ -93,7 +94,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
 
   const applyFilters = useCallback((overrides = {}) => {
     router.get(route('admin.news'), buildParams(overrides), { preserveState: true, preserveScroll: true });
-  }, [search, status, category, edition, articleType, author, division, district, locCategory, flag, dateFrom, dateTo, perPage, sortBy, sortDir]);
+  }, [search, status, category, edition, articleType, author, publisher, division, district, locCategory, flag, dateFrom, dateTo, perPage, sortBy, sortDir]);
 
   const handleSearch = (val) => {
     setSearch(val);
@@ -121,14 +122,14 @@ export default function AllNews({ articles, categories, authors = [], divisions 
 
   const resetFilters = () => {
     setSearch(''); setStatus('all'); setCategory('all'); setEdition('all');
-    setArticleType('all'); setAuthor('all'); setDivision(''); setDistrict(''); setDists([]);
+    setArticleType('all'); setAuthor('all'); setPublisher('all'); setDivision(''); setDistrict(''); setDists([]);
     setLocCategory(''); setFlag('all'); setDateFrom(''); setDateTo('');
     setPerPage('20'); setSortBy('created_at'); setSortDir('desc');
     router.get(route('admin.news'), {}, { preserveState: true });
   };
 
   const hasActiveFilters = status !== 'all' || category !== 'all' || edition !== 'all' ||
-    articleType !== 'all' || author !== 'all' || division || district || locCategory || flag !== 'all' || dateFrom || dateTo;
+    articleType !== 'all' || author !== 'all' || publisher !== 'all' || division || district || locCategory || flag !== 'all' || dateFrom || dateTo;
 
   const handleDelete = (id) => {
     setSubmitting(true);
@@ -274,6 +275,12 @@ export default function AllNews({ articles, categories, authors = [], divisions 
               {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
             </Select>
 
+            {/* Published By */}
+            <Select value={publisher} onChange={v => { setPublisher(v); applyFilters({ publisher: v }); }} className="min-w-[150px]">
+              <option value="all">{l('সব প্রকাশক', 'All Publishers')}</option>
+              {publishers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </Select>
+
             {/* Division */}
             <Select value={division} onChange={handleDivisionChange} className="min-w-[140px]">
               <option value="">{l('সব বিভাগ', 'All Divisions')}</option>
@@ -329,6 +336,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
               <Th>{l('বিভাগ', 'Category')}</Th>
               <Th>{l('এডিশন', 'Edition')}</Th>
               <Th>{l('অবস্থা', 'Status')}</Th>
+              <Th>{l('প্রকাশক', 'Published By')}</Th>
               <Th onClick={() => handleSort('views')} sortable>
                 {l('পাঠক', 'Views')} <SortIcon column="views" sortBy={sortBy} sortDir={sortDir} />
               </Th>
@@ -343,7 +351,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
           <tbody className="divide-y divide-gray-50">
             {articles.data.length === 0 ? (
               <tr>
-                <td colSpan="8" className="text-center py-20">
+                <td colSpan="9" className="text-center py-20">
                   <Globe className="w-10 h-10 text-gray-200 mx-auto mb-3" />
                   <p className="text-sm font-medium text-gray-400">{l('কোনো সংবাদ পাওয়া যায়নি', 'No articles found')}</p>
                   {hasActiveFilters && (
@@ -408,6 +416,13 @@ export default function AllNews({ articles, categories, authors = [], divisions 
                     <Badge variant={st.variant} className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5">
                       {l(st.bn, st.en)}
                     </Badge>
+                  </td>
+
+                  {/* Published By */}
+                  <td className="px-4 py-3.5">
+                    {article.published_by
+                      ? <span className="text-xs font-medium text-gray-600 truncate max-w-[120px] inline-block align-middle">{article.published_by}</span>
+                      : <span className="text-xs text-gray-300">—</span>}
                   </td>
 
                   {/* Views */}
@@ -531,7 +546,7 @@ export default function AllNews({ articles, categories, authors = [], divisions 
                 <AlertTriangle className="w-7 h-7 text-red-500" />
               </div>
               <h3 className="text-lg font-bold text-gray-900">{l('সংবাদ মুছে ফেলুন?', 'Delete Article?')}</h3>
-              <p className="text-sm text-gray-400 mt-1">{l('এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না', 'This action cannot be undone')}</p>
+              <p className="text-sm text-gray-400 mt-1">{l('সংবাদটি ট্র্যাশে চলে যাবে — পরে ফিরিয়ে আনা যাবে', 'The article will be moved to Trash — you can restore it later')}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-3.5 mb-5 text-sm font-semibold text-gray-700 line-clamp-2 border border-gray-100">
               {deleteConfirm.title || deleteConfirm.title_en}

@@ -165,7 +165,7 @@ function urlToPageName(url) {
     if (path.startsWith('news/')) {
         if (path.includes('/edit')) return 'news-all';
         const sub = path.split('/')[1];
-        const subMap = { 'write': 'news-write', 'drafts': 'news-drafts', 'published': 'news-published', 'pending': 'news-pending' };
+        const subMap = { 'write': 'news-write', 'drafts': 'news-drafts', 'published': 'news-published', 'pending': 'news-pending', 'trash': 'news-trash' };
         if (subMap[sub]) return subMap[sub];
     }
     if (path.startsWith('opinions/')) {

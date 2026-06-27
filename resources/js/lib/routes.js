@@ -69,6 +69,7 @@ export const ROUTES = {
         newsDrafts:       '/admin/news/drafts',
         newsPublished:    '/admin/news/published',
         newsPending:      '/admin/news/pending',
+        newsTrash:        '/admin/news/trash',
         categories:       '/admin/categories',
         media:            '/admin/media',
         videos:           '/admin/videos',
