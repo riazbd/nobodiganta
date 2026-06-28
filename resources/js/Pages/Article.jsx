@@ -374,7 +374,7 @@ export default function Article({
               <Icon name="clock" size={13} style={{ marginTop: 2, color: '#888', flexShrink: 0 }} />
               <span>
                 {t('article.published', lang)}{' '}
-                {formatDate(article.published_at, lang, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(/[\s ]+এ[\s ]+/, ' / ')}
+                {formatDate(article.published_at, lang, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(/[\s ]+(এ|at)[\s ]+/, ' / ')}
               </span>
             </div>
             <div className="art-left-meta-row">
