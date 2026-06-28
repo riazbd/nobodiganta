@@ -3,7 +3,8 @@ import { useForm, usePage, router } from '@inertiajs/react';
 import {
   Save, Send, Eye, Image as ImageIcon, X, Plus, Type, Tag, FileText,
   Settings, ChevronRight, Newspaper, Globe, Clock, CheckCircle,
-  FolderTree, Trash2, Languages, Loader2, Video, Users, Search, MapPin, Target, Upload
+  FolderTree, Trash2, Languages, Loader2, Video, Users, Search, MapPin, Target, Upload,
+  ExternalLink, Copy
 } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
@@ -702,6 +703,22 @@ export default function WriteNews() {
   const showBn = form.data.edition === 'bn' || form.data.edition === 'both';
   const showEn = form.data.edition === 'en' || form.data.edition === 'both';
 
+  // Public URL of a saved article (edit mode only). Built from the primary
+  // category slug + the article slug — same as the admin "Live Preview" link.
+  const primaryCatSlug = categories.find(c => c.id === Number(form.data.primaryCategory))?.slug;
+  const publicSlug = form.data.slugBn || form.data.slugEn;
+  const publicUrl = (article && primaryCatSlug && publicSlug)
+    ? route(form.data.slugBn ? 'article' : 'en.article', { category: primaryCatSlug, slug: publicSlug })
+    : null;
+
+  const copyPublicUrl = () => {
+    if (!publicUrl) return;
+    const absolute = window.location.origin + publicUrl;
+    navigator.clipboard?.writeText(absolute)
+      .then(() => showToast(lang === 'bn' ? 'লিংক কপি হয়েছে' : 'Link copied', 'success'))
+      .catch(() => showToast(lang === 'bn' ? 'কপি করা যায়নি' : 'Copy failed', 'error'));
+  };
+
   return (
     <div className="pb-24">
       {/* Sticky Action Bar */}
@@ -717,6 +734,28 @@ export default function WriteNews() {
             <p className="text-[11px] text-[var(--text-muted,#9ca3af)] mt-1">
               {form.data.status === 'published' ? (lang === 'bn' ? 'প্রকাশিত' : 'Published') : (lang === 'bn' ? 'সংরক্ষণ করা হয়নি' : 'Unsaved changes')}
             </p>
+            {publicUrl && (
+              <div className="flex items-center gap-1.5 mt-1">
+                <a
+                  href={publicUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={publicUrl}
+                  className="text-[11px] text-[#3b82f6] hover:underline inline-flex items-center gap-1 max-w-[260px] truncate"
+                >
+                  <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">{publicUrl}</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={copyPublicUrl}
+                  title={lang === 'bn' ? 'লিংক কপি করুন' : 'Copy link'}
+                  className="text-gray-400 hover:text-[#263238] transition-colors p-0.5"
+                >
+                  <Copy className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
