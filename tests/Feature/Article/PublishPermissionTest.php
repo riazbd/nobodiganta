@@ -106,4 +106,41 @@ class PublishPermissionTest extends TestCase
 
         $this->assertDatabaseHas('articles', ['id' => $article->id, 'status' => 'draft']);
     }
+
+    private function opinionPayload(string $status, string $title): array
+    {
+        return [
+            'titleBn' => $title,
+            'titleEn' => $title . '-en',
+            'bodyBn'  => 'বডি কনটেন্ট',
+            'bodyEn'  => 'body content',
+            'slugBn'  => $title,
+            'slugEn'  => $title . '-en',
+            'edition' => 'both',
+            'status'  => $status,
+        ];
+    }
+
+    public function test_reporter_cannot_publish_opinion_via_store(): void
+    {
+        Category::create(['name_bn' => 'মতামত', 'slug' => 'opinion']);
+        $reporter = $this->userWithRole('reporter');
+
+        $this->actingAs($reporter)
+            ->post(route('admin.opinions.store'), $this->opinionPayload('published', 'op-publish'))
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('articles', ['title_bn' => 'op-publish']);
+    }
+
+    public function test_reporter_can_draft_opinion_via_store(): void
+    {
+        Category::create(['name_bn' => 'মতামত', 'slug' => 'opinion']);
+        $reporter = $this->userWithRole('reporter');
+
+        $this->actingAs($reporter)
+            ->post(route('admin.opinions.store'), $this->opinionPayload('draft', 'op-draft'));
+
+        $this->assertDatabaseHas('articles', ['title_bn' => 'op-draft', 'status' => 'draft']);
+    }
 }

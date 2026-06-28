@@ -105,6 +105,23 @@ class OpinionController extends Controller
         ]);
     }
 
+    /**
+     * Gate privileged opinion status changes. Publishing or archiving requires
+     * opinion.publish; draft/pending and unchanged status stay open. Mirrors the
+     * news-side ArticleController guard so opinion.create alone can't publish.
+     */
+    private function authorizeOpinionStatus(string $requestedStatus, ?string $currentStatus = null): void
+    {
+        if ($requestedStatus === $currentStatus) {
+            return;
+        }
+
+        if (in_array($requestedStatus, ['published', 'archived'], true)
+            && ! auth()->user()->hasPermission('opinion.publish')) {
+            abort(403, 'You do not have permission to publish or archive opinions.');
+        }
+    }
+
     public function store(Request $request)
     {
         if (!auth()->user()->hasPermission('opinion.create')) {
@@ -112,6 +129,9 @@ class OpinionController extends Controller
         }
 
         $validated = $this->validateOpinion($request);
+
+        $this->authorizeOpinionStatus($validated['status'] ?? 'draft');
+
         $category = Category::where('slug', 'opinion')->first();
 
         $slugBn = $validated['slugBn'] ? $this->generateSlug($validated['slugBn'], 'slug_bn') : ($validated['titleBn'] ? $this->generateSlug($validated['titleBn'], 'slug_bn') : null);
@@ -229,6 +249,8 @@ class OpinionController extends Controller
         $slugEn = $validated['slugEn'] ? $this->generateSlug($validated['slugEn'], 'slug_en', $article->id) : ($validated['titleEn'] ? $this->generateSlug($validated['titleEn'], 'slug_en', $article->id) : $article->slug_en);
 
         $newStatus = $validated['status'] ?? $article->status;
+
+        $this->authorizeOpinionStatus($newStatus, $article->status);
 
         $category = Category::where('slug', 'opinion')->first();
 
