@@ -965,14 +965,14 @@ class NewsController extends Controller
         $article->recordShare($platform);
 
         return response()->json([
-            'shares_count' => $article->fresh()->shares_count,
+            'shares_count' => Article::publicCount($article->fresh()->shares_count),
         ]);
     }
 
     public function getShareCounts(Article $article)
     {
         return response()->json([
-            'total'     => $article->shares_count ?? 0,
+            'total'     => Article::publicCount($article->shares_count),
             'platforms' => $article->sharesByPlatform(),
         ]);
     }
@@ -1060,7 +1060,7 @@ class NewsController extends Controller
                 'id' => $a->id,
                 'title' => $edition === 'en' ? $a->title_en : $a->title_bn,
                 'time' => $a->published_at ? $a->published_at->diffForHumans() : '',
-                'views' => $a->views,
+                'views' => Article::publicCount($a->views),
                 'duration' => $a->video_duration ?: '',
                 'thumbnail' => $a->featured_image,
                 'video_url' => $a->video_url,

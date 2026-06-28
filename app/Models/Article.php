@@ -399,6 +399,16 @@ class Article extends Model
     /**
      * Convert to array for API responses
      */
+    /**
+     * Inflate a stored count for public display (vanity multiplier). Stored
+     * values, increment logic, and the admin panel are unaffected. Configured
+     * via config('display.public_count_multiplier'); 1 = real counts.
+     */
+    public static function publicCount(?int $count): int
+    {
+        return (int) (($count ?? 0) * (int) config('display.public_count_multiplier', 9));
+    }
+
     public function toAPIArray(string $edition = 'bn'): array
     {
         return [
@@ -450,8 +460,8 @@ class Article extends Model
             'featured_image_caption' => $edition === 'en' 
                 ? $this->featured_image_caption_en 
                 : $this->featured_image_caption_bn,
-            'views' => $this->views,
-            'shares_count' => $this->shares_count ?? 0,
+            'views' => self::publicCount($this->views),
+            'shares_count' => self::publicCount($this->shares_count),
             'read_time' => $edition === 'en' ? $this->read_time_en : $this->read_time_bn,
             'meta_title' => $this->getMetaTitle($edition),
             'meta_description' => $this->getMetaDescription($edition),
