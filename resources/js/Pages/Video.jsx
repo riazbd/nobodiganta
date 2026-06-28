@@ -59,7 +59,13 @@ export default function Video({ videos = [] }) {
               )}
             </div>
             <div style={{ padding: 12 }}>
-              <h3 style={{ fontFamily: "'Kalpurush','SolaimanLipi',sans-serif", fontSize: 19, fontWeight: 700, marginBottom: 8, lineHeight: 1.45 }}>
+              <h3
+                onClick={() => openArticle(feat)}
+                role="link"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && openArticle(feat)}
+                style={{ fontFamily: "'Kalpurush','SolaimanLipi',sans-serif", fontSize: 19, fontWeight: 700, marginBottom: 8, lineHeight: 1.45, cursor: 'pointer' }}
+              >
                 {feat.title}
               </h3>
               <div className="meta">
