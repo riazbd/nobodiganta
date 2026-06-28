@@ -707,14 +707,18 @@ export default function WriteNews() {
   // category slug + the article slug — same as the admin "Live Preview" link.
   const primaryCatSlug = categories.find(c => c.id === Number(form.data.primaryCategory))?.slug;
   const publicSlug = form.data.slugBn || form.data.slugEn;
-  const publicUrl = (article && primaryCatSlug && publicSlug)
+  const publicPath = (article && primaryCatSlug && publicSlug)
     ? route(form.data.slugBn ? 'article' : 'en.article', { category: primaryCatSlug, slug: publicSlug })
+    : null;
+  // route() may return absolute (Ziggy default) or relative; normalize to an
+  // absolute URL so the link always opens correctly in a new tab.
+  const publicUrl = publicPath
+    ? (publicPath.startsWith('http') ? publicPath : window.location.origin + publicPath)
     : null;
 
   const copyPublicUrl = () => {
     if (!publicUrl) return;
-    const absolute = window.location.origin + publicUrl;
-    navigator.clipboard?.writeText(absolute)
+    navigator.clipboard?.writeText(publicUrl)
       .then(() => showToast(lang === 'bn' ? 'লিংক কপি হয়েছে' : 'Link copied', 'success'))
       .catch(() => showToast(lang === 'bn' ? 'কপি করা যায়নি' : 'Copy failed', 'error'));
   };
