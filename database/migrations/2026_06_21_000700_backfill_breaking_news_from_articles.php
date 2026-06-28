@@ -13,7 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Article::where('is_breaking', true)
+        // withTrashed(): the Article model gained SoftDeletes in a later
+        // migration (deleted_at). On a fresh migrate this runs before that
+        // column exists, so disable the soft-delete scope to avoid querying
+        // a not-yet-existing column. No rows are soft-deleted at this point.
+        Article::withTrashed()
+            ->where('is_breaking', true)
             ->where('status', 'published')
             ->get()
             ->each(fn (Article $article) => BreakingNews::syncForArticle($article));
