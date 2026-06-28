@@ -20,4 +20,27 @@ class AutoArchiveTest extends TestCase
         ]);
         $this->assertSame(0, (int) Setting::get('auto_archive_days', 99));
     }
+
+    public function test_command_archives_old_published_articles_when_enabled(): void
+    {
+        Setting::where('key', 'auto_archive_days')->update(['value' => '30']);
+
+        $old    = Article::factory()->create(['published_at' => now()->subDays(31)]);
+        $recent = Article::factory()->create(['published_at' => now()->subDays(10)]);
+
+        $this->artisan('articles:auto-archive')->assertExitCode(0);
+
+        $this->assertEquals('archived', $old->fresh()->status);
+        $this->assertEquals('published', $recent->fresh()->status);
+    }
+
+    public function test_command_is_noop_when_disabled(): void
+    {
+        // setting stays at default '0'
+        $old = Article::factory()->create(['published_at' => now()->subDays(365)]);
+
+        $this->artisan('articles:auto-archive')->assertExitCode(0);
+
+        $this->assertEquals('published', $old->fresh()->status);
+    }
 }
