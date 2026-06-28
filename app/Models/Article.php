@@ -253,6 +253,18 @@ class Article extends Model
     }
 
     /**
+     * Scope: Publicly readable by direct URL — published OR archived.
+     * Archived articles stay reachable by link but are excluded from
+     * listings (listings use scopePublished()). Draft/pending excluded.
+     */
+    public function scopePublicReadable($query)
+    {
+        return $query->whereIn('status', ['published', 'archived'])
+                     ->whereNotNull('published_at')
+                     ->where('published_at', '<=', now());
+    }
+
+    /**
      * Scope: Filter by edition
      */
     public function scopeForEdition($query, string $edition)

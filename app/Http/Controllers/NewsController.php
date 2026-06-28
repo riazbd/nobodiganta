@@ -371,7 +371,7 @@ class NewsController extends Controller
             $q->where('slug_bn', $articleSlug)->orWhere('slug_en', $articleSlug);
         };
 
-        $article = Article::published()
+        $article = Article::publicReadable()
             ->forEdition($edition)
             ->where($slugMatch)
             ->withRelations()
