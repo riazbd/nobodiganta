@@ -27,7 +27,9 @@ export function formatDate(dateStr, lang = 'bn', options = {}) {
 
   const locale = lang === 'bn' ? 'bn-BD' : 'en-GB';
   const defaultOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-  return date.toLocaleDateString(locale, { ...defaultOptions, ...options });
+  const out = date.toLocaleDateString(locale, { ...defaultOptions, ...options });
+  // bn-BD keeps the time's AM/PM marker in English — localize it for the Bangla edition.
+  return lang === 'bn' ? out.replace(/\bAM\b/i, 'এএম').replace(/\bPM\b/i, 'পিএম') : out;
 }
 
 /**

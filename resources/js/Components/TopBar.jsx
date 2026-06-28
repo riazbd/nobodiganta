@@ -96,7 +96,7 @@ export default function TopBar() {
       <div className="tb-inner">
 
         <div className="tb-left">
-          <span className="tb-clock">{lang === 'bn' ? toBn(clock) : clock}</span>
+          <span className="tb-clock">{lang === 'bn' ? toBn(clock).replace('AM', 'এএম').replace('PM', 'পিএম') : clock}</span>
           <span className="tb-sep" />
           <span className="tb-date">{gregDate}</span>
           {next && (
