@@ -42,6 +42,7 @@
             $ogImage    = $ogDefaultImage ? (str_starts_with($ogDefaultImage, 'http') ? $ogDefaultImage : url($ogDefaultImage)) : url('/og-default.jpg');
             $ogUrl      = url()->current();
             $ogType     = 'website';
+            $pageTitle  = $siteName;
 
             // Detect article pages — route is /{category}/{slug}
             $route = request()->route();
@@ -50,6 +51,7 @@
                 if ($artSlug) {
                     $article = \App\Models\Article::select(
                             'id','title_bn','title_en','excerpt_bn','excerpt_en',
+                            'meta_title_bn','meta_title_en',
                             'meta_description_bn','meta_description_en','featured_image'
                         )
                         ->where('status', 'published')
@@ -59,8 +61,9 @@
                         ->first();
                     if ($article) {
                         $ogTitle = $edition === 'en'
-                            ? ($article->title_en ?: $article->title_bn)
-                            : $article->title_bn;
+                            ? ($article->meta_title_en ?: $article->title_en ?: $article->title_bn)
+                            : ($article->meta_title_bn ?: $article->title_bn);
+                        $pageTitle = $ogTitle . ' | ' . $siteName;
                         $ogDesc  = $edition === 'en'
                             ? ($article->meta_description_en ?: $article->excerpt_en ?: $article->excerpt_bn)
                             : ($article->meta_description_bn ?: $article->excerpt_bn);
@@ -88,7 +91,7 @@
         <meta name="twitter:description" content="{{ $ogDesc }}">
         <meta name="twitter:image"       content="{{ $ogImage }}">
 
-        <title inertia>{{ config('app.name', 'নবদিগন্ত') }}</title>
+        <title inertia>{{ $pageTitle }}</title>
 
         {{-- Favicon — dynamic from settings, falls back to /favicon.ico --}}
         @php($faviconUrl = \App\Models\Setting::where('key', 'site_favicon')->value('value'))

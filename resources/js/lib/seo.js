@@ -7,7 +7,9 @@ function editionPrefix(lang) {
 }
 
 export function buildArticleSeo(article, lang = 'bn') {
-  const title = article?.title || '';
+  // Prefer the admin Meta Title override; getMetaTitle() already falls back to
+  // the headline, so article.meta_title is set whenever the article is.
+  const title = article?.meta_title || article?.title || '';
   const description = article?.meta_description || article?.excerpt || '';
   const catSlug = article?.category?.slug || '';
   const artSlug = article?.slug || '';
