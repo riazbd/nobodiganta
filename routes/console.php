@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Expire stories whose expires_at has passed
 Schedule::command('stories:expire')->hourly();
+
+// Auto-archive published articles older than the configured window (daily; no-op when disabled)
+Schedule::command('articles:auto-archive')->daily();
