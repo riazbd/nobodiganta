@@ -134,8 +134,8 @@ class OpinionController extends Controller
 
         $category = Category::where('slug', 'opinion')->first();
 
-        $slugBn = $validated['slugBn'] ? $this->generateSlug($validated['slugBn'], 'slug_bn') : ($validated['titleBn'] ? $this->generateSlug($validated['titleBn'], 'slug_bn') : null);
-        $slugEn = $validated['slugEn'] ? $this->generateSlug($validated['slugEn'], 'slug_en') : ($validated['titleEn'] ? $this->generateSlug($validated['titleEn'], 'slug_en') : null);
+        $slugBn = ($validated['slugBn'] ?? null) ? $this->generateSlug($validated['slugBn'], 'slug_bn') : (($validated['titleBn'] ?? null) ? $this->generateSlug($validated['titleBn'], 'slug_bn') : null);
+        $slugEn = ($validated['slugEn'] ?? null) ? $this->generateSlug($validated['slugEn'], 'slug_en') : (($validated['titleEn'] ?? null) ? $this->generateSlug($validated['titleEn'], 'slug_en') : null);
 
         $article = Article::create([
             'title_bn' => $validated['titleBn'] ?? null,
@@ -245,8 +245,8 @@ class OpinionController extends Controller
 
         $validated = $this->validateOpinion($request);
 
-        $slugBn = $validated['slugBn'] ? $this->generateSlug($validated['slugBn'], 'slug_bn', $article->id) : ($validated['titleBn'] ? $this->generateSlug($validated['titleBn'], 'slug_bn', $article->id) : $article->slug_bn);
-        $slugEn = $validated['slugEn'] ? $this->generateSlug($validated['slugEn'], 'slug_en', $article->id) : ($validated['titleEn'] ? $this->generateSlug($validated['titleEn'], 'slug_en', $article->id) : $article->slug_en);
+        $slugBn = ($validated['slugBn'] ?? null) ? $this->generateSlug($validated['slugBn'], 'slug_bn', $article->id) : (($validated['titleBn'] ?? null) ? $this->generateSlug($validated['titleBn'], 'slug_bn', $article->id) : $article->slug_bn);
+        $slugEn = ($validated['slugEn'] ?? null) ? $this->generateSlug($validated['slugEn'], 'slug_en', $article->id) : (($validated['titleEn'] ?? null) ? $this->generateSlug($validated['titleEn'], 'slug_en', $article->id) : $article->slug_en);
 
         $newStatus = $validated['status'] ?? $article->status;
 

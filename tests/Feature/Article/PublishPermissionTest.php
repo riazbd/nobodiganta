@@ -143,4 +143,41 @@ class PublishPermissionTest extends TestCase
 
         $this->assertDatabaseHas('articles', ['title_bn' => 'op-draft', 'status' => 'draft']);
     }
+
+    public function test_opinion_store_succeeds_without_slug_or_english_fields(): void
+    {
+        Category::create(['name_bn' => 'মতামত', 'slug' => 'opinion']);
+        $reporter = $this->userWithRole('reporter');
+
+        $this->actingAs($reporter)
+            ->post(route('admin.opinions.store'), [
+                'titleBn' => 'op-noslug',
+                'bodyBn'  => 'বডি কনটেন্ট',
+                'edition' => 'bn',
+                'status'  => 'draft',
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('articles', ['title_bn' => 'op-noslug', 'status' => 'draft']);
+    }
+
+    public function test_news_store_succeeds_without_english_fields(): void
+    {
+        $reporter = $this->userWithRole('reporter');
+        $c = $this->category();
+
+        $this->actingAs($reporter)
+            ->post(route('admin.news.store'), [
+                'titleBn'         => 'news-noen',
+                'bodyBn'          => 'বডি কনটেন্ট',
+                'edition'         => 'bn',
+                'articleType'     => 'news',
+                'status'          => 'draft',
+                'categories'      => [$c->id],
+                'primaryCategory' => $c->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('articles', ['title_bn' => 'news-noen', 'status' => 'draft']);
+    }
 }

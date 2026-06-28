@@ -307,7 +307,7 @@ class ArticleController extends Controller
         }
 
         $slugBn = $validated['slugBn'] ?? $this->generateSlug($validated['titleBn'] ?? '', 'slug_bn');
-        $slugEn = $validated['slugEn'] ?? ($validated['titleEn'] ? $this->generateSlug($validated['titleEn'], 'slug_en') : null);
+        $slugEn = $validated['slugEn'] ?? (($validated['titleEn'] ?? null) ? $this->generateSlug($validated['titleEn'], 'slug_en') : null);
 
         $publishedAt = ($validated['status'] === 'published') ? now() : null;
 
@@ -533,7 +533,7 @@ class ArticleController extends Controller
         }
 
         $slugBn = $validated['slugBn'] ?? $this->generateSlug($validated['titleBn'] ?? '', 'slug_bn', $article->id);
-        $slugEn = $validated['slugEn'] ?? ($validated['titleEn'] ? $this->generateSlug($validated['titleEn'], 'slug_en', $article->id) : $article->slug_en);
+        $slugEn = $validated['slugEn'] ?? (($validated['titleEn'] ?? null) ? $this->generateSlug($validated['titleEn'], 'slug_en', $article->id) : $article->slug_en);
 
         $publishedAt = $article->published_at;
 
