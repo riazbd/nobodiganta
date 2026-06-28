@@ -216,6 +216,29 @@ class ArticleController extends Controller
     }
 
     /**
+     * Block status changes the user isn't permitted to make. Publishing and
+     * archiving are gated by permission; draft/pending (normal author actions)
+     * are not. No-op when the status isn't actually changing — e.g. re-saving
+     * an already-published article during an edit.
+     */
+    private function authorizeStatus(Request $request, string $requestedStatus, ?string $currentStatus = null): void
+    {
+        if ($requestedStatus === $currentStatus) {
+            return;
+        }
+
+        $user = $request->user();
+
+        if ($requestedStatus === 'published' && ! $user->hasPermission('news.publish')) {
+            abort(403, 'You do not have permission to publish articles.');
+        }
+
+        if ($requestedStatus === 'archived' && ! $user->hasPermission('news.archive')) {
+            abort(403, 'You do not have permission to archive articles.');
+        }
+    }
+
+    /**
      * Store a newly created article
      */
     public function store(Request $request)
@@ -273,6 +296,8 @@ class ArticleController extends Controller
             'inArticleAdId' => 'nullable|exists:ads,id',
             'inArticleAdPosition' => 'nullable|integer|min:1|max:20',
         ]);
+
+        $this->authorizeStatus($request, $validated['status']);
 
         $categoryIds = $validated['categories'];
         $primaryId   = (int) $validated['primaryCategory'];
@@ -497,6 +522,8 @@ class ArticleController extends Controller
             'inArticleAdId' => 'nullable|exists:ads,id',
             'inArticleAdPosition' => 'nullable|integer|min:1|max:20',
         ]);
+
+        $this->authorizeStatus($request, $validated['status'], $article->status);
 
         $categoryIds = $validated['categories'];
         $primaryId   = (int) $validated['primaryCategory'];
