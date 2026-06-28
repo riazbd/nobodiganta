@@ -13,3 +13,6 @@ Schedule::command('stories:expire')->hourly();
 
 // Auto-archive published articles older than the configured window (daily; no-op when disabled)
 Schedule::command('articles:auto-archive')->daily();
+
+// Permanently delete trashed articles older than the configured window (daily; no-op when disabled)
+Schedule::command('articles:purge-trash')->daily();
