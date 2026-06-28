@@ -25,6 +25,10 @@ const PLATFORMS = [
 
 const VALID_PLATFORMS = ['facebook', 'whatsapp', 'telegram', 'twitter', 'linkedin'];
 
+// Per-icon share counts are intentionally hidden for now. The data + recording
+// still work — flip this to true to show the per-platform numbers again.
+const SHOW_PLATFORM_COUNTS = false;
+
 function fmtCount(n, lang) {
   if (!n) return lang === 'bn' ? '০' : '0';
   if (n >= 1000) {
@@ -107,7 +111,7 @@ export default function ArticleShare({ url, title, total, platforms = {}, sharin
             title={lang === 'bn' ? labelBn : label}
           >
             <Icon />
-            {platforms[key] > 0 && (
+            {SHOW_PLATFORM_COUNTS && platforms[key] > 0 && (
               <span className="art-share-btn-count">{fmtCount(platforms[key], lang)}</span>
             )}
           </button>
