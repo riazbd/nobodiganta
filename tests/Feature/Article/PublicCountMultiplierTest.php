@@ -40,4 +40,23 @@ class PublicCountMultiplierTest extends TestCase
         $this->assertSame(12, $article->fresh()->views);
         $this->assertSame(4, $article->fresh()->shares_count);
     }
+
+    public function test_share_counts_total_matches_sum_of_inflated_platforms(): void
+    {
+        config(['display.public_count_multiplier' => 9]);
+
+        $article = Article::factory()->create(['shares_count' => 0]);
+        $article->recordShare('facebook');
+        $article->recordShare('facebook');
+        $article->recordShare('twitter');
+
+        $data = $this->getJson(route('api.articles.shares', ['article' => $article->id]))
+            ->assertOk()
+            ->json();
+
+        $this->assertSame(27, $data['total']);                 // 3 shares x9
+        $this->assertSame(18, $data['platforms']['facebook']); // 2 x9
+        $this->assertSame(9, $data['platforms']['twitter']);   // 1 x9
+        $this->assertSame($data['total'], array_sum($data['platforms']));
+    }
 }

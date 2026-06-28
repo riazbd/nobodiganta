@@ -973,7 +973,11 @@ class NewsController extends Controller
     {
         return response()->json([
             'total'     => Article::publicCount($article->shares_count),
-            'platforms' => $article->sharesByPlatform(),
+            // Inflate each platform count by the same factor so the per-icon
+            // numbers stay consistent with the (multiplied) total.
+            'platforms' => collect($article->sharesByPlatform())
+                ->map(fn ($n) => Article::publicCount($n))
+                ->toArray(),
         ]);
     }
 
