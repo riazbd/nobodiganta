@@ -1052,6 +1052,7 @@ class NewsController extends Controller
         $videos = Article::published()
             ->forEdition($edition)
             ->type('video')
+            ->with('category')
             ->latest()
             ->limit(12)
             ->get()
@@ -1063,6 +1064,8 @@ class NewsController extends Controller
                 'duration' => $a->video_duration ?: '',
                 'thumbnail' => $a->featured_image,
                 'video_url' => $a->video_url,
+                'categorySlug' => $a->category?->slug,
+                'articleSlug' => $edition === 'en' && $a->slug_en ? $a->slug_en : $a->slug_bn,
             ]);
 
         return Inertia::render('Video', [

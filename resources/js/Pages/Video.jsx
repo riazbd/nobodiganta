@@ -1,15 +1,19 @@
 import { t } from '../translations';
 import Icon from '../Components/Icon';
-import Modal from '../Components/ui/Modal';
-import VideoPlayer from '../Components/media/VideoPlayer';
 import PageSidebar from '../Components/PageSidebar';
-import { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
+import { useNavigation } from '../contexts/NavigationContext';
 import { toBengaliNum } from '../lib/formatters';
 
 export default function Video({ videos = [] }) {
   const { lang } = useApp();
-  const [playing, setPlaying] = useState(null);
+  const { onNavigate } = useNavigation();
+
+  const openArticle = (v) => {
+    if (v?.categorySlug && v?.articleSlug) {
+      onNavigate('article', { categorySlug: v.categorySlug, articleSlug: v.articleSlug });
+    }
+  };
 
   const feat = videos[0];
   const rest = videos.slice(1);
@@ -28,11 +32,11 @@ export default function Video({ videos = [] }) {
           <div className="sec" style={{ marginBottom: 14 }}>
             <div
               style={{ position: 'relative', cursor: 'pointer' }}
-              onClick={() => setPlaying(feat)}
+              onClick={() => openArticle(feat)}
               role="button"
               tabIndex={0}
               aria-label={feat.title}
-              onKeyDown={(e) => e.key === 'Enter' && setPlaying(feat)}
+              onKeyDown={(e) => e.key === 'Enter' && openArticle(feat)}
             >
               <div className="ph" style={{ width: '100%', height: 380 }}>
                 {feat.thumbnail ? (
@@ -76,12 +80,12 @@ export default function Video({ videos = [] }) {
             {rest.map((v) => (
               <div
                 key={v.id}
-                onClick={() => setPlaying(v)}
+                onClick={() => openArticle(v)}
                 style={{ cursor: 'pointer' }}
                 role="button"
                 tabIndex={0}
                 aria-label={v.title}
-                onKeyDown={(e) => e.key === 'Enter' && setPlaying(v)}
+                onKeyDown={(e) => e.key === 'Enter' && openArticle(v)}
               >
                 <div className="vid-thumb">
                   <div className="ph" style={{ width: '100%', height: 140 }}>
@@ -112,26 +116,6 @@ export default function Video({ videos = [] }) {
         </div>
       </div>
       <PageSidebar />
-
-      {playing && (
-        <Modal
-          open={true}
-          onClose={() => setPlaying(null)}
-          title={playing.title}
-          lang={lang}
-        >
-          <VideoPlayer
-            src={playing.video_url}
-            title={playing.title}
-            poster={playing.thumbnail}
-          />
-          {!playing.video_url && (
-            <div style={{ textAlign: 'center', padding: '20px 0', color: '#888', fontSize: 14 }}>
-              {lang === 'bn' ? 'ভিডিও লিংক এখনো যোগ করা হয়নি।' : 'Video link not yet available.'}
-            </div>
-          )}
-        </Modal>
-      )}
     </div>
   );
 }
