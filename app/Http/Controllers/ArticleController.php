@@ -968,15 +968,26 @@ class ArticleController extends Controller
             'status' => 'required|in:draft,pending,published,archived',
         ]);
 
-        $result = ArticleStatusWorkflow::transition($article, $validated['status']);
-
-        if ($request->wantsJson()) {
-            return response()->json($result, $result['success'] ? 200 : 403);
+        // Not a legal move in the state machine — distinct from "you may not".
+        if (!ArticleStatusWorkflow::isValidTransition($article->status, $validated['status'])) {
+            return $request->wantsJson()
+                ? response()->json(['success' => false, 'message' => 'Invalid transition'], 422)
+                : back()->withErrors(['status' => 'Invalid transition']);
         }
 
-        return $result['success'] 
-            ? back()->with('success', 'Status updated')
-            : back()->withErrors(['status' => $result['message']]);
+        // Authorize via the permission system, the same way the edit page and
+        // bulk actions do, so any role with the right permission can act here.
+        if (!ArticleStatusWorkflow::canTransition($article, $validated['status'], $request->user())) {
+            abort(403, "You do not have permission to change this article's status.");
+        }
+
+        $result = ArticleStatusWorkflow::transition($article, $validated['status'], $request->user());
+
+        if ($request->wantsJson()) {
+            return response()->json($result, 200);
+        }
+
+        return back()->with('success', 'Status updated');
     }
 
     /**

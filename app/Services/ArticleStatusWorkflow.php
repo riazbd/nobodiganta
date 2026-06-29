@@ -19,41 +19,18 @@ class ArticleStatusWorkflow
     ];
 
     /**
-     * Role permissions for status transitions
-     * Format: role => allowed transitions
+     * Permission(s) required to move an article INTO each status. A user needs
+     * ANY one of the listed permissions. This is the single source of truth for
+     * status-change authorization and is driven by the real permission system
+     * (role_id -> role -> permissions), NOT the user's role string — so custom
+     * roles work the same as built-in ones, consistent with the edit page
+     * (ArticleController::authorizeStatus) and the bulk actions.
      */
-    const ROLE_PERMISSIONS = [
-        'reporter' => [
-            'draft' => ['pending'], // Can only submit for review
-            'pending' => [], // Cannot change once submitted
-            'published' => [],
-            'archived' => [],
-        ],
-        'editor_in_chief' => [
-            'draft' => ['pending', 'published'],
-            'pending' => ['published', 'draft'],
-            'published' => ['archived', 'draft'],
-            'archived' => ['published'],
-        ],
-        'managing_editor' => [
-            'draft' => ['pending', 'published'],
-            'pending' => ['published', 'draft'],
-            'published' => ['archived', 'draft'],
-            'archived' => ['published'],
-        ],
-        'section_editor' => [
-            'draft' => ['pending', 'published'],
-            'pending' => ['published', 'draft'],
-            'published' => ['archived'],
-            'archived' => ['published'],
-        ],
-        'photographer' => [
-            'draft' => ['pending'],
-            'pending' => [],
-            'published' => [],
-            'archived' => [],
-        ],
-        'super_admin' => null, // null = all transitions allowed
+    const STATUS_PERMISSIONS = [
+        'draft'     => ['news.publish', 'news.edit', 'news.edit.own'], // unpublish / send back
+        'pending'   => ['news.submit', 'news.edit', 'news.edit.own'],  // submit for review
+        'published' => ['news.publish', 'news.approve'],               // approve / publish
+        'archived'  => ['news.archive'],
     ];
 
     /**
@@ -66,22 +43,20 @@ class ArticleStatusWorkflow
             return false;
         }
 
-        $currentStatus = $article->status;
-        $role = $user->role ?? 'reporter';
-
-        // Check if transition is valid
-        if (!self::isValidTransition($currentStatus, $newStatus)) {
+        // Check if transition is valid (state-machine rule)
+        if (!self::isValidTransition($article->status, $newStatus)) {
             return false;
         }
 
-        // Super admin can do anything
-        if ($role === 'super_admin') {
-            return true;
+        // Authorize via permissions — hasPermission() already grants everything
+        // to the supreme admin and to roles synced with the full permission set.
+        foreach (self::STATUS_PERMISSIONS[$newStatus] ?? [] as $permission) {
+            if ($user->hasPermission($permission)) {
+                return true;
+            }
         }
 
-        // Check role permissions
-        $allowedTransitions = self::ROLE_PERMISSIONS[$role][$currentStatus] ?? [];
-        return in_array($newStatus, $allowedTransitions);
+        return false;
     }
 
     /**
@@ -102,16 +77,11 @@ class ArticleStatusWorkflow
             return [];
         }
 
-        $currentStatus = $article->status;
-        $role = $user->role ?? 'reporter';
-
-        // Super admin gets all transitions
-        if ($role === 'super_admin') {
-            return self::TRANSITIONS[$currentStatus] ?? [];
-        }
-
-        // Get role-specific transitions
-        return self::ROLE_PERMISSIONS[$role][$currentStatus] ?? [];
+        // Every valid transition the user is actually permitted to make.
+        return array_values(array_filter(
+            self::TRANSITIONS[$article->status] ?? [],
+            fn (string $status) => self::canTransition($article, $status, $user)
+        ));
     }
 
     /**

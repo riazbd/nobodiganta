@@ -207,8 +207,13 @@ class MediaController extends Controller
      */
     public function update(Request $request, Media $media)
     {
-        if (!$request->user()->hasPermission('media.edit')) {
-            return $request->wantsJson() 
+        $user = $request->user();
+
+        // media.edit can edit any item; an uploader can always edit the metadata
+        // of media they uploaded (mirrors the news.edit.own pattern).
+        if (!$user->hasPermission('media.edit')
+            && !($media->user_id === $user->id && $user->hasPermission('media.upload'))) {
+            return $request->wantsJson()
                 ? response()->json(['error' => 'Unauthorized'], 403)
                 : abort(403);
         }

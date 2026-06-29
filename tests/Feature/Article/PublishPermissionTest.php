@@ -4,6 +4,7 @@ namespace Tests\Feature\Article;
 
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -105,6 +106,48 @@ class PublishPermissionTest extends TestCase
             ->assertForbidden();
 
         $this->assertDatabaseHas('articles', ['id' => $article->id, 'status' => 'draft']);
+    }
+
+    /**
+     * Publishing from the article list (the inline "Approve" button) hits the
+     * transition-status route. Authorization must use the permission system, so
+     * a custom role that has news.publish — but isn't one of the few roles
+     * hardcoded in ArticleStatusWorkflow — can still publish from the table.
+     */
+    public function test_custom_role_with_publish_permission_can_publish_from_table(): void
+    {
+        $role = Role::create([
+            'name'     => 'executive_editor',
+            'label_en' => 'Executive Editor',
+            'label_bn' => 'নির্বাহী সম্পাদক',
+            'level'    => 5,
+        ]);
+        $role->permissions()->attach(
+            Permission::whereIn('name', ['news.view', 'news.publish'])->pluck('id')->all()
+        );
+
+        $user = User::factory()->create(['role' => 'executive_editor', 'role_id' => $role->id]);
+        $c = $this->category();
+        $article = Article::factory()->draft()->create(['status' => 'pending', 'category_id' => $c->id]);
+
+        $this->actingAs($user)
+            ->patch(route('admin.news.transition-status', ['article' => $article->id]), ['status' => 'published'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('articles', ['id' => $article->id, 'status' => 'published']);
+    }
+
+    public function test_reporter_cannot_publish_from_table(): void
+    {
+        $reporter = $this->userWithRole('reporter');
+        $c = $this->category();
+        $article = Article::factory()->draft()->create(['status' => 'pending', 'category_id' => $c->id]);
+
+        $this->actingAs($reporter)
+            ->patch(route('admin.news.transition-status', ['article' => $article->id]), ['status' => 'published'])
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('articles', ['id' => $article->id, 'status' => 'pending']);
     }
 
     private function opinionPayload(string $status, string $title): array
