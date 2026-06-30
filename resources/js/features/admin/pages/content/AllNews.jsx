@@ -44,7 +44,13 @@ function SortIcon({ column, sortBy, sortDir }) {
 export default function AllNews({ articles, categories, authors = [], publishers = [], divisions = [], locationTree = null, filters }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
-  const { hasPermission } = usePermission();
+  const { hasPermission, hasAnyPermission } = usePermission();
+
+  // Mirror the backend status-transition permissions so we only show actions the
+  // user can actually perform (and never trigger a permission error from the list).
+  const canPublish = hasAnyPermission([PERMISSIONS.NEWS_PUBLISH, PERMISSIONS.NEWS_APPROVE]);
+  const canSubmitForReview = hasAnyPermission([PERMISSIONS.NEWS_SUBMIT, PERMISSIONS.NEWS_EDIT, PERMISSIONS.NEWS_EDIT_OWN]);
+  const canUnpublish = hasPermission(PERMISSIONS.NEWS_PUBLISH);
   const searchTimer = useRef(null);
 
   const [search,       setSearch]       = useState(filters.search       || '');
@@ -139,11 +145,19 @@ export default function AllNews({ articles, categories, authors = [], publishers
     });
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    router.patch(route('admin.news.transition-status', { article: id }), { status: newStatus }, {
-      preserveScroll: true,
-      onSuccess: () => showToast(lang === 'bn' ? 'অবস্থা আপডেট হয়েছে' : 'Status updated'),
-    });
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await window.axios.patch(route('admin.news.transition-status', { article: id }), { status: newStatus });
+      showToast(lang === 'bn' ? 'অবস্থা আপডেট হয়েছে' : 'Status updated');
+      router.reload({ preserveScroll: true });
+    } catch (err) {
+      // Buttons are already permission-gated, so a 403 here is an edge case — show
+      // a clear message instead of the full-screen server-error page.
+      const msg = err.response?.status === 403
+        ? (lang === 'bn' ? 'এই কাজটি করার অনুমতি আপনার নেই' : "You don't have permission to do this")
+        : (err.response?.data?.message || (lang === 'bn' ? 'অবস্থা পরিবর্তন ব্যর্থ হয়েছে' : 'Failed to update status'));
+      showToast(msg, 'error');
+    }
   };
 
   const toggleFlag = (id, flagName) => {
@@ -462,22 +476,25 @@ export default function AllNews({ articles, categories, authors = [], publishers
                         className="p-1.5 rounded-lg hover:bg-green-50 text-gray-400 hover:text-green-600 transition-all" title={l('সম্পাদনা', 'Edit')}>
                         <Edit3 className="w-4 h-4" />
                       </Link>
-                      {article.status === 'pending' && (
+                      {article.status === 'pending' && canPublish && (
                         <button onClick={() => handleStatusChange(article.id, 'published')}
-                          className="p-1.5 rounded-lg hover:bg-green-50 text-gray-400 hover:text-green-600 transition-all" title={l('অনুমোদন', 'Approve')}>
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 text-green-700 px-2.5 py-1.5 text-xs font-bold hover:bg-green-100 transition-all" title={l('অনুমোদন', 'Approve')}>
                           <CheckCircle className="w-4 h-4" />
+                          <span>{l('প্রকাশ', 'Publish')}</span>
                         </button>
                       )}
-                      {article.status === 'draft' && (
+                      {article.status === 'draft' && canSubmitForReview && (
                         <button onClick={() => handleStatusChange(article.id, 'pending')}
-                          className="p-1.5 rounded-lg hover:bg-orange-50 text-gray-400 hover:text-orange-500 transition-all" title={l('রিভিউতে পাঠান', 'Submit for Review')}>
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 px-2.5 py-1.5 text-xs font-bold hover:bg-amber-100 transition-all" title={l('রিভিউতে পাঠান', 'Submit for Review')}>
                           <Send className="w-4 h-4" />
+                          <span>{l('রিভিউ', 'Review')}</span>
                         </button>
                       )}
-                      {article.status === 'published' && (
+                      {article.status === 'published' && canUnpublish && (
                         <button onClick={() => handleStatusChange(article.id, 'draft')}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all" title={l('আনপাবলিশ', 'Unpublish')}>
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 px-2.5 py-1.5 text-xs font-bold hover:bg-gray-100 transition-all" title={l('আনপাবলিশ', 'Unpublish')}>
                           <ArrowDown className="w-4 h-4" />
+                          <span>{l('ড্রাফট', 'Draft')}</span>
                         </button>
                       )}
                       {(hasPermission(PERMISSIONS.PHOTOCARD_DOWNLOAD) || hasPermission(PERMISSIONS.PHOTOCARD_MANAGE)) && (

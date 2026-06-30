@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
+import { usePermission } from '../../hooks/usePermission';
 import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
 import MediaUpload from '../../components/forms/MediaUpload';
 import RichTextEditor from '../../components/editor/TiptapEditor';
@@ -65,6 +66,13 @@ export default function WriteNews() {
   const { authors = [], ads = [] } = usePage().props;
   const { lang } = useLanguage();
   const { showToast } = useToast();
+  const { hasAnyPermission } = usePermission();
+
+  // Only publishers/approvers see "Publish Now"; anyone who can submit/edit sees
+  // "Submit for Review". Reporters keep Submit/Draft but never see Publish.
+  const canPublish = hasAnyPermission(['news.publish', 'news.approve']);
+  const canSubmitForReview = hasAnyPermission(['news.submit', 'news.edit', 'news.edit.own']);
+
   const [mediaFiles, setMediaFiles] = useState([]);
   const [uploadingFeatured, setUploadingFeatured] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -801,25 +809,29 @@ export default function WriteNews() {
             </button>
           )}
 
-          <button
-            onClick={handleSubmitForReview}
-            disabled={form.processing}
-            className="bg-[#fffbeb] text-[#d97706] border border-[#fcd34d] rounded-lg px-3.5 py-2 text-xs font-bold flex items-center gap-2 hover:bg-[#fef3c7] transition-colors disabled:opacity-50 shadow-sm"
-            title={lang === 'bn' ? 'অনুমোদনের জন্য পাঠান' : 'Submit for Review'}
-          >
-            <Clock className="w-4 h-4" />
-            <span className="hidden sm:inline">{lang === 'bn' ? 'অনুমোদনের জন্য জমা' : 'Submit for Review'}</span>
-          </button>
+          {canSubmitForReview && (
+            <button
+              onClick={handleSubmitForReview}
+              disabled={form.processing}
+              className="bg-[#fffbeb] text-[#d97706] border border-[#fcd34d] rounded-lg px-3.5 py-2 text-xs font-bold flex items-center gap-2 hover:bg-[#fef3c7] transition-colors disabled:opacity-50 shadow-sm"
+              title={lang === 'bn' ? 'অনুমোদনের জন্য পাঠান' : 'Submit for Review'}
+            >
+              <Clock className="w-4 h-4" />
+              <span className="hidden sm:inline">{lang === 'bn' ? 'অনুমোদনের জন্য জমা' : 'Submit for Review'}</span>
+            </button>
+          )}
 
-          <button
-            onClick={handlePublish}
-            disabled={form.processing}
-            className="bg-[#263238] text-white rounded-lg px-4.5 py-2 text-xs font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-colors disabled:opacity-50 shadow-md shadow-red-100"
-            title={lang === 'bn' ? 'এখনই প্রকাশ করুন' : 'Publish Now'}
-          >
-            <Send className="w-4 h-4" />
-            <span>{lang === 'bn' ? 'এখনই প্রকাশ' : 'Publish Now'}</span>
-          </button>
+          {canPublish && (
+            <button
+              onClick={handlePublish}
+              disabled={form.processing}
+              className="bg-[#263238] text-white rounded-lg px-4.5 py-2 text-xs font-bold flex items-center gap-2 hover:bg-[#1a2428] transition-colors disabled:opacity-50 shadow-md shadow-red-100"
+              title={lang === 'bn' ? 'এখনই প্রকাশ করুন' : 'Publish Now'}
+            >
+              <Send className="w-4 h-4" />
+              <span>{lang === 'bn' ? 'এখনই প্রকাশ' : 'Publish Now'}</span>
+            </button>
+          )}
         </div>
       </div>
 

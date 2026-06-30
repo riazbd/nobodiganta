@@ -4,6 +4,8 @@ import { Search, Edit3, Trash2, Eye, Send, Loader2, AlertTriangle, X, CheckCircl
 import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
+import { usePermission } from '../../hooks/usePermission';
+import { PERMISSIONS } from '../../api/permissions';
 
 const STATUS_MAP = {
   published: { bn: 'প্রকাশিত',         en: 'Published', variant: 'green'  },
@@ -26,7 +28,14 @@ function Select({ value, onChange, children, className = '' }) {
 function NewsTable({ articles, categories = [], authors = [], filters, pageTitle, pageLabel, fixedStatus }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
+  const { hasPermission, hasAnyPermission } = usePermission();
   const searchTimer = useRef(null);
+
+  // Mirror the backend status-transition permissions: only show actions the user
+  // can perform, so the list never triggers a permission error.
+  const canPublish = hasAnyPermission([PERMISSIONS.NEWS_PUBLISH, PERMISSIONS.NEWS_APPROVE]);
+  const canSubmitForReview = hasAnyPermission([PERMISSIONS.NEWS_SUBMIT, PERMISSIONS.NEWS_EDIT, PERMISSIONS.NEWS_EDIT_OWN]);
+  const canUnpublish = hasPermission(PERMISSIONS.NEWS_PUBLISH);
 
   const [search,    setSearch]    = useState(filters?.search   || '');
   const [category,  setCategory]  = useState(filters?.category || 'all');
@@ -53,11 +62,19 @@ function NewsTable({ articles, categories = [], authors = [], filters, pageTitle
     searchTimer.current = setTimeout(() => applyFilters({ search: val }), 400);
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    router.patch(route('admin.news.transition-status', { article: id }), { status: newStatus }, {
-      preserveScroll: true,
-      onSuccess: () => showToast(l('অবস্থা আপডেট হয়েছে', 'Status updated')),
-    });
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await window.axios.patch(route('admin.news.transition-status', { article: id }), { status: newStatus });
+      showToast(l('অবস্থা আপডেট হয়েছে', 'Status updated'));
+      router.reload({ preserveScroll: true });
+    } catch (err) {
+      // Buttons are permission-gated, so a 403 here is an edge case — show a clear
+      // message instead of the full-screen server-error page.
+      const msg = err.response?.status === 403
+        ? l('এই কাজটি করার অনুমতি আপনার নেই', "You don't have permission to do this")
+        : (err.response?.data?.message || l('অবস্থা পরিবর্তন ব্যর্থ হয়েছে', 'Failed to update status'));
+      showToast(msg, 'error');
+    }
   };
 
   const handleDelete = (id) => {
@@ -225,22 +242,25 @@ function NewsTable({ articles, categories = [], authors = [], filters, pageTitle
                         className="p-1.5 rounded-lg hover:bg-green-50 text-gray-400 hover:text-green-500 transition-all">
                         <Edit3 className="w-4 h-4" />
                       </Link>
-                      {article.status === 'pending' && (
+                      {article.status === 'pending' && canPublish && (
                         <button onClick={() => handleStatusChange(article.id, 'published')}
-                          className="p-1.5 rounded-lg hover:bg-green-50 text-green-400 hover:text-green-600 transition-all">
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 text-green-700 px-2.5 py-1.5 text-xs font-bold hover:bg-green-100 transition-all" title={l('অনুমোদন', 'Approve')}>
                           <CheckCircle className="w-4 h-4" />
+                          <span>{l('প্রকাশ', 'Publish')}</span>
                         </button>
                       )}
-                      {article.status === 'draft' && (
+                      {article.status === 'draft' && canSubmitForReview && (
                         <button onClick={() => handleStatusChange(article.id, 'pending')}
-                          className="p-1.5 rounded-lg hover:bg-orange-50 text-orange-400 hover:text-orange-600 transition-all">
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 px-2.5 py-1.5 text-xs font-bold hover:bg-amber-100 transition-all" title={l('রিভিউতে পাঠান', 'Submit for Review')}>
                           <Send className="w-4 h-4" />
+                          <span>{l('রিভিউ', 'Review')}</span>
                         </button>
                       )}
-                      {article.status === 'published' && (
+                      {article.status === 'published' && canUnpublish && (
                         <button onClick={() => handleStatusChange(article.id, 'draft')}
-                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all">
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 px-2.5 py-1.5 text-xs font-bold hover:bg-gray-100 transition-all" title={l('আনপাবলিশ', 'Unpublish')}>
                           <Archive className="w-4 h-4" />
+                          <span>{l('ড্রাফট', 'Draft')}</span>
                         </button>
                       )}
                       <button onClick={() => setDeleteConfirm(article)}
