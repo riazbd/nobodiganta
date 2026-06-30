@@ -20,34 +20,44 @@ const SEV_LABEL = {
 const asBool = (v, d) => (v === undefined || v === null || v === '') ? d : (v === true || v === 'true' || v === '1');
 const asNum  = (v, d) => { const n = parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : d; };
 
+/**
+ * Breaking bar at the bottom of the site.
+ *
+ * Two independent stacked bars:
+ *  - SCROLL (always on): the marquee of breaking headlines.
+ *  - ALERT (above the scroll): a TV-style banner that flashes IN for a few
+ *    seconds, then hides for an interval, then reappears — repeating all day
+ *    while there are pinned items. It never sits there permanently.
+ *
+ * Alert content = the PINNED breaking items. Everything else only scrolls.
+ */
 export default function BreakingTicker() {
   const { lang, globalBreakingNews = [], settings = {} } = useApp();
   const { onNavigate } = useNavigation();
 
   // Admin-configurable cadence (with sensible fallbacks).
-  const tickerEnabled = asBool(settings.breaking_ticker_enabled, true);
-  const alertEnabled  = asBool(settings.breaking_alert_enabled, true);
-  const alertSeconds  = asNum(settings.breaking_alert_seconds, 5);
-  const alertCycles   = asNum(settings.breaking_alert_cycles, 1);
-  const scrollSeconds = asNum(settings.breaking_scroll_seconds, 30);
+  const tickerEnabled    = asBool(settings.breaking_ticker_enabled, true);
+  const alertEnabled     = asBool(settings.breaking_alert_enabled, true);
+  const alertSeconds     = asNum(settings.breaking_alert_seconds, 8);       // visible time per headline
+  const alertCycles      = asNum(settings.breaking_alert_cycles, 1);        // times to loop the pinned set per appearance
+  const alertIntervalMin = asNum(settings.breaking_alert_interval_minutes, 5); // gap (minutes) between appearances
 
   const [items, setItems] = useState(globalBreakingNews);
-  const [dismissed, setDismissed] = useState(false);
-  const [phase, setPhase] = useState('scroll');     // 'alert' | 'scroll'
+  const [dismissed, setDismissed] = useState(false);            // whole scroll bar dismissed
+  const [alertDismissed, setAlertDismissed] = useState(false);  // just the alert dismissed
+  const [alertVisible, setAlertVisible] = useState(false);      // alert currently flashed in?
   const [alertIndex, setAlertIndex] = useState(0);
   const etagRef = useRef(null);
 
-  // Signature of the current set — drives dismissal memory and phase resets.
+  // Signature of the current set — drives dismissal memory and cadence resets.
   const sig = items.map(i => `${i.id}:${i.updated_at || ''}`).join('|');
 
-  // Only PINNED items get the prominent alert/flash phase; everything else just
-  // scrolls. (Severity stays purely a coloured label + ordering.)
+  // Only PINNED items get the prominent alert banner; everything else scrolls.
   const alertItems = useMemo(
     () => items.filter(i => i.is_pinned),
-    // sig captures the meaningful change to `items`
     [sig], // eslint-disable-line react-hooks/exhaustive-deps
   );
-  const alertActive = alertEnabled && alertItems.length > 0;
+  const alertActive = alertEnabled && !alertDismissed && alertItems.length > 0;
 
   // Live updates — poll the cheap, ETag-cached endpoint.
   useEffect(() => {
@@ -71,76 +81,112 @@ export default function BreakingTicker() {
     return () => { alive = false; clearInterval(id); };
   }, []);
 
-  // Re-show the bar when content changes; (re)start the cadence from the top.
+  // Restore per-signature dismissal memory when the content changes.
   useEffect(() => {
     setDismissed(sig !== '' && localStorage.getItem('brk_dismissed') === sig);
-    setPhase(alertActive ? 'alert' : 'scroll');
-    setAlertIndex(0);
-  }, [sig, alertActive]);
+    setAlertDismissed(sig !== '' && localStorage.getItem('brk_alert_dismissed') === sig);
+  }, [sig]);
 
-  // ALERT phase: step through alert headlines, then hand off to the scroll phase.
+  // Alert cadence: show window (step through pinned items) → hide for the
+  // interval → repeat. Self-rescheduling timers, fully torn down on change.
   useEffect(() => {
-    if (phase !== 'alert') return;
-    if (!alertActive) { setPhase('scroll'); return; }
-    setAlertIndex(0);
-    let step = 0;
-    const total = Math.max(1, alertItems.length * alertCycles);
-    const id = setInterval(() => {
-      step += 1;
-      if (step >= total) { clearInterval(id); setPhase('scroll'); }
-      else setAlertIndex(step % alertItems.length);
-    }, alertSeconds * 1000);
-    return () => clearInterval(id);
-  }, [phase, alertActive, sig, alertSeconds, alertCycles]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!alertActive) { setAlertVisible(false); return; }
 
-  // SCROLL phase: after a spell, return to the alert phase (if there are any).
-  useEffect(() => {
-    if (phase !== 'scroll' || !alertActive) return;
-    const id = setTimeout(() => setPhase('alert'), scrollSeconds * 1000);
-    return () => clearTimeout(id);
-  }, [phase, alertActive, sig, scrollSeconds]);
+    const timers = [];
+    let cancelled = false;
 
-  if (!tickerEnabled || !items.length || dismissed) return null;
+    const runWindow = () => {
+      if (cancelled) return;
+      setAlertIndex(0);
+      setAlertVisible(true);
+
+      let step = 0;
+      const total = Math.max(1, alertItems.length * alertCycles);
+      const stepId = setInterval(() => {
+        step += 1;
+        if (step >= total) {
+          clearInterval(stepId);
+          if (cancelled) return;
+          setAlertVisible(false);
+          const gapId = setTimeout(runWindow, alertIntervalMin * 60 * 1000);
+          timers.push(gapId);
+        } else {
+          setAlertIndex(step % alertItems.length);
+        }
+      }, alertSeconds * 1000);
+      timers.push(stepId);
+    };
+
+    runWindow();
+    return () => {
+      cancelled = true;
+      timers.forEach(t => { clearTimeout(t); clearInterval(t); });
+    };
+  }, [alertActive, sig, alertSeconds, alertCycles, alertIntervalMin]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const showTicker = tickerEnabled && items.length > 0 && !dismissed;
+  const showAlert  = alertActive && alertVisible;
+
+  if (!showTicker && !showAlert) return null;
 
   const go = (item) => {
     if (item?.url) router.visit(item.url);
     else if (item?.category_slug && item?.slug) onNavigate('article', { categorySlug: item.category_slug, articleSlug: item.slug });
   };
 
-  const dismiss = () => { localStorage.setItem('brk_dismissed', sig); setDismissed(true); };
+  const dismissTicker = () => { localStorage.setItem('brk_dismissed', sig); setDismissed(true); };
+  const dismissAlert  = () => { localStorage.setItem('brk_alert_dismissed', sig); setAlertDismissed(true); };
 
-  const showingAlert = phase === 'alert' && alertActive;
-  const current = showingAlert ? (alertItems[alertIndex] || alertItems[0]) : null;
-  // Scroll phase: neutral "Headline" label, no severity tint, no flash.
-  // Alert phase: the pinned item's severity label + gentle flash.
-  const sevClass = showingAlert ? ` brk-sev-${current.severity}` : '';
-  const label = showingAlert
-    ? (SEV_LABEL[current.severity] || SEV_LABEL.breaking)
-    : { bn: 'শিরোনাম', en: 'Headline' };
+  const current = alertItems[alertIndex] || alertItems[0];
+  const sevLabel = current ? (SEV_LABEL[current.severity] || SEV_LABEL.breaking) : SEV_LABEL.breaking;
   const loop = items.length > 1 ? [...items, ...items] : items;
 
   return (
-    <div className={`brk-fixed${sevClass}${showingAlert ? ' brk-mode-alert' : ''}`} role="marquee" aria-label={lang === 'bn' ? 'সর্বশেষ সংবাদ' : 'Breaking news'}>
-      <div className="brk-label">{lang === 'bn' ? label.bn : label.en}</div>
-      {showingAlert ? (
-        <div className="brk-alert">
-          <button className="brk-alert-text" onClick={() => go(current)} tabIndex={0}>{current?.title}</button>
-        </div>
-      ) : (
-        <div className="brk-track-wrap">
-          <div className="brk-track">
-            {loop.map((item, i) => (
-              <span key={i} className="brk-item">
-                <LogoDot />
-                <button className="brk-link" onClick={() => go(item)} tabIndex={0}>
-                  {item?.title}
-                </button>
-              </span>
-            ))}
+    <div className="brk-stack">
+      {showAlert && current && (
+        <div
+          className={`brk-alert-bar brk-alert-${current.severity || 'breaking'}`}
+          role="alert"
+          aria-label={lang === 'bn' ? 'জরুরি সংবাদ' : 'News alert'}
+        >
+          <span className="brk-alert-badge">
+            <span className="brk-alert-dot" aria-hidden="true" />
+            {lang === 'bn' ? sevLabel.bn : sevLabel.en}
+          </span>
+          <div className="brk-alert-headline">
+            <button className="brk-alert-text" onClick={() => go(current)} tabIndex={0}>
+              {current?.title}
+            </button>
           </div>
+          <span className="brk-alert-stripes" aria-hidden="true" />
+          <button
+            className="brk-alert-x"
+            onClick={dismissAlert}
+            aria-label={lang === 'bn' ? 'অ্যালার্ট বন্ধ করুন' : 'Dismiss alert'}
+          >
+            ×
+          </button>
         </div>
       )}
-      <button className="brk-dismiss" onClick={dismiss} aria-label={lang === 'bn' ? 'বন্ধ করুন' : 'Dismiss'}>×</button>
+
+      {showTicker && (
+        <div className="brk-fixed" role="marquee" aria-label={lang === 'bn' ? 'সর্বশেষ সংবাদ' : 'Breaking news'}>
+          <div className="brk-label">{lang === 'bn' ? 'শিরোনাম' : 'Headline'}</div>
+          <div className="brk-track-wrap">
+            <div className="brk-track">
+              {loop.map((item, i) => (
+                <span key={i} className="brk-item">
+                  <LogoDot />
+                  <button className="brk-link" onClick={() => go(item)} tabIndex={0}>
+                    {item?.title}
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+          <button className="brk-dismiss" onClick={dismissTicker} aria-label={lang === 'bn' ? 'বন্ধ করুন' : 'Dismiss'}>×</button>
+        </div>
+      )}
     </div>
   );
 }
