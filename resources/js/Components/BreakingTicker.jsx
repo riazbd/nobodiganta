@@ -9,13 +9,6 @@ const LogoDot = () => (
   </span>
 );
 
-const SEV_LABEL = {
-  just_in:  { bn: 'জাস্ট ইন', en: 'JUST IN' },
-  breaking: { bn: 'ব্রেকিং',   en: 'BREAKING' },
-  urgent:   { bn: 'জরুরি',     en: 'URGENT' },
-  live:     { bn: 'লাইভ',      en: 'LIVE' },
-};
-
 // Settings arrive as strings (or undefined) from the shared `settings` prop.
 const asBool = (v, d) => (v === undefined || v === null || v === '') ? d : (v === true || v === 'true' || v === '1');
 const asNum  = (v, d) => { const n = parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : d; };
@@ -43,8 +36,7 @@ export default function BreakingTicker() {
   const alertIntervalMin = asNum(settings.breaking_alert_interval_minutes, 5); // gap (minutes) between appearances
 
   const [items, setItems] = useState(globalBreakingNews);
-  const [dismissed, setDismissed] = useState(false);            // whole scroll bar dismissed
-  const [alertDismissed, setAlertDismissed] = useState(false);  // just the alert dismissed
+  const [dismissed, setDismissed] = useState(false);            // scroll ticker dismissed (alert can't be dismissed)
   const [alertVisible, setAlertVisible] = useState(false);      // alert currently flashed in?
   const [alertIndex, setAlertIndex] = useState(0);
   const etagRef = useRef(null);
@@ -57,7 +49,7 @@ export default function BreakingTicker() {
     () => items.filter(i => i.is_pinned),
     [sig], // eslint-disable-line react-hooks/exhaustive-deps
   );
-  const alertActive = alertEnabled && !alertDismissed && alertItems.length > 0;
+  const alertActive = alertEnabled && alertItems.length > 0;
 
   // Live updates — poll the cheap, ETag-cached endpoint.
   useEffect(() => {
@@ -81,10 +73,11 @@ export default function BreakingTicker() {
     return () => { alive = false; clearInterval(id); };
   }, []);
 
-  // Restore per-signature dismissal memory when the content changes.
+  // Dismissal is in-memory only — closing the ticker hides it for the current
+  // view, but a hard reload brings it back. New/updated breaking content (sig
+  // change) also clears an earlier dismissal so fresh news always re-shows.
   useEffect(() => {
-    setDismissed(sig !== '' && localStorage.getItem('brk_dismissed') === sig);
-    setAlertDismissed(sig !== '' && localStorage.getItem('brk_alert_dismissed') === sig);
+    setDismissed(false);
   }, [sig]);
 
   // Alert cadence: show window (step through pinned items) → hide for the
@@ -134,11 +127,9 @@ export default function BreakingTicker() {
     else if (item?.category_slug && item?.slug) onNavigate('article', { categorySlug: item.category_slug, articleSlug: item.slug });
   };
 
-  const dismissTicker = () => { localStorage.setItem('brk_dismissed', sig); setDismissed(true); };
-  const dismissAlert  = () => { localStorage.setItem('brk_alert_dismissed', sig); setAlertDismissed(true); };
+  const dismissTicker = () => setDismissed(true);   // scroll ticker × — hides until reload / new content
 
   const current = alertItems[alertIndex] || alertItems[0];
-  const sevLabel = current ? (SEV_LABEL[current.severity] || SEV_LABEL.breaking) : SEV_LABEL.breaking;
   const loop = items.length > 1 ? [...items, ...items] : items;
 
   return (
@@ -151,21 +142,13 @@ export default function BreakingTicker() {
         >
           <span className="brk-alert-badge">
             <span className="brk-alert-dot" aria-hidden="true" />
-            {lang === 'bn' ? sevLabel.bn : sevLabel.en}
+            {lang === 'bn' ? 'ব্রেকিং নিউজ' : 'BREAKING NEWS'}
           </span>
           <div className="brk-alert-headline">
             <button className="brk-alert-text" onClick={() => go(current)} tabIndex={0}>
               {current?.title}
             </button>
           </div>
-          <span className="brk-alert-stripes" aria-hidden="true" />
-          <button
-            className="brk-alert-x"
-            onClick={dismissAlert}
-            aria-label={lang === 'bn' ? 'অ্যালার্ট বন্ধ করুন' : 'Dismiss alert'}
-          >
-            ×
-          </button>
         </div>
       )}
 
