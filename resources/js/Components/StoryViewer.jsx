@@ -239,10 +239,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     onContextMenu={(e) => e.preventDefault()}
                 />
 
-                {/* Centered pause / resume control */}
+                {/* Centered pause / resume control — shown when paused, fades out while playing */}
                 <button
                     onClick={(e) => { e.stopPropagation(); setPaused(p => !p); }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+                    className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white transition-opacity duration-300 ${paused ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                     aria-label={paused ? 'Resume' : 'Pause'}
                 >
                     {paused ? (
