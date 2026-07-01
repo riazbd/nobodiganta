@@ -146,7 +146,7 @@ export default function BreakingTicker() {
     <div className="brk-stack">
       {showAlert && current && (
         <div
-          className={`brk-alert-bar brk-alert-${current.severity || 'breaking'}`}
+          className="brk-alert-bar"
           role="alert"
           aria-label={lang === 'bn' ? 'জরুরি সংবাদ' : 'News alert'}
         >

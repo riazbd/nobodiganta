@@ -716,16 +716,11 @@ article .card{padding:8px;}
   align-items:center;
   overflow:hidden;
   color:#fff;
-  background:#c00000;
+  background:var(--breaking);                         /* match the scroll's "Headline" label */
   border-top:2px solid rgba(255,255,255,.25);
-  box-shadow:0 -4px 18px rgba(220,0,0,.5);            /* static red glow (no flashing) */
+  box-shadow:0 -4px 18px rgba(232,0,30,.5);           /* static glow (no flashing) */
   animation:brkAlertWipe .45s cubic-bezier(.16,1,.3,1) both;  /* slam-in entrance only */
 }
-/* Severity tints */
-.brk-alert-urgent{background:#d10000;}
-.brk-alert-breaking{background:#c00000;}
-.brk-alert-just_in{background:#b45309;}
-.brk-alert-live{background:#067a3f;}
 
 /* Continuous glossy light sweep across the whole bar */
 .brk-alert-bar::before{
