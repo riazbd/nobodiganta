@@ -8,9 +8,12 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     const [slideIndex, setSlideIndex] = useState(0);
     const [progress, setProgress] = useState(0);
     const timerRef = useRef(null);
-    const startTimeRef = useRef(null);
+    const elapsedRef = useRef(0);        // ms elapsed on the current photo slide (pause-aware)
     const videoRef = useRef(null);
-    const [muted, setMuted] = useState(false); // video stories play WITH sound by default
+    const holdTimer = useRef(null);
+    const heldRef = useRef(false);
+    const [muted, setMuted] = useState(true);   // video stories start muted; viewer can unmute
+    const [paused, setPaused] = useState(false); // press-and-hold to pause
 
     const currentStory = stories[storyIndex];
     const currentSlide = currentStory?.slides?.[slideIndex];
@@ -54,15 +57,20 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         }
     }, [slideIndex, storyIndex]);
 
-    // Auto-advance timer for photo slides
+    // Reset the photo timer accounting whenever the slide changes.
     useEffect(() => {
-        if (isVideo) return;
-        clearInterval(timerRef.current);
-        startTimeRef.current = Date.now();
+        elapsedRef.current = 0;
         setProgress(0);
+    }, [slideIndex, storyIndex]);
+
+    // Auto-advance timer for photo slides (pause-aware: resumes where it left off).
+    useEffect(() => {
+        if (isVideo || paused) return;
+        const startedAt = Date.now() - elapsedRef.current;
 
         timerRef.current = setInterval(() => {
-            const elapsed = Date.now() - startTimeRef.current;
+            const elapsed = Date.now() - startedAt;
+            elapsedRef.current = elapsed;
             const pct = Math.min((elapsed / duration) * 100, 100);
             setProgress(pct);
             if (pct >= 100) {
@@ -72,16 +80,16 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         }, 50);
 
         return () => clearInterval(timerRef.current);
-    }, [slideIndex, storyIndex, isVideo, duration, goNextSlide]);
+    }, [slideIndex, storyIndex, isVideo, duration, goNextSlide, paused]);
 
-    // Video playback: try to play WITH sound; if the browser blocks sound-on
-    // autoplay, fall back to muted playback (which is always allowed) and leave
-    // the unmute button showing so the viewer can turn sound on with a tap.
+    // Video playback: honor mute + pause. Starts muted so it always autoplays;
+    // the viewer can unmute, and press-and-hold pauses/resumes.
     useEffect(() => {
         if (!isVideo) return;
         const v = videoRef.current;
         if (!v) return;
         v.muted = muted;
+        if (paused) { v.pause(); return; }
         const p = v.play();
         if (p && typeof p.catch === 'function') {
             p.catch(() => {
@@ -90,7 +98,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                 v.play().catch(() => {});
             });
         }
-    }, [isVideo, currentSlide?.id, muted]);
+    }, [isVideo, currentSlide?.id, muted, paused]);
 
     // Keyboard navigation
     useEffect(() => {
@@ -106,6 +114,21 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     if (!currentStory || !currentSlide) return null;
 
     const totalSlides = currentStory.slides?.length ?? 0;
+
+    // Press-and-hold anywhere pauses; a quick tap navigates prev/next by side.
+    const startHold = () => {
+        heldRef.current = false;
+        clearTimeout(holdTimer.current);
+        holdTimer.current = setTimeout(() => { heldRef.current = true; setPaused(true); }, 200);
+    };
+    const endHold = (e, allowNav) => {
+        clearTimeout(holdTimer.current);
+        if (heldRef.current) { heldRef.current = false; setPaused(false); return; } // was a hold → resume
+        if (!allowNav) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = (e.clientX ?? 0) - rect.left;
+        if (x < rect.width * 0.33) goPrevSlide(); else goNextSlide();
+    };
 
     return createPortal(
         <div className="fixed inset-0 bg-black flex items-center justify-center" style={{ zIndex: 9800 }}>
@@ -206,9 +229,15 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     )}
                 </div>
 
-                {/* Tap zones */}
-                <div className="absolute inset-y-0 left-0 w-1/3 z-10 cursor-pointer" onClick={goPrevSlide} />
-                <div className="absolute inset-y-0 right-0 w-1/3 z-10 cursor-pointer" onClick={goNextSlide} />
+                {/* Tap = prev/next by side; press-and-hold = pause/resume */}
+                <div
+                    className="absolute inset-0 z-10"
+                    onPointerDown={startHold}
+                    onPointerUp={(e) => endHold(e, true)}
+                    onPointerLeave={(e) => endHold(e, false)}
+                    onPointerCancel={(e) => endHold(e, false)}
+                    onContextMenu={(e) => e.preventDefault()}
+                />
 
                 {/* Story navigation arrows (desktop) */}
                 {storyIndex > 0 && (
