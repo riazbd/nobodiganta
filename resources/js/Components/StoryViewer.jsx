@@ -89,8 +89,11 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
     return createPortal(
         <div className="fixed inset-0 bg-black flex items-center justify-center" style={{ zIndex: 9800 }}>
-            {/* Story container — mobile-style portrait */}
-            <div className="relative w-full max-w-sm h-full max-h-[90vh] bg-black overflow-hidden rounded-lg select-none">
+            {/* Story container — 9:16 portrait, fitted to the viewport */}
+            <div
+                className="relative bg-black overflow-hidden rounded-lg select-none"
+                style={{ aspectRatio: '9 / 16', height: 'min(100dvh, calc(100vw * 16 / 9))', maxWidth: '100vw' }}
+            >
 
                 {/* Progress bars */}
                 <div className="absolute top-3 left-3 right-3 z-20 flex gap-1">
