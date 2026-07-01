@@ -165,6 +165,17 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                         </div>
                     </div>
                     <div className="flex items-center gap-1">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setPaused(p => !p); }}
+                            className="text-white/80 hover:text-white p-1"
+                            aria-label={paused ? 'Resume' : 'Pause'}
+                        >
+                            {paused ? (
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            ) : (
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg>
+                            )}
+                        </button>
                         {isVideo && (
                             <button
                                 onClick={(e) => { e.stopPropagation(); setMuted(m => !m); }}
