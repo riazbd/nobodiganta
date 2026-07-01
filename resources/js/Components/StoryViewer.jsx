@@ -9,6 +9,8 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     const [progress, setProgress] = useState(0);
     const timerRef = useRef(null);
     const startTimeRef = useRef(null);
+    const videoRef = useRef(null);
+    const [muted, setMuted] = useState(false); // video stories play WITH sound by default
 
     const currentStory = stories[storyIndex];
     const currentSlide = currentStory?.slides?.[slideIndex];
@@ -72,6 +74,24 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
         return () => clearInterval(timerRef.current);
     }, [slideIndex, storyIndex, isVideo, duration, goNextSlide]);
 
+    // Video playback: try to play WITH sound; if the browser blocks sound-on
+    // autoplay, fall back to muted playback (which is always allowed) and leave
+    // the unmute button showing so the viewer can turn sound on with a tap.
+    useEffect(() => {
+        if (!isVideo) return;
+        const v = videoRef.current;
+        if (!v) return;
+        v.muted = muted;
+        const p = v.play();
+        if (p && typeof p.catch === 'function') {
+            p.catch(() => {
+                v.muted = true;
+                setMuted(true);
+                v.play().catch(() => {});
+            });
+        }
+    }, [isVideo, currentSlide?.id, muted]);
+
     // Keyboard navigation
     useEffect(() => {
         const onKey = (e) => {
@@ -124,7 +144,22 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                             <p className="text-white/60 text-[10px] mt-0.5">{slideIndex + 1} / {totalSlides}</p>
                         </div>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); onClose(); router.get('/stories'); }} className="text-white/80 hover:text-white text-xl leading-none p-1">✕</button>
+                    <div className="flex items-center gap-1">
+                        {isVideo && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setMuted(m => !m); }}
+                                className="text-white/80 hover:text-white p-1"
+                                aria-label={muted ? 'Unmute' : 'Mute'}
+                            >
+                                {muted ? (
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>
+                                ) : (
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>
+                                )}
+                            </button>
+                        )}
+                        <button onClick={(e) => { e.stopPropagation(); onClose(); router.get('/stories'); }} className="text-white/80 hover:text-white text-xl leading-none p-1">✕</button>
+                    </div>
                 </div>
 
                 {/* Slide media */}
@@ -132,11 +167,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     {isVideo ? (
                         <video
                             key={currentSlide.id}
+                            ref={videoRef}
                             src={currentSlide.media_url}
                             className="w-full h-full object-cover"
-                            autoPlay
                             playsInline
-                            muted
                             onEnded={goNextSlide}
                             onError={goNextSlide}
                             onTimeUpdate={(e) => {
