@@ -739,12 +739,14 @@ article .card{padding:8px;}
 .brk-alert-bumper{
   display:inline-flex;align-items:center;
   font-family:'SolaimanLipi',sans-serif;
-  font-weight:900;font-size:19px;letter-spacing:6px;
+  font-weight:900;font-size:23px;
+  --ls:6px;letter-spacing:var(--ls);   /* target spacing (per-breakpoint via --ls) */
   text-transform:uppercase;
   color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);
   white-space:nowrap;
   padding-left:6px; /* balance the trailing letter-spacing so text stays centered */
-  animation:brkSwap .3s ease;
+  /* slowly grows + spreads its letters apart as it appears */
+  animation:brkBumperSpread 1.5s cubic-bezier(.2,.7,.2,1);
 }
 
 /* Headline */
@@ -762,12 +764,14 @@ article .card{padding:8px;}
 @keyframes brkAlertWipe{from{clip-path:inset(0 100% 0 0);}to{clip-path:inset(0 0 0 0);}}
 @keyframes brkAlertSweep{0%{transform:translateX(-120%) skewX(-12deg);}100%{transform:translateX(120%) skewX(-12deg);}}
 @keyframes brkSwap{from{opacity:0;}to{opacity:1;}}
+@keyframes brkBumperSpread{from{opacity:0;letter-spacing:0;transform:scale(.9);}to{opacity:1;letter-spacing:var(--ls);transform:scale(1);}}
 
 /* Motion-sensitive users: drop the slide-in entrance and the glossy sweep,
    leaving a calm static alert bar. */
 @media(prefers-reduced-motion:reduce){
   .brk-alert-bar{animation:none;}
   .brk-alert-bar::before{display:none;}
+  .brk-alert-bumper{animation:none;}
   .brk-sev-live .brk-label::before{animation:none;}
 }
 
@@ -779,7 +783,7 @@ article .card{padding:8px;}
   .brk-label { font-size:13px; padding:0 10px; letter-spacing:.3px; }
   .brk-link { font-size:14px; padding:0 6px; }
   .brk-alert-bar { height:40px; }
-  .brk-alert-bumper { font-size:16px; letter-spacing:3px; }
+  .brk-alert-bumper { font-size:20px; --ls:3px; }
   .brk-alert-text { font-size:15px; }
   .brk-logo-dot { width:14px; height:14px; margin:0 8px; }
   .brk-logo-dot img { width:14px; height:14px; }
