@@ -13,6 +13,9 @@ const LogoDot = () => (
 const asBool = (v, d) => (v === undefined || v === null || v === '') ? d : (v === true || v === 'true' || v === '1');
 const asNum  = (v, d) => { const n = parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : d; };
 
+// How long the centered "BREAKING NEWS" bumper flashes before the headline.
+const BUMPER_MS = 2000;
+
 /**
  * Breaking bar at the bottom of the site.
  *
@@ -39,6 +42,7 @@ export default function BreakingTicker() {
   const [dismissed, setDismissed] = useState(false);            // scroll ticker dismissed (alert can't be dismissed)
   const [alertVisible, setAlertVisible] = useState(false);      // alert currently flashed in?
   const [alertIndex, setAlertIndex] = useState(0);
+  const [alertMode, setAlertMode] = useState('bumper');         // 'bumper' (BREAKING NEWS) | 'headline'
   const etagRef = useRef(null);
 
   // Signature of the current set — drives dismissal memory and cadence resets.
@@ -80,41 +84,47 @@ export default function BreakingTicker() {
     setDismissed(false);
   }, [sig]);
 
-  // Alert cadence: show window (step through pinned items) → hide for the
-  // interval → repeat. Self-rescheduling timers, fully torn down on change.
+  // Alert cadence: each appearance alternates the "BREAKING NEWS" bumper with
+  // the real headline (short bumper, longer headline), loops the pinned set
+  // `alertCycles` times, then hides for the interval and repeats. Single
+  // self-rescheduling timer, torn down cleanly on change.
   useEffect(() => {
     if (!alertActive) { setAlertVisible(false); return; }
 
-    const timers = [];
     let cancelled = false;
+    let timer = null;
 
     const runWindow = () => {
       if (cancelled) return;
-      setAlertIndex(0);
       setAlertVisible(true);
 
-      let step = 0;
-      const total = Math.max(1, alertItems.length * alertCycles);
-      const stepId = setInterval(() => {
-        step += 1;
-        if (step >= total) {
-          clearInterval(stepId);
-          if (cancelled) return;
-          setAlertVisible(false);
-          const gapId = setTimeout(runWindow, alertIntervalMin * 60 * 1000);
-          timers.push(gapId);
-        } else {
-          setAlertIndex(step % alertItems.length);
+      // Build one appearance: bumper, headline[0], bumper, headline[1], … × cycles.
+      const seq = [];
+      for (let c = 0; c < Math.max(1, alertCycles); c++) {
+        for (let i = 0; i < alertItems.length; i++) {
+          seq.push({ mode: 'bumper',   index: i, ms: BUMPER_MS });
+          seq.push({ mode: 'headline', index: i, ms: alertSeconds * 1000 });
         }
-      }, alertSeconds * 1000);
-      timers.push(stepId);
+      }
+
+      let s = 0;
+      const tick = () => {
+        if (cancelled) return;
+        if (s >= seq.length) {
+          setAlertVisible(false);
+          timer = setTimeout(runWindow, alertIntervalMin * 60 * 1000);
+          return;
+        }
+        const cur = seq[s++];
+        setAlertMode(cur.mode);
+        setAlertIndex(cur.index);
+        timer = setTimeout(tick, cur.ms);
+      };
+      tick();
     };
 
     runWindow();
-    return () => {
-      cancelled = true;
-      timers.forEach(t => { clearTimeout(t); clearInterval(t); });
-    };
+    return () => { cancelled = true; if (timer) clearTimeout(timer); };
   }, [alertActive, sig, alertSeconds, alertCycles, alertIntervalMin]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showTicker = tickerEnabled && items.length > 0 && !dismissed;
@@ -140,14 +150,16 @@ export default function BreakingTicker() {
           role="alert"
           aria-label={lang === 'bn' ? 'জরুরি সংবাদ' : 'News alert'}
         >
-          <span className="brk-alert-badge">
-            <span className="brk-alert-dot" aria-hidden="true" />
-            {lang === 'bn' ? 'ব্রেকিং নিউজ' : 'BREAKING NEWS'}
-          </span>
           <div className="brk-alert-headline">
-            <button className="brk-alert-text" onClick={() => go(current)} tabIndex={0}>
-              {current?.title}
-            </button>
+            {alertMode === 'bumper' ? (
+              <span className="brk-alert-bumper">
+                {lang === 'bn' ? 'ব্রেকিং নিউজ' : 'BREAKING NEWS'}
+              </span>
+            ) : (
+              <button className="brk-alert-text" onClick={() => go(current)} tabIndex={0}>
+                {current?.title}
+              </button>
+            )}
           </div>
         </div>
       )}

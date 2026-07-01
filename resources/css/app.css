@@ -708,10 +708,7 @@ article .card{padding:8px;}
 }
 .brk-logo-dot img{width:20px;height:20px;object-fit:contain;display:block;}
 
-/* ── TV-style ALERT bar — flashes in above the scroll, "Maximum" motion ────────
-   Flashes for everyone, but the brightness pulse is held to ~0.8Hz — well under
-   the 3-flashes-per-second seizure threshold (WCAG 2.3.1) — so it's safe to show
-   to all users. */
+/* ── TV-style ALERT bar — slides in above the scroll, no flashing ───────────── */
 .brk-alert-bar{
   position:relative;
   height:46px;
@@ -721,10 +718,8 @@ article .card{padding:8px;}
   color:#fff;
   background:#c00000;
   border-top:2px solid rgba(255,255,255,.25);
-  animation:
-    brkAlertWipe .45s cubic-bezier(.16,1,.3,1) both,  /* slam-in entrance */
-    brkAlertPulse 1.25s ease-in-out infinite,         /* brightness flash */
-    brkAlertGlow 1.25s ease-in-out infinite;          /* breathing red glow */
+  box-shadow:0 -4px 18px rgba(220,0,0,.5);            /* static red glow (no flashing) */
+  animation:brkAlertWipe .45s cubic-bezier(.16,1,.3,1) both;  /* slam-in entrance only */
 }
 /* Severity tints */
 .brk-alert-urgent{background:#d10000;}
@@ -742,27 +737,22 @@ article .card{padding:8px;}
   pointer-events:none;
 }
 
-/* Badge: pulsing severity label + blinking live dot */
-.brk-alert-badge{
-  flex-shrink:0;
-  display:flex;align-items:center;gap:8px;
-  height:100%;padding:0 16px;
+/* Centered content: alternates between the "BREAKING NEWS" bumper and the headline */
+.brk-alert-headline{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0 14px;z-index:1;}
+
+/* "BREAKING NEWS" bumper (TV-channel sting) shown in the middle */
+.brk-alert-bumper{
+  display:inline-flex;align-items:center;
   font-family:'SolaimanLipi',sans-serif;
-  font-weight:900;font-size:15.5px;letter-spacing:.5px;
+  font-weight:900;font-size:19px;letter-spacing:6px;
   text-transform:uppercase;
-  background:rgba(0,0,0,.28);
-  border-right:2px solid rgba(255,255,255,.25);
-  animation:brkBadgePulse 1.25s ease-in-out infinite;
-  z-index:1;
-}
-.brk-alert-dot{
-  width:9px;height:9px;border-radius:50%;
-  background:#fff;box-shadow:0 0 8px #fff;
-  animation:brkDotBlink .9s steps(1,end) infinite;
+  color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);
+  white-space:nowrap;
+  padding-left:6px; /* balance the trailing letter-spacing so text stays centered */
+  animation:brkSwap .3s ease;
 }
 
 /* Headline */
-.brk-alert-headline{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0 14px;z-index:1;}
 .brk-alert-text{
   background:none;border:none;cursor:pointer;
   color:#fff;
@@ -770,23 +760,19 @@ article .card{padding:8px;}
   font-weight:800;font-size:18.5px;letter-spacing:.01em;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
   padding:0 8px;text-shadow:0 1px 3px rgba(0,0,0,.4);
+  animation:brkSwap .3s ease;
 }
 .brk-alert-text:hover{text-decoration:underline;}
 
 @keyframes brkAlertWipe{from{clip-path:inset(0 100% 0 0);}to{clip-path:inset(0 0 0 0);}}
-@keyframes brkAlertPulse{0%,100%{filter:brightness(1);}50%{filter:brightness(1.55);}}
-@keyframes brkAlertGlow{0%,100%{box-shadow:0 -4px 16px rgba(220,0,0,.45);}50%{box-shadow:0 -9px 32px rgba(255,45,45,.9);}}
 @keyframes brkAlertSweep{0%{transform:translateX(-120%) skewX(-12deg);}100%{transform:translateX(120%) skewX(-12deg);}}
-@keyframes brkBadgePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
-@keyframes brkDotBlink{0%,49%{opacity:1;}50%,100%{opacity:.15;}}
+@keyframes brkSwap{from{opacity:0;}to{opacity:1;}}
 
-/* Motion-sensitive users: the alert still flashes (client wants it for everyone,
-   and the pulse is under the 3Hz seizure limit), but we drop the SLIDING motion —
-   the wipe-in, glossy sweep, moving stripes and badge scaling. */
+/* Motion-sensitive users: drop the slide-in entrance and the glossy sweep,
+   leaving a calm static alert bar. */
 @media(prefers-reduced-motion:reduce){
-  .brk-alert-bar{animation:brkAlertPulse 1.6s ease-in-out infinite, brkAlertGlow 1.6s ease-in-out infinite;}
+  .brk-alert-bar{animation:none;}
   .brk-alert-bar::before{display:none;}
-  .brk-alert-badge{animation:none;}
   .brk-sev-live .brk-label::before{animation:none;}
 }
 
@@ -798,7 +784,7 @@ article .card{padding:8px;}
   .brk-label { font-size:13px; padding:0 10px; letter-spacing:.3px; }
   .brk-link { font-size:14px; padding:0 6px; }
   .brk-alert-bar { height:40px; }
-  .brk-alert-badge { font-size:12.5px; padding:0 10px; gap:6px; }
+  .brk-alert-bumper { font-size:16px; letter-spacing:3px; }
   .brk-alert-text { font-size:15px; }
   .brk-logo-dot { width:14px; height:14px; margin:0 8px; }
   .brk-logo-dot img { width:14px; height:14px; }
