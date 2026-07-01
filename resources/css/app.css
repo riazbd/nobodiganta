@@ -711,7 +711,7 @@ article .card{padding:8px;}
 /* ── TV-style ALERT bar — slides in above the scroll, no flashing ───────────── */
 .brk-alert-bar{
   position:relative;
-  height:40px;
+  min-height:40px;
   display:flex;
   align-items:center;
   overflow:hidden;
@@ -752,10 +752,11 @@ article .card{padding:8px;}
 /* Headline */
 .brk-alert-text{
   background:none;border:none;cursor:pointer;
-  color:#fff;
+  color:#fff;text-align:center;
   font-family:'SolaimanLipi',sans-serif;
-  font-weight:800;font-size:18.5px;letter-spacing:.01em;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+  font-weight:800;font-size:18.5px;letter-spacing:.01em;line-height:1.2;
+  max-width:100%;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;
   padding:0 8px;text-shadow:0 1px 3px rgba(0,0,0,.4);
   animation:brkSwap .3s ease;
 }
@@ -782,9 +783,9 @@ article .card{padding:8px;}
   .brk-fixed { height:34px; }
   .brk-label { font-size:13px; padding:0 10px; letter-spacing:.3px; }
   .brk-link { font-size:14px; padding:0 6px; }
-  .brk-alert-bar { height:34px; }
+  .brk-alert-bar { min-height:34px; }
   .brk-alert-bumper { font-size:18px; --ls:3px; }
-  .brk-alert-text { font-size:13px; padding:0 4px; }
+  .brk-alert-text { font-size:13px; padding:2px 4px; line-height:1.15; }
   .brk-logo-dot { width:14px; height:14px; margin:0 8px; }
   .brk-logo-dot img { width:14px; height:14px; }
   .page-container { padding-bottom:44px; }
