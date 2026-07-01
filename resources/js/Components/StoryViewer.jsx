@@ -165,17 +165,6 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                         </div>
                     </div>
                     <div className="flex items-center gap-1">
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setPaused(p => !p); }}
-                            className="text-white/80 hover:text-white p-1"
-                            aria-label={paused ? 'Resume' : 'Pause'}
-                        >
-                            {paused ? (
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            ) : (
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg>
-                            )}
-                        </button>
                         {isVideo && (
                             <button
                                 onClick={(e) => { e.stopPropagation(); setMuted(m => !m); }}
@@ -249,6 +238,19 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                     onPointerCancel={(e) => endHold(e, false)}
                     onContextMenu={(e) => e.preventDefault()}
                 />
+
+                {/* Centered pause / resume control */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); setPaused(p => !p); }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+                    aria-label={paused ? 'Resume' : 'Pause'}
+                >
+                    {paused ? (
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    ) : (
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></svg>
+                    )}
+                </button>
 
                 {/* Story navigation arrows (desktop) */}
                 {storyIndex > 0 && (
