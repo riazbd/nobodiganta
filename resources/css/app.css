@@ -711,7 +711,7 @@ article .card{padding:8px;}
 /* ── TV-style ALERT bar — slides in above the scroll, no flashing ───────────── */
 .brk-alert-bar{
   position:relative;
-  height:46px;
+  height:40px;
   display:flex;
   align-items:center;
   overflow:hidden;
@@ -782,8 +782,8 @@ article .card{padding:8px;}
   .brk-fixed { height:34px; }
   .brk-label { font-size:13px; padding:0 10px; letter-spacing:.3px; }
   .brk-link { font-size:14px; padding:0 6px; }
-  .brk-alert-bar { height:40px; }
-  .brk-alert-bumper { font-size:20px; --ls:3px; }
+  .brk-alert-bar { height:34px; }
+  .brk-alert-bumper { font-size:18px; --ls:3px; }
   .brk-alert-text { font-size:13px; padding:0 4px; }
   .brk-logo-dot { width:14px; height:14px; margin:0 8px; }
   .brk-logo-dot img { width:14px; height:14px; }
