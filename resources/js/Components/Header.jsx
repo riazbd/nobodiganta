@@ -3,7 +3,7 @@ import { usePage } from '@inertiajs/react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useSearch } from '../contexts/SearchContext';
-import { toBanglaCalendar, toHijriDate } from '../lib/dateUtils';
+import { toBanglaCalendar, toHijriDate, getDayName } from '../lib/dateUtils';
 
 const MenuIcon = () => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -223,9 +223,10 @@ export default function Header() {
   }, []);
 
   const now = new Date();
-  const banglaDate = toBanglaCalendar(now, lang);
-  const engDate = now.toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-  const hijriDate = toHijriDate(now, lang);
+  const dayName = getDayName(now, lang); // weekday is the same across all three calendars
+  const banglaDate = `${dayName}, ${toBanglaCalendar(now, lang)}`;
+  const engDate = `${dayName}, ` + now.toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const hijriDate = `${dayName}, ${toHijriDate(now, lang)}`;
 
   const handleEdition = (ed) => {
     if (ed === lang) return;
