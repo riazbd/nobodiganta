@@ -739,8 +739,8 @@ article .card{padding:8px;}
 .brk-alert-bumper{
   display:inline-flex;align-items:center;
   font-family:'SolaimanLipi',sans-serif;
-  font-weight:900;font-size:23px;
-  --ls:6px;letter-spacing:var(--ls);   /* target spacing (per-breakpoint via --ls) */
+  font-weight:900;font-size:17px;
+  --ls:5px;letter-spacing:var(--ls);   /* target spacing (per-breakpoint via --ls) */
   text-transform:uppercase;
   color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4);
   white-space:nowrap;
@@ -784,7 +784,7 @@ article .card{padding:8px;}
   .brk-label { font-size:13px; padding:0 10px; letter-spacing:.3px; }
   .brk-link { font-size:14px; padding:0 6px; }
   .brk-alert-bar { min-height:34px; }
-  .brk-alert-bumper { font-size:18px; --ls:3px; }
+  .brk-alert-bumper { font-size:13px; --ls:2.5px; }
   .brk-alert-text { font-size:13px; padding:2px 4px; line-height:1.15; }
   .brk-logo-dot { width:14px; height:14px; margin:0 8px; }
   .brk-logo-dot img { width:14px; height:14px; }
