@@ -56,6 +56,9 @@ class HandleInertiaRequests extends Middleware
         // Load header ad globally
         $headerAd = \App\Models\Ad::active()->position('header')->first();
 
+        // Load popup ad globally (position = 'popup')
+        $popupAd = \App\Models\Ad::active()->position('popup')->orderBy('sort_order')->first();
+
         // Load header articles globally (3 latest with images)
         $headerArticles = Article::published()
             ->forEdition($edition)
@@ -97,6 +100,15 @@ class HandleInertiaRequests extends Middleware
                 'title' => $headerAd->getTitle($edition),
                 'type'  => $headerAd->type,
                 'code'  => $headerAd->code ?? null,
+            ] : null,
+            'popupAd' => $popupAd ? [
+                'id'        => $popupAd->id,
+                'type'      => $popupAd->type,
+                'image'     => $popupAd->image,
+                'video_url' => $popupAd->video_url,
+                'link'      => $popupAd->link,
+                'title'     => $popupAd->getTitle($edition),
+                'code'      => $popupAd->code ?? null,
             ] : null,
             'edition' => $edition,
         ];

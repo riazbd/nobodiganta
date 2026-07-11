@@ -354,7 +354,7 @@ export default function AdsManagement({ ads = [], clients = [], slots = [], anal
             {!adForm.slotId && (
               <Field label={l('পজিশন', 'Position')}>
                 <select value={adForm.position} onChange={e => setAdForm({ ...adForm, position: e.target.value })} className={inp}>
-                  {['header', 'home_top', 'mid_home', 'home_bottom', 'sidebar_top', 'sidebar_middle', 'in_article', 'article_bottom', 'category_middle', 'between_sections', 'photocard_top', 'photocard_bottom'].map(p => <option key={p} value={p}>{p}</option>)}
+                  {['header', 'popup', 'home_top', 'mid_home', 'home_bottom', 'sidebar_top', 'sidebar_middle', 'in_article', 'article_bottom', 'category_middle', 'between_sections', 'photocard_top', 'photocard_bottom'].map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </Field>
             )}

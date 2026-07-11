@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import Header from '../Components/Header';
 import Navigation from '../Components/Navigation';
 import BreakingTicker from '../Components/BreakingTicker';
+import PopupAd from '../Components/PopupAd';
 import Footer from '../Components/Footer';
 import Toast from '../Components/Toast';
 import BackToTop from '../Components/BackToTop';
@@ -39,6 +40,7 @@ export default function PublicLayout({ children }) {
       </main>
       <Footer />
       <BreakingTicker />
+      <PopupAd />
       <Toast message={toast.message} visible={toast.visible} />
       <BackToTop />
       <InstallPrompt />
