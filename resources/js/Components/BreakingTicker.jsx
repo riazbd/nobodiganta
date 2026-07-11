@@ -3,9 +3,9 @@ import { router } from '@inertiajs/react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
 
-const LogoDot = () => (
+const LogoDot = ({ src }) => (
   <span className="brk-logo-dot" aria-hidden="true">
-    <img src="/logo.png" alt="" />
+    <img src={src} alt="" />
   </span>
 );
 
@@ -37,6 +37,10 @@ export default function BreakingTicker() {
   const alertSeconds     = asNum(settings.breaking_alert_seconds, 8);       // visible time per headline
   const alertCycles      = asNum(settings.breaking_alert_cycles, 1);        // times to loop the pinned set per appearance
   const alertIntervalMin = asNum(settings.breaking_alert_interval_minutes, 5); // gap (minutes) between appearances
+
+  // Per-edition ticker logo: English uses its own logo when set, else the Bangla
+  // one; both fall back to the bundled default. (Mirrors Header/Footer.)
+  const logoUrl = (lang === 'en' ? settings.site_logo_en : null) || settings.site_logo || '/logo.png';
 
   const [items, setItems] = useState(globalBreakingNews);
   const [dismissed, setDismissed] = useState(false);            // scroll ticker dismissed (alert can't be dismissed)
@@ -171,7 +175,7 @@ export default function BreakingTicker() {
             <div className="brk-track">
               {loop.map((item, i) => (
                 <span key={i} className="brk-item">
-                  <LogoDot />
+                  <LogoDot src={logoUrl} />
                   <button className="brk-link" onClick={() => go(item)} tabIndex={0}>
                     {item?.title}
                   </button>
