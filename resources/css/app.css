@@ -51,12 +51,33 @@ html {
   --accent: var(--red);
   --text: var(--black);
   --text-muted: var(--lighter-text);
+
+  /* ── Semantic theme tokens (the only values dark mode overrides) ── */
+  --bg:#ffffff;          /* page background */
+  --surface:#ffffff;     /* cards, panels, dropdowns */
+  --surface-2:#f8f8f8;   /* nested / subtle fills */
+  --text-color:#121212;  /* body text */
+  --border-color:#e0e0e0;
+  --link-color:#263238;
+  --shadow-color:rgba(0,0,0,.08);
+  color-scheme: light;
+}
+:root[data-theme="dark"]{
+  --bg:#121212; --surface:#1e1e1e; --surface-2:#262626;
+  --text-color:#e8e8e8; --border-color:#333333;
+  --link-color:#8ab4f8; --shadow-color:rgba(0,0,0,.5);
+  --text-muted:#9aa0a6;
+  color-scheme: dark;
+  /* keep pre-existing semantic aliases in sync so existing var() usages theme too */
+  --text:#e8e8e8;
+  --border:#333333;
+  --light-bg:#262626;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 
 /* Bengali edition (default) */
-body{font-family:'SolaimanLipi',sans-serif;background:#fff;color:var(--black);line-height:1.9;}
+body{font-family:'SolaimanLipi',sans-serif;background:var(--bg);color:var(--text-color);line-height:1.9;transition:background-color .2s ease,color .2s ease;}
 h1,h2,h3,h4,h5,h6{font-family:'SolaimanLipi',sans-serif;font-weight:900;color:#0d0d0d;letter-spacing:-0.01em;}
 
 /* Bengali weight boost — Kalpurush needs heavier stroke for screen clarity */
