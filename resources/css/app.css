@@ -297,6 +297,8 @@ article .card{padding:8px;}
   white-space: nowrap;
 }
 .bbc-ed.on { background: var(--red); color: #fff; cursor: default; pointer-events: none; }
+.bbc-theme-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: transparent; border: 1.5px solid var(--border-color); border-radius: 5px; color: var(--text-color); cursor: pointer; transition: background .15s, color .15s, border-color .15s; flex-shrink: 0; }
+.bbc-theme-btn:hover { background: var(--surface-2); color: var(--link-color); border-color: var(--link-color); }
 .bbc-ed:not(.on):hover { background: var(--surface-2); color: var(--link-color); }
 
 .bbc-social-slider {
