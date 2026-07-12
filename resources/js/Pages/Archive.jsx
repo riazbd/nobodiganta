@@ -56,7 +56,7 @@ export default function Archive({ year: initialYear, month: initialMonth, day: i
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                style={{ border: '1.5px solid #ddd', borderRadius: 3, padding: '7px 12px', fontSize: 13, background: 'var(--surface-2)' }}
+                style={{ border: '1.5px solid var(--border-color)', borderRadius: 3, padding: '7px 12px', fontSize: 13, background: 'var(--surface-2)' }}
               >
                 {years.map((y) => <option key={y.value} value={y.value}>{y.label}</option>)}
               </select>
@@ -68,7 +68,7 @@ export default function Archive({ year: initialYear, month: initialMonth, day: i
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                style={{ border: '1.5px solid #ddd', borderRadius: 3, padding: '7px 12px', fontSize: 13, background: 'var(--surface-2)' }}
+                style={{ border: '1.5px solid var(--border-color)', borderRadius: 3, padding: '7px 12px', fontSize: 13, background: 'var(--surface-2)' }}
               >
                 {months.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
               </select>

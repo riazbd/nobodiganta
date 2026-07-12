@@ -83,7 +83,7 @@ function InlineAdBlock({ seg }) {
   if (adType === 'news_promo' && adHref) {
     return (
       <div className="in-article-ad" style={{ margin: '24px 0' }}>
-        <a href={adHref} onClick={handleClick} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '12px 16px', border: '1px solid #e8e8e8', borderRadius: 8, textDecoration: 'none', color: 'inherit', background: 'var(--surface-2)' }}>
+        <a href={adHref} onClick={handleClick} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '12px 16px', border: '1px solid var(--border-color)', borderRadius: 8, textDecoration: 'none', color: 'inherit', background: 'var(--surface-2)' }}>
           {adSrc && <img src={adSrc} alt="" style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }} />}
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#e8001e', textTransform: 'uppercase', marginBottom: 4 }}>আরও পড়ুন</div>

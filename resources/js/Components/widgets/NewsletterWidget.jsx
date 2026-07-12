@@ -48,7 +48,7 @@ export default function NewsletterWidget() {
           onChange={(e) => { setEmail(e.target.value); setError(''); }}
           placeholder={lang === 'bn' ? 'আপনার ইমেইল' : 'Your email'}
           aria-label={lang === 'bn' ? 'ইমেইল ঠিকানা' : 'Email address'}
-          style={{ width: '100%', padding: '8px 10px', border: '1px solid #ddd', borderRadius: 4, fontSize: 13, marginBottom: error ? 4 : 10 }}
+          style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 13, marginBottom: error ? 4 : 10 }}
         />
         {error && <div style={{ color: '#c00', fontSize: 12, marginBottom: 8 }}>{error}</div>}
         <button

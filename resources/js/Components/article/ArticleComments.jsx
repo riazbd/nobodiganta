@@ -25,7 +25,7 @@ function CommentItem({ comment, lang, onReply, onFlag }) {
   );
 
   return (
-    <div style={{ padding: '16px 0', borderBottom: '1px solid #ebebeb' }}>
+    <div style={{ padding: '16px 0', borderBottom: '1px solid var(--border-color)' }}>
       <div style={{ display: 'flex', gap: 12 }}>
         <Avatar name={comment.name} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -52,7 +52,7 @@ function CommentItem({ comment, lang, onReply, onFlag }) {
           </div>
 
           {comment.replies?.length > 0 && (
-            <div style={{ marginTop: 14, borderLeft: '2px solid #e8e8e8', paddingLeft: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ marginTop: 14, borderLeft: '2px solid var(--border-color)', paddingLeft: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
               {comment.replies.map((reply) => (
                 <div key={reply.id}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
@@ -130,7 +130,7 @@ function CommentForm({ articleId, parentId, lang, onSuccess, onCancel }) {
   }
 
   return (
-    <form onSubmit={submit} style={{ background: 'var(--surface-2)', border: '1px solid #e8e8e8', borderRadius: 4, padding: '20px', marginBottom: 24 }}>
+    <form onSubmit={submit} style={{ background: 'var(--surface-2)', border: '1px solid var(--border-color)', borderRadius: 4, padding: '20px', marginBottom: 24 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
         <div>
           <label style={labelStyle}>{lang === 'bn' ? 'নাম' : 'Name'} *</label>
@@ -164,7 +164,7 @@ function CommentForm({ articleId, parentId, lang, onSuccess, onCancel }) {
         {onCancel && (
           <button
             type="button" onClick={onCancel}
-            style={{ background: 'var(--surface)', color: 'var(--text-muted)', border: '1px solid #ddd', borderRadius: 4, padding: '10px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+            style={{ background: 'var(--surface)', color: 'var(--text-muted)', border: '1px solid var(--border-color)', borderRadius: 4, padding: '10px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
           >
             {lang === 'bn' ? 'বাতিল' : 'Cancel'}
           </button>
@@ -216,7 +216,7 @@ export default function ArticleComments({ articleId }) {
           {lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}
         </div>
       ) : comments.length === 0 ? (
-        <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, borderTop: '1px solid #ebebeb' }}>
+        <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, borderTop: '1px solid var(--border-color)' }}>
           {lang === 'bn' ? 'এখনো কোনো মন্তব্য নেই। প্রথম মন্তব্যকারী হোন।' : 'No comments yet. Be the first to comment.'}
         </div>
       ) : (

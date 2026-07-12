@@ -44,7 +44,7 @@ export default function GoldPriceWidget() {
           <span>৳{fmt(data.gold24k?.price)}</span>
         </div>
         {data.usdBdt && (
-          <div className="gold-row" style={{ marginTop: 6, borderTop: '1px solid #eee', paddingTop: 6 }}>
+          <div className="gold-row" style={{ marginTop: 6, borderTop: '1px solid var(--border-color)', paddingTop: 6 }}>
             <span>USD/BDT</span>
             <span>৳{fmt(data.usdBdt?.rate)}</span>
           </div>

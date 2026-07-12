@@ -66,7 +66,7 @@ export default function PrayerTimesWidget() {
           </div>
           {next && (
             <div style={{
-              marginTop: 8, paddingTop: 8, borderTop: '1px solid #eee',
+              marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border-color)',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12
             }}>
               <span style={{ color: 'var(--text-muted)' }}>

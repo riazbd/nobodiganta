@@ -33,7 +33,7 @@ export default function Error500() {
           </button>
           <button
             onClick={() => onNavigate('home')}
-            style={{ padding: '10px 24px', background: 'var(--surface)', color: 'var(--text-color)', border: '1px solid #ddd', borderRadius: 4, fontSize: 15, cursor: 'pointer' }}
+            style={{ padding: '10px 24px', background: 'var(--surface)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 15, cursor: 'pointer' }}
           >
             {lang === 'bn' ? 'প্রথম পাতা' : 'Homepage'}
           </button>

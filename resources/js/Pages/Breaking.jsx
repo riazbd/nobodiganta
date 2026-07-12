@@ -34,7 +34,7 @@ export default function Breaking({ items }) {
                 return (
                   <div key={it.id} onClick={() => go(it)} role={it.url ? 'button' : undefined} tabIndex={it.url ? 0 : undefined}
                     onKeyDown={e => it.url && e.key === 'Enter' && go(it)}
-                    style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '12px 14px', border: '1px solid #eee', borderRadius: 8, cursor: it.url ? 'pointer' : 'default', opacity: it.is_active ? 1 : 0.6, transition: 'background .15s' }}>
+                    style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '12px 14px', border: '1px solid var(--border-color)', borderRadius: 8, cursor: it.url ? 'pointer' : 'default', opacity: it.is_active ? 1 : 0.6, transition: 'background .15s' }}>
                     <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#fff', background: s.c, padding: '3px 8px', borderRadius: 4, flexShrink: 0 }}>
                       {lang === 'bn' ? s.bn : s.en}
                     </span>

@@ -57,7 +57,7 @@ export default function StockMarket() {
                   {lang === 'bn' ? 'শীর্ষ গেইনার' : 'Top Gainers'}
                 </h3>
                 {data.gainers?.map((s) => (
-                  <div key={s.symbol} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f5f5f5', fontSize: 13 }}>
+                  <div key={s.symbol} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border-color)', fontSize: 13 }}>
                     <span>{s.symbol}</span>
                     <span style={{ color: '#28a745' }}>+{fmt(s.change)}%</span>
                   </div>
@@ -69,7 +69,7 @@ export default function StockMarket() {
                   {lang === 'bn' ? 'শীর্ষ লুজার' : 'Top Losers'}
                 </h3>
                 {data.losers?.map((s) => (
-                  <div key={s.symbol} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #f5f5f5', fontSize: 13 }}>
+                  <div key={s.symbol} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border-color)', fontSize: 13 }}>
                     <span>{s.symbol}</span>
                     <span style={{ color: '#c00' }}>{fmt(s.change)}%</span>
                   </div>

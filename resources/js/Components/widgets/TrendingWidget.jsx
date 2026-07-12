@@ -62,7 +62,7 @@ export default function TrendingWidget() {
       <div>
         {loading
           ? Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 12px', borderBottom: '1px solid #f5f5f5' }}>
+              <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 12px', borderBottom: '1px solid var(--border-color)' }}>
                 <div style={{ flex: 1, height: 13, background: 'var(--border-color)', borderRadius: 2 }} />
                 <div style={{ width: 68, height: 50, background: 'var(--border-color)', borderRadius: 2, flexShrink: 0 }} />
               </div>

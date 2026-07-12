@@ -22,14 +22,14 @@ export default function AuthorBio({ article }) {
       margin: '32px 0 8px',
       borderTop: '3px solid var(--red)',
       background: 'var(--surface)',
-      border: '1px solid #e8e8e8',
+      border: '1px solid var(--border-color)',
       borderTopColor: 'var(--red)',
       borderTopWidth: 3,
     }}>
       {/* Header label */}
       <div style={{
         padding: '8px 20px',
-        borderBottom: '1px solid #f0f0f0',
+        borderBottom: '1px solid var(--border-color)',
         display: 'flex',
         alignItems: 'center',
         gap: 8,
@@ -58,7 +58,7 @@ export default function AuthorBio({ article }) {
               height: 72,
               borderRadius: '50%',
               objectFit: 'cover',
-              border: '2px solid #eee',
+              border: '2px solid var(--border-color)',
               display: 'block',
             }}
           />
