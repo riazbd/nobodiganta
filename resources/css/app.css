@@ -168,6 +168,8 @@ article .card{padding:8px;}
 .tb-ed-btn{padding:2px 11px;font-size:15.6px;font-weight:700;color:#6b7280;background:transparent;border:none;cursor:pointer;transition:color .15s,background .15s;border-radius:20px;white-space:nowrap;font-family:inherit;letter-spacing:.3px;}
 .tb-ed-btn.active,.tb-ed-btn:disabled{background:var(--primary);color:#fff;cursor:default;pointer-events:none;}
 .tb-ed-btn:not(.active):not(:disabled):hover{color:#fff;}
+.tb-theme-btn{display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;color:inherit;cursor:pointer;padding:4px 6px;margin-left:6px;opacity:.85;transition:opacity .15s ease;}
+.tb-theme-btn:hover{opacity:1;}
 
 /* ══════════════════════════════════════════════════════
    HEADER  — BBC-style compact single bar

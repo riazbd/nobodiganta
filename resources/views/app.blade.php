@@ -8,6 +8,13 @@
         {{-- Tracking & custom code — dashboard-managed (Settings → Integrations),
              public site only so admin-panel activity doesn't pollute analytics. --}}
         @unless(request()->is('admin') || request()->is('admin/*'))
+            {{-- Flash-free theme: set data-theme before first paint from saved
+                 preference or the visitor's OS setting, so there's no white flash. --}}
+            <script>
+              (function(){try{var t=localStorage.getItem('pa-theme');
+              if(!t)t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+              document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+            </script>
             @php
                 $gaId = \App\Models\Setting::where('key', 'google_analytics_id')->value('value');
                 $customHeadCode = \App\Models\Setting::where('key', 'custom_head_code')->value('value');

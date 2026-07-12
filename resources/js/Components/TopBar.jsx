@@ -54,7 +54,7 @@ function useCountdown(epochMs) {
 }
 
 export default function TopBar() {
-  const { lang, settings } = useApp();
+  const { lang, settings, theme, toggleTheme } = useApp();
   const { onNavigate } = useNavigation();
   const { auth } = usePage().props;
   const clock = useLiveClock();
@@ -171,6 +171,20 @@ export default function TopBar() {
                 aria-pressed={lang === 'en'}
               >EN</button>
             </div>
+
+            <button
+              className="tb-theme-btn"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark'
+                ? (lang === 'bn' ? 'দিনের মোড' : 'Light mode')
+                : (lang === 'bn' ? 'রাতের মোড' : 'Dark mode')}
+              aria-pressed={theme === 'dark'}
+              title={theme === 'dark'
+                ? (lang === 'bn' ? 'দিনের মোড' : 'Light mode')
+                : (lang === 'bn' ? 'রাতের মোড' : 'Dark mode')}
+            >
+              <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={15} />
+            </button>
           </div>
         </div>
 
