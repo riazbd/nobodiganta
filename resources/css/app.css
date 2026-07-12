@@ -3651,7 +3651,15 @@ select.almnc-city-select{padding:0;}
 @media(max-width:480px){.stock-gl-grid{grid-template-columns:1fr;}}
 
 /* ══ Special Feature Section — fully config-driven ════════════ */
-.sf-section{border:1px solid #d8d8d8;border-radius:5px;overflow:hidden;margin-bottom:18px;}
+.sf-section{border:1px solid var(--border-color);border-radius:5px;overflow:hidden;margin-bottom:18px;}
+/* Special Feature is a self-contained, admin-branded island with an inline
+   (light) background. In site dark mode a light-theme section keeps light-theme
+   token VALUES locally so its text stays dark/readable on that background.
+   content_theme=dark sections use white text via .sf-theme-dark below. */
+:root[data-theme="dark"] .sf-section:not(.sf-theme-dark){
+  --text-color:#1a1a1a; --link-color:#0055a5; --text-muted:#5a5a5a;
+  --surface-2:#eaeaea; --border-color:#d8d8d8; --primary:#263238;
+}
 .sf-hdr{display:flex;align-items:center;gap:10px;padding:13px 16px;}
 .sf-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:3px;letter-spacing:.05em;text-transform:uppercase;flex-shrink:0;}
 .sf-ttl{font-size:19px;font-weight:800;margin:0;line-height:1.25;letter-spacing:-.01em;}
