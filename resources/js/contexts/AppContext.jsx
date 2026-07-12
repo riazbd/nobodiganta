@@ -27,18 +27,37 @@ export function AppProvider({ children }) {
     localStorage.setItem('pa-font-size', size);
   }, []);
 
+  const [theme, setTheme] = useState(() => {
+    if (typeof document === 'undefined') return 'light';
+    return document.documentElement.getAttribute('data-theme') || 'light';
+  });
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      try { localStorage.setItem('pa-theme', next); } catch {}
+      return next;
+    });
+  }, []);
+
   useEffect(() => {
     document.documentElement.setAttribute('data-font-size', fontSize);
   }, [fontSize]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   const value = useMemo(() => ({
     lang,
     fontSize,
     cycleFontSize,
     setFontSize: setFontSizeExplicit,
+    theme,
+    toggleTheme,
     settings,
     globalBreakingNews: props.globalBreakingNews || [],
-  }), [lang, fontSize, cycleFontSize, setFontSizeExplicit, settings, props.globalBreakingNews]);
+  }), [lang, fontSize, cycleFontSize, setFontSizeExplicit, theme, toggleTheme, settings, props.globalBreakingNews]);
 
   return (
     <AppContext.Provider value={value}>
