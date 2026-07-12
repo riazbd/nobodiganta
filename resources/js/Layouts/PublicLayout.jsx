@@ -14,7 +14,7 @@ function PageFallback() {
   const { lang } = useApp();
   return (
     <div className="page-container" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center', color: '#888' }}>
+      <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
         <div style={{ fontSize: 32, marginBottom: 8 }}>⏳</div>
         <div>{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
       </div>

@@ -24,7 +24,7 @@ export default function CricketScoreWidget() {
         )}
       </div>
       <div className="cricket-match">
-        <div className="cricket-series" style={{ fontSize: 11, color: '#999', marginBottom: 8 }}>
+        <div className="cricket-series" style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>
           {lang === 'bn' ? (match.seriesBn || match.series) : match.series}
         </div>
         {match.teams?.map((team, i) => (
@@ -35,7 +35,7 @@ export default function CricketScoreWidget() {
             </span>
           </div>
         ))}
-        <div className="cricket-status" style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
+        <div className="cricket-status" style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
           {lang === 'bn' ? (match.statusBn || match.statusText) : match.statusText}
         </div>
       </div>

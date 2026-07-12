@@ -36,7 +36,7 @@ export default function NewsletterWidget() {
       <div className="widget-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <Icon name="mail" size={16} /> {lang === 'bn' ? 'নিউজলেটার' : 'Newsletter'}
       </div>
-      <p style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>
+      <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12 }}>
         {lang === 'bn'
           ? 'প্রতিদিনের সংবাদ ইমেইলে পান'
           : 'Get daily news in your inbox'}

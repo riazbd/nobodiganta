@@ -83,7 +83,7 @@ function InlineAdBlock({ seg }) {
   if (adType === 'news_promo' && adHref) {
     return (
       <div className="in-article-ad" style={{ margin: '24px 0' }}>
-        <a href={adHref} onClick={handleClick} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '12px 16px', border: '1px solid #e8e8e8', borderRadius: 8, textDecoration: 'none', color: 'inherit', background: '#fafafa' }}>
+        <a href={adHref} onClick={handleClick} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '12px 16px', border: '1px solid #e8e8e8', borderRadius: 8, textDecoration: 'none', color: 'inherit', background: 'var(--surface-2)' }}>
           {adSrc && <img src={adSrc} alt="" style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }} />}
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#e8001e', textTransform: 'uppercase', marginBottom: 4 }}>আরও পড়ুন</div>
@@ -360,29 +360,29 @@ export default function Article({
                 onClick={() => article.author?.slug && onNavigate('author', article.author.slug)}
                 style={{ cursor: article.author?.slug ? 'pointer' : 'default' }}
               >
-                <Icon name="user" size={13} style={{ marginTop: 2, color: '#888', flexShrink: 0 }} />
+                <Icon name="user" size={13} style={{ marginTop: 2, color: 'var(--text-muted)', flexShrink: 0 }} />
                 <span className="art-left-meta-author">{article.author.designation || t('article.staff_reporter', lang)}</span>
               </div>
             )}
             {article.secondary_author?.name && (
               <div className="art-left-meta-row">
-                <Icon name="user" size={13} style={{ marginTop: 2, color: '#888', flexShrink: 0 }} />
-                <span style={{ color: '#555' }}>{article.secondary_author.name}</span>
+                <Icon name="user" size={13} style={{ marginTop: 2, color: 'var(--text-muted)', flexShrink: 0 }} />
+                <span style={{ color: 'var(--text-muted)' }}>{article.secondary_author.name}</span>
               </div>
             )}
             <div className="art-left-meta-row">
-              <Icon name="clock" size={13} style={{ marginTop: 2, color: '#888', flexShrink: 0 }} />
+              <Icon name="clock" size={13} style={{ marginTop: 2, color: 'var(--text-muted)', flexShrink: 0 }} />
               <span>
                 {t('article.published', lang)}{' '}
                 {formatDate(article.published_at, lang, { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }).replace(/[\s ]+(এ|at)[\s ]+/, ' | ').replace(/ (am|pm)\b/i, (m, p) => ' ' + p.toUpperCase())}
               </span>
             </div>
             <div className="art-left-meta-row">
-              <Icon name="eye" size={13} style={{ marginTop: 2, color: '#888', flexShrink: 0 }} />
+              <Icon name="eye" size={13} style={{ marginTop: 2, color: 'var(--text-muted)', flexShrink: 0 }} />
               <span>{lang === 'bn' ? toBengaliNum(String(article.views || 0)) : (article.views || 0)} {t('article.readers', lang)}</span>
             </div>
             <div className="art-left-meta-row">
-              <Icon name="book" size={13} style={{ marginTop: 2, color: '#888', flexShrink: 0 }} />
+              <Icon name="book" size={13} style={{ marginTop: 2, color: 'var(--text-muted)', flexShrink: 0 }} />
               <span>{readingTimeLabel}</span>
             </div>
           </div>
@@ -473,7 +473,7 @@ export default function Article({
           {/* Tags */}
           {tags.length > 0 && (
             <div className="art-tags">
-              <span style={{ fontSize: 12, color: '#888', marginRight: 4 }}>{t('article.tags_label', lang)}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', marginRight: 4 }}>{t('article.tags_label', lang)}</span>
               {tags.map((tag) => (
                 <span
                   key={tag.id}
@@ -543,7 +543,7 @@ export default function Article({
           <div className="art-bottom-sec-hdr">
             <span className="art-bottom-sec-hdr-label">{t('article.read_more', lang)}</span>
             {article.category?.name && (
-              <span style={{ fontSize: 13, color: '#666', fontFamily: "'SolaimanLipi',sans-serif" }}>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: "'SolaimanLipi',sans-serif" }}>
                 — {article.category.name}
               </span>
             )}

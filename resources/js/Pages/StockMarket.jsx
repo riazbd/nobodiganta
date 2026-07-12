@@ -30,7 +30,7 @@ export default function StockMarket() {
           <Icon name="trendingUp" size={24} /> {lang === 'bn' ? 'শেয়ার বাজার' : 'Stock Market'}
         </h1>
         {!data ? (
-          <div style={{ color: '#888', textAlign: 'center', padding: 40 }}>
+          <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: 40 }}>
             {lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}
           </div>
         ) : (
@@ -38,8 +38,8 @@ export default function StockMarket() {
             {/* Indices */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
               {data.indices?.map((idx) => (
-                <div key={idx.name} style={{ background: '#fff', borderRadius: 8, padding: 20, textAlign: 'center' }}>
-                  <div style={{ fontSize: 13, color: '#888', marginBottom: 6 }}>{idx.name}</div>
+                <div key={idx.name} style={{ background: 'var(--surface)', borderRadius: 8, padding: 20, textAlign: 'center' }}>
+                  <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 6 }}>{idx.name}</div>
                   <div style={{ fontSize: 28, fontWeight: 700 }}>{fmt(idx.value)}</div>
                   <div style={{ color: changeColor(idx.change), fontSize: 14, marginTop: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                     {parseFloat(idx.change) >= 0 ? <Icon name="trendingUp" size={14} /> : <Icon name="trendingDown" size={14} />}
@@ -51,7 +51,7 @@ export default function StockMarket() {
 
             {/* Gainers & Losers */}
             <div className="stock-gl-grid">
-              <div style={{ background: '#fff', borderRadius: 8, padding: 16 }}>
+              <div style={{ background: 'var(--surface)', borderRadius: 8, padding: 16 }}>
                 <h3 style={{ color: '#28a745', marginBottom: 12, fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Icon name="trendingUp" size={14} />
                   {lang === 'bn' ? 'শীর্ষ গেইনার' : 'Top Gainers'}
@@ -63,7 +63,7 @@ export default function StockMarket() {
                   </div>
                 ))}
               </div>
-              <div style={{ background: '#fff', borderRadius: 8, padding: 16 }}>
+              <div style={{ background: 'var(--surface)', borderRadius: 8, padding: 16 }}>
                 <h3 style={{ color: '#c00', marginBottom: 12, fontSize: 15, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Icon name="trendingDown" size={14} />
                   {lang === 'bn' ? 'শীর্ষ লুজার' : 'Top Losers'}

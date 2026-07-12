@@ -62,7 +62,7 @@ export default function Horoscope() {
 
         {/* Prediction */}
         {sign && (
-          <div style={{ background: '#fff', borderRadius: 16, padding: 32, border: '1px solid #e8ebf4' }}>
+          <div style={{ background: 'var(--surface)', borderRadius: 16, padding: 32, border: '1px solid #e8ebf4' }}>
             <div style={{ fontSize: 48, textAlign: 'center', marginBottom: 16 }}>{sign.emoji}</div>
             <h2 style={{ textAlign: 'center', fontSize: 24, marginBottom: 24, color: '#1a1d2e', fontWeight: 'bold' }}>
               {lang === 'bn' ? sign.bn : sign.en}

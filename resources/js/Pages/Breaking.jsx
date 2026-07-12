@@ -24,7 +24,7 @@ export default function Breaking({ items }) {
           </div>
 
           {data.length === 0 ? (
-            <div style={{ padding: '40px 0', textAlign: 'center', color: '#999' }}>
+            <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
               {lang === 'bn' ? 'এখন কোনো ব্রেকিং নিউজ নেই।' : 'No breaking news right now.'}
             </div>
           ) : (
@@ -39,7 +39,7 @@ export default function Breaking({ items }) {
                       {lang === 'bn' ? s.bn : s.en}
                     </span>
                     <span style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a', flex: 1 }}>{it.title}</span>
-                    {!it.is_active && <span style={{ fontSize: 11, color: '#aaa', flexShrink: 0 }}>{lang === 'bn' ? 'মেয়াদোত্তীর্ণ' : 'expired'}</span>}
+                    {!it.is_active && <span style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>{lang === 'bn' ? 'মেয়াদোত্তীর্ণ' : 'expired'}</span>}
                   </div>
                 );
               })}
@@ -50,7 +50,7 @@ export default function Breaking({ items }) {
             <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 24 }}>
               {items.links.map((lk, i) => (
                 <Link key={i} href={lk.url ?? '#'} dangerouslySetInnerHTML={{ __html: lk.label }} preserveScroll
-                  style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: lk.active ? 'var(--red)' : '#f0f0f0', color: lk.active ? '#fff' : '#333', textDecoration: 'none', pointerEvents: lk.url ? 'auto' : 'none', opacity: lk.url ? 1 : 0.4 }} />
+                  style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: lk.active ? 'var(--red)' : 'var(--border-color)', color: lk.active ? '#fff' : '#333', textDecoration: 'none', pointerEvents: lk.url ? 'auto' : 'none', opacity: lk.url ? 1 : 0.4 }} />
               ))}
             </div>
           )}

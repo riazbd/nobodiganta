@@ -21,7 +21,7 @@ export default class ErrorBoundary extends Component {
           <h2 style={{ color: '#c00', marginBottom: 12 }}>
             {this.props.lang === 'en' ? 'Something went wrong' : 'কিছু একটা সমস্যা হয়েছে'}
           </h2>
-          <p style={{ color: '#666', fontSize: 14 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>
             {this.props.lang === 'en'
               ? 'Please refresh the page to try again.'
               : 'পুনরায় চেষ্টা করতে পৃষ্ঠাটি রিফ্রেশ করুন।'}

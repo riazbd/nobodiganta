@@ -89,7 +89,7 @@ export default function Author({ author, articles }) {
               <div className="sec-ttl">
                 {lang === 'bn' ? 'লেখকের সংবাদ' : "Author's Articles"}
               </div>
-              <span style={{ fontSize: 13, color: '#888', marginLeft: 12 }}>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', marginLeft: 12 }}>
                 {lang === 'bn' ? `${toBengaliNum(String(count))}টি` : `${count} articles`}
               </span>
             </div>

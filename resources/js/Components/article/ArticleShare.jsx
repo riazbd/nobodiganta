@@ -19,7 +19,7 @@ const PLATFORMS = [
   { key: 'facebook', label: 'Facebook',  labelBn: 'ফেসবুক',   color: '#1877f2', Icon: FacebookIcon },
   { key: 'whatsapp', label: 'WhatsApp',  labelBn: 'হোয়াটসঅ্যাপ', color: '#25d366', Icon: WhatsAppIcon },
   { key: 'telegram', label: 'Telegram',  labelBn: 'টেলিগ্রাম', color: '#0088cc', Icon: TelegramIcon },
-  { key: 'twitter',  label: 'X',         labelBn: 'এক্স',     color: '#000',    Icon: TwitterXIcon },
+  { key: 'twitter',  label: 'X',         labelBn: 'এক্স',     color: 'var(--text-color)',    Icon: TwitterXIcon },
   { key: 'linkedin', label: 'LinkedIn',  labelBn: 'লিংকডইন',  color: '#0a66c2', Icon: LinkedInIcon },
 ];
 

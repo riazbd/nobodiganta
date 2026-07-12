@@ -20,7 +20,7 @@ export default function WeatherWidget() {
     return (
       <div className="weather widget-block">
         <div className="widget-header"><Icon name="sun" size={16} /> {lang === 'bn' ? 'আবহাওয়া' : 'Weather'}</div>
-        <div style={{ color: '#999', fontSize: 13, padding: '8px 0' }}>{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
+        <div style={{ color: 'var(--text-muted)', fontSize: 13, padding: '8px 0' }}>{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</div>
       </div>
     );
   }

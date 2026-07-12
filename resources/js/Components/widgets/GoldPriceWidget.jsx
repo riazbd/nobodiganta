@@ -26,7 +26,7 @@ export default function GoldPriceWidget() {
     <div className="gold-widget widget-block">
       <div className="widget-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <Icon name="dollarSign" size={16} /> {lang === 'bn' ? 'স্বর্ণের দাম' : 'Gold Price'}
-        <span style={{ fontSize: 11, color: '#999', fontWeight: 400, marginLeft: 'auto' }}>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 400, marginLeft: 'auto' }}>
           {lang === 'bn' ? 'বাংলাদেশ' : 'Bangladesh'}
         </span>
       </div>
@@ -51,7 +51,7 @@ export default function GoldPriceWidget() {
         )}
       </div>
       {data.updatedAt && (
-        <div style={{ fontSize: 11, color: '#999', marginTop: 6 }}>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
           {lang === 'bn' ? 'আপডেট: ' : 'Updated: '}{data.updatedAt}
         </div>
       )}

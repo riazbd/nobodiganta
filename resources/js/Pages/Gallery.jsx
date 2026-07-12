@@ -9,7 +9,7 @@ function GallerySkeleton() {
   return (
     <div className="gallery-grid">
       {[0, 1, 2, 3, 4, 5].map(i => (
-        <div key={i} className={`gallery-item ${i === 0 ? 'big' : ''}`} style={{ background: '#f3f4f6' }}>
+        <div key={i} className={`gallery-item ${i === 0 ? 'big' : ''}`} style={{ background: 'var(--surface-2)' }}>
           <div
             className={i === 0 ? 'gl-img-big' : 'gl-img'}
             style={{ background: 'linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%)', backgroundSize: '200% 100%', animation: 'skeleton-shimmer 1.4s ease-in-out infinite' }}

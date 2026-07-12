@@ -35,12 +35,12 @@ export default function PrayerTimesWidget() {
     <div className="prayer-widget widget-block">
       <div className="widget-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <Icon name="moon" size={16} /> {lang === 'bn' ? 'নামাজের সময়সূচী' : 'Prayer Times'}
-        <span style={{ fontSize: 11, color: '#999', fontWeight: 400, marginLeft: 'auto' }}>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 400, marginLeft: 'auto' }}>
           {lang === 'bn' ? 'ঢাকা' : 'Dhaka'}
         </span>
       </div>
       {!prayer ? (
-        <div style={{ padding: '12px 0', color: '#999', fontSize: 13 }}>
+        <div style={{ padding: '12px 0', color: 'var(--text-muted)', fontSize: 13 }}>
           {lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}
         </div>
       ) : (
@@ -69,7 +69,7 @@ export default function PrayerTimesWidget() {
               marginTop: 8, paddingTop: 8, borderTop: '1px solid #eee',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12
             }}>
-              <span style={{ color: '#999' }}>
+              <span style={{ color: 'var(--text-muted)' }}>
                 {lang === 'bn' ? 'পরবর্তী:' : 'Next:'} {prayerLabel(next.name, lang)}
               </span>
               <span style={{ fontWeight: 700, color: '#263238', fontVariantNumeric: 'tabular-nums' }}>

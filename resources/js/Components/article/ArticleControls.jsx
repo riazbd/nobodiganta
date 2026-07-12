@@ -41,7 +41,7 @@ export default function ArticleControls({ articleId, articleTitle }) {
   return (
     <div className="article-controls" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', margin: '12px 0' }}>
       {/* Font size controls */}
-      <div style={{ display: 'flex', border: '1px solid #e0e0e0', borderRadius: 4, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', border: '1px solid var(--border-color)', borderRadius: 4, overflow: 'hidden' }}>
         {SIZES.map((size) => (
           <button
             key={size}
@@ -51,9 +51,9 @@ export default function ArticleControls({ articleId, articleTitle }) {
             style={{
               padding: '5px 10px',
               border: 'none',
-              borderRight: size !== 'large' ? '1px solid #e0e0e0' : 'none',
-              background: fontSize === size ? '#c00' : '#fff',
-              color: fontSize === size ? '#fff' : '#444',
+              borderRight: size !== 'large' ? '1px solid var(--border-color)' : 'none',
+              background: fontSize === size ? '#c00' : 'var(--surface)',
+              color: fontSize === size ? '#fff' : 'var(--text-color)',
               cursor: 'pointer',
               fontSize: size === 'small' ? 12 : size === 'large' ? 16 : 14,
               fontWeight: 600,
@@ -69,7 +69,7 @@ export default function ArticleControls({ articleId, articleTitle }) {
         onClick={toggleBookmark}
         aria-label={lang === 'bn' ? 'বুকমার্ক করুন' : 'Bookmark'}
         aria-pressed={bookmarked}
-        style={{ padding: '6px 10px', border: '1px solid #e0e0e0', borderRadius: 4, background: bookmarked ? '#fff5f5' : '#fff', color: bookmarked ? '#c00' : '#444', cursor: 'pointer', fontSize: 16 }}
+        style={{ padding: '6px 10px', border: '1px solid var(--border-color)', borderRadius: 4, background: bookmarked ? 'var(--tint-hover)' : 'var(--surface)', color: bookmarked ? '#c00' : 'var(--text-color)', cursor: 'pointer', fontSize: 16 }}
       >
         {bookmarked ? '🔖' : '🔖'}
       </button>
@@ -78,7 +78,7 @@ export default function ArticleControls({ articleId, articleTitle }) {
       <button
         onClick={handlePrint}
         aria-label={lang === 'bn' ? 'প্রিন্ট করুন' : 'Print article'}
-        style={{ padding: '6px 10px', border: '1px solid #e0e0e0', borderRadius: 4, background: '#fff', color: '#444', cursor: 'pointer', fontSize: 16 }}
+        style={{ padding: '6px 10px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--surface)', color: 'var(--text-color)', cursor: 'pointer', fontSize: 16 }}
       >
         🖨️
       </button>

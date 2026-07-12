@@ -22,7 +22,7 @@ export default function Stories({ stories }) {
                     </div>
 
                     {items.length === 0 ? (
-                        <div style={{ padding: '40px 0', textAlign: 'center', color: '#999' }}>
+                        <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
                             {lang === 'bn' ? 'এখনো কোনো স্টোরি নেই।' : 'No stories yet.'}
                         </div>
                     ) : (
@@ -69,7 +69,7 @@ export default function Stories({ stories }) {
                                         borderRadius: 6,
                                         fontSize: 13,
                                         fontWeight: 600,
-                                        background: link.active ? 'var(--red)' : '#f0f0f0',
+                                        background: link.active ? 'var(--red)' : 'var(--border-color)',
                                         color: link.active ? '#fff' : '#333',
                                         textDecoration: 'none',
                                         pointerEvents: link.url ? 'auto' : 'none',

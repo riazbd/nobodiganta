@@ -50,25 +50,25 @@ export default function Archive({ year: initialYear, month: initialMonth, day: i
 
           <div style={{ display: 'flex', gap: 14, marginBottom: 20, flexWrap: 'wrap' }}>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 700, color: '#666', display: 'block', marginBottom: 5 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 5 }}>
                 {t('archive.year', lang)}
               </label>
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                style={{ border: '1.5px solid #ddd', borderRadius: 3, padding: '7px 12px', fontSize: 13, background: '#fafafa' }}
+                style={{ border: '1.5px solid #ddd', borderRadius: 3, padding: '7px 12px', fontSize: 13, background: 'var(--surface-2)' }}
               >
                 {years.map((y) => <option key={y.value} value={y.value}>{y.label}</option>)}
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 700, color: '#666', display: 'block', marginBottom: 5 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: 5 }}>
                 {t('archive.month', lang)}
               </label>
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                style={{ border: '1.5px solid #ddd', borderRadius: 3, padding: '7px 12px', fontSize: 13, background: '#fafafa' }}
+                style={{ border: '1.5px solid #ddd', borderRadius: 3, padding: '7px 12px', fontSize: 13, background: 'var(--surface-2)' }}
               >
                 {months.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
               </select>
@@ -91,7 +91,7 @@ export default function Archive({ year: initialYear, month: initialMonth, day: i
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6, marginBottom: 20 }}>
             {weekDays.map((d) => (
-              <div key={d} style={{ textAlign: 'center', fontSize: 11.5, fontWeight: 700, color: '#999', padding: 5 }}>{d}</div>
+              <div key={d} style={{ textAlign: 'center', fontSize: 11.5, fontWeight: 700, color: 'var(--text-muted)', padding: 5 }}>{d}</div>
             ))}
             {Array.from({ length: firstDayOfWeek }, (_, i) => <div key={`e${i}`} />)}
             {Array.from({ length: daysInMonth }, (_, i) => {
@@ -127,7 +127,7 @@ export default function Archive({ year: initialYear, month: initialMonth, day: i
           </div>
 
           {articles.length === 0 ? (
-            <div style={{ padding: '40px 0', textAlign: 'center', color: '#888' }}>
+            <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
               {lang === 'bn' ? 'এই তারিখে কোনো সংবাদ পাওয়া যায়নি' : 'No news found for this date'}
             </div>
           ) : (

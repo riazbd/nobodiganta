@@ -25,7 +25,7 @@ export default function TrendingWidget() {
   const go = (item) => onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug });
 
   return (
-    <div style={{ background: '#fff', border: '1px solid var(--border)', marginBottom: 20, borderRadius: 5 }}>
+    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', marginBottom: 20, borderRadius: 5 }}>
 
       {/* Tabs */}
       <div style={{ display: 'flex' }}>
@@ -63,8 +63,8 @@ export default function TrendingWidget() {
         {loading
           ? Array.from({ length: 5 }).map((_, i) => (
               <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 12px', borderBottom: '1px solid #f5f5f5' }}>
-                <div style={{ flex: 1, height: 13, background: '#f0f0f0', borderRadius: 2 }} />
-                <div style={{ width: 68, height: 50, background: '#f0f0f0', borderRadius: 2, flexShrink: 0 }} />
+                <div style={{ flex: 1, height: 13, background: 'var(--border-color)', borderRadius: 2 }} />
+                <div style={{ width: 68, height: 50, background: 'var(--border-color)', borderRadius: 2, flexShrink: 0 }} />
               </div>
             ))
           : items.map((item, i) => (
@@ -91,7 +91,7 @@ export default function TrendingWidget() {
                     fontSize: 15,
                     fontWeight: 600,
                     lineHeight: 1.45,
-                    color: '#111',
+                    color: 'var(--text-color)',
                     marginBottom: 4,
                   }}>
                     {item.title || ''}

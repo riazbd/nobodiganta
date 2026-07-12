@@ -31,21 +31,21 @@ function CommentItem({ comment, lang, onReply, onFlag }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
             <span style={{ fontWeight: 700, fontSize: 14, color: '#1a1a2e' }}>{comment.name}</span>
-            <span style={{ fontSize: 12, color: '#999' }}>{date}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{date}</span>
           </div>
-          <p style={{ fontSize: 14.5, lineHeight: 1.65, color: '#444', margin: '0 0 10px' }}>
+          <p style={{ fontSize: 14.5, lineHeight: 1.65, color: 'var(--text-color)', margin: '0 0 10px' }}>
             {comment.body || comment.text}
           </p>
           <div style={{ display: 'flex', gap: 16 }}>
             <button
               onClick={() => onReply?.(comment.id)}
-              style={{ fontSize: 12, color: '#555', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}
+              style={{ fontSize: 12, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}
             >
               {lang === 'bn' ? 'উত্তর দিন' : 'Reply'}
             </button>
             <button
               onClick={() => onFlag?.(comment.id)}
-              style={{ fontSize: 12, color: '#aaa', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              style={{ fontSize: 12, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
             >
               {lang === 'bn' ? 'রিপোর্ট' : 'Report'}
             </button>
@@ -57,11 +57,11 @@ function CommentItem({ comment, lang, onReply, onFlag }) {
                 <div key={reply.id}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
                     <span style={{ fontWeight: 700, fontSize: 13, color: '#1a1a2e' }}>{reply.name}</span>
-                    <span style={{ fontSize: 11, color: '#bbb' }}>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                       {new Date(reply.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <p style={{ fontSize: 13.5, color: '#555', lineHeight: 1.6, margin: 0 }}>
+                  <p style={{ fontSize: 13.5, color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                     {reply.body || reply.text}
                   </p>
                 </div>
@@ -107,13 +107,13 @@ function CommentForm({ articleId, parentId, lang, onSuccess, onCancel }) {
 
   const inputStyle = (hasError) => ({
     width: '100%', boxSizing: 'border-box',
-    background: '#fafafa', border: `1px solid ${hasError ? '#c00' : '#ddd'}`,
+    background: 'var(--surface-2)', border: `1px solid ${hasError ? '#c00' : 'var(--border-color)'}`,
     borderRadius: 4, padding: '9px 12px', fontSize: 14,
     outline: 'none', transition: 'border-color .15s',
     fontFamily: 'inherit',
   });
 
-  const labelStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: '#555', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.04em' };
+  const labelStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.04em' };
   const errStyle = { fontSize: 11, color: '#c00', marginTop: 3 };
 
   if (done) {
@@ -130,7 +130,7 @@ function CommentForm({ articleId, parentId, lang, onSuccess, onCancel }) {
   }
 
   return (
-    <form onSubmit={submit} style={{ background: '#fafafa', border: '1px solid #e8e8e8', borderRadius: 4, padding: '20px', marginBottom: 24 }}>
+    <form onSubmit={submit} style={{ background: 'var(--surface-2)', border: '1px solid #e8e8e8', borderRadius: 4, padding: '20px', marginBottom: 24 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
         <div>
           <label style={labelStyle}>{lang === 'bn' ? 'নাম' : 'Name'} *</label>
@@ -164,7 +164,7 @@ function CommentForm({ articleId, parentId, lang, onSuccess, onCancel }) {
         {onCancel && (
           <button
             type="button" onClick={onCancel}
-            style={{ background: '#fff', color: '#555', border: '1px solid #ddd', borderRadius: 4, padding: '10px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+            style={{ background: 'var(--surface)', color: 'var(--text-muted)', border: '1px solid #ddd', borderRadius: 4, padding: '10px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
           >
             {lang === 'bn' ? 'বাতিল' : 'Cancel'}
           </button>
@@ -212,11 +212,11 @@ export default function ArticleComments({ articleId }) {
       <CommentForm articleId={articleId} lang={lang} onSuccess={() => setRefreshKey((k) => k + 1)} />
 
       {loading ? (
-        <div style={{ padding: '32px 0', textAlign: 'center', color: '#aaa', fontSize: 14 }}>
+        <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
           {lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}
         </div>
       ) : comments.length === 0 ? (
-        <div style={{ padding: '32px 0', textAlign: 'center', color: '#bbb', fontSize: 14, borderTop: '1px solid #ebebeb' }}>
+        <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, borderTop: '1px solid #ebebeb' }}>
           {lang === 'bn' ? 'এখনো কোনো মন্তব্য নেই। প্রথম মন্তব্যকারী হোন।' : 'No comments yet. Be the first to comment.'}
         </div>
       ) : (
@@ -226,7 +226,7 @@ export default function ArticleComments({ articleId }) {
               <CommentItem comment={c} lang={lang} onReply={setReplyTo} onFlag={handleFlag} />
               {replyTo === c.id && (
                 <div style={{ marginLeft: 50, marginTop: 16, marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 10 }}>
                     {lang === 'bn' ? 'উত্তর দিচ্ছেন' : 'Replying'}
                   </div>
                   <CommentForm

@@ -29,14 +29,14 @@ export default function Cricket() {
           <Icon name="trophy" size={24} /> {lang === 'bn' ? 'ক্রিকেট' : 'Cricket'}
         </h1>
         {matches.map((match) => (
-          <div key={match.id} style={{ background: '#fff', borderRadius: 8, padding: 20, marginBottom: 16 }}>
+          <div key={match.id} style={{ background: 'var(--surface)', borderRadius: 8, padding: 20, marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
               <span style={{ background: STATUS_COLORS[match.status] || '#888', color: '#fff', padding: '2px 8px', borderRadius: 3, fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>
                 {match.status === 'live' ? (lang === 'bn' ? 'লাইভ' : 'LIVE')
                  : match.status === 'upcoming' ? (lang === 'bn' ? 'আসন্ন' : 'UPCOMING')
                  : (lang === 'bn' ? 'সম্পন্ন' : 'COMPLETED')}
               </span>
-              <span style={{ fontSize: 13, color: '#888' }}>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
                 {lang === 'bn' ? (match.seriesBn || match.series) : match.series}
               </span>
             </div>
@@ -52,7 +52,7 @@ export default function Cricket() {
                 </span>
               </div>
             ))}
-            <div style={{ marginTop: 12, fontSize: 13, color: '#666' }}>
+            <div style={{ marginTop: 12, fontSize: 13, color: 'var(--text-muted)' }}>
               {lang === 'bn' ? (match.statusBn || match.statusText) : match.statusText}
             </div>
           </div>

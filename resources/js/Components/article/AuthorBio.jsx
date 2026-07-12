@@ -21,7 +21,7 @@ export default function AuthorBio({ article }) {
     <div style={{
       margin: '32px 0 8px',
       borderTop: '3px solid var(--red)',
-      background: '#fff',
+      background: 'var(--surface)',
       border: '1px solid #e8e8e8',
       borderTopColor: 'var(--red)',
       borderTopWidth: 3,
@@ -71,7 +71,7 @@ export default function AuthorBio({ article }) {
               fontFamily: 'SolaimanLipi, sans-serif',
               fontSize: 18,
               fontWeight: 800,
-              color: '#111',
+              color: 'var(--text-color)',
               lineHeight: 1.3,
             }}>
               {designation}
@@ -82,7 +82,7 @@ export default function AuthorBio({ article }) {
             <p style={{
               fontFamily: 'SolaimanLipi, sans-serif',
               fontSize: 15,
-              color: '#555',
+              color: 'var(--text-muted)',
               lineHeight: 1.7,
               margin: '0 0 12px',
             }}>

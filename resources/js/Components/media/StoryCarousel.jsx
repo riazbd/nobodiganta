@@ -43,7 +43,7 @@ export default function StoryCarousel({ label, items, onClickItem, scrollRef }) 
               <div className="hp-h3-scard-title">{item.title}</div>
             </div>
           )) : (
-            <div style={{ padding: '16px 12px', color: '#aaa', fontSize: 12, fontFamily: "'Kalpurush','SolaimanLipi',sans-serif" }}>
+            <div style={{ padding: '16px 12px', color: 'var(--text-muted)', fontSize: 12, fontFamily: "'Kalpurush','SolaimanLipi',sans-serif" }}>
               কোনো কন্টেন্ট নেই।
             </div>
           )}

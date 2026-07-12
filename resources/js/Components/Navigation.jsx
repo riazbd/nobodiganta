@@ -353,7 +353,7 @@ export default function Navigation() {
         <div className="nav-inner">
           <div style={{ display: 'flex', gap: 8 }}>
             {[55, 72, 68, 80, 60, 75].map(w => (
-              <div key={w} style={{ width: w, height: 14, background: '#ebebeb', borderRadius: 3, flexShrink: 0 }} />
+              <div key={w} style={{ width: w, height: 14, background: 'var(--border-color)', borderRadius: 3, flexShrink: 0 }} />
             ))}
           </div>
         </div>

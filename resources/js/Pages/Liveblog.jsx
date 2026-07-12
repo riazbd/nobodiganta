@@ -64,7 +64,7 @@ export default function Liveblog({ article, initialUpdates = [] }) {
           )}
 
           {updates.length === 0 ? (
-            <div style={{ padding: '40px 0', textAlign: 'center', color: '#888' }}>
+            <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
               {lang === 'bn' ? 'কোনো আপডেট পাওয়া যায়নি' : 'No updates found'}
             </div>
           ) : (

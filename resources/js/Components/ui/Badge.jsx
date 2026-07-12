@@ -2,10 +2,10 @@
  * variants: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'
  */
 const COLORS = {
-  default: { bg: '#f0f0f0', color: '#555' },
+  default: { bg: 'var(--border-color)', color: 'var(--text-muted)' },
   primary: { bg: '#c00', color: '#fff' },
   success: { bg: '#28a745', color: '#fff' },
-  warning: { bg: '#ffc107', color: '#333' },
+  warning: { bg: '#ffc107', color: 'var(--text-color)' },
   danger:  { bg: '#dc3545', color: '#fff' },
   info:    { bg: '#0055a5', color: '#fff' },
 };

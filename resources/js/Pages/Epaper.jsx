@@ -104,7 +104,7 @@ export default function Epaper() {
               title={lang === 'bn' ? viewingEdition.label : viewingEdition.labelEn}
             />
           ) : (
-            <div style={{ textAlign: 'center', padding: 40, color: '#888' }}>
+            <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>📰</div>
               <p>{lang === 'bn' ? 'PDF লিংক এখনো যোগ করা হয়নি।' : 'PDF link not yet available.'}</p>
             </div>
