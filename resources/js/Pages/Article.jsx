@@ -361,10 +361,7 @@ export default function Article({
                 style={{ cursor: article.author?.slug ? 'pointer' : 'default' }}
               >
                 <Icon name="user" size={13} style={{ marginTop: 2, color: 'var(--text-muted)', flexShrink: 0 }} />
-                <span className="art-left-meta-author">
-                  {article.author.name}
-                  {article.author.designation ? `, ${article.author.designation}` : ''}
-                </span>
+                <span className="art-left-meta-author">{article.author.name}</span>
               </div>
             )}
             {article.secondary_author?.name && (
