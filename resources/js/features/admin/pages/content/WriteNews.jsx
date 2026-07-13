@@ -151,6 +151,8 @@ export default function WriteNews() {
     approverId: '',
     guestAuthorNameBn: '',
     guestAuthorNameEn: '',
+    guestAuthorDesignationBn: '',
+    guestAuthorDesignationEn: '',
     guestAuthorBioBn: '',
     guestAuthorBioEn: '',
     guestAuthorImage: '',
@@ -201,6 +203,8 @@ export default function WriteNews() {
         approverId: article.approverId || '',
         guestAuthorNameBn: article.guestAuthorNameBn || '',
         guestAuthorNameEn: article.guestAuthorNameEn || '',
+        guestAuthorDesignationBn: article.guestAuthorDesignationBn || '',
+        guestAuthorDesignationEn: article.guestAuthorDesignationEn || '',
         guestAuthorBioBn: article.guestAuthorBioBn || '',
         guestAuthorBioEn: article.guestAuthorBioEn || '',
         guestAuthorImage: article.guestAuthorImage || '',
@@ -1387,6 +1391,8 @@ export default function WriteNews() {
                   <div className="bg-gray-50 p-3 rounded-lg border border-[var(--card-border,#e8ebf4)] space-y-3">
                     <input type="text" value={form.data.guestAuthorNameBn} onChange={e => form.setData('guestAuthorNameBn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none" placeholder="Name (Bangla)" />
                     <input type="text" value={form.data.guestAuthorNameEn} onChange={e => form.setData('guestAuthorNameEn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none" placeholder="Name (English)" />
+                    <input type="text" value={form.data.guestAuthorDesignationBn} onChange={e => form.setData('guestAuthorDesignationBn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none" placeholder="Designation (Bangla)" />
+                    <input type="text" value={form.data.guestAuthorDesignationEn} onChange={e => form.setData('guestAuthorDesignationEn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none" placeholder="Designation (English)" />
                     <textarea rows="2" value={form.data.guestAuthorBioBn} onChange={e => form.setData('guestAuthorBioBn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none resize-none" placeholder="Short bio..." />
                   </div>
                 )}

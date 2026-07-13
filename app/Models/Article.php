@@ -26,6 +26,7 @@ class Article extends Model
         'category_id', 'author_id', 'secondary_author_id', 'approver_id',
         'is_guest_author',
         'guest_author_name_bn', 'guest_author_name_en',
+        'guest_author_designation_bn', 'guest_author_designation_en',
         'guest_author_bio_bn', 'guest_author_bio_en',
         'guest_author_image',
         'video_provider',
@@ -333,11 +334,15 @@ class Article extends Model
                 ? ($this->guest_author_name_en ?: $this->guest_author_name_bn)
                 : ($this->guest_author_name_bn ?: $this->guest_author_name_en);
 
+            $designation = $edition === 'en'
+                ? ($this->guest_author_designation_en ?: $this->guest_author_designation_bn)
+                : ($this->guest_author_designation_bn ?: $this->guest_author_designation_en);
+
             return [
                 'id'          => 0,
                 'name'        => $name ?: ($edition === 'en' ? 'Guest Author' : 'অতিথি লেখক'),
                 'slug'        => null,
-                'designation' => null,
+                'designation' => $designation ?: null,
                 'bio'         => $edition === 'en' ? ($this->guest_author_bio_en ?: $this->guest_author_bio_bn) : ($this->guest_author_bio_bn ?: $this->guest_author_bio_en),
                 'image'       => $this->guest_author_image ?: null,
                 'is_guest'    => true,

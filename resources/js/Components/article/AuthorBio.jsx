@@ -10,7 +10,7 @@ export default function AuthorBio({ article }) {
 
   const author = article.author;
   const name = author.name;
-  const designation = author.designation || t('article.staff_reporter', lang);
+  const designation = author.designation || (author.is_guest ? '' : t('article.staff_reporter', lang));
   const bio = author.bio;
   const slug = author.slug;
   const isGuest = author.is_guest;
@@ -67,15 +67,26 @@ export default function AuthorBio({ article }) {
         {/* Text */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ marginBottom: 10 }}>
-            <span style={{
+            <div style={{
               fontFamily: 'SolaimanLipi, sans-serif',
               fontSize: 18,
               fontWeight: 800,
               color: 'var(--text-color)',
               lineHeight: 1.3,
             }}>
-              {designation}
-            </span>
+              {name}
+            </div>
+            {designation && (
+              <div style={{
+                fontFamily: 'SolaimanLipi, sans-serif',
+                fontSize: 14,
+                fontWeight: 600,
+                color: 'var(--text-muted)',
+                marginTop: 2,
+              }}>
+                {designation}
+              </div>
+            )}
           </div>
 
           {bio && (

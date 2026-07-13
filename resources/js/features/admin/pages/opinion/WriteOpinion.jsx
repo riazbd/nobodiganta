@@ -68,6 +68,8 @@ export default function WriteOpinion() {
     isGuestAuthor: false,
     guestAuthorNameBn: '',
     guestAuthorNameEn: '',
+    guestAuthorDesignationBn: '',
+    guestAuthorDesignationEn: '',
     guestAuthorBioBn: '',
     guestAuthorBioEn: '',
     guestAuthorImage: '',
@@ -110,6 +112,8 @@ export default function WriteOpinion() {
         isGuestAuthor: !!article.isGuestAuthor,
         guestAuthorNameBn: article.guestAuthorNameBn || '',
         guestAuthorNameEn: article.guestAuthorNameEn || '',
+        guestAuthorDesignationBn: article.guestAuthorDesignationBn || '',
+        guestAuthorDesignationEn: article.guestAuthorDesignationEn || '',
         guestAuthorBioBn: article.guestAuthorBioBn || '',
         guestAuthorBioEn: article.guestAuthorBioEn || '',
         guestAuthorImage: article.guestAuthorImage || '',
@@ -664,6 +668,8 @@ export default function WriteOpinion() {
                 <div className="grid grid-cols-2 gap-2">
                   <input type="text" value={form.data.guestAuthorNameBn} onChange={e => form.setData('guestAuthorNameBn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" placeholder="নাম (বাংলা)..." />
                   <input type="text" value={form.data.guestAuthorNameEn} onChange={e => form.setData('guestAuthorNameEn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" placeholder="Name (EN)..." />
+                  <input type="text" value={form.data.guestAuthorDesignationBn} onChange={e => form.setData('guestAuthorDesignationBn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" placeholder="পদবি (বাংলা)..." />
+                  <input type="text" value={form.data.guestAuthorDesignationEn} onChange={e => form.setData('guestAuthorDesignationEn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" placeholder="Designation (EN)..." />
                 </div>
                 <textarea rows="2" value={form.data.guestAuthorBioBn} onChange={e => form.setData('guestAuthorBioBn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238] resize-none" placeholder="লেখকের সংক্ষিপ্ত পরিচিতি..." />
               </div>
