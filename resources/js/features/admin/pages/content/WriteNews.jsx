@@ -1316,7 +1316,7 @@ export default function WriteNews() {
                     <div className={`block w-8 h-4.5 rounded-full transition-colors ${form.data.isBreaking ? 'bg-[#263238]' : 'bg-gray-200'}`}></div>
                     <div className={`absolute left-0.5 top-0.5 bg-white w-3.5 h-3.5 rounded-full transition-transform shadow-sm ${form.data.isBreaking ? 'translate-x-3.5' : ''}`}></div>
                   </div>
-                  <span className="text-sm font-semibold text-gray-700">Breaking News</span>
+                  <span className="text-sm font-semibold text-gray-700">Headline</span>
                 </label>
 
                 <label className="flex items-center gap-3 cursor-pointer group">

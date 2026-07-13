@@ -585,9 +585,9 @@ export default function CategoryList() {
                     topOption={{ value: '', label: lang === 'bn' ? 'কোনটিই নয় (প্রধান বিভাগ)' : 'None (Main Category)' }}
                     items={(() => {
                       const exclude = editingCat ? descendantIds(categories, editingCat.id) : new Set();
-                      return flattenCategories(categories)
+                      return categories
                         .filter(c => !exclude.has(c.id))
-                        .map(c => ({ value: c.id, label: lang === 'bn' ? (c.nameBn || c.nameEn) : (c.nameEn || c.nameBn), depth: c.depth }));
+                        .map(c => ({ value: c.id, label: lang === 'bn' ? (c.nameBn || c.nameEn) : (c.nameEn || c.nameBn), parentValue: c.parentId || null }));
                     })()}
                     placeholder={lang === 'bn' ? 'প্রধান বিভাগ নির্বাচন করুন' : 'Select parent category'}
                     searchPlaceholder={lang === 'bn' ? 'বিভাগ খুঁজুন...' : 'Search categories...'}

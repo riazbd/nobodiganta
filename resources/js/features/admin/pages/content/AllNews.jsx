@@ -42,16 +42,6 @@ function SortIcon({ column, sortBy, sortDir }) {
     : <ArrowDown className="w-3 h-3 ml-1 text-[#263238] inline" />;
 }
 
-// Depth-ordered flatten of categories (parent_id key) for the filter dropdown.
-function flattenCatTree(cats, parentId = null, depth = 0) {
-  const out = [];
-  cats.filter(c => (c.parent_id || null) === parentId).forEach(c => {
-    out.push({ ...c, __depth: depth });
-    out.push(...flattenCatTree(cats, c.id, depth + 1));
-  });
-  return out;
-}
-
 export default function AllNews({ articles, categories, authors = [], publishers = [], divisions = [], locationTree = null, filters }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
@@ -261,7 +251,10 @@ export default function AllNews({ articles, categories, authors = [], publishers
               value={category}
               onChange={v => { setCategory(v); applyFilters({ category: v }); }}
               topOption={{ value: 'all', label: l('সব বিভাগ', 'All Categories') }}
-              items={flattenCatTree(categories).map(c => ({ value: c.slug, label: l(c.name_bn, c.name_en || c.name_bn), depth: c.__depth }))}
+              items={(() => {
+                const slugOf = {}; categories.forEach(c => { slugOf[c.id] = c.slug; });
+                return categories.map(c => ({ value: c.slug, label: l(c.name_bn, c.name_en || c.name_bn), parentValue: c.parent_id ? slugOf[c.parent_id] : null }));
+              })()}
               placeholder={l('সব বিভাগ', 'All Categories')}
               searchPlaceholder={l('বিভাগ খুঁজুন...', 'Search categories...')}
               buttonClassName="w-full flex items-center justify-between gap-2 border border-gray-100 rounded-xl px-3.5 py-2.5 text-sm bg-gray-50 hover:bg-gray-100 font-medium text-left outline-none transition-all"

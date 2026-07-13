@@ -175,7 +175,7 @@ class ArticleController extends Controller
 
         return Inertia::render('features/admin/pages/content/AllNews', [
             'articles'      => $articles,
-            'categories'    => Category::active()->editorial()->ordered()->get(['id', 'name_bn', 'name_en', 'slug']),
+            'categories'    => Category::active()->ordered()->get(['id', 'name_bn', 'name_en', 'slug', 'parent_id']),
             'authors'       => $authors,
             'publishers'    => $publishers,
             'divisions'     => Category::whereHas('parent', fn($q) => $q->where('slug', 'saradesh'))
