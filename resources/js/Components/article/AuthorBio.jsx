@@ -14,6 +14,7 @@ export default function AuthorBio({ article }) {
   const bio = author.bio;
   const slug = author.slug;
   const isGuest = author.is_guest;
+  const avatar = author.image || settings?.site_logo || '/logo.png';
 
   if (!name) return null;
 
@@ -51,7 +52,7 @@ export default function AuthorBio({ article }) {
         {/* Avatar */}
         <div style={{ flexShrink: 0 }}>
           <img
-            src={settings?.site_logo || '/logo.png'}
+            src={avatar}
             alt={name}
             style={{
               width: 72,
