@@ -8,6 +8,7 @@ import {
   Filter, RotateCcw, Image as ImageIcon, ExternalLink
 } from 'lucide-react';
 import { Badge } from '../../components/feedback/Badge';
+import CategorySelect from '../../components/forms/CategorySelect';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { usePermission } from '../../hooks/usePermission';
@@ -39,6 +40,16 @@ function SortIcon({ column, sortBy, sortDir }) {
   return sortDir === 'asc'
     ? <ArrowUp className="w-3 h-3 ml-1 text-[#263238] inline" />
     : <ArrowDown className="w-3 h-3 ml-1 text-[#263238] inline" />;
+}
+
+// Depth-ordered flatten of categories (parent_id key) for the filter dropdown.
+function flattenCatTree(cats, parentId = null, depth = 0) {
+  const out = [];
+  cats.filter(c => (c.parent_id || null) === parentId).forEach(c => {
+    out.push({ ...c, __depth: depth });
+    out.push(...flattenCatTree(cats, c.id, depth + 1));
+  });
+  return out;
 }
 
 export default function AllNews({ articles, categories, authors = [], publishers = [], divisions = [], locationTree = null, filters }) {
@@ -245,10 +256,17 @@ export default function AllNews({ articles, categories, authors = [], publishers
           </Select>
 
           {/* Category */}
-          <Select value={category} onChange={v => { setCategory(v); applyFilters({ category: v }); }} className="min-w-[150px]">
-            <option value="all">{l('সব বিভাগ', 'All Categories')}</option>
-            {categories.map(c => <option key={c.id} value={c.slug}>{l(c.name_bn, c.name_en || c.name_bn)}</option>)}
-          </Select>
+          <div className="min-w-[170px]">
+            <CategorySelect
+              value={category}
+              onChange={v => { setCategory(v); applyFilters({ category: v }); }}
+              topOption={{ value: 'all', label: l('সব বিভাগ', 'All Categories') }}
+              items={flattenCatTree(categories).map(c => ({ value: c.slug, label: l(c.name_bn, c.name_en || c.name_bn), depth: c.__depth }))}
+              placeholder={l('সব বিভাগ', 'All Categories')}
+              searchPlaceholder={l('বিভাগ খুঁজুন...', 'Search categories...')}
+              buttonClassName="w-full flex items-center justify-between gap-2 border border-gray-100 rounded-xl px-3.5 py-2.5 text-sm bg-gray-50 hover:bg-gray-100 font-medium text-left outline-none transition-all"
+            />
+          </div>
 
           {/* More filters toggle */}
           <button

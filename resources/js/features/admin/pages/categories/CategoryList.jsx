@@ -4,6 +4,32 @@ import { Badge } from '../../components/feedback/Badge';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
+import CategorySelect from '../../components/forms/CategorySelect';
+
+// Depth-ordered flatten: parent, then its children (recursively), then next parent.
+function flattenCategories(cats, parentId = null, depth = 0) {
+  const out = [];
+  cats
+    .filter(c => (c.parentId || null) === parentId)
+    .forEach(c => {
+      out.push({ ...c, depth });
+      out.push(...flattenCategories(cats, c.id, depth + 1));
+    });
+  return out;
+}
+
+// Ids of a category and all its descendants (to exclude from its own parent options).
+function descendantIds(cats, id) {
+  const ids = new Set([id]);
+  let added = true;
+  while (added) {
+    added = false;
+    cats.forEach(c => {
+      if (c.parentId && ids.has(c.parentId) && !ids.has(c.id)) { ids.add(c.id); added = true; }
+    });
+  }
+  return ids;
+}
 
 export default function CategoryList() {
   const { lang } = useLanguage();
@@ -222,19 +248,28 @@ export default function CategoryList() {
 
     if (!fromId || !toId || fromId === toId) return;
 
-    // Reorder local list optimistically
-    const roots = categories.filter(c => !c.parentId);
-    const subs  = categories.filter(c =>  c.parentId);
-    const fromIdx = roots.findIndex(c => c.id === fromId);
-    const toIdx   = roots.findIndex(c => c.id === toId);
+    const from = categories.find(c => c.id === fromId);
+    const to   = categories.find(c => c.id === toId);
+    if (!from || !to) return;
+
+    // Only reorder within the same group: both top-level, or both under the same parent.
+    const fromParent = from.parentId || null;
+    const toParent   = to.parentId || null;
+    if (fromParent !== toParent) return;
+
+    // Reorder the affected group optimistically; keep everyone else as-is.
+    const group  = categories.filter(c => (c.parentId || null) === fromParent);
+    const others = categories.filter(c => (c.parentId || null) !== fromParent);
+    const fromIdx = group.findIndex(c => c.id === fromId);
+    const toIdx   = group.findIndex(c => c.id === toId);
     if (fromIdx === -1 || toIdx === -1) return;
 
-    const reordered = [...roots];
+    const reordered = [...group];
     const [moved] = reordered.splice(fromIdx, 1);
     reordered.splice(toIdx, 0, moved);
 
     const withOrder = reordered.map((c, i) => ({ ...c, sort_order: i + 1 }));
-    setCategories([...withOrder, ...subs]);
+    setCategories([...withOrder, ...others]);
 
     // Persist to server
     setReordering(true);
@@ -321,69 +356,48 @@ export default function CategoryList() {
                 </td>
               </tr>
             ) : (
-              categories
-                .filter(c => !c.parentId)
-                .map(mainCat => (
-                  <React.Fragment key={mainCat.id}>
-                    {/* Main Category Row — draggable */}
-                    <tr
-                      className="hover:bg-[#fafbff] transition-colors border-l-4 border-l-transparent group cursor-grab active:cursor-grabbing"
-                      draggable
-                      onDragStart={e => onDragStart(e, mainCat.id)}
-                      onDragEnter={() => onDragEnter(mainCat.id)}
-                      onDragEnd={onDragEnd}
-                      onDragOver={e => e.preventDefault()}
-                    >
-                      <td className="px-2 py-3 border-b border-[#f3f4f6] text-gray-300 group-hover:text-gray-400">
-                        <GripVertical size={16} />
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                        <div className="font-bold text-[var(--text-primary,#1a1d2e)] flex items-center gap-2">
-                          <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ backgroundColor: mainCat.color }} />
-                          {lang === 'bn' ? (mainCat.nameBn || mainCat.nameEn) : (mainCat.nameEn || mainCat.nameBn)}
-                          <EditionBadge edition={mainCat.edition} />
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#f3f4f6] text-[12.5px] font-mono text-[var(--text-secondary,#6b7280)]">{mainCat.slug}</td>
-                      <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                        <Badge variant="blue">{mainCat.articleCount || 0}</Badge>
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                        <StatusButton cat={mainCat} onToggle={handleToggleStatus} />
-                      </td>
-                      <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                        <ActionButtons onEdit={() => openEditModal(mainCat)} onDelete={() => setDeleteConfirm(mainCat)} onToggleNav={() => handleToggleNav(mainCat)} showInNav={mainCat.showInNav} />
-                      </td>
-                    </tr>
-
-                    {/* Subcategories — not draggable */}
-                    {categories
-                      .filter(sub => sub.parentId === mainCat.id)
-                      .map(subCat => (
-                        <tr key={subCat.id} className="hover:bg-[#fafbff] transition-colors bg-gray-50/20">
-                          <td className="px-2 py-3 border-b border-[#f3f4f6]" />
-                          <td className="px-4 py-3 border-b border-[#f3f4f6] pl-10">
-                            <div className="flex items-center gap-2 text-[var(--text-primary,#1a1d2e)]">
-                              <span className="text-gray-300">↳</span>
-                              <span className="text-[13px] font-semibold">{lang === 'bn' ? (subCat.nameBn || subCat.nameEn) : (subCat.nameEn || subCat.nameBn)}</span>
-                              <EditionBadge edition={subCat.edition} />
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border-b border-[#f3f4f6] text-[11px] font-mono text-gray-400">{subCat.slug}</td>
-                          <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                            <Badge variant="gray" className="text-[10px] scale-90 opacity-70">{subCat.articleCount || 0}</Badge>
-                          </td>
-                          <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                            <StatusButton cat={subCat} onToggle={handleToggleStatus} size="sm" />
-                          </td>
-                          <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                            <ActionButtons onEdit={() => openEditModal(subCat)} onDelete={() => setDeleteConfirm(subCat)} size="sm" />
-                          </td>
-                        </tr>
-                      ))
-                    }
-                  </React.Fragment>
-                ))
+              flattenCategories(categories).map(cat => {
+                const isMain = cat.depth === 0;
+                return (
+                  <tr
+                    key={cat.id}
+                    draggable
+                    onDragStart={e => onDragStart(e, cat.id)}
+                    onDragEnter={() => onDragEnter(cat.id)}
+                    onDragEnd={onDragEnd}
+                    onDragOver={e => e.preventDefault()}
+                    className={`hover:bg-[#fafbff] transition-colors cursor-grab active:cursor-grabbing group ${isMain ? '' : 'bg-gray-50/20'}`}
+                  >
+                    <td className="px-2 py-3 border-b border-[#f3f4f6] text-gray-300 group-hover:text-gray-400">
+                      <GripVertical size={isMain ? 16 : 13} className="mx-auto" />
+                    </td>
+                    <td className="px-4 py-3 border-b border-[#f3f4f6]" style={{ paddingLeft: 16 + cat.depth * 26 }}>
+                      <div className={`flex items-center gap-2 text-[var(--text-primary,#1a1d2e)] ${isMain ? 'font-bold' : ''}`}>
+                        {isMain
+                          ? <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ backgroundColor: cat.color }} />
+                          : <span className="text-gray-300">↳</span>}
+                        <span className={isMain ? '' : 'text-[13px] font-semibold'}>{lang === 'bn' ? (cat.nameBn || cat.nameEn) : (cat.nameEn || cat.nameBn)}</span>
+                        <EditionBadge edition={cat.edition} />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 border-b border-[#f3f4f6] font-mono text-[var(--text-secondary,#6b7280)]" style={{ fontSize: isMain ? '12.5px' : '11px' }}>{cat.slug}</td>
+                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
+                      <Badge variant={isMain ? 'blue' : 'gray'} className={isMain ? '' : 'text-[10px] scale-90 opacity-70'}>{cat.articleCount || 0}</Badge>
+                    </td>
+                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
+                      <StatusButton cat={cat} onToggle={handleToggleStatus} size={isMain ? undefined : 'sm'} />
+                    </td>
+                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
+                      <ActionButtons
+                        onEdit={() => openEditModal(cat)}
+                        onDelete={() => setDeleteConfirm(cat)}
+                        size={isMain ? undefined : 'sm'}
+                        {...(isMain ? { onToggleNav: () => handleToggleNav(cat), showInNav: cat.showInNav } : {})}
+                      />
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -495,24 +509,19 @@ export default function CategoryList() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'প্রধান বিভাগ' : 'Parent Category'}</label>
-                  <select 
-                    value={catParentId} 
-                    onChange={(e) => setCatParentId(e.target.value)} 
-                    className="w-full border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#263238] bg-white"
-                  >
-                    <option value="">{lang === 'bn' ? 'কোনটিই নয় (প্রধান)' : 'None (Main Category)'}</option>
-                    {categories
-                      .filter(c => !editingCat || c.id !== editingCat.id)
-                      .map(c => {
-                        const name = lang === 'bn' ? c.nameBn : (c.nameEn || c.nameBn);
-                        return (
-                          <option key={c.id} value={c.id}>
-                            {c.parentId ? `↳ ${name}` : name}
-                          </option>
-                        );
-                      })
-                    }
-                  </select>
+                  <CategorySelect
+                    value={catParentId}
+                    onChange={setCatParentId}
+                    topOption={{ value: '', label: lang === 'bn' ? 'কোনটিই নয় (প্রধান বিভাগ)' : 'None (Main Category)' }}
+                    items={(() => {
+                      const exclude = editingCat ? descendantIds(categories, editingCat.id) : new Set();
+                      return flattenCategories(categories)
+                        .filter(c => !exclude.has(c.id))
+                        .map(c => ({ value: c.id, label: lang === 'bn' ? (c.nameBn || c.nameEn) : (c.nameEn || c.nameBn), depth: c.depth }));
+                    })()}
+                    placeholder={lang === 'bn' ? 'প্রধান বিভাগ নির্বাচন করুন' : 'Select parent category'}
+                    searchPlaceholder={lang === 'bn' ? 'বিভাগ খুঁজুন...' : 'Search categories...'}
+                  />
                 </div>
               </div>
 
