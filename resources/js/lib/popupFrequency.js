@@ -2,15 +2,17 @@
 // pageMatches, capsAllow) are storage-free and unit-tested; the record*/read*
 // helpers wrap localStorage/sessionStorage and are verified by driving the app.
 
+// Safe default applied to any missing keys — matches the migration/admin default
+// so an unconfigured (null) popup ad is capped, never aggressive.
 export const DEFAULT_POPUP_CONFIG = {
   triggers: {
-    delay:          { enabled: true,  seconds: 0 },
+    delay:          { enabled: true,  seconds: 3 },
     scroll:         { enabled: false, percent: 50 },
     exit_intent:    { enabled: false },
     min_page_views: { enabled: false, count: 2 },
   },
   frequency: {
-    max_shows:  { enabled: false, count: 1, per: 'session' },
+    max_shows:  { enabled: true,  count: 1, per: 'session' },
     cooldown:   { enabled: false, minutes: 30 },
     on_dismiss: { enabled: false, hours: 24 },
     on_click:   { enabled: false, days: 7 },
