@@ -12,6 +12,22 @@ import MediaLibraryModal from '../components/media/MediaLibraryModal';
 
 const SLOT_SIZES = ['leaderboard', 'mrec', 'half-page', 'billboard', 'in-article', 'mobile-banner'];
 
+const DEFAULT_POPUP_CFG = {
+  triggers: {
+    delay:          { enabled: true,  seconds: 3 },
+    scroll:         { enabled: false, percent: 50 },
+    exit_intent:    { enabled: false },
+    min_page_views: { enabled: false, count: 2 },
+  },
+  frequency: {
+    max_shows:  { enabled: true,  count: 1, per: 'session' },
+    cooldown:   { enabled: false, minutes: 30 },
+    on_dismiss: { enabled: false, hours: 24 },
+    on_click:   { enabled: false, days: 7 },
+  },
+  targeting: { pages: 'all', devices: 'all' },
+};
+
 export default function AdsManagement({ ads = [], clients = [], slots = [], analytics = {}, filters = {} }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
@@ -29,6 +45,7 @@ export default function AdsManagement({ ads = [], clients = [], slots = [], anal
     clientId: '', slotId: '', position: 'home_top', type: 'image', code: '',
     pricingModel: 'flat', price: '', cpmRate: '',
     startDate: '', endDate: '', isActive: true, sortOrder: 0,
+    popupConfig: DEFAULT_POPUP_CFG,
   };
   const [adModal, setAdModal] = useState(false);
   const [editingAd, setEditingAd] = useState(null);
@@ -44,9 +61,19 @@ export default function AdsManagement({ ads = [], clients = [], slots = [], anal
       type: ad.type || 'image', code: ad.code || '',
       pricingModel: ad.pricingModel || 'flat', price: ad.price ?? '', cpmRate: ad.cpmRate ?? '',
       startDate: ad.startDate || '', endDate: ad.endDate || '', isActive: ad.isActive, sortOrder: ad.sortOrder || 0,
+      popupConfig: ad.popupConfig || DEFAULT_POPUP_CFG,
     });
     setAdModal(true);
   };
+  const setCfg = (path, value) => setAdForm(prev => {
+    const cfg = JSON.parse(JSON.stringify(prev.popupConfig || DEFAULT_POPUP_CFG));
+    const keys = path.split('.');
+    let o = cfg;
+    for (let i = 0; i < keys.length - 1; i++) o = o[keys[i]];
+    o[keys[keys.length - 1]] = value;
+    return { ...prev, popupConfig: cfg };
+  });
+
   const submitAd = () => {
     if (!adForm.titleBn || !adForm.titleEn) { showToast(l('শিরোনাম আবশ্যক', 'Title is required'), 'error'); return; }
     const opts = { onSuccess: () => { setAdModal(false); showToast(l('সংরক্ষিত হয়েছে', 'Saved')); }, onError: () => showToast(l('ত্রুটি ঘটেছে', 'An error occurred'), 'error') };
@@ -401,6 +428,59 @@ export default function AdsManagement({ ads = [], clients = [], slots = [], anal
             <Field label={l('শেষ তারিখ', 'End Date')}><input type="date" value={adForm.endDate} onChange={e => setAdForm({ ...adForm, endDate: e.target.value })} className={inp} /></Field>
           </div>
           <label className="flex items-center gap-2 mt-4 text-sm text-gray-600"><input type="checkbox" checked={adForm.isActive} onChange={e => setAdForm({ ...adForm, isActive: e.target.checked })} /> {l('সক্রিয়', 'Active')}</label>
+
+          {adForm.position === 'popup' && (() => {
+            const c = adForm.popupConfig || DEFAULT_POPUP_CFG;
+            const row = 'flex items-center gap-2 text-sm text-gray-700 flex-wrap';
+            const numCls = 'w-20 border rounded px-2 py-1 text-sm';
+            const sel = 'border rounded px-2 py-1 text-sm';
+            return (
+              <div className="mt-4 border-t pt-4 space-y-4">
+                <div className="font-bold text-sm text-[#263238]">{l('পপ-আপ আচরণ', 'Popup behaviour')}</div>
+
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold uppercase text-gray-400">{l('ট্রিগার', 'Triggers')}</div>
+                  <label className={row}><input type="checkbox" checked={c.triggers.delay.enabled} onChange={e => setCfg('triggers.delay.enabled', e.target.checked)} /> {l('লোডের পর দেরি (সেকেন্ড)', 'Delay after load (sec)')}
+                    <input type="number" min="0" max="120" value={c.triggers.delay.seconds} onChange={e => setCfg('triggers.delay.seconds', +e.target.value)} className={numCls} /></label>
+                  <label className={row}><input type="checkbox" checked={c.triggers.scroll.enabled} onChange={e => setCfg('triggers.scroll.enabled', e.target.checked)} /> {l('স্ক্রল গভীরতা (%)', 'Scroll depth (%)')}
+                    <input type="number" min="1" max="100" value={c.triggers.scroll.percent} onChange={e => setCfg('triggers.scroll.percent', +e.target.value)} className={numCls} /></label>
+                  <label className={row}><input type="checkbox" checked={c.triggers.exit_intent.enabled} onChange={e => setCfg('triggers.exit_intent.enabled', e.target.checked)} /> {l('এক্সিট ইনটেন্ট', 'Exit intent')}</label>
+                  <label className={row}><input type="checkbox" checked={c.triggers.min_page_views.enabled} onChange={e => setCfg('triggers.min_page_views.enabled', e.target.checked)} /> {l('সর্বনিম্ন পেজ ভিউ', 'Min page views')}
+                    <input type="number" min="1" max="50" value={c.triggers.min_page_views.count} onChange={e => setCfg('triggers.min_page_views.count', +e.target.value)} className={numCls} /></label>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold uppercase text-gray-400">{l('ফ্রিকোয়েন্সি', 'Frequency')}</div>
+                  <label className={row}><input type="checkbox" checked={c.frequency.max_shows.enabled} onChange={e => setCfg('frequency.max_shows.enabled', e.target.checked)} /> {l('সর্বোচ্চ বার', 'Max shows')}
+                    <input type="number" min="1" max="50" value={c.frequency.max_shows.count} onChange={e => setCfg('frequency.max_shows.count', +e.target.value)} className={numCls} />
+                    <select value={c.frequency.max_shows.per} onChange={e => setCfg('frequency.max_shows.per', e.target.value)} className={sel}>
+                      <option value="session">{l('প্রতি সেশন', 'per session')}</option>
+                      <option value="day">{l('প্রতি দিন', 'per day')}</option>
+                      <option value="lifetime">{l('সর্বমোট', 'lifetime')}</option>
+                    </select></label>
+                  <label className={row}><input type="checkbox" checked={c.frequency.cooldown.enabled} onChange={e => setCfg('frequency.cooldown.enabled', e.target.checked)} /> {l('কুলডাউন (মিনিট)', 'Cooldown (min)')}
+                    <input type="number" min="1" max="10080" value={c.frequency.cooldown.minutes} onChange={e => setCfg('frequency.cooldown.minutes', +e.target.value)} className={numCls} /></label>
+                  <label className={row}><input type="checkbox" checked={c.frequency.on_dismiss.enabled} onChange={e => setCfg('frequency.on_dismiss.enabled', e.target.checked)} /> {l('বন্ধ করার পর থামুন (ঘণ্টা, ০=চিরতরে)', 'Stop after dismiss (hrs, 0=forever)')}
+                    <input type="number" min="0" max="8760" value={c.frequency.on_dismiss.hours} onChange={e => setCfg('frequency.on_dismiss.hours', +e.target.value)} className={numCls} /></label>
+                  <label className={row}><input type="checkbox" checked={c.frequency.on_click.enabled} onChange={e => setCfg('frequency.on_click.enabled', e.target.checked)} /> {l('ক্লিকের পর থামুন (দিন)', 'Stop after click (days)')}
+                    <input type="number" min="0" max="365" value={c.frequency.on_click.days} onChange={e => setCfg('frequency.on_click.days', +e.target.value)} className={numCls} /></label>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold uppercase text-gray-400">{l('টার্গেটিং', 'Targeting')}</div>
+                  <label className={row}>{l('পেজ', 'Pages')}
+                    <select value={c.targeting.pages} onChange={e => setCfg('targeting.pages', e.target.value)} className={sel}>
+                      <option value="all">{l('সব', 'all')}</option><option value="home">{l('হোম', 'home')}</option>
+                      <option value="article">{l('আর্টিকেল', 'article')}</option><option value="category">{l('ক্যাটাগরি', 'category')}</option>
+                    </select></label>
+                  <label className={row}>{l('ডিভাইস', 'Devices')}
+                    <select value={c.targeting.devices} onChange={e => setCfg('targeting.devices', e.target.value)} className={sel}>
+                      <option value="all">{l('সব', 'all')}</option><option value="desktop">{l('ডেস্কটপ', 'desktop')}</option><option value="mobile">{l('মোবাইল', 'mobile')}</option>
+                    </select></label>
+                </div>
+              </div>
+            );
+          })()}
 
           <ModalActions onCancel={() => setAdModal(false)} onSave={submitAd} l={l} />
         </Modal>
