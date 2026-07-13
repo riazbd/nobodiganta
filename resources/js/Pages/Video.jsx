@@ -3,7 +3,7 @@ import Icon from '../Components/Icon';
 import PageSidebar from '../Components/PageSidebar';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
-import { toBengaliNum, relativeTime } from '../lib/formatters';
+import ArticleThumb from '../Components/ui/ArticleThumb';
 
 export default function Video({ videos = [] }) {
   const { lang } = useApp();
@@ -18,108 +18,57 @@ export default function Video({ videos = [] }) {
   const feat = videos[0];
   const rest = videos.slice(1);
 
-  const fmtViews = (n) => {
-    const s = Number(n).toLocaleString('en-IN');
-    return lang === 'bn' ? toBengaliNum(s) : s;
-  };
-
   return (
     <div className="g-side">
       <div>
         <div className="sec-hdr"><div className="sec-ttl">{t('video.title', lang)}</div></div>
 
         {feat ? (
-          <div className="sec" style={{ marginBottom: 14 }}>
-            <div
-              style={{ position: 'relative', cursor: 'pointer' }}
+          <>
+            {/* Hero — same as category hero */}
+            <article
+              className="card"
+              style={{ marginBottom: 14 }}
               onClick={() => openArticle(feat)}
               role="button"
               tabIndex={0}
-              aria-label={feat.title}
               onKeyDown={(e) => e.key === 'Enter' && openArticle(feat)}
             >
-              <div className="ph" style={{ width: '100%', height: 380 }}>
-                {feat.thumbnail ? (
-                  <img
-                    src={feat.thumbnail}
-                    alt={feat.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <Icon name="cinema" size={60} />
-                )}
+              <ArticleThumb src={feat.thumbnail} alt={feat.title} isVideo aspectRatio="16/9" style={{ width: '100%', maxHeight: 480 }} />
+              <div className="cb">
+                <h3>{feat.title}</h3>
               </div>
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 70, height: 70, background: 'rgba(232,0,30,0.9)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-                <Icon name="play" size={28} />
+            </article>
+
+            {/* Rest — same cards as category non-hero (art-bottom-card grid) */}
+            {rest.length > 0 && (
+              <div className="art-bottom-grid" style={{ marginBottom: 20 }}>
+                {rest.map((v) => (
+                  <div
+                    key={v.id}
+                    className="art-bottom-card"
+                    onClick={() => openArticle(v)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && openArticle(v)}
+                  >
+                    <div className="art-bottom-card-img" style={{ position: 'relative' }}>
+                      {v.thumbnail
+                        ? <img src={v.thumbnail} alt={v.title || ''} loading="lazy" />
+                        : <div className="ph" style={{ width: '100%', height: '100%' }}><Icon name="cinema" size={28} /></div>}
+                      <div className="play-btn"><Icon name="play" size={16} /></div>
+                    </div>
+                    <div className="art-bottom-card-body">
+                      <div className="art-bottom-card-title">{v.title}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              {feat.duration && (
-                <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: 11, padding: '2px 7px', borderRadius: 2 }}>
-                  {lang === 'bn' ? toBengaliNum(feat.duration) : feat.duration}
-                </div>
-              )}
-            </div>
-            <div style={{ padding: 12 }}>
-              <h3
-                onClick={() => openArticle(feat)}
-                role="link"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && openArticle(feat)}
-                style={{ fontFamily: "'Kalpurush','SolaimanLipi',sans-serif", fontSize: 19, fontWeight: 700, marginBottom: 8, lineHeight: 1.45, cursor: 'pointer' }}
-              >
-                {feat.title}
-              </h3>
-              <div className="meta">
-                <span>{relativeTime(feat.published_at, lang)}</span>
-                <span className="views">
-                  <Icon name="eye" size={12} /> {fmtViews(feat.views)}
-                </span>
-              </div>
-            </div>
-          </div>
+            )}
+          </>
         ) : (
           <p>{lang === 'bn' ? 'কোনো ভিডিও নেই।' : 'No videos found.'}</p>
         )}
-
-        <div className="sec">
-          <div className="sec-hdr"><div className="sec-ttl" style={{ fontSize: 16 }}>{t('video.more', lang)}</div></div>
-          <div className="g2">
-            {rest.map((v) => (
-              <div
-                key={v.id}
-                onClick={() => openArticle(v)}
-                style={{ cursor: 'pointer' }}
-                role="button"
-                tabIndex={0}
-                aria-label={v.title}
-                onKeyDown={(e) => e.key === 'Enter' && openArticle(v)}
-              >
-                <div className="vid-thumb">
-                  <div className="ph" style={{ width: '100%', height: 140 }}>
-                    {v.thumbnail ? (
-                      <img
-                        src={v.thumbnail}
-                        alt={v.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <Icon name="cinema" size={28} />
-                    )}
-                  </div>
-                  <div className="play-btn"><Icon name="play" size={16} /></div>
-                  {v.duration && <div className="vid-dur">{lang === 'bn' ? toBengaliNum(v.duration) : v.duration}</div>}
-                </div>
-                <div className="vid-info">
-                  <h4>{v.title}</h4>
-                  <div className="meta">
-                    <span>{relativeTime(v.published_at, lang)}</span>
-                    <span className="views"><Icon name="eye" size={12} /> {fmtViews(v.views)}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
       <PageSidebar />
     </div>
