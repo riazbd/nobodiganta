@@ -8,7 +8,7 @@ import Pagination from '../Components/ui/Pagination';
 import EmptyState from '../Components/ui/EmptyState';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
-import { toBengaliNum, relativeTime } from '../lib/formatters';
+import { toBengaliNum } from '../lib/formatters';
 import MetaTags from '../Components/seo/MetaTags';
 import ArticleThumb from '../Components/ui/ArticleThumb';
 import { BreadcrumbJsonLd } from '../Components/seo/JsonLd';
@@ -147,11 +147,7 @@ export default function Category({ category, articles }) {
                           </div>
                         )}
                         <div className="art-bottom-card-body">
-                          {item.category?.name && <div className="art-bottom-card-cat">{item.category.name}</div>}
                           <div className="art-bottom-card-title">{item.title}</div>
-                          {item.published_at && (
-                            <div className="art-bottom-card-date">{relativeTime(item.published_at, lang)}</div>
-                          )}
                         </div>
                       </div>
                     ))}
