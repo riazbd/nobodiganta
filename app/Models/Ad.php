@@ -31,6 +31,7 @@ class Ad extends Model
         'clicks',
         'is_active',
         'sort_order',
+        'popup_config',
     ];
 
     protected $casts = [
@@ -42,6 +43,7 @@ class Ad extends Model
         'sort_order' => 'integer',
         'price' => 'decimal:2',
         'cpm_rate' => 'decimal:2',
+        'popup_config' => 'array',
     ];
 
     public function client(): BelongsTo
