@@ -3,7 +3,7 @@ import Icon from '../Components/Icon';
 import PageSidebar from '../Components/PageSidebar';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
-import { toBengaliNum } from '../lib/formatters';
+import { toBengaliNum, relativeTime } from '../lib/formatters';
 
 export default function Video({ videos = [] }) {
   const { lang } = useApp();
@@ -69,7 +69,7 @@ export default function Video({ videos = [] }) {
                 {feat.title}
               </h3>
               <div className="meta">
-                <span>{feat.time}</span>
+                <span>{relativeTime(feat.published_at, lang)}</span>
                 <span className="views">
                   <Icon name="eye" size={12} /> {fmtViews(feat.views)}
                 </span>
@@ -112,7 +112,7 @@ export default function Video({ videos = [] }) {
                 <div className="vid-info">
                   <h4>{v.title}</h4>
                   <div className="meta">
-                    <span>{v.time}</span>
+                    <span>{relativeTime(v.published_at, lang)}</span>
                     <span className="views"><Icon name="eye" size={12} /> {fmtViews(v.views)}</span>
                   </div>
                 </div>

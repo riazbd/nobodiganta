@@ -1063,7 +1063,7 @@ class NewsController extends Controller
             ->map(fn($a) => [
                 'id' => $a->id,
                 'title' => $edition === 'en' ? $a->title_en : $a->title_bn,
-                'time' => $a->published_at ? $a->published_at->diffForHumans() : '',
+                'published_at' => $a->published_at?->toIso8601String(),
                 'views' => Article::publicCount($a->views),
                 'duration' => $a->video_duration ?: '',
                 'thumbnail' => $a->featured_image,
