@@ -43,7 +43,7 @@ function ArticleListItem({ item, lang, onNavigate }) {
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
     >
-      <ArticleThumb src={item.featured_image} alt={item.title} isVideo={item.article_type === 'video'} width={120} aspectRatio="4/3" />
+      <ArticleThumb src={item.featured_image} alt={item.title} isVideo={item.article_type === 'video'} width={70} height={50} />
       <div>
         <h4>{item.title}</h4>
       </div>
@@ -129,11 +129,11 @@ export default function Category({ category, articles }) {
                   <ArticleCard item={data[0]} lang={lang} onNavigate={onNavigate} hero />
                 </div>
 
-                {/* 2-up grid */}
-                {data.length > 1 && (
-                  <div className="g2" style={{ marginBottom: 14 }}>
+                {/* Remaining items — related-news style rows (small 70×50 thumb) */}
+                {data.slice(1, 3).length > 0 && (
+                  <div className="sec">
                     {data.slice(1, 3).map(item => (
-                      <ArticleCard key={item.id} item={item} lang={lang} onNavigate={onNavigate} />
+                      <ArticleListItem key={item.id} item={item} lang={lang} onNavigate={onNavigate} />
                     ))}
                   </div>
                 )}
