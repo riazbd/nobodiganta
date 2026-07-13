@@ -24,7 +24,7 @@ function ArticleCard({ item, lang, onNavigate, hero = false }) {
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
     >
-      <ArticleThumb src={item.featured_image} alt={item.title} isVideo={item.article_type === 'video'} aspectRatio={hero ? '16/9' : '4/3'} />
+      <ArticleThumb src={item.featured_image} alt={item.title} isVideo={item.article_type === 'video'} aspectRatio={hero ? '16/9' : '4/3'} style={hero ? { maxHeight: 420 } : undefined} />
       <div className="cb">
         <h3>{item.title}</h3>
         {item.excerpt && <p>{item.excerpt}</p>}
