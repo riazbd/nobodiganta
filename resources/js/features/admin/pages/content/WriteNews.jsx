@@ -1393,7 +1393,21 @@ export default function WriteNews() {
                     <input type="text" value={form.data.guestAuthorNameEn} onChange={e => form.setData('guestAuthorNameEn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none" placeholder="Name (English)" />
                     <input type="text" value={form.data.guestAuthorDesignationBn} onChange={e => form.setData('guestAuthorDesignationBn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none" placeholder="Designation (Bangla)" />
                     <input type="text" value={form.data.guestAuthorDesignationEn} onChange={e => form.setData('guestAuthorDesignationEn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none" placeholder="Designation (English)" />
-                    <textarea rows="2" value={form.data.guestAuthorBioBn} onChange={e => form.setData('guestAuthorBioBn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none resize-none" placeholder="Short bio..." />
+                    <textarea rows="2" value={form.data.guestAuthorBioBn} onChange={e => form.setData('guestAuthorBioBn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none resize-none" placeholder="Short bio (Bangla)..." />
+                    <textarea rows="2" value={form.data.guestAuthorBioEn} onChange={e => form.setData('guestAuthorBioEn', e.target.value)} className="w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-xs outline-none resize-none" placeholder="Short bio (English)..." />
+                    <div className="flex items-center gap-2">
+                      {form.data.guestAuthorImage
+                        ? <img src={form.data.guestAuthorImage} alt="" className="w-12 h-12 rounded-full object-cover border border-gray-200" />
+                        : <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-lg">👤</div>}
+                      <button type="button" onClick={() => { setActiveMediaTarget('guest'); setShowMediaLibrary(true); }} className="text-xs font-semibold px-2.5 py-1.5 border border-gray-300 rounded-md hover:bg-gray-100">
+                        {form.data.guestAuthorImage ? (lang === 'bn' ? 'ছবি পরিবর্তন' : 'Change photo') : (lang === 'bn' ? 'ছবি আপলোড' : 'Upload photo')}
+                      </button>
+                      {form.data.guestAuthorImage && (
+                        <button type="button" onClick={() => form.setData('guestAuthorImage', '')} className="text-xs text-red-500 hover:underline">
+                          {lang === 'bn' ? 'সরান' : 'Remove'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

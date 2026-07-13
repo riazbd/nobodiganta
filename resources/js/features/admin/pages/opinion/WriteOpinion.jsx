@@ -671,7 +671,8 @@ export default function WriteOpinion() {
                   <input type="text" value={form.data.guestAuthorDesignationBn} onChange={e => form.setData('guestAuthorDesignationBn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" placeholder="পদবি (বাংলা)..." />
                   <input type="text" value={form.data.guestAuthorDesignationEn} onChange={e => form.setData('guestAuthorDesignationEn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238]" placeholder="Designation (EN)..." />
                 </div>
-                <textarea rows="2" value={form.data.guestAuthorBioBn} onChange={e => form.setData('guestAuthorBioBn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238] resize-none" placeholder="লেখকের সংক্ষিপ্ত পরিচিতি..." />
+                <textarea rows="2" value={form.data.guestAuthorBioBn} onChange={e => form.setData('guestAuthorBioBn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238] resize-none" placeholder="লেখকের সংক্ষিপ্ত পরিচিতি (বাংলা)..." />
+                <textarea rows="2" value={form.data.guestAuthorBioEn} onChange={e => form.setData('guestAuthorBioEn', e.target.value)} className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-[#263238] resize-none" placeholder="Short bio (English)..." />
               </div>
             )}
             
