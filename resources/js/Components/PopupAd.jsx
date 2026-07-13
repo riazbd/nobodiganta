@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { usePage } from '@inertiajs/react';
 import { trackImpression, trackClick } from '../services/adService';
 import { getUniversalEmbedConfig } from '../lib/video';
+import {
+  mergePopupConfig, pageMatches, deviceMatches, capsAllow,
+  readState, sessionShows, recordShow, recordDismiss, recordClick,
+  bumpPageViews,
+} from '../lib/popupFrequency';
 
 /**
  * Site-wide pop-up advertisement.
@@ -19,12 +24,61 @@ export default function PopupAd() {
   const [visible, setVisible] = useState(false);
   const tracked = useRef(false);
 
-  // Show on initial load and re-show on every page navigation.
+  const dismiss = () => {
+    if (popupAd?.id) recordDismiss(popupAd.id);
+    setVisible(false);
+  };
+  const onAdClick = () => {
+    if (popupAd?.id) { recordClick(popupAd.id); trackClick(popupAd.id); }
+  };
+
+  // Evaluate gates + arm triggers on load and on every navigation.
   useEffect(() => {
-    if (popupAd) {
-      tracked.current = false;
+    if (!popupAd?.id) return;
+    setVisible(false);
+    tracked.current = false;
+
+    const cfg = mergePopupConfig(popupAd.config);
+    const pv = bumpPageViews();
+
+    // Gates — all must pass before arming.
+    if (!pageMatches(cfg.targeting.pages, url)) return;
+    if (!deviceMatches(cfg.targeting.devices)) return;
+    if (cfg.triggers.min_page_views.enabled && pv < cfg.triggers.min_page_views.count) return;
+    const state = { ...readState(popupAd.id), sessionShows: sessionShows(popupAd.id) };
+    if (!capsAllow(cfg, state, Date.now())) return;
+
+    // Triggers — OR / first-to-fire. Cleanup removes all listeners/timers.
+    let done = false;
+    const cleanups = [];
+    const fire = () => {
+      if (done) return;
+      done = true;
+      cleanups.forEach((fn) => fn());
+      recordShow(popupAd.id);
       setVisible(true);
+    };
+    const t = cfg.triggers;
+    const anyTrigger = t.delay.enabled || t.scroll.enabled || t.exit_intent.enabled;
+
+    if (!anyTrigger || t.delay.enabled) {
+      const id = setTimeout(fire, (anyTrigger ? t.delay.seconds : 0) * 1000);
+      cleanups.push(() => clearTimeout(id));
     }
+    if (t.scroll.enabled) {
+      const onScroll = () => {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        if (h > 0 && (window.scrollY / h) * 100 >= t.scroll.percent) fire();
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      cleanups.push(() => window.removeEventListener('scroll', onScroll));
+    }
+    if (t.exit_intent.enabled) {
+      const onLeave = (e) => { if (e.clientY <= 0) fire(); };
+      document.addEventListener('mouseout', onLeave);
+      cleanups.push(() => document.removeEventListener('mouseout', onLeave));
+    }
+    return () => cleanups.forEach((fn) => fn());
   }, [popupAd, url]);
 
   // Count one impression each time it's shown.
@@ -35,23 +89,21 @@ export default function PopupAd() {
     }
   }, [visible, popupAd]);
 
-  // Esc closes.
+  // Esc closes (counts as a dismiss).
   useEffect(() => {
     if (!visible) return;
-    const onKey = (e) => { if (e.key === 'Escape') setVisible(false); };
+    const onKey = (e) => { if (e.key === 'Escape') dismiss(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [visible]);
 
   if (!popupAd || !visible) return null;
 
-  const close = () => setVisible(false);
-
   return (
-    <div className="popup-ad-overlay" onClick={close} role="dialog" aria-modal="true" aria-label="Advertisement">
+    <div className="popup-ad-overlay" onClick={dismiss} role="dialog" aria-modal="true" aria-label="Advertisement">
       <div className="popup-ad-card" onClick={(e) => e.stopPropagation()}>
-        <button className="popup-ad-close" onClick={close} aria-label="Close">×</button>
-        <PopupAdContent ad={popupAd} onClick={() => trackClick(popupAd.id)} />
+        <button className="popup-ad-close" onClick={dismiss} aria-label="Close">×</button>
+        <PopupAdContent ad={popupAd} onClick={onAdClick} />
       </div>
     </div>
   );
