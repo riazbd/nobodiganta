@@ -1,6 +1,5 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Edit3, Trash2, X, Check, Loader2, AlertTriangle, FolderTree, GripVertical, Navigation } from 'lucide-react';
-import { Badge } from '../../components/feedback/Badge';
+﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Plus, Edit3, Trash2, X, Check, Loader2, AlertTriangle, FolderTree, GripVertical, Navigation, ChevronRight, Search } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
 import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
@@ -44,6 +43,8 @@ export default function CategoryList() {
   const [editingCat, setEditingCat] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [reordering, setReordering]       = useState(false);
+  const [expanded, setExpanded]           = useState(() => new Set());
+  const [catSearch, setCatSearch]         = useState('');
   const dragId   = useRef(null);
   const dragOver = useRef(null);
 
@@ -233,7 +234,50 @@ export default function CategoryList() {
     }
   };
 
-  // ── Drag-to-reorder (top-level categories only) ──────────────
+  // ── Collapsible tree ─────────────────────────────────────────
+  const childrenMap = useMemo(() => {
+    const m = {};
+    categories.forEach(c => { const k = c.parentId || 'root'; (m[k] = m[k] || []).push(c); });
+    return m;
+  }, [categories]);
+  const hasKids = (id) => (childrenMap[id]?.length || 0) > 0;
+
+  const nameOf = (c) => (lang === 'bn' ? (c.nameBn || c.nameEn) : (c.nameEn || c.nameBn)) || '';
+
+  // Rows to show: collapsed tree, or (when searching) all matches + their ancestors.
+  const visibleNodes = useMemo(() => {
+    const q = catSearch.trim().toLowerCase();
+    if (q) {
+      const byId = {}; categories.forEach(c => { byId[c.id] = c; });
+      const keep = new Set();
+      categories.forEach(c => {
+        if (nameOf(c).toLowerCase().includes(q) || (c.slug || '').toLowerCase().includes(q)) {
+          let cur = c;
+          while (cur) { keep.add(cur.id); cur = cur.parentId ? byId[cur.parentId] : null; }
+        }
+      });
+      return flattenCategories(categories).filter(n => keep.has(n.id));
+    }
+    const out = [];
+    const walk = (parentId, depth) => {
+      (childrenMap[parentId || 'root'] || []).forEach(c => {
+        out.push({ ...c, depth });
+        if (expanded.has(c.id)) walk(c.id, depth + 1);
+      });
+    };
+    walk(null, 0);
+    return out;
+  }, [categories, expanded, catSearch, childrenMap, lang]);
+
+  const toggleExpand = (id) => setExpanded(prev => {
+    const n = new Set(prev);
+    n.has(id) ? n.delete(id) : n.add(id);
+    return n;
+  });
+  const expandAll = () => setExpanded(new Set(categories.filter(c => hasKids(c.id)).map(c => c.id)));
+  const collapseAll = () => setExpanded(new Set());
+
+  // ── Drag-to-reorder (within the same sibling group, any depth) ─
   const onDragStart = (e, id) => {
     dragId.current = id;
     e.dataTransfer.effectAllowed = 'move';
@@ -335,72 +379,98 @@ export default function CategoryList() {
         </button>
       </div>
 
-      {/* Table */}
+      {/* Toolbar: search + expand controls */}
+      <div className="flex items-center gap-2 mb-3 flex-wrap">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            value={catSearch}
+            onChange={e => setCatSearch(e.target.value)}
+            placeholder={lang === 'bn' ? 'বিভাগ খুঁজুন...' : 'Search categories...'}
+            className="w-full pl-9 pr-8 py-2 text-sm border border-[var(--card-border,#e8ebf4)] rounded-lg outline-none focus:border-[#263238] bg-white"
+          />
+          {catSearch && (
+            <button onClick={() => setCatSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+          )}
+        </div>
+        <button onClick={expandAll} className="text-xs font-medium text-gray-500 hover:text-[#263238] px-2.5 py-2 rounded-lg hover:bg-gray-100 transition-colors">{lang === 'bn' ? 'সব খুলুন' : 'Expand all'}</button>
+        <button onClick={collapseAll} className="text-xs font-medium text-gray-500 hover:text-[#263238] px-2.5 py-2 rounded-lg hover:bg-gray-100 transition-colors">{lang === 'bn' ? 'সব বন্ধ' : 'Collapse all'}</button>
+      </div>
+
+      {/* Tree */}
       <div className="bg-[var(--card-bg,#ffffff)] border border-[var(--card-border,#e8ebf4)] rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="w-8 px-2 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)]" title={lang === 'bn' ? 'টেনে সাজান' : 'Drag to reorder'} />
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'নাম' : 'Name'}</th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'স্লাগ' : 'Slug'}</th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'আর্টিকেল' : 'Articles'}</th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'স্টেটাস' : 'Status'}</th>
-              <th className="text-[11px] font-semibold text-[var(--text-muted,#9ca3af)] uppercase tracking-wider px-4 py-3 bg-[var(--body-bg,#f0f2f8)] border-b border-[var(--card-border,#e8ebf4)] text-left">{lang === 'bn' ? 'কাজ' : 'Actions'}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="px-4 py-8 text-center text-sm text-[var(--text-muted,#9ca3af)]">
-                  {lang === 'bn' ? 'কোনো বিভাগ পাওয়া যায়নি' : 'No categories found'}
-                </td>
-              </tr>
-            ) : (
-              flattenCategories(categories).map(cat => {
-                const isMain = cat.depth === 0;
-                return (
-                  <tr
-                    key={cat.id}
-                    draggable
-                    onDragStart={e => onDragStart(e, cat.id)}
-                    onDragEnter={() => onDragEnter(cat.id)}
-                    onDragEnd={onDragEnd}
-                    onDragOver={e => e.preventDefault()}
-                    className={`hover:bg-[#fafbff] transition-colors cursor-grab active:cursor-grabbing group ${isMain ? '' : 'bg-gray-50/20'}`}
-                  >
-                    <td className="px-2 py-3 border-b border-[#f3f4f6] text-gray-300 group-hover:text-gray-400">
-                      <GripVertical size={isMain ? 16 : 13} className="mx-auto" />
-                    </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]" style={{ paddingLeft: 16 + cat.depth * 26 }}>
-                      <div className={`flex items-center gap-2 text-[var(--text-primary,#1a1d2e)] ${isMain ? 'font-bold' : ''}`}>
-                        {isMain
-                          ? <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ backgroundColor: cat.color }} />
-                          : <span className="text-gray-300">↳</span>}
-                        <span className={isMain ? '' : 'text-[13px] font-semibold'}>{lang === 'bn' ? (cat.nameBn || cat.nameEn) : (cat.nameEn || cat.nameBn)}</span>
-                        <EditionBadge edition={cat.edition} />
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6] font-mono text-[var(--text-secondary,#6b7280)]" style={{ fontSize: isMain ? '12.5px' : '11px' }}>{cat.slug}</td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                      <Badge variant={isMain ? 'blue' : 'gray'} className={isMain ? '' : 'text-[10px] scale-90 opacity-70'}>{cat.articleCount || 0}</Badge>
-                    </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                      <StatusButton cat={cat} onToggle={handleToggleStatus} size={isMain ? undefined : 'sm'} />
-                    </td>
-                    <td className="px-4 py-3 border-b border-[#f3f4f6]">
-                      <ActionButtons
-                        onEdit={() => openEditModal(cat)}
-                        onDelete={() => setDeleteConfirm(cat)}
-                        size={isMain ? undefined : 'sm'}
-                        {...(isMain ? { onToggleNav: () => handleToggleNav(cat), showInNav: cat.showInNav } : {})}
-                      />
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+        {visibleNodes.length === 0 ? (
+          <div className="px-4 py-12 text-center text-sm text-[var(--text-muted,#9ca3af)]">
+            {catSearch ? (lang === 'bn' ? 'কিছু পাওয়া যায়নি' : 'No matches') : (lang === 'bn' ? 'কোনো বিভাগ নেই' : 'No categories yet')}
+          </div>
+        ) : (
+          visibleNodes.map(cat => {
+            const isMain = cat.depth === 0;
+            const kids = hasKids(cat.id);
+            const isOpen = !!catSearch || expanded.has(cat.id);
+            return (
+              <div
+                key={cat.id}
+                draggable
+                onDragStart={e => onDragStart(e, cat.id)}
+                onDragEnter={() => onDragEnter(cat.id)}
+                onDragEnd={onDragEnd}
+                onDragOver={e => e.preventDefault()}
+                className={`group flex items-center gap-1.5 pr-3 border-b border-[#f4f5f7] last:border-b-0 hover:bg-[#fafbfc] transition-colors ${cat.isActive ? '' : 'opacity-60'}`}
+                style={{ paddingLeft: 6 + cat.depth * 22 }}
+              >
+                <span className="w-4 flex-shrink-0 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing" title={lang === 'bn' ? 'টেনে সাজান' : 'Drag to reorder'}>
+                  <GripVertical size={14} />
+                </span>
+
+                {kids ? (
+                  <button onClick={() => toggleExpand(cat.id)} className="w-5 h-5 flex items-center justify-center rounded text-gray-400 hover:text-[#263238] hover:bg-gray-100 flex-shrink-0" aria-label={isOpen ? 'Collapse' : 'Expand'}>
+                    <ChevronRight size={15} className={`transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+                  </button>
+                ) : <span className="w-5 flex-shrink-0" />}
+
+                {isMain && <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: cat.color || '#94a3b8' }} />}
+
+                <button
+                  onClick={() => (kids ? toggleExpand(cat.id) : openEditModal(cat))}
+                  className="flex items-center gap-2 min-w-0 py-2.5 text-left"
+                >
+                  <span className={`truncate text-[var(--text-primary,#1a1d2e)] ${isMain ? 'font-semibold text-[14px]' : 'text-[13px]'}`}>{nameOf(cat)}</span>
+                  {kids && <span className="text-[11px] text-gray-400 tabular-nums">{childrenMap[cat.id].length}</span>}
+                  <EditionBadge edition={cat.edition} />
+                </button>
+
+                <div className="flex-1 min-w-[8px]" />
+
+                <span className="hidden lg:block font-mono text-[11px] text-gray-300 group-hover:text-gray-400 truncate max-w-[200px] transition-colors">{cat.slug}</span>
+
+                <span className="text-[12px] text-gray-400 tabular-nums w-8 text-right flex-shrink-0" title={lang === 'bn' ? 'আর্টিকেল' : 'Articles'}>{cat.articleCount || 0}</span>
+
+                <button
+                  onClick={() => handleToggleStatus(cat)}
+                  title={cat.isActive ? (lang === 'bn' ? 'নিষ্ক্রিয় করুন' : 'Deactivate') : (lang === 'bn' ? 'সক্রিয় করুন' : 'Activate')}
+                  className="w-6 h-6 flex items-center justify-center flex-shrink-0 rounded hover:bg-gray-100"
+                >
+                  <span className={`w-2 h-2 rounded-full ${cat.isActive ? 'bg-green-500' : 'bg-gray-300'}`} />
+                </button>
+
+                <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity flex-shrink-0">
+                  {isMain && (
+                    <button onClick={() => handleToggleNav(cat)} title={cat.showInNav ? (lang === 'bn' ? 'মেনু থেকে লুকান' : 'Hide from nav') : (lang === 'bn' ? 'মেনুতে দেখান' : 'Show in nav')} className={`p-1.5 rounded-lg transition-colors ${cat.showInNav ? 'text-blue-500 hover:bg-blue-50' : 'text-gray-300 hover:bg-gray-100 hover:text-gray-500'}`}>
+                      <Navigation size={14} />
+                    </button>
+                  )}
+                  <button onClick={() => openEditModal(cat)} title={lang === 'bn' ? 'সম্পাদনা' : 'Edit'} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                    <Edit3 size={14} />
+                  </button>
+                  <button onClick={() => setDeleteConfirm(cat)} title={lang === 'bn' ? 'মুছুন' : 'Delete'} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -587,45 +657,11 @@ export default function CategoryList() {
 
 // Helper Components
 function EditionBadge({ edition }) {
-  if (edition === 'both') return <span className="text-[9px] px-1.5 py-0.5 bg-[#ecfdf5] text-[#10b981] rounded-full font-black uppercase ml-1">Both</span>;
-  if (edition === 'bn') return <span className="text-[9px] px-1.5 py-0.5 bg-[#eceff1] text-[#263238] rounded-full font-black uppercase ml-1">বাংলা</span>;
-  return <span className="text-[9px] px-1.5 py-0.5 bg-[#eff6ff] text-[#3b82f6] rounded-full font-black uppercase ml-1">EN</span>;
-}
-
-function StatusButton({ cat, onToggle, size = 'md' }) {
+  // "both" is the norm — show a tag only for the single-edition exceptions.
+  if (edition === 'both') return null;
   return (
-    <button
-      onClick={() => onToggle(cat)}
-      className={`font-bold rounded-full transition-all active:scale-95 ${size === 'sm' ? 'text-[9px] px-2 py-0.5' : 'text-[10px] px-3 py-1'} ${
-        cat.isActive
-          ? 'bg-green-50 text-green-600 hover:bg-green-100'
-          : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-      }`}
-    >
-      {cat.isActive ? 'Active' : 'Inactive'}
-    </button>
-  );
-}
-
-function ActionButtons({ onEdit, onDelete, onToggleNav, showInNav, size = 'md' }) {
-  const iconSize = size === 'sm' ? 14 : 16;
-  return (
-    <div className="flex items-center gap-1">
-      {onToggleNav && (
-        <button
-          onClick={onToggleNav}
-          title={showInNav ? 'Hide from nav' : 'Show in nav'}
-          className={`p-1.5 rounded-lg transition-colors ${showInNav ? 'text-blue-500 hover:bg-blue-50' : 'text-gray-300 hover:bg-gray-100 hover:text-gray-500'}`}
-        >
-          <Navigation size={iconSize} />
-        </button>
-      )}
-      <button onClick={onEdit} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600">
-        <Edit3 size={iconSize} />
-      </button>
-      <button onClick={onDelete} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-gray-400 hover:text-red-500">
-        <Trash2 size={iconSize} />
-      </button>
-    </div>
+    <span className="text-[9px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded font-semibold flex-shrink-0">
+      {edition === 'bn' ? 'বাংলা' : 'EN'}
+    </span>
   );
 }
