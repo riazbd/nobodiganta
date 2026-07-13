@@ -246,9 +246,7 @@ function VideoSection({ items, lang, nav }) {
                   <div key={a.id} className="p-vid-card" onClick={() => go(a, nav)} role="button" tabIndex={0}>
                     <div className="p-vid-thumb"><Img src={a.featured_image} alt={a.title} isVideo /></div>
                     <div className="p-vid-body">
-                      <CatTag cat={a.category} />
                       <h5 className="p-vid-h">{lang === 'bn' ? a.title : (a.title_en || a.title)}</h5>
-                      <TimeTag dt={a.published_at} lang={lang} />
                     </div>
                   </div>
                 ))}
