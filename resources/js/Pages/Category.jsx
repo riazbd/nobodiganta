@@ -8,7 +8,7 @@ import Pagination from '../Components/ui/Pagination';
 import EmptyState from '../Components/ui/EmptyState';
 import { useApp } from '../contexts/AppContext';
 import { useNavigation } from '../contexts/NavigationContext';
-import { toBengaliNum } from '../lib/formatters';
+import { toBengaliNum, relativeTime } from '../lib/formatters';
 import MetaTags from '../Components/seo/MetaTags';
 import ArticleThumb from '../Components/ui/ArticleThumb';
 import { BreadcrumbJsonLd } from '../Components/seo/JsonLd';
@@ -129,11 +129,31 @@ export default function Category({ category, articles }) {
                   <ArticleCard item={data[0]} lang={lang} onNavigate={onNavigate} hero />
                 </div>
 
-                {/* Remaining items — related-news style rows (small 70×50 thumb) */}
-                {data.slice(1, 3).length > 0 && (
-                  <div className="sec">
-                    {data.slice(1, 3).map(item => (
-                      <ArticleListItem key={item.id} item={item} lang={lang} onNavigate={onNavigate} />
+                {/* Remaining items — same cards as the article detail middle-column related news */}
+                {data.length > 1 && (
+                  <div className="art-bottom-grid" style={{ marginBottom: 20 }}>
+                    {data.slice(1).map(item => (
+                      <div
+                        key={item.id}
+                        className="art-bottom-card"
+                        onClick={() => onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={e => e.key === 'Enter' && onNavigate('article', { categorySlug: item.category?.slug, articleSlug: item.slug })}
+                      >
+                        {item.featured_image && (
+                          <div className="art-bottom-card-img">
+                            <img src={item.featured_image} alt={item.title || ''} loading="lazy" />
+                          </div>
+                        )}
+                        <div className="art-bottom-card-body">
+                          {item.category?.name && <div className="art-bottom-card-cat">{item.category.name}</div>}
+                          <div className="art-bottom-card-title">{item.title}</div>
+                          {item.published_at && (
+                            <div className="art-bottom-card-date">{relativeTime(item.published_at, lang)}</div>
+                          )}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -141,15 +161,6 @@ export default function Category({ category, articles }) {
                 <div style={{ margin: '20px 0' }}>
                   <AdSlot size="leaderboard" position="category_middle" />
                 </div>
-
-                {/* List items */}
-                {data.slice(3).length > 0 && (
-                  <div className="sec">
-                    {data.slice(3).map(item => (
-                      <ArticleListItem key={item.id} item={item} lang={lang} onNavigate={onNavigate} />
-                    ))}
-                  </div>
-                )}
 
                 <Pagination links={articles.links} />
               </>
