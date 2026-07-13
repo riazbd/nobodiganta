@@ -109,6 +109,7 @@ class HandleInertiaRequests extends Middleware
                 'link'      => $popupAd->link,
                 'title'     => $popupAd->getTitle($edition),
                 'code'      => $popupAd->code ?? null,
+                'config'    => $popupAd->popup_config,
             ] : null,
             'edition' => $edition,
         ];

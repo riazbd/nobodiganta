@@ -123,6 +123,25 @@ class AdController extends Controller
             'pricingModel' => 'nullable|in:flat,cpm',
             'price' => 'nullable|numeric|min:0',
             'cpmRate' => 'nullable|numeric|min:0',
+            'popupConfig' => 'nullable|array',
+            'popupConfig.triggers.delay.enabled' => 'nullable|boolean',
+            'popupConfig.triggers.delay.seconds' => 'nullable|integer|min:0|max:120',
+            'popupConfig.triggers.scroll.enabled' => 'nullable|boolean',
+            'popupConfig.triggers.scroll.percent' => 'nullable|integer|min:1|max:100',
+            'popupConfig.triggers.exit_intent.enabled' => 'nullable|boolean',
+            'popupConfig.triggers.min_page_views.enabled' => 'nullable|boolean',
+            'popupConfig.triggers.min_page_views.count' => 'nullable|integer|min:1|max:50',
+            'popupConfig.frequency.max_shows.enabled' => 'nullable|boolean',
+            'popupConfig.frequency.max_shows.count' => 'nullable|integer|min:1|max:50',
+            'popupConfig.frequency.max_shows.per' => 'nullable|in:session,day,lifetime',
+            'popupConfig.frequency.cooldown.enabled' => 'nullable|boolean',
+            'popupConfig.frequency.cooldown.minutes' => 'nullable|integer|min:1|max:10080',
+            'popupConfig.frequency.on_dismiss.enabled' => 'nullable|boolean',
+            'popupConfig.frequency.on_dismiss.hours' => 'nullable|integer|min:0|max:8760',
+            'popupConfig.frequency.on_click.enabled' => 'nullable|boolean',
+            'popupConfig.frequency.on_click.days' => 'nullable|integer|min:0|max:365',
+            'popupConfig.targeting.pages' => 'nullable|in:all,home,article,category',
+            'popupConfig.targeting.devices' => 'nullable|in:all,desktop,mobile',
         ]);
     }
 
@@ -152,6 +171,7 @@ class AdController extends Controller
             'end_date' => $v['endDate'] ?? null,
             'is_active' => $v['isActive'] ?? ($ad->is_active ?? true),
             'sort_order' => $v['sortOrder'] ?? ($ad->sort_order ?? 0),
+            'popup_config' => $v['popupConfig'] ?? ($ad->popup_config ?? null),
         ];
     }
 
@@ -173,6 +193,7 @@ class AdController extends Controller
             'ctr' => $ad->impressions > 0 ? round(($ad->clicks / $ad->impressions) * 100, 2) : 0,
             'startDate' => $ad->start_date?->format('Y-m-d'),
             'endDate' => $ad->end_date?->format('Y-m-d'),
+            'popupConfig' => $ad->popup_config,
             'sortOrder' => $ad->sort_order,
             'clientId' => $ad->client_id,
             'clientName' => $ad->client?->name,
