@@ -91,6 +91,24 @@ class RoleController extends Controller
     }
 
     /**
+     * A non-top-tier actor may not create or move a role to a rank at or above
+     * super_admin. Role `level` is otherwise user-editable with no ceiling, and
+     * a role ranked above the admin tier is misleading (and a latent hazard the
+     * day any level-based gate is introduced). Both admins are exempt.
+     */
+    private function guardRoleLevel(int $level): void
+    {
+        if (in_array(auth()->user()->role, self::PRIVILEGED_ROLES, true)) {
+            return;
+        }
+
+        $ceiling = Role::where('name', 'super_admin')->value('level') ?? 7;
+        if ($level >= $ceiling) {
+            abort(403, 'You cannot create or set a role at or above the Super Admin level.');
+        }
+    }
+
+    /**
      * Store a new role.
      */
     public function store(Request $request)
@@ -105,6 +123,8 @@ class RoleController extends Controller
             'label_bn' => ['required', 'string', 'max:255'],
             'level' => ['required', 'integer', 'min:0'],
         ]);
+
+        $this->guardRoleLevel($validated['level']);
 
         $role = Role::create($validated);
 
@@ -127,6 +147,8 @@ class RoleController extends Controller
             'label_bn' => ['required', 'string', 'max:255'],
             'level' => ['required', 'integer', 'min:0'],
         ]);
+
+        $this->guardRoleLevel($validated['level']);
 
         $role->update($validated);
 
