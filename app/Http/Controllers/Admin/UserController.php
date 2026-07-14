@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Reporter;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 
@@ -124,23 +126,37 @@ class UserController extends Controller
 
         $perPage = $request->get('per_page', 15);
         $users = $query->paginate($perPage)->withQueryString();
-        $users->getCollection()->transform(fn ($user) => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'code_name_bn' => $user->code_name_bn,
-            'code_name_en' => $user->code_name_en,
-            'email' => $user->email,
-            'role' => $user->role,
-            'role_label' => $user->roleRelation?->label_en ?? $user->role,
-            'role_label_bn' => $user->roleRelation?->label_bn ?? $user->role,
-            'status' => $user->email_verified_at ? 'active' : 'inactive',
-            'last_login' => $user->last_login_at?->diffForHumans(),
-            'posts_count' => $user->articles_authored_count ?? 0,
-            'created_at' => $user->created_at?->format('Y-m-d H:i'),
-            'profile_photo_url' => $user->profile_photo_path
-                ? asset('storage/' . $user->profile_photo_path)
-                : ($user->reporter?->image ?: null),
-        ]);
+        $users->getCollection()->transform(function ($user) {
+            $r = $user->reporter;
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                // Public-profile fields (from the linked reporter) for form prefill.
+                'name_bn' => $r?->name_bn ?? $user->name,
+                'name_en' => $r?->name_en ?? $user->name,
+                'designation_bn' => $r?->designation_bn,
+                'designation_en' => $r?->designation_en,
+                'bio_bn' => $r?->bio_bn,
+                'bio_en' => $r?->bio_en,
+                'phone' => $r?->phone,
+                'social_links' => $r?->social_links ?? [],
+                'district_id' => $r?->district_id,
+                'is_featured' => (bool) ($r?->is_featured ?? false),
+                'code_name_bn' => $user->code_name_bn,
+                'code_name_en' => $user->code_name_en,
+                'email' => $user->email,
+                'role' => $user->role,
+                'role_label' => $user->roleRelation?->label_en ?? $user->role,
+                'role_label_bn' => $user->roleRelation?->label_bn ?? $user->role,
+                'status' => $user->email_verified_at ? 'active' : 'inactive',
+                'last_login' => $user->last_login_at?->diffForHumans(),
+                'posts_count' => $user->articles_authored_count ?? 0,
+                'created_at' => $user->created_at?->format('Y-m-d H:i'),
+                'profile_photo_url' => $user->profile_photo_path
+                    ? asset('storage/' . $user->profile_photo_path)
+                    : ($r?->image ?: null),
+            ];
+        });
 
         $rolesQuery = Role::orderBy('level', 'desc');
         if (auth()->user()->role !== 'supreme_admin') {
@@ -169,15 +185,7 @@ class UserController extends Controller
             abort(403);
         }
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code_name_bn' => ['nullable', 'string', 'max:100'],
-            'code_name_en' => ['nullable', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', 'exists:roles,name'],
-            'photo' => ['nullable', 'file', 'image', 'max:2048'],
-        ]);
+        $validated = $request->validate($this->personRules());
 
         $this->guardPrivilegedRole($validated['role']);
 
@@ -189,7 +197,7 @@ class UserController extends Controller
         }
 
         $user = User::create([
-            'name' => $validated['name'],
+            'name' => $validated['name_en'] ?: $validated['name_bn'],
             'code_name_bn' => $validated['code_name_bn'] ?? null,
             'code_name_en' => $validated['code_name_en'] ?? null,
             'email' => $validated['email'],
@@ -199,6 +207,8 @@ class UserController extends Controller
             'email_verified_at' => now(),
             'profile_photo_path' => $photoPath,
         ]);
+
+        $this->syncReporterProfile($user, $validated, $photoPath);
 
         return back()->with('success', __('User created successfully.'));
     }
@@ -215,19 +225,18 @@ class UserController extends Controller
         // Block touching an existing super/supreme admin unless you are supreme.
         $this->guardPrivilegedRole(null, $user);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code_name_bn' => ['nullable', 'string', 'max:100'],
-            'code_name_en' => ['nullable', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'role' => ['required', 'string', 'exists:roles,name'],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-        ]);
+        $validated = $request->validate($this->personRules($user->id));
 
         // Block promoting anyone into a privileged role unless you are supreme.
         $this->guardPrivilegedRole($validated['role']);
 
-        $user->name = $validated['name'];
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('profile-photos', 'public');
+            $user->profile_photo_path = $photoPath;
+        }
+
+        $user->name = $validated['name_en'] ?: $validated['name_bn'];
         $user->code_name_bn = $validated['code_name_bn'] ?? null;
         $user->code_name_en = $validated['code_name_en'] ?? null;
         $user->email = $validated['email'];
@@ -242,7 +251,89 @@ class UserController extends Controller
 
         $user->save();
 
+        $this->syncReporterProfile($user, $validated, $photoPath);
+
         return back()->with('success', __('User updated successfully.'));
+    }
+
+    /**
+     * Validation rules for the unified person form (account + public profile).
+     * The bilingual name and profile fields feed the linked reporter record,
+     * which is the single source of truth for the public byline.
+     */
+    private function personRules(?int $ignoreUserId = null): array
+    {
+        $emailUnique = 'unique:users,email' . ($ignoreUserId ? ',' . $ignoreUserId : '');
+        $passwordRule = $ignoreUserId
+            ? ['nullable', 'confirmed', Rules\Password::defaults()]
+            : ['required', 'confirmed', Rules\Password::defaults()];
+
+        return [
+            'name_bn'        => ['required', 'string', 'max:255'],
+            'name_en'        => ['required', 'string', 'max:255'],
+            'code_name_bn'   => ['nullable', 'string', 'max:100'],
+            'code_name_en'   => ['nullable', 'string', 'max:100'],
+            'email'          => ['required', 'string', 'email', 'max:255', $emailUnique],
+            'password'       => $passwordRule,
+            'role'           => ['required', 'string', 'exists:roles,name'],
+            'photo'          => ['nullable', 'file', 'image', 'max:2048'],
+            'designation_bn' => ['nullable', 'string', 'max:255'],
+            'designation_en' => ['nullable', 'string', 'max:255'],
+            'bio_bn'         => ['nullable', 'string'],
+            'bio_en'         => ['nullable', 'string'],
+            'phone'          => ['nullable', 'string', 'max:30'],
+            'social_links'   => ['nullable', 'array'],
+            'district_id'    => ['nullable', 'integer', 'exists:districts,id'],
+            'is_featured'    => ['nullable', 'boolean'],
+        ];
+    }
+
+    /**
+     * Create or update the reporter profile linked 1:1 to this account. This is
+     * what the public byline and the author page read, so every account managed
+     * here owns exactly one profile — no orphans, no code-name fallback.
+     */
+    private function syncReporterProfile(User $user, array $data, ?string $photoPath): void
+    {
+        $reporter = Reporter::firstOrNew(['user_id' => $user->id]);
+
+        $reporter->name_bn        = $data['name_bn'];
+        $reporter->name_en        = $data['name_en'];
+        $reporter->designation_bn = $data['designation_bn'] ?? null;
+        $reporter->designation_en = $data['designation_en'] ?? null;
+        $reporter->bio_bn         = $data['bio_bn'] ?? null;
+        $reporter->bio_en         = $data['bio_en'] ?? null;
+        $reporter->phone          = $data['phone'] ?? null;
+        $reporter->email          = $user->email;
+        $reporter->social_links   = $data['social_links'] ?? $reporter->social_links;
+        $reporter->district_id    = array_key_exists('district_id', $data) ? $data['district_id'] : $reporter->district_id;
+        $reporter->is_featured    = (bool) ($data['is_featured'] ?? $reporter->is_featured);
+
+        if ($photoPath) {
+            $reporter->image = asset('storage/' . $photoPath);
+        }
+
+        if (! $reporter->exists) {
+            $reporter->is_active = true;
+            $reporter->sort_order = 0;
+        }
+
+        if (empty($reporter->slug)) {
+            $reporter->slug = $this->uniqueReporterSlug($data['name_en'] ?: $data['name_bn']);
+        }
+
+        $reporter->save();
+    }
+
+    private function uniqueReporterSlug(string $name): string
+    {
+        $base = Str::slug($name) ?: 'author';
+        $slug = $base;
+        $i = 1;
+        while (Reporter::where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $i++;
+        }
+        return $slug;
     }
 
     /**

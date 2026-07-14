@@ -252,21 +252,53 @@ export default function Users({ users, roles, filters, reassignTargets = [] }) {
     return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current); };
   }, []);
 
+  // A single person = an account + its public author profile. Both are edited
+  // from this one form; the profile fields are stored on the linked reporter.
+  const emptyPerson = {
+    name_bn: '', name_en: '', code_name_bn: '', code_name_en: '',
+    email: '', password: '', password_confirmation: '', role: 'reporter',
+    designation_bn: '', designation_en: '', bio_bn: '', phone: '', is_featured: false,
+    social_links: { facebook: '', twitter: '', linkedin: '' },
+  };
+
   // Modal helpers
   const openCreate = () => {
-    setFormData({ name: '', code_name_bn: '', code_name_en: '', email: '', password: '', password_confirmation: '', role: 'reporter' });
+    setFormData({ ...emptyPerson });
     setFormErrors({}); setShowPassword(false); setCreatePhotoFile(null); setCreatePhotoPreview(null); setShowCreateModal(true);
   };
   const openEdit = (user) => {
     setEditingUser(user);
-    setFormData({ name: user.name, code_name_bn: user.code_name_bn || '', code_name_en: user.code_name_en || '', email: user.email, password: '', password_confirmation: '', role: user.role, profile_photo_url: user.profile_photo_url });
+    setFormData({
+      ...emptyPerson,
+      name_bn: user.name_bn || user.name || '',
+      name_en: user.name_en || user.name || '',
+      code_name_bn: user.code_name_bn || '',
+      code_name_en: user.code_name_en || '',
+      email: user.email,
+      role: user.role,
+      designation_bn: user.designation_bn || '',
+      designation_en: user.designation_en || '',
+      bio_bn: user.bio_bn || '',
+      phone: user.phone || '',
+      is_featured: !!user.is_featured,
+      social_links: { facebook: '', twitter: '', linkedin: '', ...(user.social_links || {}) },
+      profile_photo_url: user.profile_photo_url,
+    });
     setFormErrors({}); setShowPassword(false); setShowEditModal(true);
   };
   const handleCreate = async (e) => {
     e.preventDefault(); setSubmitting(true); setFormErrors({});
     try {
       const fd = new FormData();
-      Object.entries(formData).forEach(([k, v]) => fd.append(k, v ?? ''));
+      Object.entries(formData).forEach(([k, v]) => {
+        if (k === 'social_links') {
+          Object.entries(v || {}).forEach(([sk, sv]) => fd.append(`social_links[${sk}]`, sv ?? ''));
+        } else if (k === 'is_featured') {
+          fd.append('is_featured', v ? '1' : '0');
+        } else {
+          fd.append(k, v ?? '');
+        }
+      });
       if (createPhotoFile) fd.append('photo', createPhotoFile);
       await createUser(fd);
       setShowCreateModal(false); showToast(t('userCreated'));
@@ -346,6 +378,65 @@ export default function Users({ users, roles, filters, reassignTargets = [] }) {
     `w-full border rounded-lg px-3 py-2 text-sm outline-none transition-all bg-white ${
       formErrors[field] ? 'border-red-500 focus:ring-2 focus:ring-red-200' : 'border-gray-300 focus:border-[#263238] focus:ring-2 focus:ring-[#263238]/20'
     }`;
+
+  const setField = (k, v) => setFormData(f => ({ ...f, [k]: v }));
+  const setSocial = (k, v) => setFormData(f => ({ ...f, social_links: { ...f.social_links, [k]: v } }));
+
+  // The shared account + public-profile fields, used by both the create and
+  // edit modals so a person is managed in exactly one form.
+  const identityFields = (
+    <>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label={lang === 'bn' ? 'নাম (বাংলা)' : 'Name (Bangla)'} error={formErrors.name_bn}>
+          <input type="text" value={formData.name_bn || ''} onChange={(e) => setField('name_bn', e.target.value)} className={inputClass('name_bn')} required />
+        </FormField>
+        <FormField label={lang === 'bn' ? 'নাম (ইংরেজি)' : 'Name (English)'} error={formErrors.name_en}>
+          <input type="text" value={formData.name_en || ''} onChange={(e) => setField('name_en', e.target.value)} className={inputClass('name_en')} required />
+        </FormField>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label={lang === 'bn' ? 'পদবী (বাংলা)' : 'Designation (Bangla)'} error={formErrors.designation_bn}>
+          <input type="text" value={formData.designation_bn || ''} onChange={(e) => setField('designation_bn', e.target.value)} className={inputClass('designation_bn')} />
+        </FormField>
+        <FormField label={lang === 'bn' ? 'পদবী (ইংরেজি)' : 'Designation (English)'} error={formErrors.designation_en}>
+          <input type="text" value={formData.designation_en || ''} onChange={(e) => setField('designation_en', e.target.value)} className={inputClass('designation_en')} />
+        </FormField>
+      </div>
+      <FormField label={t('email')} error={formErrors.email}>
+        <input type="email" value={formData.email || ''} onChange={(e) => setField('email', e.target.value)} className={inputClass('email')} required />
+      </FormField>
+      <FormField label={t('role')} error={formErrors.role}>
+        <select value={formData.role} onChange={(e) => setField('role', e.target.value)} className={inputClass('role')} required>
+          {roles?.map((r) => (<option key={r.name} value={r.name}>{lang === 'bn' ? r.label_bn : r.label_en}</option>))}
+        </select>
+      </FormField>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label={lang === 'bn' ? 'কোড নেম — বাংলা (অনুমোদন বাইলাইন)' : 'Code name — Bangla (approver byline)'} error={formErrors.code_name_bn}>
+          <input type="text" value={formData.code_name_bn || ''} onChange={(e) => setField('code_name_bn', e.target.value)} className={inputClass('code_name_bn')} placeholder={lang === 'bn' ? 'যেমন: এনডিএম-০৭' : 'e.g. NDM-07'} />
+        </FormField>
+        <FormField label={lang === 'bn' ? 'কোড নেম — ইংরেজি' : 'Code name — English'} error={formErrors.code_name_en}>
+          <input type="text" value={formData.code_name_en || ''} onChange={(e) => setField('code_name_en', e.target.value)} className={inputClass('code_name_en')} placeholder="e.g. NDM-07" />
+        </FormField>
+      </div>
+      <FormField label={lang === 'bn' ? 'জীবনী (বাংলা)' : 'Bio (Bangla)'} error={formErrors.bio_bn}>
+        <textarea rows={2} value={formData.bio_bn || ''} onChange={(e) => setField('bio_bn', e.target.value)} className={inputClass('bio_bn')} />
+      </FormField>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label={lang === 'bn' ? 'ফোন' : 'Phone'} error={formErrors.phone}>
+          <input type="text" value={formData.phone || ''} onChange={(e) => setField('phone', e.target.value)} className={inputClass('phone')} />
+        </FormField>
+        <label className="flex items-end gap-2 text-sm pb-2 cursor-pointer">
+          <input type="checkbox" checked={!!formData.is_featured} onChange={(e) => setField('is_featured', e.target.checked)} className="w-4 h-4" />
+          <span>{lang === 'bn' ? 'সেরা সাংবাদিক (ফিচার্ড)' : 'Featured author'}</span>
+        </label>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <FormField label="Facebook"><input type="url" value={formData.social_links?.facebook || ''} onChange={(e) => setSocial('facebook', e.target.value)} className={inputClass('fb')} placeholder="https://" /></FormField>
+        <FormField label="Twitter/X"><input type="url" value={formData.social_links?.twitter || ''} onChange={(e) => setSocial('twitter', e.target.value)} className={inputClass('tw')} placeholder="https://" /></FormField>
+        <FormField label="LinkedIn"><input type="url" value={formData.social_links?.linkedin || ''} onChange={(e) => setSocial('linkedin', e.target.value)} className={inputClass('li')} placeholder="https://" /></FormField>
+      </div>
+    </>
+  );
 
   const currentSort = SORT_OPTIONS.find(s => s.value === sortFilter) || SORT_OPTIONS[0];
 
@@ -735,7 +826,7 @@ export default function Users({ users, roles, filters, reassignTargets = [] }) {
               <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gradient-to-br from-[#263238] to-[#ff6b6b] flex items-center justify-center">
                 {createPhotoPreview
                   ? <img src={createPhotoPreview} alt="" className="w-full h-full object-cover" />
-                  : <span className="text-white text-xl font-bold">{(formData.name || '?').charAt(0).toUpperCase()}</span>}
+                  : <span className="text-white text-xl font-bold">{(formData.name_en || formData.name_bn || '?').charAt(0).toUpperCase()}</span>}
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700">
@@ -750,15 +841,7 @@ export default function Users({ users, roles, filters, reassignTargets = [] }) {
                 )}
               </div>
             </div>
-            <FormField label={t('name')} error={formErrors.name}><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className={inputClass('name')} required autoFocus /></FormField>
-            <FormField label="কোড নেম — বাংলা" error={formErrors.code_name_bn}><input type="text" value={formData.code_name_bn} onChange={(e) => setFormData({ ...formData, code_name_bn: e.target.value })} className={inputClass('code_name_bn')} placeholder="যেমন: এনডিএম-০৭" /></FormField>
-            <FormField label="Code name — English" error={formErrors.code_name_en}><input type="text" value={formData.code_name_en} onChange={(e) => setFormData({ ...formData, code_name_en: e.target.value })} className={inputClass('code_name_en')} placeholder="e.g. NDM-07" /></FormField>
-            <FormField label={t('email')} error={formErrors.email}><input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className={inputClass('email')} required /></FormField>
-            <FormField label={t('role')} error={formErrors.role}>
-              <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className={inputClass('role')} required>
-                {roles?.map((r) => (<option key={r.name} value={r.name}>{lang === 'bn' ? r.label_bn : r.label_en}</option>))}
-              </select>
-            </FormField>
+            {identityFields}
             <FormField label={t('password')} error={formErrors.password}>
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className={inputClass('password')} required minLength={8} />
@@ -783,7 +866,7 @@ export default function Users({ users, roles, filters, reassignTargets = [] }) {
               <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gradient-to-br from-[#263238] to-[#ff6b6b] flex items-center justify-center">
                 {formData.profile_photo_url
                   ? <img src={formData.profile_photo_url} alt="" className="w-full h-full object-cover" />
-                  : <span className="text-white text-xl font-bold">{(formData.name || '?').charAt(0).toUpperCase()}</span>}
+                  : <span className="text-white text-xl font-bold">{(formData.name_en || formData.name_bn || '?').charAt(0).toUpperCase()}</span>}
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700">
@@ -798,15 +881,7 @@ export default function Users({ users, roles, filters, reassignTargets = [] }) {
                 )}
               </div>
             </div>
-            <FormField label={t('name')} error={formErrors.name}><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className={inputClass('name')} required autoFocus /></FormField>
-            <FormField label="কোড নেম — বাংলা" error={formErrors.code_name_bn}><input type="text" value={formData.code_name_bn} onChange={(e) => setFormData({ ...formData, code_name_bn: e.target.value })} className={inputClass('code_name_bn')} placeholder="যেমন: এনডিএম-০৭" /></FormField>
-            <FormField label="Code name — English" error={formErrors.code_name_en}><input type="text" value={formData.code_name_en} onChange={(e) => setFormData({ ...formData, code_name_en: e.target.value })} className={inputClass('code_name_en')} placeholder="e.g. NDM-07" /></FormField>
-            <FormField label={t('email')} error={formErrors.email}><input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className={inputClass('email')} required /></FormField>
-            <FormField label={t('role')} error={formErrors.role}>
-              <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className={inputClass('role')} required>
-                {roles?.map((r) => (<option key={r.name} value={r.name}>{lang === 'bn' ? r.label_bn : r.label_en}</option>))}
-              </select>
-            </FormField>
+            {identityFields}
             <FormField label={t('newPasswordOptional')} error={formErrors.password}>
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className={inputClass('password')} minLength={8} placeholder={t('leaveBlankToKeep')} />
