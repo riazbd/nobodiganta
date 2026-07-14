@@ -382,6 +382,11 @@ export default function Users({ users, roles, filters, reassignTargets = [] }) {
   const setField = (k, v) => setFormData(f => ({ ...f, [k]: v }));
   const setSocial = (k, v) => setFormData(f => ({ ...f, social_links: { ...f.social_links, [k]: v } }));
 
+  // "Featured journalist" only makes sense for bylined author roles — not for
+  // admins or SEO accounts. (Mirrored server-side in UserController.)
+  const NON_AUTHOR_ROLES = ['super_admin', 'supreme_admin', 'seo_manager'];
+  const isAuthorRole = (role) => !NON_AUTHOR_ROLES.includes(role);
+
   // The shared account + public-profile fields, used by both the create and
   // edit modals so a person is managed in exactly one form.
   const identityFields = (
@@ -421,15 +426,15 @@ export default function Users({ users, roles, filters, reassignTargets = [] }) {
       <FormField label={lang === 'bn' ? 'জীবনী (বাংলা)' : 'Bio (Bangla)'} error={formErrors.bio_bn}>
         <textarea rows={2} value={formData.bio_bn || ''} onChange={(e) => setField('bio_bn', e.target.value)} className={inputClass('bio_bn')} />
       </FormField>
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label={lang === 'bn' ? 'ফোন' : 'Phone'} error={formErrors.phone}>
-          <input type="text" value={formData.phone || ''} onChange={(e) => setField('phone', e.target.value)} className={inputClass('phone')} />
-        </FormField>
-        <label className="flex items-end gap-2 text-sm pb-2 cursor-pointer">
+      <FormField label={lang === 'bn' ? 'ফোন' : 'Phone'} error={formErrors.phone}>
+        <input type="text" value={formData.phone || ''} onChange={(e) => setField('phone', e.target.value)} className={inputClass('phone')} />
+      </FormField>
+      {isAuthorRole(formData.role) && (
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input type="checkbox" checked={!!formData.is_featured} onChange={(e) => setField('is_featured', e.target.checked)} className="w-4 h-4" />
           <span>{lang === 'bn' ? 'সেরা সাংবাদিক (ফিচার্ড)' : 'Featured author'}</span>
         </label>
-      </div>
+      )}
       <div className="grid grid-cols-3 gap-3">
         <FormField label="Facebook"><input type="url" value={formData.social_links?.facebook || ''} onChange={(e) => setSocial('facebook', e.target.value)} className={inputClass('fb')} placeholder="https://" /></FormField>
         <FormField label="Twitter/X"><input type="url" value={formData.social_links?.twitter || ''} onChange={(e) => setSocial('twitter', e.target.value)} className={inputClass('tw')} placeholder="https://" /></FormField>

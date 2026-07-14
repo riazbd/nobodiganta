@@ -307,7 +307,12 @@ class UserController extends Controller
         $reporter->email          = $user->email;
         $reporter->social_links   = $data['social_links'] ?? $reporter->social_links;
         $reporter->district_id    = array_key_exists('district_id', $data) ? $data['district_id'] : $reporter->district_id;
-        $reporter->is_featured    = (bool) ($data['is_featured'] ?? $reporter->is_featured);
+
+        // "Featured journalist" only applies to bylined author roles; admins and
+        // SEO accounts can never be featured, regardless of what was submitted.
+        $reporter->is_featured = in_array($user->role, ['super_admin', 'supreme_admin', 'seo_manager'], true)
+            ? false
+            : (bool) ($data['is_featured'] ?? $reporter->is_featured);
 
         if ($photoPath) {
             $reporter->image = asset('storage/' . $photoPath);
