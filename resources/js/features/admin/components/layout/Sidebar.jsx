@@ -70,7 +70,8 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
         // newsletter hidden from client for now — future feature
         // { id: 'newsletter',icon: 'Mail',          label: 'newsletter',     permission: PERMISSIONS.NEWSLETTER_CREATE },
         { id: 'polls',     icon: 'BarChart3',     label: 'polls',          permission: PERMISSIONS.WIDGETS_POLLS_MANAGE },
-        { id: 'locations', icon: 'MapPin', label: 'locations', permission: null },
+        // locations hidden from the sidebar (route/page kept, just not linked)
+        // { id: 'locations', icon: 'MapPin', label: 'locations', permission: null },
       ]
     },
     {
