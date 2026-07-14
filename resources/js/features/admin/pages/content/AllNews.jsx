@@ -289,7 +289,7 @@ export default function AllNews({ articles, categories, authors = [], publishers
             {/* Flag */}
             <Select value={flag} onChange={v => { setFlag(v); applyFilters({ flag: v }); }}>
               <option value="all">{l('সব ফ্ল্যাগ', 'All Flags')}</option>
-              <option value="breaking">{l('হেডলাইন', 'Headline')}</option>
+              <option value="breaking">{l('শিরোনাম', 'Headline')}</option>
               <option value="featured">{l('ফিচার্ড', 'Featured')}</option>
               {/* Premium filter hidden — subscriptions/paywall are disabled (is_premium gates nothing). */}
             </Select>
@@ -407,7 +407,7 @@ export default function AllNews({ articles, categories, authors = [], publishers
                       {article.article_type && article.article_type !== 'news' && (
                         <span className="text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-bold uppercase">{article.article_type}</span>
                       )}
-                      <FlagChip active={article.is_breaking} onClick={() => toggleFlag(article.id, 'breaking')} onClass="bg-red-100 text-red-600" label={l('হেডলাইন', 'HEADLINE')} title={l('হেডলাইন টগল', 'Toggle headline')} />
+                      <FlagChip active={article.is_breaking} onClick={() => toggleFlag(article.id, 'breaking')} onClass="bg-red-100 text-red-600" label={l('শিরোনাম', 'HEADLINE')} title={l('শিরোনাম টগল', 'Toggle headline')} />
                       <FlagChip active={article.is_featured} onClick={() => toggleFlag(article.id, 'featured')} onClass="bg-blue-100 text-blue-600" label={l('ফিচার্ড', 'FEATURED')} title={l('ফিচার্ড টগল', 'Toggle featured')} />
                       {/* Premium chip hidden — subscriptions/paywall are disabled (is_premium gates nothing). */}
                     </div>
