@@ -63,7 +63,7 @@ export default function Dashboard({
       <div className="grid grid-cols-3 gap-4 mb-5 row-anim">
         <StatCard icon={Newspaper} label={t('totalPublished')} value={s.totalPublished || '0'} change={trends.published?.change} changeUp={trends.published?.up} linkText={t('viewAll')} onLinkClick={() => onNavigate?.('news')} color="red" />
         <StatCard icon={Users} label={t('todayVisitors')} value={s.todayVisitors || '0'} change={trends.visitors?.change} changeUp={trends.visitors?.up} linkText={t('analyzeLinkBn')} onLinkClick={() => onNavigate?.('traffic')} color="blue" />
-        <StatCard icon={MessageSquare} label={t('weeklyComments')} value={s.weeklyComments || '0'} change={trends.comments?.change} changeUp={trends.comments?.up} linkText={t('approveLinkBn')} onLinkClick={() => onNavigate?.('dashboard')} color="green" />
+        <StatCard icon={MessageSquare} label={t('weeklyComments')} value={s.weeklyComments || '0'} change={trends.comments?.change} changeUp={trends.comments?.up} linkText={t('approveLinkBn')} onLinkClick={() => onNavigate?.('comments')} color="green" />
       </div>
 
       {/* Mini Stats */}

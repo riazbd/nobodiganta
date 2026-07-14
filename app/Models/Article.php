@@ -372,9 +372,17 @@ class Article extends Model
             ];
         }
 
+        // No reporter profile: fall back to the user account, but stay
+        // edition-aware — prefer the editorial code name for this edition so the
+        // Bangla site doesn't show a Latin account name (falls back to it only
+        // when no Bangla code name is set).
+        $name = $edition === 'en'
+            ? ($this->author->code_name_en ?: $this->author->name)
+            : ($this->author->code_name_bn ?: $this->author->name);
+
         return [
             'id' => $this->author->id,
-            'name' => $this->author->name,
+            'name' => $name,
             'slug' => strtolower(str_replace(' ', '-', $this->author->name)),
             'designation' => null,
             'image' => null,

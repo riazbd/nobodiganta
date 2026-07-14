@@ -6,11 +6,15 @@ import { useNavigation } from '../contexts/NavigationContext';
 import { useSearch } from '../contexts/SearchContext';
 import { ROUTES } from '../lib/routes';
 
-const MENU_ITEMS = [
+// The "Media" nav item is a single dropdown holding these links. Clicking the
+// Media label itself goes to Video (the default media landing).
+const MEDIA_DEFAULT = 'video';
+const MEDIA_LINKS = [
   { key: 'stories',  page: 'stories',  bn: 'স্টোরিজ',  en: 'Stories'   },
-  { key: 'gallery',  page: 'gallery',  bn: 'গ্যালারি',  en: 'Gallery'   },
   { key: 'video',    page: 'video',    bn: 'ভিডিও',    en: 'Video'     },
+  { key: 'gallery',  page: 'gallery',  bn: 'গ্যালারি',  en: 'Gallery'   },
 ];
+const MEDIA_SLUG = '__media__';
 
 const CloseIcon = () => (
   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -129,7 +133,7 @@ export default function Navigation() {
     const mc  = measureRef.current;
     const nav = navRef.current;
     if (!mc || !nav) return;
-    // Measure order: [Home, ...categories, More, ...MENU_ITEMS]
+    // Measure order: [Home, ...categories, More, Media]
     const all = mc.querySelectorAll('.nav-measure-item');
     if (!all.length) return;
 
@@ -140,7 +144,8 @@ export default function Navigation() {
     const padX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
     const available = nav.clientWidth - padX - 8;
 
-    const catCount = Math.max(0, all.length - 2 - MENU_ITEMS.length);
+    // Trailing items after the categories: [More, Media] → 2.
+    const catCount = Math.max(0, all.length - 2 - 1);
     const widthAt  = (i) => all[i]?.offsetWidth || 0;
     const homeW    = widthAt(0);
     const moreW    = widthAt(1 + catCount);
@@ -160,13 +165,10 @@ export default function Navigation() {
       return;
     }
 
-    // Everything fits → see how many quick-links (Stories/Gallery/Video) fit too.
-    let fitMenus = 0;
-    for (let i = 0; i < MENU_ITEMS.length; i++) {
-      const w = widthAt(1 + catCount + 1 + i);
-      if (used + w <= available) { used += w; fitMenus++; } else break;
-    }
-    setVisibleCount(catCount + 1 + fitMenus);
+    // Everything fits → see whether the single "Media" dropdown fits too.
+    const mediaW = widthAt(1 + catCount + 1);
+    const fitMedia = (used + mediaW <= available) ? 1 : 0;
+    setVisibleCount(catCount + 1 + fitMedia);
   }, []);
 
   useEffect(() => {
@@ -187,6 +189,9 @@ export default function Navigation() {
   const effectiveMax  = navMaxVisible > 0 ? Math.min(navMaxVisible, autoMax) : autoMax;
   const visibleCats   = navCats.slice(0, effectiveMax);
   const overflowCats  = navCats.slice(effectiveMax);
+  // The Media dropdown collapses into "More" when there's no room for it inline.
+  const mediaHidden   = visibleCats.length >= visibleCount - 1;
+  const mediaLabel    = lang === 'bn' ? 'মিডিয়া' : 'Media';
   const moreLabel     = lang === 'bn'
     ? (settings?.nav_more_label_bn || 'আরও')
     : (settings?.nav_more_label_en || 'More');
@@ -374,11 +379,7 @@ export default function Navigation() {
             </a>
           ))}
           <a className="nav-measure-item">{moreLabel}</a>
-          {MENU_ITEMS.map(item => (
-            <a key={item.key + '-m'} className="nav-measure-item">
-              {lang === 'bn' ? item.bn : item.en}
-            </a>
-          ))}
+          <a className="nav-measure-item">{mediaLabel}</a>
         </div>
 
         <div className="nav-inner" ref={navRef}>
@@ -417,18 +418,40 @@ export default function Navigation() {
             );
           })}
 
-          {/* MENU_ITEMS (Stories, Gallery, Video) */}
-          {MENU_ITEMS.map((item, i) => {
-            const hidden = visibleCats.length + i >= visibleCount - 1;
-            return (
-              <a key={item.key} className={`nav-item${hidden ? ' nav-hidden' : ''}`}
-                onClick={() => onNavigate(item.page)} role="menuitem" tabIndex={hidden ? -1 : 0}>
-                {lang === 'bn' ? item.bn : item.en}
+          {/* Media dropdown (Stories / Video / Gallery). Clicking "Media" goes
+              to Video; collapses into "More" when it doesn't fit inline. */}
+          {!mediaHidden && (
+            <div className="nav-cat-wrap"
+              onMouseEnter={(e) => handleCatEnter({ slug: MEDIA_SLUG, children: MEDIA_LINKS }, e)}
+              onMouseLeave={handleCatLeave}>
+              <a className="nav-item nav-has-sub"
+                onClick={() => onNavigate(MEDIA_DEFAULT)} role="menuitem" tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && onNavigate(MEDIA_DEFAULT)}>
+                {mediaLabel}
+                <svg className="nav-arrow" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
               </a>
-            );
-          })}
+              {hoveredCat === MEDIA_SLUG && (
+                <div className={`nav-sub-dropdown${flip ? ' nav-sub-dropdown--flip' : ''}`} role="menu"
+                  onMouseEnter={handleDropEnter} onMouseLeave={handleDropLeave}>
+                  <div className="nav-sub-items">
+                    {MEDIA_LINKS.map(item => (
+                      <a key={item.key} className="nav-sub-link" role="menuitem" tabIndex={0}
+                        onClick={() => { setHoveredCat(null); onNavigate(item.page); }}
+                        onKeyDown={e => e.key === 'Enter' && (setHoveredCat(null), onNavigate(item.page))}>
+                        {lang === 'bn' ? item.bn : item.en}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* "আরও / More" — always last; holds the Breaking link + overflow categories */}
+          {/* "আরও / More" — last; holds overflow categories and, when it
+              doesn't fit inline, the Media links. Hidden when empty. */}
+          {(overflowCats.length > 0 || mediaHidden) && (
           <div className="nav-cat-wrap nav-more-wrap"
             onMouseEnter={handleMoreEnter} onMouseLeave={handleMoreLeave}>
             <a className="nav-item nav-more-btn" role="button" tabIndex={0}
@@ -442,13 +465,17 @@ export default function Navigation() {
             {moreOpen && (
               <div className="nav-sub-dropdown nav-more-dropdown nav-sub-dropdown--flip" role="menu"
                 onMouseEnter={handleMoreEnter} onMouseLeave={handleMoreLeave}>
-                <div className="nav-sub-items">
-                  <a className="nav-sub-link" role="menuitem" tabIndex={0}
-                    onClick={() => { setMoreOpen(false); onNavigate('breaking'); }}
-                    onKeyDown={e => e.key === 'Enter' && (setMoreOpen(false), onNavigate('breaking'))}>
-                    {lang === 'bn' ? 'ব্রেকিং নিউজ' : 'Breaking News'}
-                  </a>
-                </div>
+                {mediaHidden && (
+                  <div className="nav-sub-items">
+                    {MEDIA_LINKS.map(item => (
+                      <a key={item.key} className="nav-sub-link" role="menuitem" tabIndex={0}
+                        onClick={() => { setMoreOpen(false); onNavigate(item.page); }}
+                        onKeyDown={e => e.key === 'Enter' && (setMoreOpen(false), onNavigate(item.page))}>
+                        {lang === 'bn' ? item.bn : item.en}
+                      </a>
+                    ))}
+                  </div>
+                )}
                 {overflowCats.length > 0 && renderDropdownItems(overflowCats.map(cat => ({
                   ...cat,
                   children: cat.children ?? [],
@@ -456,6 +483,7 @@ export default function Navigation() {
               </div>
             )}
           </div>
+          )}
         </div>
       </nav>
 
@@ -554,16 +582,25 @@ export default function Navigation() {
             );
           })}
 
-          {/* Quick links */}
+          {/* Media (Stories / Video / Gallery) */}
           <div className="drw-divider" />
-          <button className="drw-item" onClick={() => go('breaking')}>
-            {lang === 'bn' ? 'ব্রেকিং নিউজ' : 'Breaking News'}
+          <button className="drw-item"
+            onClick={() => {
+              if (expandedCat[MEDIA_SLUG]) go(MEDIA_DEFAULT);
+              else toggleExpanded(MEDIA_SLUG);
+            }}>
+            <span>{mediaLabel}</span>
+            <ChevronDown open={!!expandedCat[MEDIA_SLUG]} />
           </button>
-          {MENU_ITEMS.map(item => (
-            <button key={item.key} className="drw-item" onClick={() => go(item.page)}>
-              {lang === 'bn' ? item.bn : item.en}
-            </button>
-          ))}
+          {expandedCat[MEDIA_SLUG] && (
+            <div className="drw-subs">
+              {MEDIA_LINKS.map(item => (
+                <button key={item.key} className="drw-sub" style={{ paddingLeft: 32 }} onClick={() => go(item.page)}>
+                  {lang === 'bn' ? item.bn : item.en}
+                </button>
+              ))}
+            </div>
+          )}
 
         </div>
       </div>

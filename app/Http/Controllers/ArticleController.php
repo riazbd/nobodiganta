@@ -62,12 +62,20 @@ class ArticleController extends Controller
         }
 
         if ($category && $category !== 'all') {
+            // Match the public category page: an article belongs to a category if
+            // it's linked via the many-to-many pivot OR is its primary category.
+            // (Filtering the primary `category` alone missed multi-category
+            // articles whose primary category_id points elsewhere.)
             // The dropdown sends a slug; guard against Postgres rejecting a
             // non-numeric value compared against the integer id column.
-            $query->whereHas('category', function ($q) use ($category) {
-                is_numeric($category)
-                    ? $q->where('id', (int) $category)
-                    : $q->where('slug', $category);
+            $query->where(function ($q) use ($category) {
+                if (is_numeric($category)) {
+                    $q->whereHas('categories', fn($c) => $c->where('categories.id', (int) $category))
+                      ->orWhere('category_id', (int) $category);
+                } else {
+                    $q->whereHas('categories', fn($c) => $c->where('categories.slug', $category))
+                      ->orWhereHas('category', fn($c) => $c->where('slug', $category));
+                }
             });
         }
 

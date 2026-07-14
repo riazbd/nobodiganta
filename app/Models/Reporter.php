@@ -66,7 +66,9 @@ class Reporter extends Model
      */
     public function getName(string $lang = 'bn'): string
     {
-        return $lang === 'en' ? $this->name_en : $this->name_bn;
+        return $lang === 'en'
+            ? ($this->name_en ?: $this->name_bn)
+            : ($this->name_bn ?: $this->name_en);
     }
 
     /**
