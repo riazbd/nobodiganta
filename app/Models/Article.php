@@ -372,17 +372,13 @@ class Article extends Model
             ];
         }
 
-        // No reporter profile: fall back to the user account, but stay
-        // edition-aware — prefer the editorial code name for this edition so the
-        // Bangla site doesn't show a Latin account name (falls back to it only
-        // when no Bangla code name is set).
-        $name = $edition === 'en'
-            ? ($this->author->code_name_en ?: $this->author->name)
-            : ($this->author->code_name_bn ?: $this->author->name);
-
+        // No reporter profile: fall back to the user account's real name. The
+        // code name is deliberately NOT used for the author byline — it belongs
+        // only to the approver credit shown after the article. This name feeds
+        // both the left-column byline and the লেখক পরিচিতি (author bio) card.
         return [
             'id' => $this->author->id,
-            'name' => $name,
+            'name' => $this->author->name,
             'slug' => strtolower(str_replace(' ', '-', $this->author->name)),
             'designation' => null,
             'image' => null,
