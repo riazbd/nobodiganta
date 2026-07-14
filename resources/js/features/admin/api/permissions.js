@@ -77,6 +77,7 @@ export const PERMISSIONS = {
   USER_EDIT: 'user.edit',
   USER_DELETE: 'user.delete',
   USER_ROLE_ASSIGN: 'user.role.assign',
+  USER_ROLE_MANAGE: 'user.role.manage',
 
   ANALYTICS_VIEW: 'analytics.view',
   ANALYTICS_VIEW_OWN: 'analytics.view.own',

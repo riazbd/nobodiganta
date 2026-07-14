@@ -14,6 +14,36 @@ use Inertia\Inertia;
 class UserController extends Controller
 {
     /**
+     * The two top-tier admin roles. They have identical power — super_admin can
+     * do everything supreme_admin can; supreme_admin is simply the hidden one.
+     * Only these two may grant a privileged role or touch an account that holds
+     * one. This is what stops a mid role like editor_in_chief (which carries
+     * user.create / user.edit / user.role.assign) from minting a super/supreme
+     * admin or hijacking one via a password change.
+     */
+    private const PRIVILEGED_ROLES = ['supreme_admin', 'super_admin'];
+
+    /**
+     * Block any non-top-tier actor from (a) assigning a privileged role, or
+     * (b) modifying a user who already holds one. Both super and supreme admins
+     * are exempt.
+     */
+    private function guardPrivilegedRole(?string $newRole, ?User $target = null): void
+    {
+        if (in_array(auth()->user()->role, self::PRIVILEGED_ROLES, true)) {
+            return;
+        }
+
+        if ($newRole !== null && in_array($newRole, self::PRIVILEGED_ROLES, true)) {
+            abort(403, 'Only a Super or Supreme Admin can assign this role.');
+        }
+
+        if ($target !== null && in_array($target->role, self::PRIVILEGED_ROLES, true)) {
+            abort(403, 'Only a Super or Supreme Admin can modify this user.');
+        }
+    }
+
+    /**
      * Display the users management page with data.
      */
     public function index(Request $request)
@@ -149,9 +179,7 @@ class UserController extends Controller
             'photo' => ['nullable', 'file', 'image', 'max:2048'],
         ]);
 
-        if (auth()->user()->role !== 'supreme_admin' && $validated['role'] === 'supreme_admin') {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->guardPrivilegedRole($validated['role']);
 
         $role = Role::where('name', $validated['role'])->first();
 
@@ -184,9 +212,8 @@ class UserController extends Controller
             abort(403);
         }
 
-        if ($user->role === 'supreme_admin' && auth()->user()->role !== 'supreme_admin') {
-            abort(403, 'Unauthorized action.');
-        }
+        // Block touching an existing super/supreme admin unless you are supreme.
+        $this->guardPrivilegedRole(null, $user);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -197,9 +224,8 @@ class UserController extends Controller
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        if (auth()->user()->role !== 'supreme_admin' && $validated['role'] === 'supreme_admin') {
-            abort(403, 'Unauthorized action.');
-        }
+        // Block promoting anyone into a privileged role unless you are supreme.
+        $this->guardPrivilegedRole($validated['role']);
 
         $user->name = $validated['name'];
         $user->code_name_bn = $validated['code_name_bn'] ?? null;
@@ -270,6 +296,9 @@ class UserController extends Controller
         $validated = $request->validate([
             'role' => ['required', 'string', 'exists:roles,name'],
         ]);
+
+        // Neither promote into, nor demote out of, a privileged role unless supreme.
+        $this->guardPrivilegedRole($validated['role'], $user);
 
         $role = Role::where('name', $validated['role'])->first();
 

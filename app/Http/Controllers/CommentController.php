@@ -173,7 +173,7 @@ class CommentController extends Controller
      */
     public function markSpam(Comment $comment)
     {
-        if (!auth()->user()->hasPermission('comment.approve')) {
+        if (!auth()->user()->hasPermission('comment.reject')) {
             abort(403);
         }
 
@@ -187,7 +187,7 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
-        if (!auth()->user()->hasPermission('comment.approve')) {
+        if (!auth()->user()->hasPermission('comment.reject')) {
             abort(403);
         }
 
@@ -231,15 +231,17 @@ class CommentController extends Controller
      */
     public function bulkAction(Request $request)
     {
-        if (!auth()->user()->hasPermission('comment.approve')) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
         $validated = $request->validate([
             'comment_ids' => 'required|array',
             'comment_ids.*' => 'exists:comments,id',
             'action' => 'required|in:approve,spam,delete',
         ]);
+
+        // Approving needs comment.approve; rejecting (spam/delete) needs comment.reject.
+        $required = $validated['action'] === 'approve' ? 'comment.approve' : 'comment.reject';
+        if (!auth()->user()->hasPermission($required)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
 
         $updateData = [
             'moderated_at' => now(),

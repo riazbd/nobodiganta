@@ -11,6 +11,37 @@ use Inertia\Inertia;
 class RoleController extends Controller
 {
     /**
+     * The two top-tier admin roles (identical power; supreme is just the hidden
+     * one). Only these two may edit a privileged role. Everyone else is locked
+     * out of them entirely (they can't even be listed — see index()).
+     */
+    private const PRIVILEGED_ROLES = ['supreme_admin', 'super_admin'];
+
+    /**
+     * Guard role edits against privilege escalation. A non-top-tier actor may
+     * not touch a privileged role, and may not grant a role any permission the
+     * actor does not personally hold — otherwise anyone with user.role.manage
+     * (e.g. editor_in_chief) could grant their own role full admin powers. Both
+     * super and supreme admins are exempt.
+     */
+    private function guardRoleEscalation(Role $role, array $grantingPermissions = []): void
+    {
+        $actor = auth()->user();
+        if (in_array($actor->role, self::PRIVILEGED_ROLES, true)) {
+            return;
+        }
+
+        if (in_array($role->name, self::PRIVILEGED_ROLES, true)) {
+            abort(403, 'Only a Supreme Admin can modify this role.');
+        }
+
+        $beyondActor = array_diff($grantingPermissions, $actor->permissions);
+        if (! empty($beyondActor)) {
+            abort(403, 'You cannot grant permissions you do not hold yourself.');
+        }
+    }
+
+    /**
      * Display the roles management page.
      */
     public function index(Request $request)
@@ -89,9 +120,7 @@ class RoleController extends Controller
             abort(403);
         }
 
-        if ($role->name === 'supreme_admin' && auth()->user()->role !== 'supreme_admin') {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->guardRoleEscalation($role);
 
         $validated = $request->validate([
             'label_en' => ['required', 'string', 'max:255'],
@@ -142,14 +171,13 @@ class RoleController extends Controller
             abort(403);
         }
 
-        if ($role->name === 'supreme_admin' && auth()->user()->role !== 'supreme_admin') {
-            abort(403, 'Unauthorized action.');
-        }
-
         $validated = $request->validate([
             'permissions' => ['required', 'array'],
             'permissions.*' => ['string', 'exists:permissions,name'],
         ]);
+
+        // Block editing privileged roles and granting perms beyond the actor's own.
+        $this->guardRoleEscalation($role, $validated['permissions']);
 
         $permissionIds = Permission::whereIn('name', $validated['permissions'])->pluck('id')->toArray();
 

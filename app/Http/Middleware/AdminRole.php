@@ -12,6 +12,7 @@ class AdminRole
      * Role hierarchy: each role has access to all roles below it.
      */
     private const HIERARCHY = [
+        'supreme_admin'   => 8,
         'super_admin'     => 7,
         'editor_in_chief' => 6,
         'managing_editor' => 5,

@@ -121,6 +121,7 @@ class DashboardController extends Controller
 
         // 7. Recent Activity from Audit Logs
         $activities = AuditLog::with('user')
+            ->visibleTo($request->user())
             ->latest()
             ->limit(10)
             ->get()

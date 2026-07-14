@@ -14,6 +14,10 @@ class LocationController extends Controller
 {
     public function index()
     {
+        if (!auth()->user()->hasPermission('category.view')) {
+            abort(403);
+        }
+
         $divisions = Division::withCount('districts')
             ->with(['districts' => function ($q) {
                 $q->withCount('upazilas')->orderBy('name_en');
@@ -43,6 +47,10 @@ class LocationController extends Controller
 
     public function storeDivision(Request $request)
     {
+        if (!auth()->user()->hasPermission('category.create')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'slug'    => 'required|string|max:100|unique:divisions,slug',
             'name_bn' => 'required|string|max:255',
@@ -56,6 +64,10 @@ class LocationController extends Controller
 
     public function updateDivision(Request $request, Division $division)
     {
+        if (!auth()->user()->hasPermission('category.edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'slug'    => 'required|string|max:100|unique:divisions,slug,' . $division->id,
             'name_bn' => 'required|string|max:255',
@@ -69,6 +81,10 @@ class LocationController extends Controller
 
     public function destroyDivision(Division $division)
     {
+        if (!auth()->user()->hasPermission('category.delete')) {
+            abort(403);
+        }
+
         $articleCount = Article::where('division', $division->slug)->count();
         if ($articleCount > 0) {
             return redirect()->back()->with('error', 'Cannot delete division — ' . $articleCount . ' articles reference it.');
@@ -81,6 +97,10 @@ class LocationController extends Controller
 
     public function storeDistrict(Request $request)
     {
+        if (!auth()->user()->hasPermission('category.create')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'division_id' => 'required|exists:divisions,id',
             'slug'        => 'required|string|max:100|unique:districts,slug,NULL,id,division_id,' . $request->division_id,
@@ -95,6 +115,10 @@ class LocationController extends Controller
 
     public function updateDistrict(Request $request, District $district)
     {
+        if (!auth()->user()->hasPermission('category.edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'division_id' => 'required|exists:divisions,id',
             'slug'        => 'required|string|max:100|unique:districts,slug,' . $district->id . ',id,division_id,' . $request->division_id,
@@ -109,6 +133,10 @@ class LocationController extends Controller
 
     public function destroyDistrict(District $district)
     {
+        if (!auth()->user()->hasPermission('category.delete')) {
+            abort(403);
+        }
+
         $division = $district->division;
         $articleCount = Article::where('division', $division->slug)
             ->where('district', $district->slug)
@@ -124,6 +152,10 @@ class LocationController extends Controller
 
     public function storeUpazila(Request $request)
     {
+        if (!auth()->user()->hasPermission('category.create')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'district_id' => 'required|exists:districts,id',
             'slug'        => 'required|string|max:100|unique:upazilas,slug,NULL,id,district_id,' . $request->district_id,
@@ -138,6 +170,10 @@ class LocationController extends Controller
 
     public function updateUpazila(Request $request, Upazila $upazila)
     {
+        if (!auth()->user()->hasPermission('category.edit')) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'district_id' => 'required|exists:districts,id',
             'slug'        => 'required|string|max:100|unique:upazilas,slug,' . $upazila->id . ',id,district_id,' . $request->district_id,
@@ -152,6 +188,10 @@ class LocationController extends Controller
 
     public function destroyUpazila(Upazila $upazila)
     {
+        if (!auth()->user()->hasPermission('category.delete')) {
+            abort(403);
+        }
+
         $divisionSlug = $upazila->district->division->slug;
         $districtSlug = $upazila->district->slug;
         $articleCount = Article::where('division', $divisionSlug)

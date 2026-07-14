@@ -99,7 +99,12 @@ Route::middleware(['auth'])->group(function () {
     // Admin API routes
     Route::get('/api/admin/categories', [CategoryController::class, 'adminIndex'])->name('api.admin.categories');
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    // Defense-in-depth: on top of the per-action permission checks in each
+    // controller, require at least a staff-level role (reporter and up) to reach
+    // any /admin route at all. This shuts out the legacy public 'user' role and
+    // any role-less account from the CMS, so a controller that ever forgets its
+    // own hasPermission() check can't leak to a non-staff account.
+    Route::prefix('admin')->name('admin.')->middleware('admin.role:reporter')->group(function () {
         // Media API for modals
         Route::get('/api/media', [MediaController::class, 'apiIndex'])->name('api.media.index');
 
@@ -112,8 +117,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/news', [ArticleController::class, 'store'])->name('news.store');
 
         // Drafts, Published, Pending (filtered views) - Fixed paths must come before dynamic segments
-        $statusView = function (string $status, string $component) {
-            return function (Illuminate\Http\Request $request) use ($status, $component) {
+        $statusView = function (string $status, string $component, string $permission = 'news.view') {
+            return function (Illuminate\Http\Request $request) use ($status, $component, $permission) {
+                if (! $request->user()->hasPermission($permission)) {
+                    abort(403);
+                }
+
                 $perPage  = in_array((int) $request->per_page, [10, 20, 50, 100]) ? (int) $request->per_page : 20;
                 $edition  = $request->input('edition');
                 $category = $request->input('category');
@@ -146,7 +155,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/news/drafts',    $statusView('draft',     'Drafts'))->name('news.drafts');
         Route::get('/news/published', $statusView('published', 'Published'))->name('news.published');
-        Route::get('/news/pending',   $statusView('pending',   'PendingApproval'))->name('news.pending');
+        Route::get('/news/pending',   $statusView('pending',   'PendingApproval', 'news.review'))->name('news.pending');
 
         // Trash — soft-deleted articles (restore / permanent delete)
         Route::get('/news/trash',             [ArticleController::class, 'trash'])->name('news.trash');
@@ -379,13 +388,16 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/locations/upazilas/{upazila}', [AdminLocationController::class, 'destroyUpazila'])->name('locations.upazilas.destroy')->whereNumber('upazila');
 
         // Editorial
-        Route::get('/pitch-board', function () {
+        Route::get('/pitch-board', function (Illuminate\Http\Request $request) {
+            abort_unless($request->user()->hasPermission('workflow.pipeline.view'), 403);
             return Inertia::render('features/admin/pages/editorial/PitchBoard');
         })->name('pitch-board');
-        Route::get('/assignment-board', function () {
+        Route::get('/assignment-board', function (Illuminate\Http\Request $request) {
+            abort_unless($request->user()->hasPermission('workflow.pipeline.view'), 403);
             return Inertia::render('features/admin/pages/editorial/AssignmentBoard');
         })->name('assignment-board');
-        Route::get('/editorial-calendar', function () {
+        Route::get('/editorial-calendar', function (Illuminate\Http\Request $request) {
+            abort_unless($request->user()->hasPermission('workflow.pipeline.view'), 403);
             return Inertia::render('features/admin/pages/editorial/EditorialCalendar');
         })->name('editorial-calendar');
     });

@@ -19,7 +19,7 @@ class AuditLogController extends Controller
             abort(403);
         }
 
-        $query = AuditLog::with('user');
+        $query = AuditLog::with('user')->visibleTo(auth()->user());
 
         if ($request->search) {
             $query->where(function($q) use ($request) {

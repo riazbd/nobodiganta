@@ -19,7 +19,7 @@ const ICON_MAP = {
 
 export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
   const { t, lang, toggleLanguage } = useLanguage();
-  const { hasPermission, currentRole } = usePermission();
+  const { hasPermission, hasAnyPermission, currentRole } = usePermission();
   const { props } = usePage();
   const settings = props.settings || {};
   const logoUrl = settings.site_logo || null;
@@ -77,7 +77,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
     {
       label: 'analytics',
       items: [
-        { id: 'traffic',  icon: 'BarChart3',   label: 'trafficAnalytics', permission: PERMISSIONS.ANALYTICS_VIEW },
+        { id: 'traffic',  icon: 'BarChart3',   label: 'trafficAnalytics', permission: [PERMISSIONS.ANALYTICS_VIEW, PERMISSIONS.ANALYTICS_VIEW_SECTION] },
         { id: 'revenue',  icon: 'TrendingUp',  label: 'revenueReport',    permission: PERMISSIONS.BUSINESS_REVENUE_VIEW },
         { id: 'seo',      icon: 'Search',      label: 'seoReport',        permission: PERMISSIONS.SEO_VIEW },
       ]
@@ -87,7 +87,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
       items: [
         { id: 'homepage-layout', icon: 'LayoutDashboard', label: 'homepageLayout',   permission: PERMISSIONS.HOMEPAGE_EDIT },
         { id: 'users',           icon: 'Users',           label: 'users',            permission: PERMISSIONS.USER_VIEW },
-        { id: 'roles',           icon: 'Shield',          label: 'rolesPermissions', permission: PERMISSIONS.USER_VIEW },
+        { id: 'roles',           icon: 'Shield',          label: 'rolesPermissions', permission: PERMISSIONS.USER_ROLE_MANAGE },
         { id: 'settings',        icon: 'Settings',        label: 'settings',         permission: PERMISSIONS.SYSTEM_SETTINGS },
         { id: 'audit-log',       icon: 'FileText',        label: 'auditLog',         permission: PERMISSIONS.SYSTEM_AUDIT_VIEW },
       ]
@@ -148,7 +148,12 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
       {/* Navigation */}
       <div className="flex-1 py-2 overflow-y-auto">
         {navSections.map((section, si) => {
-          const visibleItems = section.items.filter(item => !item.permission || hasPermission(item.permission));
+          const visibleItems = section.items.filter(item => {
+            if (!item.permission) return true;
+            return Array.isArray(item.permission)
+              ? hasAnyPermission(item.permission)
+              : hasPermission(item.permission);
+          });
           if (visibleItems.length === 0) return null;
 
           return (

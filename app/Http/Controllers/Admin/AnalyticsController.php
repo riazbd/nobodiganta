@@ -26,7 +26,9 @@ class AnalyticsController extends Controller
 
     public function traffic(Request $request)
     {
-        $this->authorizePermission($request, 'analytics.view');
+        // Section editors carry analytics.view.section (not the site-wide
+        // analytics.view); let them reach the traffic dashboard too.
+        $this->authorizeAnyPermission($request, ['analytics.view', 'analytics.view.section']);
 
         $range = (int) $request->input('range', 7);
         $range = in_array($range, [7, 30, 90], true) ? $range : 7;
@@ -341,6 +343,23 @@ class AnalyticsController extends Controller
         if (! $request->user() || ! $request->user()->hasPermission($permission)) {
             abort(403);
         }
+    }
+
+    /** Allow access if the user holds any one of the given permissions. */
+    private function authorizeAnyPermission(Request $request, array $permissions): void
+    {
+        $user = $request->user();
+        if (! $user) {
+            abort(403);
+        }
+
+        foreach ($permissions as $permission) {
+            if ($user->hasPermission($permission)) {
+                return;
+            }
+        }
+
+        abort(403);
     }
 
     /** Booked value of ads whose booking falls in the window (by start_date, else created_at). */
