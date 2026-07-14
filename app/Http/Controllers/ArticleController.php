@@ -44,7 +44,7 @@ class ArticleController extends Controller
         $sortDir     = $request->input('sort_dir') === 'asc' ? 'asc' : 'desc';
         $perPage     = in_array((int) $request->input('per_page'), [10, 20, 50, 100]) ? (int) $request->input('per_page') : 20;
 
-        $query = Article::with(['category', 'author', 'approver'])
+        $query = Article::with(['category', 'categories', 'author', 'approver'])
             ->orderBy($sortBy, $sortDir);
 
         if ($status && $status !== 'all') {
@@ -141,6 +141,19 @@ class ArticleController extends Controller
                     'slug'       => $article->category->slug,
                     'color_code' => $article->category->color_code,
                 ] : null,
+                // All categories this article belongs to (primary + secondary),
+                // so the table's Category column can show every one, not just the
+                // primary category_id. Primary flagged via the pivot.
+                'categories'   => $article->relationLoaded('categories')
+                    ? $article->categories->map(fn($c) => [
+                        'id'         => $c->id,
+                        'name'       => $c->name_bn,
+                        'name_en'    => $c->name_en,
+                        'slug'       => $c->slug,
+                        'color_code' => $c->color_code,
+                        'is_primary' => (bool) ($c->pivot->is_primary ?? false),
+                    ])->values()
+                    : [],
                 'author'         => $article->is_guest_author
                     ? ($article->guest_author_name_bn ?: $article->guest_author_name_en)
                     : $article->author?->name,

@@ -413,16 +413,30 @@ export default function AllNews({ articles, categories, authors = [], publishers
                     </div>
                   </td>
 
-                  {/* Category */}
+                  {/* Category — every category the article belongs to, primary first */}
                   <td className="px-4 py-3.5">
-                    {article.category ? (
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: article.category.color_code || '#263238' }} />
-                        <span className="text-xs font-medium text-gray-600 truncate max-w-[100px]">
-                          {l(article.category.name, article.category.name_en || article.category.name)}
-                        </span>
-                      </div>
-                    ) : <span className="text-xs text-gray-300">—</span>}
+                    {(() => {
+                      const cats = (article.categories && article.categories.length)
+                        ? [...article.categories].sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
+                        : (article.category ? [{ ...article.category, is_primary: true }] : []);
+                      if (!cats.length) return <span className="text-xs text-gray-300">—</span>;
+                      return (
+                        <div className="flex flex-wrap items-center gap-1 max-w-[190px]">
+                          {cats.map(c => (
+                            <span
+                              key={c.id || c.slug}
+                              title={c.is_primary ? l('প্রধান বিভাগ', 'Primary category') : undefined}
+                              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] max-w-full ${
+                                c.is_primary ? 'bg-[#eceff1] text-[#263238] font-semibold' : 'bg-gray-50 text-gray-500 font-medium'
+                              }`}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: c.color_code || '#263238' }} />
+                              <span className="truncate">{l(c.name, c.name_en || c.name)}</span>
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </td>
 
                   {/* Edition */}
