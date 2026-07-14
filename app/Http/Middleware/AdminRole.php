@@ -9,9 +9,12 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminRole
 {
     /**
-     * Role hierarchy: each role has access to all roles below it.
+     * Fallback levels for the built-in roles, used only to resolve the required
+     * floor (the $minRole argument) without a DB hit. The USER's own rank is
+     * always read from their assigned role record so that custom roles created
+     * in the Roles UI (which carry their own `level`) are respected too.
      */
-    private const HIERARCHY = [
+    private const BUILTIN_LEVELS = [
         'supreme_admin'   => 8,
         'super_admin'     => 7,
         'editor_in_chief' => 6,
@@ -24,7 +27,7 @@ class AdminRole
 
     /**
      * Handle an incoming request.
-     * Usage in routes: ->middleware('admin.role:editor')
+     * Usage in routes: ->middleware('admin.role:reporter')
      *
      * @param string $minRole  Minimum role required (default: reporter)
      */
@@ -36,8 +39,17 @@ class AdminRole
             return redirect()->route('login');
         }
 
-        $userLevel = self::HIERARCHY[$user->role ?? 'reporter'] ?? 0;
-        $requiredLevel = self::HIERARCHY[$minRole] ?? 1;
+        // Rank the user by their assigned role record's level. This covers the
+        // eight built-in roles AND any custom role created in the Roles UI
+        // (e.g. executive_editor), since those all carry a `level`. An account
+        // with no role record (a role-less registration, or the legacy public
+        // 'user') ranks 0 and is kept out of the CMS.
+        $role = $user->roleRelation;
+        $userLevel = $role?->level
+            ?? self::BUILTIN_LEVELS[$user->role]
+            ?? 0;
+
+        $requiredLevel = self::BUILTIN_LEVELS[$minRole] ?? 1;
 
         if ($userLevel < $requiredLevel) {
             abort(403, 'Insufficient permissions.');
