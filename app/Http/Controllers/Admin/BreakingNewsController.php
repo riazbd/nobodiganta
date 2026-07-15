@@ -13,7 +13,7 @@ class BreakingNewsController extends Controller
 {
     public function index(Request $request)
     {
-        if (!$request->user()->hasPermission('news.view')) {
+        if (!$request->user()->hasPermission('news.breaking')) {
             abort(403);
         }
 

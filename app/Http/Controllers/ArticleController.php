@@ -23,7 +23,13 @@ class ArticleController extends Controller
      */
     public function index(Request $request)
     {
-        if (!$request->user()->hasPermission('news.view')) {
+        $user = $request->user();
+
+        // Full listing needs news.view; reporters (news.view.own only) may still
+        // open the list but are scoped to their own articles below.
+        $canViewAll = $user->hasPermission('news.view');
+        $ownOnly    = !$canViewAll && $user->hasPermission('news.view.own');
+        if (!$canViewAll && !$ownOnly) {
             abort(403);
         }
 
@@ -46,6 +52,11 @@ class ArticleController extends Controller
 
         $query = Article::with(['category', 'categories', 'author', 'approver'])
             ->orderBy($sortBy, $sortDir);
+
+        // Reporters (view-own only) never see other authors' articles.
+        if ($ownOnly) {
+            $query->where('author_id', $user->id);
+        }
 
         if ($status && $status !== 'all') {
             $query->where('status', $status);
@@ -705,8 +716,10 @@ class ArticleController extends Controller
      */
     public function trash(Request $request)
     {
-        if (!$request->user()->hasPermission('news.delete')
-            && !$request->user()->hasPermission('news.delete.own')) {
+        $user       = $request->user();
+        $canViewAll = $user->hasPermission('news.delete');
+        $ownOnly    = !$canViewAll && $user->hasPermission('news.delete.own');
+        if (!$canViewAll && !$ownOnly) {
             abort(403);
         }
 
@@ -715,6 +728,7 @@ class ArticleController extends Controller
 
         $articles = Article::onlyTrashed()
             ->with(['category', 'author'])
+            ->when($ownOnly, fn($q) => $q->where('author_id', $user->id))
             ->when($search, fn($q, $s) => $q->where(fn($q2) => $q2->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%")))
             ->orderByDesc('deleted_at')
             ->paginate($perPage)

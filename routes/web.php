@@ -119,7 +119,13 @@ Route::middleware(['auth'])->group(function () {
         // Drafts, Published, Pending (filtered views) - Fixed paths must come before dynamic segments
         $statusView = function (string $status, string $component, string $permission = 'news.view') {
             return function (Illuminate\Http\Request $request) use ($status, $component, $permission) {
-                if (! $request->user()->hasPermission($permission)) {
+                $user = $request->user();
+
+                // Same rule as the All-News list: reporters (news.view.own only)
+                // may open a status view but are scoped to their own articles.
+                $canViewAll = $user->hasPermission($permission);
+                $ownOnly    = ! $canViewAll && $permission === 'news.view' && $user->hasPermission('news.view.own');
+                if (! $canViewAll && ! $ownOnly) {
                     abort(403);
                 }
 
@@ -130,6 +136,7 @@ Route::middleware(['auth'])->group(function () {
 
                 $articles = \App\Models\Article::with(['category', 'author'])
                     ->where('status', $status)
+                    ->when($ownOnly, fn($q) => $q->where('author_id', $user->id))
                     ->when($request->search, fn($q, $s) => $q->where(fn($q2) => $q2->where('title_bn', 'like', "%$s%")->orWhere('title_en', 'like', "%$s%")))
                     ->when($edition && $edition !== 'all', fn($q) => $q->where('edition', $edition))
                     ->when($category && $category !== 'all', fn($q) => $q->whereHas('category', fn($q2) => is_numeric($category) ? $q2->where('id', (int)$category) : $q2->where('slug', $category)))

@@ -192,7 +192,7 @@ class RolePermissionSeeder extends Seeder
         ],
 
         'reporter' => [
-            'news.view', 'news.view.own', 'news.create', 'news.edit.own', 'news.delete.own', 'news.submit',
+            'news.view.own', 'news.create', 'news.edit.own', 'news.delete.own', 'news.submit',
             'news.template.use', 'news.version.view',
             'opinion.view', 'opinion.create',
             'workflow.pitch.create', 'workflow.note.add',

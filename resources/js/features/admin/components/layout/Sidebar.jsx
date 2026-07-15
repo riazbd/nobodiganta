@@ -41,17 +41,17 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
     {
       label: 'content',
       items: [
-        { id: 'news', icon: 'Newspaper', label: 'newsManagement', permission: PERMISSIONS.NEWS_VIEW,
+        { id: 'news', icon: 'Newspaper', label: 'newsManagement', permission: [PERMISSIONS.NEWS_VIEW, PERMISSIONS.NEWS_VIEW_OWN],
           children: [
-            { id: 'news-all',       label: 'allNews',         permission: PERMISSIONS.NEWS_VIEW },
+            { id: 'news-all',       label: 'allNews',         permission: [PERMISSIONS.NEWS_VIEW, PERMISSIONS.NEWS_VIEW_OWN] },
             { id: 'news-write',     label: 'writeNews',       permission: PERMISSIONS.NEWS_CREATE },
-            { id: 'news-drafts',    label: 'drafts',          permission: PERMISSIONS.NEWS_VIEW },
-            { id: 'news-published', label: 'published',       permission: PERMISSIONS.NEWS_VIEW },
+            { id: 'news-drafts',    label: 'drafts',          permission: [PERMISSIONS.NEWS_VIEW, PERMISSIONS.NEWS_VIEW_OWN] },
+            { id: 'news-published', label: 'published',       permission: [PERMISSIONS.NEWS_VIEW, PERMISSIONS.NEWS_VIEW_OWN] },
             { id: 'news-pending',   label: 'pendingApproval', permission: PERMISSIONS.NEWS_REVIEW },
-            { id: 'news-trash',     label: 'trash',           permission: PERMISSIONS.NEWS_DELETE },
+            { id: 'news-trash',     label: 'trash',           permission: [PERMISSIONS.NEWS_DELETE, PERMISSIONS.NEWS_DELETE_OWN] },
           ]
         },
-        { id: 'breaking', icon: 'Zap',        label: 'breakingNews',  permission: PERMISSIONS.NEWS_VIEW },
+        { id: 'breaking', icon: 'Zap',        label: 'breakingNews',  permission: PERMISSIONS.NEWS_BREAKING },
         { id: 'opinions', icon: 'PenLine',    label: 'opinionColumn', permission: PERMISSIONS.OPINION_VIEW },
         { id: 'videos',   icon: 'Video',      label: 'videos',        permission: PERMISSIONS.VIDEO_VIEW },
         { id: 'photos',   icon: 'Camera',     label: 'photoGallery',  permission: PERMISSIONS.MEDIA_GALLERY_MANAGE },
@@ -193,7 +193,12 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
                   </div>
                   {item.children && openSubs[item.id + 'Sub'] && (
                     <div className="block">
-                      {item.children.filter(sub => !sub.permission || hasPermission(sub.permission)).map(sub => (
+                      {item.children.filter(sub => {
+                        if (!sub.permission) return true;
+                        return Array.isArray(sub.permission)
+                          ? hasAnyPermission(sub.permission)
+                          : hasPermission(sub.permission);
+                      }).map(sub => (
                         <div
                           key={sub.id}
                           className={`flex items-center gap-2 py-1.75 mx-2 rounded-md text-[13px] cursor-pointer transition-all ${
