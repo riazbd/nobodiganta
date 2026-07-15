@@ -160,6 +160,19 @@ class LocationController extends Controller
     {
         $edition = $this->getEdition($request);
 
+        // The /saradesh/{x} URL space is shared: location divisions live at
+        // /saradesh/{division}, but articles whose primary category is সারাদেশ
+        // live at /saradesh/{slug}. This route is declared before the article
+        // catch-all, so it wins for BOTH. If {division} is not a real division
+        // category, treat it as an article slug and hand off to the article page.
+        $isRealDivision = Category::whereHas('parent', fn($q) => $q->where('slug', 'saradesh'))
+            ->where('slug', 'division-' . $division)
+            ->exists();
+
+        if (! $isRealDivision) {
+            return app(NewsController::class)->article($request, 'saradesh', $division);
+        }
+
         $articles = Article::published()
             ->forEdition($edition)
             ->where(function ($q) use ($division) {
