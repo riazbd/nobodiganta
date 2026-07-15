@@ -121,10 +121,13 @@ Route::middleware(['auth'])->group(function () {
             return function (Illuminate\Http\Request $request) use ($status, $component, $permission) {
                 $user = $request->user();
 
-                // Same rule as the All-News list: reporters (news.view.own only)
-                // may open a status view but are scoped to their own articles.
+                // Same rule as the All-News list: a reporter who only holds
+                // news.view.own may open any status view (drafts, published,
+                // pending) but is scoped to their own articles. Acting on those
+                // articles (e.g. approving pending) stays gated by its own
+                // permission on the transition routes.
                 $canViewAll = $user->hasPermission($permission);
-                $ownOnly    = ! $canViewAll && $permission === 'news.view' && $user->hasPermission('news.view.own');
+                $ownOnly    = ! $canViewAll && $user->hasPermission('news.view.own');
                 if (! $canViewAll && ! $ownOnly) {
                     abort(403);
                 }

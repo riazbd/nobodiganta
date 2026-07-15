@@ -47,7 +47,7 @@ export default function Sidebar({ currentPage, onNavigate, roleInfo }) {
             { id: 'news-write',     label: 'writeNews',       permission: PERMISSIONS.NEWS_CREATE },
             { id: 'news-drafts',    label: 'drafts',          permission: [PERMISSIONS.NEWS_VIEW, PERMISSIONS.NEWS_VIEW_OWN] },
             { id: 'news-published', label: 'published',       permission: [PERMISSIONS.NEWS_VIEW, PERMISSIONS.NEWS_VIEW_OWN] },
-            { id: 'news-pending',   label: 'pendingApproval', permission: PERMISSIONS.NEWS_REVIEW },
+            { id: 'news-pending',   label: 'pendingApproval', permission: [PERMISSIONS.NEWS_REVIEW, PERMISSIONS.NEWS_VIEW_OWN] },
             { id: 'news-trash',     label: 'trash',           permission: [PERMISSIONS.NEWS_DELETE, PERMISSIONS.NEWS_DELETE_OWN] },
           ]
         },

@@ -94,6 +94,42 @@ class NewsViewScopeTest extends TestCase
                 ->where('articles.data.0.id', $mine->id));
     }
 
+    public function test_reporter_sees_only_their_own_pending_articles(): void
+    {
+        $reporter = $this->userWithRole('reporter');
+        $other    = $this->userWithRole('reporter');
+        $c = $this->category();
+
+        $mine = Article::factory()->create([
+            'author_id' => $reporter->id, 'category_id' => $c->id, 'status' => 'pending',
+        ]);
+        Article::factory()->create([
+            'author_id' => $other->id, 'category_id' => $c->id, 'status' => 'pending',
+        ]);
+
+        $this->actingAs($reporter)
+            ->get(route('admin.news.pending'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->has('articles.data', 1)
+                ->where('articles.data.0.id', $mine->id));
+    }
+
+    public function test_editor_in_chief_sees_all_pending_articles(): void
+    {
+        $editor = $this->userWithRole('editor_in_chief');
+        $r      = $this->userWithRole('reporter');
+        $c = $this->category();
+
+        Article::factory()->create(['author_id' => $editor->id, 'category_id' => $c->id, 'status' => 'pending']);
+        Article::factory()->create(['author_id' => $r->id,      'category_id' => $c->id, 'status' => 'pending']);
+
+        $this->actingAs($editor)
+            ->get(route('admin.news.pending'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->has('articles.data', 2));
+    }
+
     public function test_reporter_sees_only_their_own_articles_in_trash(): void
     {
         $reporter = $this->userWithRole('reporter');

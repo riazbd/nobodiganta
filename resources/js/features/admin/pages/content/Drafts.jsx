@@ -36,6 +36,11 @@ function NewsTable({ articles, categories = [], authors = [], filters, pageTitle
   const canPublish = hasAnyPermission([PERMISSIONS.NEWS_PUBLISH, PERMISSIONS.NEWS_APPROVE]);
   const canSubmitForReview = hasAnyPermission([PERMISSIONS.NEWS_SUBMIT, PERMISSIONS.NEWS_EDIT, PERMISSIONS.NEWS_EDIT_OWN]);
   const canUnpublish = hasPermission(PERMISSIONS.NEWS_PUBLISH);
+  // Bulk status changes go through bulkUpdateStatus (needs approve/publish) and
+  // bulk delete through bulkDestroy (needs news.delete) — mirror both here so a
+  // reporter never sees a bulk action they can't perform.
+  const canBulkStatus = canPublish;
+  const canBulkDelete = hasPermission(PERMISSIONS.NEWS_DELETE);
 
   const [search,    setSearch]    = useState(filters?.search   || '');
   const [category,  setCategory]  = useState(filters?.category || 'all');
@@ -162,11 +167,11 @@ function NewsTable({ articles, categories = [], authors = [], filters, pageTitle
         {selected.length > 0 && (
           <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50 flex-wrap animate-in slide-in-from-top-1 duration-200">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{selected.length} {l('টি নির্বাচিত', 'selected')}:</span>
-            {fixedStatus !== 'published' && <button onClick={() => handleBulk('published')} className="bg-green-50 text-green-700 border border-green-200 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-green-100">{l('প্রকাশ', 'Publish')}</button>}
-            {fixedStatus !== 'draft'     && <button onClick={() => handleBulk('draft')}     className="bg-gray-50 text-gray-600 border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-gray-100">{l('ড্রাফট', 'Draft')}</button>}
-            {fixedStatus !== 'pending'   && <button onClick={() => handleBulk('pending')}   className="bg-orange-50 text-orange-600 border border-orange-200 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-orange-100">{l('রিভিউ', 'Review')}</button>}
-            <button onClick={() => handleBulk('archived')} className="bg-blue-50 text-blue-600 border border-blue-200 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-blue-100">{l('আর্কাইভ', 'Archive')}</button>
-            <button onClick={() => handleBulk('delete')}   className="bg-red-50 text-red-600 border border-red-200 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-red-100">{l('মুছুন', 'Delete')}</button>
+            {canBulkStatus && fixedStatus !== 'published' && <button onClick={() => handleBulk('published')} className="bg-green-50 text-green-700 border border-green-200 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-green-100">{l('প্রকাশ', 'Publish')}</button>}
+            {canBulkStatus && fixedStatus !== 'draft'     && <button onClick={() => handleBulk('draft')}     className="bg-gray-50 text-gray-600 border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-gray-100">{l('ড্রাফট', 'Draft')}</button>}
+            {canBulkStatus && fixedStatus !== 'pending'   && <button onClick={() => handleBulk('pending')}   className="bg-orange-50 text-orange-600 border border-orange-200 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-orange-100">{l('রিভিউ', 'Review')}</button>}
+            {canBulkStatus && <button onClick={() => handleBulk('archived')} className="bg-blue-50 text-blue-600 border border-blue-200 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-blue-100">{l('আর্কাইভ', 'Archive')}</button>}
+            {canBulkDelete && <button onClick={() => handleBulk('delete')}   className="bg-red-50 text-red-600 border border-red-200 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-red-100">{l('মুছুন', 'Delete')}</button>}
             <button onClick={() => setSelected([])} className="text-xs font-bold text-gray-400 hover:text-gray-600 px-2">{l('বাতিল', 'Cancel')}</button>
           </div>
         )}
