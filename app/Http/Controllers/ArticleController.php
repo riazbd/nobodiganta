@@ -335,6 +335,7 @@ class ArticleController extends Controller
 
         $categoryIds = $validated['categories'];
         $primaryId   = (int) $validated['primaryCategory'];
+        $canAssignAuthor = $request->user()->hasPermission('news.assign_author');
 
         if (!in_array($primaryId, $categoryIds)) {
             return back()->withErrors(['primaryCategory' => 'Primary category must be one of the selected categories'])->withInput();
@@ -368,8 +369,9 @@ class ArticleController extends Controller
             'video_provider' => $validated['videoProvider'] ?? null,
             'video_duration' => $validated['videoDuration'] ?? null,
             'category_id' => $primaryId,
-            'author_id' => $validated['authorId'] ?? Auth::id(),
-            'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
+            // Assigning a byline to anyone but yourself requires news.assign_author.
+            'author_id' => $canAssignAuthor ? ($validated['authorId'] ?? Auth::id()) : Auth::id(),
+            'secondary_author_id' => $canAssignAuthor ? ($validated['secondaryAuthorId'] ?? null) : null,
             // Approver is whoever publishes it — taken from the logged-in user, never selected.
             'approver_id' => $validated['status'] === 'published' ? Auth::id() : null,
             'is_guest_author' => $validated['isGuestAuthor'] ?? false,
@@ -567,6 +569,7 @@ class ArticleController extends Controller
 
         $categoryIds = $validated['categories'];
         $primaryId   = (int) $validated['primaryCategory'];
+        $canAssignAuthor = $request->user()->hasPermission('news.assign_author');
 
         if (!in_array($primaryId, $categoryIds)) {
             return back()->withErrors(['primaryCategory' => 'Primary category must be one of the selected categories']);
@@ -604,8 +607,10 @@ class ArticleController extends Controller
             'video_provider' => $validated['videoProvider'] ?? null,
             'video_duration' => $validated['videoDuration'] ?? null,
             'category_id' => $primaryId,
-            'author_id' => $validated['authorId'] ?? $article->author_id,
-            'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
+            // Reassigning the byline requires news.assign_author; otherwise the
+            // existing primary/co-author are preserved.
+            'author_id' => $canAssignAuthor ? ($validated['authorId'] ?? $article->author_id) : $article->author_id,
+            'secondary_author_id' => $canAssignAuthor ? ($validated['secondaryAuthorId'] ?? null) : $article->secondary_author_id,
             // Approver = whoever publishes it (logged-in user); keep the original once set.
             'approver_id' => $validated['status'] === 'published' ? ($article->approver_id ?? Auth::id()) : null,
             'is_guest_author' => $validated['isGuestAuthor'] ?? false,

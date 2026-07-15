@@ -18,7 +18,7 @@ class RolePermissionSeeder extends Seeder
             'news.view', 'news.view.own', 'news.create', 'news.edit', 'news.edit.own',
             'news.delete', 'news.delete.own', 'news.submit', 'news.review',
             'news.approve', 'news.publish', 'news.schedule', 'news.archive',
-            'news.update.published', 'news.breaking', 'news.correct',
+            'news.update.published', 'news.breaking', 'news.correct', 'news.assign_author',
             'news.template.use', 'news.template.create', 'news.live.create',
             'news.version.view', 'news.version.restore',
         ],
@@ -110,7 +110,7 @@ class RolePermissionSeeder extends Seeder
         'editor_in_chief' => [
             'news.view', 'news.create', 'news.edit', 'news.submit', 'news.review',
             'news.approve', 'news.publish', 'news.schedule', 'news.archive',
-            'news.update.published', 'news.breaking', 'news.correct',
+            'news.update.published', 'news.breaking', 'news.correct', 'news.assign_author',
             'news.template.use', 'news.template.create', 'news.live.create', 'news.version.view', 'news.version.restore',
             'opinion.view', 'opinion.create', 'opinion.edit', 'opinion.delete', 'opinion.publish',
             'video.view', 'video.create', 'video.edit', 'video.delete',
@@ -141,7 +141,7 @@ class RolePermissionSeeder extends Seeder
         'managing_editor' => [
             'news.view', 'news.create', 'news.edit', 'news.submit', 'news.review',
             'news.approve', 'news.publish', 'news.schedule', 'news.archive',
-            'news.update.published', 'news.breaking', 'news.correct',
+            'news.update.published', 'news.breaking', 'news.correct', 'news.assign_author',
             'news.template.use', 'news.template.create', 'news.live.create', 'news.version.view', 'news.version.restore',
             'opinion.view', 'opinion.create', 'opinion.edit', 'opinion.delete', 'opinion.publish',
             'video.view', 'video.create', 'video.edit', 'video.delete',
@@ -171,7 +171,8 @@ class RolePermissionSeeder extends Seeder
 
         'section_editor' => [
             'news.view', 'news.create', 'news.edit', 'news.submit', 'news.review',
-            'news.approve', 'news.publish', 'news.schedule', 'news.template.use', 'news.template.create', 'news.live.create', 'news.version.view',
+            'news.approve', 'news.publish', 'news.schedule', 'news.assign_author',
+            'news.template.use', 'news.template.create', 'news.live.create', 'news.version.view',
             'opinion.view', 'opinion.create', 'opinion.edit', 'opinion.publish',
             'video.view', 'video.create', 'video.edit',
             'workflow.assign', 'workflow.pipeline.view', 'workflow.deadline.set', 'workflow.note.add', 'workflow.approve.own',

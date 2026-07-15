@@ -3,6 +3,7 @@ import { useForm, usePage } from '@inertiajs/react';
 import { Save, Send, Image as ImageIcon, X, ChevronLeft, Globe, FileText, Settings, Trash2, Languages, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
+import { usePermission } from '../../hooks/usePermission';
 import { useAdminNavigation } from '../../contexts/AdminNavigationContext';
 import RichTextEditor from '../../components/editor/TiptapEditor';
 import MediaLibraryModal from '../../components/media/MediaLibraryModal';
@@ -31,6 +32,8 @@ function slugify(text, lang) {
 export default function WriteOpinion() {
   const { lang } = useLanguage();
   const { showToast } = useToast();
+  const { hasPermission } = usePermission();
+  const canAssignAuthor = hasPermission('news.assign_author');
   const { article, authors = [] } = usePage().props;
   
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
@@ -498,6 +501,8 @@ export default function WriteOpinion() {
                 <div className="text-xs font-bold text-gray-700">{lang === 'bn' ? 'মন্তব্য অনুমোদন' : 'Allow Comments'}</div>
              </label>
 
+             {/* Assigning a co-author requires news.assign_author (enforced server-side). */}
+             {canAssignAuthor && (
              <div className="pt-2 border-t border-gray-50">
                 <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'सह-লেখক (Co-author)' : 'Secondary Author'}</label>
                 <select
@@ -511,6 +516,7 @@ export default function WriteOpinion() {
                   ))}
                 </select>
              </div>
+             )}
           </div>
 
           {/* SEO / Meta */}

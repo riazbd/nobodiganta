@@ -66,11 +66,12 @@ export default function WriteNews() {
   const { authors = [], ads = [] } = usePage().props;
   const { lang } = useLanguage();
   const { showToast } = useToast();
-  const { hasAnyPermission } = usePermission();
+  const { hasAnyPermission, hasPermission } = usePermission();
 
   // Only publishers/approvers see "Publish Now"; anyone who can submit/edit sees
   // "Submit for Review". Reporters keep Submit/Draft but never see Publish.
   const canPublish = hasAnyPermission(['news.publish', 'news.approve']);
+  const canAssignAuthor = hasPermission('news.assign_author');
   const canSubmitForReview = hasAnyPermission(['news.submit', 'news.edit', 'news.edit.own']);
 
   const [mediaFiles, setMediaFiles] = useState([]);
@@ -1351,29 +1352,42 @@ export default function WriteNews() {
 
           <SidebarSection title={lang === 'bn' ? 'লেখক ও ক্রেডিট' : 'Authorship'} icon={Users} defaultOpen={true}>
             <div className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Primary Author</label>
-                <select
-                  value={form.data.authorId}
-                  onChange={(e) => form.setData('authorId', e.target.value)}
-                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
-                >
-                  <option value="">Current User (Default)</option>
-                  {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
-              </div>
+              {/* Assigning a byline to another user requires news.assign_author.
+                  Without it, the byline is the current user (enforced server-side). */}
+              {canAssignAuthor ? (
+                <>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Primary Author</label>
+                    <select
+                      value={form.data.authorId}
+                      onChange={(e) => form.setData('authorId', e.target.value)}
+                      className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
+                    >
+                      <option value="">Current User (Default)</option>
+                      {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                    </select>
+                  </div>
 
-              <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Co-Author</label>
-                <select
-                  value={form.data.secondaryAuthorId}
-                  onChange={(e) => form.setData('secondaryAuthorId', e.target.value)}
-                  className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
-                >
-                  <option value="">None</option>
-                  {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
-              </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Co-Author</label>
+                    <select
+                      value={form.data.secondaryAuthorId}
+                      onChange={(e) => form.setData('secondaryAuthorId', e.target.value)}
+                      className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#263238]"
+                    >
+                      <option value="">None</option>
+                      {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                    </select>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">{lang === 'bn' ? 'লেখক' : 'Author'}</label>
+                  <div className="w-full bg-gray-50 border border-[var(--card-border,#e8ebf4)] rounded-lg px-3 py-2 text-sm text-gray-500">
+                    {lang === 'bn' ? 'আপনি (নিজে)' : 'You'}
+                  </div>
+                </div>
+              )}
 
               {/* Approver is set automatically from the logged-in user on publish — no manual selection. */}
 

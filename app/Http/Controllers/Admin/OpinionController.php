@@ -157,7 +157,10 @@ class OpinionController extends Controller
             'video_duration' => $validated['videoDuration'] ?? null,
             'category_id' => $category ? $category->id : 1,
             'author_id' => Auth::id(),
-            'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
+            // Assigning a co-author requires news.assign_author.
+            'secondary_author_id' => auth()->user()->hasPermission('news.assign_author')
+                ? ($validated['secondaryAuthorId'] ?? null)
+                : null,
             'is_guest_author' => $validated['isGuestAuthor'] ?? false,
             'guest_author_name_bn' => $validated['guestAuthorNameBn'] ?? null,
             'guest_author_name_en' => $validated['guestAuthorNameEn'] ?? null,
@@ -284,7 +287,10 @@ class OpinionController extends Controller
             'video_duration' => $validated['videoDuration'] ?? null,
             'is_exclusive' => $validated['isExclusive'] ?? false,
             'allow_comments' => $validated['allowComments'] ?? true,
-            'secondary_author_id' => $validated['secondaryAuthorId'] ?? null,
+            // Reassigning the co-author requires news.assign_author.
+            'secondary_author_id' => auth()->user()->hasPermission('news.assign_author')
+                ? ($validated['secondaryAuthorId'] ?? null)
+                : $article->secondary_author_id,
             'is_guest_author' => $validated['isGuestAuthor'] ?? false,
             'guest_author_name_bn' => $validated['guestAuthorNameBn'] ?? null,
             'guest_author_name_en' => $validated['guestAuthorNameEn'] ?? null,
