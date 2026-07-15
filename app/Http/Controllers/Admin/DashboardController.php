@@ -26,6 +26,13 @@ class DashboardController extends Controller
     {
         $edition = str_starts_with($request->path(), 'en') ? 'en' : 'bn';
 
+        // Site-wide dashboard is for users who can view analytics. Everyone else
+        // (reporters, photographers) gets a dashboard scoped to their own work —
+        // no global figures, no server health, no other authors' activity.
+        if (! $request->user()->hasPermission('analytics.view')) {
+            return $this->ownDashboard($request);
+        }
+
         // 1. Core Stats
         $totalPublished = Article::published()->count();
         $todayVisitors = PageView::whereDate('created_at', today())->distinct('visitor_hash')->count('visitor_hash');
@@ -170,6 +177,45 @@ class DashboardController extends Controller
                 'poll' => $activePoll,
                 'horoscope' => $horoscopes,
             ],
+        ]);
+    }
+
+    /**
+     * Dashboard scoped to the current user's own articles — for roles without
+     * site-wide analytics access (reporters, photographers). Only their own
+     * publication statistics are exposed.
+     */
+    private function ownDashboard(Request $request)
+    {
+        $userId = $request->user()->id;
+        $mine   = fn () => Article::where('author_id', $userId);
+
+        $stats = [
+            'total'     => $mine()->count(),
+            'published' => $mine()->where('status', 'published')->count(),
+            'drafts'    => $mine()->where('status', 'draft')->count(),
+            'pending'   => $mine()->where('status', 'pending')->count(),
+            'views'     => (int) $mine()->sum('views'),
+        ];
+
+        $recentArticles = $mine()->with('category')
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(fn ($a) => [
+                'id'         => $a->id,
+                'titleBn'    => $a->title_bn,
+                'titleEn'    => $a->title_en,
+                'categoryBn' => $a->category->name_bn ?? '—',
+                'categoryEn' => $a->category->name_en ?? '—',
+                'views'      => $a->views,
+                'status'     => $a->status,
+                'time'       => $a->created_at->diffForHumans(),
+            ]);
+
+        return Inertia::render('features/admin/pages/dashboard/ReporterDashboard', [
+            'stats'          => $stats,
+            'recentArticles' => $recentArticles,
         ]);
     }
 

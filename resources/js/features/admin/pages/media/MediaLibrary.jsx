@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Upload, Image, Trash2, Grid, List, Search, X, Copy, ExternalLink, Loader2, Check } from 'lucide-react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useToast } from '../../hooks/useToast';
+import { usePermission } from '../../hooks/usePermission';
 import { usePage, router } from '@inertiajs/react';
 
 const EDITIONS = (lang) => [
@@ -37,6 +38,8 @@ function VideoThumb({ className }) {
 export default function MediaLibrary({ onSelect = null }) {
   const { lang } = useLanguage();
   const { showToast } = useToast();
+  const { hasPermission } = usePermission();
+  const canDelete = hasPermission('media.delete');
   const { props } = usePage();
   const media      = props.media?.data || [];
   const pagination = props.media || {};
@@ -254,7 +257,7 @@ export default function MediaLibrary({ onSelect = null }) {
               ? (lang === 'bn' ? 'সব বাতিল' : 'Deselect All')
               : (lang === 'bn' ? 'সব সিলেক্ট' : 'Select All')}
           </button>
-          {selectedItems.length > 0 && (
+          {selectedItems.length > 0 && canDelete && (
             <button onClick={handleBulkDelete}
               className="bg-red-50 text-red-700 border border-red-200 rounded-lg px-3 py-2 text-xs font-semibold flex items-center gap-1.5 hover:bg-red-100 transition-colors">
               <Trash2 className="w-4 h-4" /> {lang === 'bn' ? 'মুছুন' : 'Delete'} ({selectedItems.length})
@@ -321,10 +324,12 @@ export default function MediaLibrary({ onSelect = null }) {
                   </div>
                 </div>
 
+                {canDelete && (
                 <button onClick={e => { e.stopPropagation(); handleDelete(item.id); }}
                   className="absolute top-2 right-2 p-1.5 bg-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-10">
                   <Trash2 className="w-3.5 h-3.5 text-red-500" />
                 </button>
+                )}
               </div>
             );
           })}
@@ -376,7 +381,7 @@ export default function MediaLibrary({ onSelect = null }) {
                       <div className="flex items-center gap-1">
                         <button onClick={e => { e.stopPropagation(); copyUrl(item.url); }} className="p-1.5 rounded hover:bg-gray-100 transition-colors" title="Copy URL"><Copy className="w-3.5 h-3.5 text-gray-500" /></button>
                         <a href={item.url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()} className="p-1.5 rounded hover:bg-gray-100 transition-colors"><ExternalLink className="w-3.5 h-3.5 text-gray-500" /></a>
-                        <button onClick={e => { e.stopPropagation(); handleDelete(item.id); }} className="p-1.5 rounded hover:bg-red-50 transition-colors"><Trash2 className="w-3.5 h-3.5 text-red-500" /></button>
+                        {canDelete && <button onClick={e => { e.stopPropagation(); handleDelete(item.id); }} className="p-1.5 rounded hover:bg-red-50 transition-colors"><Trash2 className="w-3.5 h-3.5 text-red-500" /></button>}
                       </div>
                     </td>
                   </tr>
@@ -490,11 +495,13 @@ export default function MediaLibrary({ onSelect = null }) {
                     {lang === 'bn' ? 'নির্বাচন করুন' : 'Select'}
                   </button>
                 )}
+                {canDelete && (
                 <div className="pt-3 border-t border-gray-100">
                   <button onClick={() => handleDelete(selectedMedia.id)} className="w-full flex items-center justify-center gap-1.5 py-2 text-red-600 text-sm font-semibold hover:bg-red-50 rounded-lg transition-colors">
                     <Trash2 className="w-4 h-4" /> {lang === 'bn' ? 'মুছে ফেলুন' : 'Delete Media'}
                   </button>
                 </div>
+                )}
               </div>
             </div>
           </div>
